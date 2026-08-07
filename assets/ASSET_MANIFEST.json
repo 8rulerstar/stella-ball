@@ -17,6 +17,9 @@
   "boss": {
     "voidKing": { "file": "bosses/void-troll-idle.png", "frameWidth": 384, "frameHeight": 384, "frames": 12, "displayScale": 0.62 }
   },
+  "enemies": {
+    "voidWisp": { "file": "enemies/void-wisp.png", "width": 1254, "height": 1254, "displaySize": 96, "source": "OpenAI image generation; chroma-key removal" }
+  },
   "effects": {
     "impact": { "file": "fx/impact-white.png", "columns": 6, "rows": 5 },
     "electricRing": { "file": "fx/electric-ring.png", "columns": 6, "rows": 5 },

@@ -25,6 +25,7 @@ if (missingMarkers.length > 0) {
 const requiredAssetReferences = [
   "../assets/characters/gaon-warrior-idle.png",
   "../assets/bosses/void-troll-idle.png",
+  "../assets/enemies/void-wisp.png",
   "../assets/original/prism-orb.svg",
   "../assets/original/weakpoint.svg",
 ];
@@ -37,6 +38,7 @@ const manifest = JSON.parse(readFileSync(resolve(root, "assets/ASSET_MANIFEST.js
 const assetFiles = [
   ...Object.values(manifest.characters).map((asset) => asset.file),
   ...Object.values(manifest.boss).map((asset) => asset.file),
+  ...Object.values(manifest.enemies ?? {}).map((asset) => asset.file),
   ...Object.values(manifest.effects).map((asset) => asset.file),
   ...Object.values(manifest.terrain).map((asset) => asset.file),
   ...Object.values(manifest.original),
