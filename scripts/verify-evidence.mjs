@@ -14,7 +14,7 @@ const requiredMarkers = [
   "gaon",
   "biyeon",
   "lumi",
-  "WEAK POINT!",
+  "function damage",
 ];
 
 const missingMarkers = requiredMarkers.filter((marker) => !source.includes(marker));
