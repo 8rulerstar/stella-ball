@@ -12,6 +12,20 @@
 </style>
 <style>.impact-flash{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:0;background:radial-gradient(circle at 55% 44%,#fff4b8aa 0%,#f49ddd55 24%,transparent 58%);mix-blend-mode:screen}</style>
 <style>.combo-readout{margin-top:5px;color:#a89bbb;font:700 10px ui-monospace,monospace;letter-spacing:.08em}.combo-readout.hot{color:#fff0a2;text-shadow:0 0 10px #ffb948}</style>
+<style>
+:root{font-family:"Apple SD Gothic Neo","Noto Sans KR",Pretendard,system-ui,sans-serif;background:#0d0a1b;color:#f9f6ff}
+body{background:radial-gradient(ellipse 90% 55% at 50% -12%,#594182 0%,#261b45 38%,#0d0a1b 78%)}
+main{padding:30px 0 38px}
+header{padding:0 7px 4px}header .tag{color:#dac8ff;font-size:12px;letter-spacing:.1em}h1{font-size:35px;color:#fff8dc;text-shadow:0 3px 0 #2b1c45,0 0 24px #c99cff55}header p{color:#ded3ef;font-size:14px;font-weight:500}
+header button,.overlay button{border:1px solid #e9d2ff;background:linear-gradient(180deg,#7954b8,#4f3187);box-shadow:0 3px 0 #26153f,0 0 0 1px #b897ee55 inset;font-family:inherit;font-size:14px}
+.stage{border:2px solid #a887d8;background:#1c1432;box-shadow:0 28px 88px #05030d99,0 0 0 1px #dfc7ff33 inset}
+.hud{inset:14px 17px auto;gap:10px;font-family:"Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace;font-size:12px}
+.hud-card,.boss-panel{border-color:#a889d0;background:#100b20f2;box-shadow:0 3px 0 #05030bbb,0 0 18px #0008;padding:10px 12px}.hud-card{min-height:64px}.hud-label{color:#d7c8e9}.hud-label b,.status-line b{color:#fff2ae}.status-line{color:#ded4ec;font-weight:600}.shot-dots{font-size:17px}.boss-panel{min-height:70px}.phase{color:#e1d3ff;font-weight:800}.boss-name{font-weight:800}.meter{height:10px;border-color:#4d386e;background:#2d2045}.meter.hp i{background:linear-gradient(90deg,#ee718d,#ffb26e);box-shadow:0 0 12px #ef718bcc}.combo-readout{font-size:11px;color:#d8cce5}
+.tip{bottom:16px;left:18px;max-width:calc(100% - 36px);padding:9px 12px;border:1px solid #9071bd;background:#110b20e8;color:#f2ebff;border-radius:8px;box-shadow:0 2px 0 #08051199;font-size:13px;font-weight:600}.tip b{color:#fff3a8}
+.toast{right:17px;top:98px;border-color:#f2d687;background:#1d1434f4;color:#fff7d2;font-family:"Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace;font-size:12px;box-shadow:0 5px 18px #0009}
+.overlay{background:linear-gradient(135deg,#0e0920f7,#1d1236f5);backdrop-filter:blur(4px)}.overlay h2{color:#fff7de;text-shadow:0 2px 0 #27193c}.overlay p{color:#eadff8;font-size:15px;font-weight:500}.choice-card{border-color:#876ab0;background:#241a3b;color:#f7efff;box-shadow:0 2px 0 #08051188}.choice-card:hover{border-color:#ffe49c;background:#392853;box-shadow:0 5px 16px #0008}.choice-card small{color:#e3d7f2;font-size:12px}.choice-card strong{font-size:15px}.deployment-map{border-color:#9a7bc5;background:radial-gradient(circle at 68% 58%,#432c64,#171026 70%)}.slot-card{border-color:#b391df;background:#130c24f2;box-shadow:0 3px 12px #0008}.slot-card small{color:#e5daef}.runes div{border-color:#8465ae;background:#171027;color:#eee5fa;font-size:12px;box-shadow:0 2px 8px #0006}.runes b{color:#fff1be}
+@media(max-width:680px){main{padding:14px 0 24px}h1{font-size:29px}header .tag{font-size:10px}.hud{inset:9px;font-size:10px}.hud-card,.boss-panel{padding:7px 8px}.tip{font-size:11px;bottom:9px;left:9px;max-width:calc(100% - 18px);padding:6px 8px}.toast{top:103px;right:9px}.overlay p{font-size:13px}}
+</style>
 <body>
 <main>
   <header>
@@ -22,7 +36,7 @@
     <canvas id="game" width="920" height="540"></canvas>
     <div class="hud">
       <section class="hud-card"><div class="hud-label"><span>유물탄</span><b id="shotsText">4 / 4</b></div><div class="shot-dots" id="shotDots">● ● ● ●</div></section>
-      <section class="boss-panel"><div class="phase" id="phaseText">전투 · 공허의 왕</div><div class="boss-name"><span>공허의 왕</span><b id="hpText">체력 76</b></div><div class="meter hp"><i id="hpFill"></i></div><div class="combo-readout" id="comboText">COMBO —</div></section>
+      <section class="boss-panel"><div class="phase" id="phaseText">전투 · 공허의 왕</div><div class="boss-name"><span>공허의 왕</span><b id="hpText">체력 240</b></div><div class="meter hp"><i id="hpFill"></i></div><div class="combo-readout" id="comboText">COMBO —</div></section>
       <section class="hud-card"><div class="hud-label"><span>약점 위력</span><b id="powerText">16</b></div><div class="status-line"><span>룬 연계</span><b id="chainText">—</b></div><div class="status-line"><span>운동량</span><b id="momentumText">—</b></div></section>
     </div>
     <div class="toast" id="toast"></div><div class="impact-flash" id="impactFlash"></div>
