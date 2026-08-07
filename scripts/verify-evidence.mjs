@@ -22,6 +22,17 @@ if (missingMarkers.length > 0) {
   throw new Error(`핵심 기능 표식을 찾지 못했습니다: ${missingMarkers.join(", ")}`);
 }
 
+const requiredAssetReferences = [
+  "../assets/characters/gaon-warrior-idle.png",
+  "../assets/bosses/void-troll-idle.png",
+  "../assets/original/prism-orb.svg",
+  "../assets/original/weakpoint.svg",
+];
+const missingAssetReferences = requiredAssetReferences.filter((asset) => !source.includes(asset));
+if (missingAssetReferences.length > 0) {
+  throw new Error(`프로토타입에서 참조하지 않는 핵심 에셋이 있습니다: ${missingAssetReferences.join(", ")}`);
+}
+
 const manifest = JSON.parse(readFileSync(resolve(root, "assets/ASSET_MANIFEST.json"), "utf8"));
 const assetFiles = [
   ...Object.values(manifest.characters).map((asset) => asset.file),
@@ -50,6 +61,7 @@ const report = {
   demo: "prototypes/prism-breakers.html",
   demoSha256: sha256,
   requiredMarkers,
+  requiredAssetReferences,
   assetFiles,
   result: "passed",
 };
