@@ -8,7 +8,7 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 
 `https://8rulerstar.github.io/prism-breakers/prototypes/prism-breakers.html`
 
-1. 6명 중 3명의 캐릭터를 고릅니다.
+1. 8명 중 3명의 캐릭터를 고릅니다.
 2. 유물탄을 뒤로 당겼다가 놓아 발사합니다.
 3. 벽 반사와 캐릭터 룬을 이용해 보스 약점을 맞힙니다.
 
