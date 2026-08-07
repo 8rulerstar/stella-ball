@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
@@ -22,6 +22,19 @@ if (missingMarkers.length > 0) {
   throw new Error(`핵심 기능 표식을 찾지 못했습니다: ${missingMarkers.join(", ")}`);
 }
 
+const manifest = JSON.parse(readFileSync(resolve(root, "assets/ASSET_MANIFEST.json"), "utf8"));
+const assetFiles = [
+  ...Object.values(manifest.characters).map((asset) => asset.file),
+  ...Object.values(manifest.boss).map((asset) => asset.file),
+  ...Object.values(manifest.effects).map((asset) => asset.file),
+  ...Object.values(manifest.terrain).map((asset) => asset.file),
+  ...Object.values(manifest.original),
+];
+const missingAssets = assetFiles.filter((asset) => !existsSync(resolve(root, "assets", asset)));
+if (missingAssets.length > 0) {
+  throw new Error(`에셋 매니페스트의 파일을 찾지 못했습니다: ${missingAssets.join(", ")}`);
+}
+
 try {
   execFileSync("git", ["diff", "--check"], { cwd: root, stdio: "pipe" });
 } catch (error) {
@@ -37,6 +50,7 @@ const report = {
   demo: "prototypes/prism-breakers.html",
   demoSha256: sha256,
   requiredMarkers,
+  assetFiles,
   result: "passed",
 };
 

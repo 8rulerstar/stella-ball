@@ -27,6 +27,15 @@
 4. 게임 루프를 DOM/canvas 없이 호출 가능하게 분리하고, 헤드리스 봇으로 조합·발사각·실패 시드를 출력
 5. 코어 검증 뒤, 일일 기록/리더보드/Hive를 얇게 연동
 
+## 아트 에셋 기준
+
+현재 아트 기준은 **Tiny Swords 계열 픽셀 캐릭터 + 어두운 유적 배경 + 고대비 프리즘 이펙트**다. 실제 반입 목록과 프레임 규격은 `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, 출처는 `assets/ATTRIBUTION.md`에서 관리한다.
+
+- 파티: 전사, 궁수, 주술사, 창병, 수도사, 광부. 보스: 트롤.
+- 발사체·룬·보스 약점은 `assets/original/`의 Prism Breakers 전용 픽셀 SVG다.
+- 서로 다른 픽셀 팩을 무분별하게 섞지 않는다. Retro Lines와 Tiny RPG Soldier & Orc는 현재 화면에 사용하지 않는다.
+- Canvas 렌더링 때 반드시 `imageSmoothingEnabled = false`를 쓴다.
+
 ## Codex 협업 기록 — 반드시 유지
 
 공식 Track 1은 Codex 활용 과정 설명을 선택 가산점으로 받고, 어디에 사용했는지·무엇을 구현했는지·무슨 문제를 해결했는지·사람이 무엇을 결정했는지 설명하도록 한다.

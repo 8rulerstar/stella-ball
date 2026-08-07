@@ -15,6 +15,9 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 ## 개발 과정과 검증 기록
 
 - [게임 전략](GAME_DIRECTION.md)
+- [아트 에셋 계획](ASSET_PLAN.md)
+- [에셋 매니페스트](assets/ASSET_MANIFEST.json)
+- [에셋 출처](assets/ATTRIBUTION.md)
 - [지속 인수인계 메모](PROJECT_CONTEXT.md)
 - [Codex 협업 기록 / 제출 원본](CODEX_COLLABORATION.md)
 - [일일 개발 로그](DEVLOG.md)
