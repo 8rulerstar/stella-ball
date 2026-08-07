@@ -10,7 +10,9 @@
     "lumi": { "file": "characters/lumi-shaman-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
     "haru": { "file": "characters/haru-lancer-idle.png", "frameWidth": 320, "frameHeight": 320, "frames": 12, "displayScale": 0.34 },
     "sera": { "file": "characters/sera-monk-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 6, "displayScale": 0.55 },
-    "taeo": { "file": "characters/taeo-miner-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 }
+    "taeo": { "file": "characters/taeo-miner-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
+    "nyx": { "file": "characters/nyx-oracle-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
+    "rio": { "file": "characters/rio-compass-idle.png", "frameWidth": 320, "frameHeight": 320, "frames": 12, "displayScale": 0.34 }
   },
   "boss": {
     "voidKing": { "file": "bosses/void-troll-idle.png", "frameWidth": 384, "frameHeight": 384, "frames": 12, "displayScale": 0.62 }

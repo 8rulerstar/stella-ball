@@ -13,9 +13,11 @@
 | 가온 · 강반사 | `assets/characters/gaon-warrior-idle.png` | Tiny Swords Free Pack / Blue Warrior | 8프레임 대기. 수호 룬과 함께 표시 |
 | 비연 · 표식 | `assets/characters/biyeon-archer-idle.png` | Tiny Swords Free Pack / Yellow Archer | 6프레임 대기. 약점 피해 증폭 |
 | 루미 · 유도 | `assets/characters/lumi-shaman-idle.png` | Tiny Swords Enemy Pack / Hex Shaman | 8프레임 대기. 탄도 유도 |
-| 하루 · 가속 | `assets/characters/haru-lancer-idle.png` | Tiny Swords Free Pack / Purple Lancer | 12프레임 대기. 다른 원본 프레임 크기는 표시 배율로 보정 |
-| 세라 · 되감기 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 6프레임 대기. 재발사 |
+| 하루 · 릴레이 | `assets/characters/haru-lancer-idle.png` | Tiny Swords Free Pack / Purple Lancer | 12프레임 대기. 다음 파티 룬으로 공 전달 |
+| 세라 · 원심 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 6프레임 대기. 정지한 공을 원심 재발사 |
 | 태오 · 충격 | `assets/characters/taeo-miner-idle.png` | Tiny Swords Free Pack / Yellow Pawn (Pickaxe) | 8프레임 대기. 벽 충돌 강화 |
+| 닉스 · 성위 고정 | `assets/characters/nyx-oracle-idle.png` | Tiny Swords Free Pack / Purple Warrior | 8프레임 대기. 세 번째 충돌에 약점 유도탄 전환 |
+| 리오 · 우회전 명령 | `assets/characters/rio-compass-idle.png` | Tiny Swords Free Pack / Red Lancer | 12프레임 대기. 클릭 한 번으로 90° 우회전 |
 | 공허의 왕 | `assets/bosses/void-troll-idle.png` | Tiny Swords Enemy Pack / Troll | 12프레임 대기. 보스는 화면에서 가장 크게 |
 | 명중/연쇄/클리어 | `assets/fx/*.png` | brackeys_vfx_bundle / predrawn (CC0) | 명중, 전기 연쇄, 클리어 폭발 |
 | 전장 장식 | `assets/terrain/rock-*.png` | Tiny Swords Free Pack | 플레이 영역 바깥의 가장자리 장식만 사용 |
