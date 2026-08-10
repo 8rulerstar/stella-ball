@@ -1,6 +1,6 @@
 # 확장 룬 유닛 20명
 
-2026-08-10에 `prototypes/prism-breakers.html`에 반입한 20명의 추가 로스터다. 각 유닛은 `assets/characters/expanded/source/set-01.png`부터 `set-05.png`까지의 2×2 픽셀 초상 아틀라스를 사용한다. 초상은 OpenAI 이미지 생성 후 크로마키 제거로 투명 PNG화했다.
+2026-08-10에 `prototypes/prism-breakers.html`에 반입한 20명의 추가 로스터다. 각 유닛은 `assets/characters/expanded/source/set-01.png`부터 `set-05.png`까지의 2×2 픽셀 초상 아틀라스를 사용한다. 초상은 OpenAI 이미지 생성 후 크로마키 제거로 투명 PNG화했다. 모든 유닛은 `assets/characters/expanded/animations/`에 `idle`, `move`, `attack`, `hit` 상태별 4프레임 시트(총 80개)를 가진다.
 
 - **미라 / 거울 분신** — 지원 탄환 복제
 - **오르빗 / 중력 고리** — 공의 궤적을 끄는 중력장

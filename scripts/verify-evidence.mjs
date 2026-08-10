@@ -50,6 +50,20 @@ if (missingAssets.length > 0) {
   throw new Error(`에셋 매니페스트의 파일을 찾지 못했습니다: ${missingAssets.join(", ")}`);
 }
 
+const expandedAnimationManifest = JSON.parse(
+  readFileSync(resolve(root, "assets", manifest.expandedRosterAnimations.manifest), "utf8"),
+);
+const expectedExpandedAnimationCount = manifest.expandedRosterAnimations.unitCount * manifest.expandedRosterAnimations.states.length;
+if (expandedAnimationManifest.animations.length !== expectedExpandedAnimationCount) {
+  throw new Error(`확장 룬 애니메이션 수가 맞지 않습니다: ${expandedAnimationManifest.animations.length}/${expectedExpandedAnimationCount}`);
+}
+const missingExpandedAnimations = expandedAnimationManifest.animations
+  .map((animation) => animation.file)
+  .filter((asset) => !existsSync(resolve(root, "assets", asset)));
+if (missingExpandedAnimations.length > 0) {
+  throw new Error(`확장 룬 애니메이션 파일을 찾지 못했습니다: ${missingExpandedAnimations.join(", ")}`);
+}
+
 try {
   execFileSync("git", ["diff", "--check"], { cwd: root, stdio: "pipe" });
 } catch (error) {

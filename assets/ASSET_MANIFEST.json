@@ -21,6 +21,13 @@
     "set04": { "file": "characters/expanded/source/set-04.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
     "set05": { "file": "characters/expanded/source/set-05.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" }
   },
+  "expandedRosterAnimations": {
+    "manifest": "characters/expanded/animations/manifest.json",
+    "unitCount": 20,
+    "states": ["idle", "move", "attack", "hit"],
+    "framesPerState": 4,
+    "source": "Deterministic pixel animation generation from the expanded roster portraits"
+  },
   "boss": {
     "voidKing": { "file": "bosses/void-troll-idle.png", "frameWidth": 384, "frameHeight": 384, "frames": 12, "displayScale": 0.62 }
   },

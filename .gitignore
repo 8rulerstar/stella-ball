@@ -13,3 +13,4 @@ assets/characters/expanded/*.png
 .DS_Store
 .idea/
 .vscode/
+__pycache__/

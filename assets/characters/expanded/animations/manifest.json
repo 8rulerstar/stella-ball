@@ -1,0 +1,726 @@
+{
+  "schemaVersion": 1,
+  "pixelArt": true,
+  "animations": [
+    {
+      "id": "mira",
+      "state": "idle",
+      "file": "characters/expanded/animations/mira-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "mira",
+      "state": "move",
+      "file": "characters/expanded/animations/mira-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "mira",
+      "state": "attack",
+      "file": "characters/expanded/animations/mira-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "mira",
+      "state": "hit",
+      "file": "characters/expanded/animations/mira-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "orbit",
+      "state": "idle",
+      "file": "characters/expanded/animations/orbit-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "orbit",
+      "state": "move",
+      "file": "characters/expanded/animations/orbit-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "orbit",
+      "state": "attack",
+      "file": "characters/expanded/animations/orbit-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "orbit",
+      "state": "hit",
+      "file": "characters/expanded/animations/orbit-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kain",
+      "state": "idle",
+      "file": "characters/expanded/animations/kain-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kain",
+      "state": "move",
+      "file": "characters/expanded/animations/kain-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kain",
+      "state": "attack",
+      "file": "characters/expanded/animations/kain-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kain",
+      "state": "hit",
+      "file": "characters/expanded/animations/kain-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "bella",
+      "state": "idle",
+      "file": "characters/expanded/animations/bella-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "bella",
+      "state": "move",
+      "file": "characters/expanded/animations/bella-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "bella",
+      "state": "attack",
+      "file": "characters/expanded/animations/bella-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "bella",
+      "state": "hit",
+      "file": "characters/expanded/animations/bella-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "luka",
+      "state": "idle",
+      "file": "characters/expanded/animations/luka-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "luka",
+      "state": "move",
+      "file": "characters/expanded/animations/luka-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "luka",
+      "state": "attack",
+      "file": "characters/expanded/animations/luka-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "luka",
+      "state": "hit",
+      "file": "characters/expanded/animations/luka-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sein",
+      "state": "idle",
+      "file": "characters/expanded/animations/sein-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sein",
+      "state": "move",
+      "file": "characters/expanded/animations/sein-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sein",
+      "state": "attack",
+      "file": "characters/expanded/animations/sein-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sein",
+      "state": "hit",
+      "file": "characters/expanded/animations/sein-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "dora",
+      "state": "idle",
+      "file": "characters/expanded/animations/dora-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "dora",
+      "state": "move",
+      "file": "characters/expanded/animations/dora-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "dora",
+      "state": "attack",
+      "file": "characters/expanded/animations/dora-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "dora",
+      "state": "hit",
+      "file": "characters/expanded/animations/dora-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kai",
+      "state": "idle",
+      "file": "characters/expanded/animations/kai-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kai",
+      "state": "move",
+      "file": "characters/expanded/animations/kai-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kai",
+      "state": "attack",
+      "file": "characters/expanded/animations/kai-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "kai",
+      "state": "hit",
+      "file": "characters/expanded/animations/kai-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "echo",
+      "state": "idle",
+      "file": "characters/expanded/animations/echo-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "echo",
+      "state": "move",
+      "file": "characters/expanded/animations/echo-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "echo",
+      "state": "attack",
+      "file": "characters/expanded/animations/echo-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "echo",
+      "state": "hit",
+      "file": "characters/expanded/animations/echo-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "rin",
+      "state": "idle",
+      "file": "characters/expanded/animations/rin-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "rin",
+      "state": "move",
+      "file": "characters/expanded/animations/rin-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "rin",
+      "state": "attack",
+      "file": "characters/expanded/animations/rin-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "rin",
+      "state": "hit",
+      "file": "characters/expanded/animations/rin-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "tor",
+      "state": "idle",
+      "file": "characters/expanded/animations/tor-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "tor",
+      "state": "move",
+      "file": "characters/expanded/animations/tor-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "tor",
+      "state": "attack",
+      "file": "characters/expanded/animations/tor-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "tor",
+      "state": "hit",
+      "file": "characters/expanded/animations/tor-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "nabi",
+      "state": "idle",
+      "file": "characters/expanded/animations/nabi-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "nabi",
+      "state": "move",
+      "file": "characters/expanded/animations/nabi-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "nabi",
+      "state": "attack",
+      "file": "characters/expanded/animations/nabi-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "nabi",
+      "state": "hit",
+      "file": "characters/expanded/animations/nabi-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "io",
+      "state": "idle",
+      "file": "characters/expanded/animations/io-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "io",
+      "state": "move",
+      "file": "characters/expanded/animations/io-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "io",
+      "state": "attack",
+      "file": "characters/expanded/animations/io-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "io",
+      "state": "hit",
+      "file": "characters/expanded/animations/io-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "lev",
+      "state": "idle",
+      "file": "characters/expanded/animations/lev-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "lev",
+      "state": "move",
+      "file": "characters/expanded/animations/lev-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "lev",
+      "state": "attack",
+      "file": "characters/expanded/animations/lev-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "lev",
+      "state": "hit",
+      "file": "characters/expanded/animations/lev-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "yuna",
+      "state": "idle",
+      "file": "characters/expanded/animations/yuna-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "yuna",
+      "state": "move",
+      "file": "characters/expanded/animations/yuna-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "yuna",
+      "state": "attack",
+      "file": "characters/expanded/animations/yuna-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "yuna",
+      "state": "hit",
+      "file": "characters/expanded/animations/yuna-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "zero",
+      "state": "idle",
+      "file": "characters/expanded/animations/zero-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "zero",
+      "state": "move",
+      "file": "characters/expanded/animations/zero-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "zero",
+      "state": "attack",
+      "file": "characters/expanded/animations/zero-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "zero",
+      "state": "hit",
+      "file": "characters/expanded/animations/zero-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "pia",
+      "state": "idle",
+      "file": "characters/expanded/animations/pia-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "pia",
+      "state": "move",
+      "file": "characters/expanded/animations/pia-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "pia",
+      "state": "attack",
+      "file": "characters/expanded/animations/pia-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "pia",
+      "state": "hit",
+      "file": "characters/expanded/animations/pia-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "mar",
+      "state": "idle",
+      "file": "characters/expanded/animations/mar-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "mar",
+      "state": "move",
+      "file": "characters/expanded/animations/mar-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "mar",
+      "state": "attack",
+      "file": "characters/expanded/animations/mar-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "mar",
+      "state": "hit",
+      "file": "characters/expanded/animations/mar-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sia",
+      "state": "idle",
+      "file": "characters/expanded/animations/sia-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sia",
+      "state": "move",
+      "file": "characters/expanded/animations/sia-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sia",
+      "state": "attack",
+      "file": "characters/expanded/animations/sia-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "sia",
+      "state": "hit",
+      "file": "characters/expanded/animations/sia-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "atlas",
+      "state": "idle",
+      "file": "characters/expanded/animations/atlas-idle.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "atlas",
+      "state": "move",
+      "file": "characters/expanded/animations/atlas-move.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "atlas",
+      "state": "attack",
+      "file": "characters/expanded/animations/atlas-attack.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    },
+    {
+      "id": "atlas",
+      "state": "hit",
+      "file": "characters/expanded/animations/atlas-hit.png",
+      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "fps": 7
+    }
+  ]
+}
