@@ -96,6 +96,9 @@ const U={shotsText:document.querySelector('#shotsText'),shotDots:document.queryS
 const stageEl=document.querySelector('.stage');
 U.combo=document.querySelector('#comboText');
 const RULES={baseDamage:16,chainStep:.55,shots:4,coreHp:240};
+// Pinball is simulated in small, fixed slices.  Keeping all contacts on the
+// same solver makes a flipper, bumper and wall feel like parts of one table.
+const PHYSICS={gravity:720,step:1/180,maxSlices:8,wallRestitution:.92,bumperRestitution:1.04,flipperRestitution:.84,flipperFriction:.10,flipperRadius:17,flipperRise:.085,flipperFall:.13};
 const ZONE_RULES=[{id:'flip',name:'플리퍼 구역',hint:'플리퍼 타격 시 발동'},{id:'bumper',name:'범퍼 구역',hint:'범퍼 충돌 시 발동'},{id:'boss',name:'보스 구역',hint:'보스 명중 시 발동'}];
 const heroes={
   gaon:{n:'성벽 기사 가온',s:'가온',e:'반사',d:'룬 충돌 뒤 강한 반사력을 얻습니다.',fx:'guard',col:'#f2c56b',sprite:'../assets/characters/gaon-warrior-idle.png',fw:192,fh:192,frames:8,scale:.38},
@@ -262,7 +265,17 @@ function damageAdd(a,amount,label,col){if(a.down>0)return;a.hitCooldown=Math.max
 function areaAttack(name,amount,col){if(!boss||boss.hp<=0||battleComplete)return;boss.hp=Math.max(0,boss.hp-amount);registerBossHit(false);impact(true);addPopup(boss.x,boss.y-80,name+' '+amount,col,true);areaBursts.push({x:boss.x,y:boss.y,r:112,col,t:0,d:.42});for(const a of adds)damageAdd(a,amount,name,col);toast(name+' · 전 적 광역 피해');if(boss.hp<=0)scheduleWin();sync()}
 function sync(){U.shotsText.textContent=battle?battle.shots+' / '+battle.shotMax:'—';U.shotDots.innerHTML=battle?Array.from({length:battle.shotMax},(_,i)=>'<img class="shot-icon" src="../assets/library/ui/shot-dot-'+(i<battle.shots?'on':'off')+'.png" alt="'+(i<battle.shots?'사용 가능':'사용 완료')+'">').join(''):'—';U.phase.textContent=battle?'전투 · 공허의 왕':'전투 준비';U.hp.textContent=boss?'체력 '+Math.ceil(boss.hp):'체력 —';U.hpFill.style.transform='scaleX('+(boss?boss.hp/boss.maxHp:0)+')';U.power.textContent=RULES.baseDamage+build.weakFlat;U.chain.textContent=chain.length?chain.join(' → '):'—';U.tip.innerHTML=msg;U.summary.innerHTML=deployed.map((id,i)=>{const h=heroes[id],zone=ZONE_RULES[i];return '<div><b>'+zone.name+'</b><br>'+h.n+' · '+zone.hint+'</div>'}).join('')}
 function pointer(e){const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
-function flipperKick(side){const key=side<0?'left':'right',f=flipperPose(side);flippers[key]=1;if(!ball?.moving||ball.flipperCooldown>0||ball.y<H*.62)return;const dx=f.tipX-f.pivotX,dy=f.tipY-f.pivotY,den=dx*dx+dy*dy||1,t=clamp(((ball.x-f.pivotX)*dx+(ball.y-f.pivotY)*dy)/den,0,1),px=f.pivotX+dx*t,py=f.pivotY+dy*t,dist=Math.hypot(ball.x-px,ball.y-py);if(dist>ball.r+54)return;const leverage=.52+t*.72,speed=Math.max(640,Math.min(1420,(Math.hypot(ball.vx,ball.vy)+260)*leverage)),tipHit=t>.78;let label=(tipHit?'끝 타격! ':'')+(side<0?'좌 플리퍼':'우 플리퍼');if(ball.orbitReady&&!ball.orbitUsed){beginOrbit();return}if(ball.turnReady&&!ball.turnUsed){ball.vx=speed*.68;ball.vy=-speed*.76;ball.turnUsed=true;ball.turnReady=false;label='리오 · 우상단 플리퍼!';msg='리오 · 다음 플리퍼 충격을 우상단 급선회 발사로 바꿨습니다.'}else if(ball.moon&&!ball.moonUsed){ball.vx=-speed*.68;ball.vy=-speed*.76;ball.moonUsed=true;ball.moon=false;label='시아 · 좌상단 플리퍼!';msg='시아 · 다음 플리퍼 충격을 좌상단 급선회 발사로 바꿨습니다.'}else{ball.vx=(side<0?1:-1)*speed*(.40+t*.16);ball.vy=-speed*(.74+t*.12);msg=tipHit?'플리퍼 끝 타격 · 강한 운동량으로 룬볼을 쏘아 올렸습니다.':'플리퍼 충격 · 룬볼을 다시 상단 전장으로 밀어 올렸습니다.'}ball.flipperCooldown=.18;ball.runeBurst=.58;ball.bounces++;triggerZone('flip');fieldFx.push({type:'flipper',x:px,y:py,t:0,d:.36,col:ball.turnUsed?'#ff737d':ball.moonUsed?'#a9b9ff':'#f2cb79'});toast(label+' · '+Math.round(leverage*100)+'%');impact(false)}
+function flipperKick(side){
+  const key=side<0?'left':'right';
+  // Input only moves the physical flipper.  It never writes a launch vector
+  // onto the ball: contact with the moving surface supplies the impulse.
+  flippers[key+'Strike']=PHYSICS.flipperRise;
+  if(!ball?.moving)return;
+  if(ball.orbitReady&&!ball.orbitUsed){beginOrbit();return}
+  if(ball.turnReady&&!ball.turnUsed){ball.turnUsed=true;ball.turnReady=false;ball.turnForce=1;toast('리오 · 우회전 플리퍼 준비')}
+  else if(ball.moon&&!ball.moonUsed){ball.moonUsed=true;ball.moon=false;ball.moonForce=1;toast('시아 · 좌회전 플리퍼 준비')}
+  else toast(side<0?'좌 플리퍼':'우 플리퍼');
+}
 c.addEventListener('pointerdown',e=>{if(!run)return;const p=pointer(e);if(!ball?.moving){if(p.y>H-190){drag={x:p.x,y:p.y};c.setPointerCapture(e.pointerId)}return}if(ball.relay)return;if(ball.orbit){releaseOrbit();return}flipperKick(p.x<W/2?-1:1)});
 c.addEventListener('pointermove',e=>{if(!drag)return;const p=pointer(e);ball.launchPower=clamp(Math.hypot(p.x-drag.x,p.y-drag.y)/145,.25,1)});
 c.addEventListener('pointerup',e=>{if(!drag||ball.moving)return;const p=pointer(e),power=clamp(Math.hypot(p.x-drag.x,p.y-drag.y)/145,.25,1);drag=null;ball.launchPower=power;const speed=650+power*530;ball.vx=(battle.shots%2?1:-1)*(42+power*62);ball.vy=-speed;ball.moving=true;battle.shots--;chain=[];msg='룬볼 발사! 범퍼와 파티 룬을 연계해 상단 보스를 공략하세요.';toast('플런저 발사 · 위력 '+Math.round(power*100)+'%');sync()});
@@ -307,8 +320,51 @@ function hitGate(g){
   sync();
 }
 function pointLineDistance(px,py,a,b){const dx=b.x-a.x,dy=b.y-a.y,t=clamp(((px-a.x)*dx+(py-a.y)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-(a.x+dx*t),py-(a.y+dy*t))}
-function flipperPose(side){const left=side<0,pivotX=left?18:W-18,pivotY=H-146,raised=flippers[left?'left':'right']||0,rest=left?.34:Math.PI-.34,angle=rest+(left?-.65:.65)*raised,length=345;return{left,pivotX,pivotY,raised,angle,length,tipX:pivotX+Math.cos(angle)*length,tipY:pivotY+Math.sin(angle)*length}}
-function bounceOffFlipper(side){if(!ball?.moving)return;const f=flipperPose(side),dx=f.tipX-f.pivotX,dy=f.tipY-f.pivotY,den=dx*dx+dy*dy||1,t=clamp(((ball.x-f.pivotX)*dx+(ball.y-f.pivotY)*dy)/den,0,1),px=f.pivotX+dx*t,py=f.pivotY+dy*t,dist=Math.hypot(ball.x-px,ball.y-py),reach=ball.r+18;if(dist>=reach||f.raised>.16&&ball.flipperCooldown>0)return;const nx=dist?(ball.x-px)/dist:0,ny=dist?(ball.y-py)/dist:-1,vn=ball.vx*nx+ball.vy*ny,len=Math.hypot(dx,dy)||1,tx=dx/len,ty=dy/len;if(vn<0){ball.vx-=vn*nx;ball.vy-=vn*ny}const slide=(ball.vx*tx+ball.vy*ty)*.988;ball.x=px+nx*(reach+1);ball.y=py+ny*(reach+1);ball.vx=tx*slide;ball.vy=ty*slide;ball.flipperContact=.04}
+function flipperPose(side){
+  const left=side<0,key=left?'left':'right',pivotX=left?18:W-18,pivotY=H-146,raised=flippers[key]||0;
+  const rest=left?.34:Math.PI-.34,angle=rest+(left?-.65:.65)*raised,length=345;
+  // Rising surface velocity is what launches the ball. Return motion has no
+  // artificial kick, which prevents a held flipper from repeatedly boosting.
+  // Visual travel is snappy; cap the kinematic surface speed so a tip hit is
+  // powerful but cannot turn into a table-length teleport.
+  const strike=flippers[key+'Strike']||0,omega=strike>0?(left?-2.8:2.8):0;
+  return{left,key,pivotX,pivotY,raised,angle,length,omega,tipX:pivotX+Math.cos(angle)*length,tipY:pivotY+Math.sin(angle)*length};
+}
+function resolveSegment(a,b,radius,rest,friction=0,surfaceAt=()=>({x:0,y:0}),onHit){
+  const dx=b.x-a.x,dy=b.y-a.y,den=dx*dx+dy*dy||1,t=clamp(((ball.x-a.x)*dx+(ball.y-a.y)*dy)/den,0,1),px=a.x+dx*t,py=a.y+dy*t;
+  let nx=ball.x-px,ny=ball.y-py,dist=Math.hypot(nx,ny),reach=ball.r+radius;
+  if(dist>=reach)return false;
+  if(dist<.001){const len=Math.hypot(dx,dy)||1;nx=-dy/len;ny=dx/len;dist=1}else{nx/=dist;ny/=dist}
+  ball.x+=nx*(reach-dist+.18);ball.y+=ny*(reach-dist+.18);
+  const surface=surfaceAt(px,py),rvx=ball.vx-surface.x,rvy=ball.vy-surface.y,vn=rvx*nx+rvy*ny;
+  if(vn<0){
+    let outX=rvx-(1+rest)*vn*nx,outY=rvy-(1+rest)*vn*ny;
+    const tx=-ny,ty=nx,vt=outX*tx+outY*ty;
+    outX-=vt*friction*tx;outY-=vt*friction*ty;
+    ball.vx=outX+surface.x;ball.vy=outY+surface.y;
+    onHit?.(t,px,py);
+  }
+  return true;
+}
+function bounceOffFlipper(side){
+  if(!ball?.moving)return false;
+  const f=flipperPose(side),a={x:f.pivotX,y:f.pivotY},b={x:f.tipX,y:f.tipY};
+  return resolveSegment(a,b,PHYSICS.flipperRadius,PHYSICS.flipperRestitution,PHYSICS.flipperFriction,(px,py)=>{
+    const rx=px-f.pivotX,ry=py-f.pivotY;return{x:-f.omega*ry,y:f.omega*rx};
+  },(t,px,py)=>{
+    ball.flipperContact=.07;ball.runeBurst=.42;
+    if(f.omega){
+      ball.bounces++;triggerZone('flip');
+      if(ball.turnForce){ball.vx=Math.abs(ball.vx)*.92;ball.vy=-Math.abs(ball.vy)*1.08;ball.turnForce=0}
+      if(ball.moonForce){ball.vx=-Math.abs(ball.vx)*.92;ball.vy=-Math.abs(ball.vy)*1.08;ball.moonForce=0}
+      fieldFx.push({type:'flipper',x:px,y:py,t:0,d:.30,col:'#f2cb79'});impact(false);
+      toast((t>.78?'끝 타격 · ':'')+'플리퍼 충격');
+    }
+  });
+}
+function resolveCircle(target,radius,restitution,onHit){const dx=ball.x-target.x,dy=ball.y-target.y;let dist=Math.hypot(dx,dy),nx=dx/(dist||1),ny=dy/(dist||1),reach=ball.r+radius;if(dist>=reach)return false;if(dist<.001){nx=0;ny=-1;dist=1}ball.x=target.x+nx*(reach+.18);ball.y=target.y+ny*(reach+.18);const normalSpeed=ball.vx*nx+ball.vy*ny;if(normalSpeed<0){ball.vx-=(1+restitution)*normalSpeed*nx;ball.vy-=(1+restitution)*normalSpeed*ny;onHit?.()}return true}
+function tableWall(){ball.bounces++;if(deployed.includes('taeo')&&!(ball.wallShock>0)){ball.wallShock=.18;areaAttack('태오 충격파',10+Math.min(12,ball.bounces*2),'#ffb26b');ball.runeBurst=.75;msg='태오 · 벽 반사가 전 적에게 충격파를 보냅니다.'}if(ball.mine){ball.vx*=1.55;ball.vy*=1.55;ball.mine=false;ball.runeBurst=.6;toast('충격 반사!')}}
+function simulatePhysics(d){const slices=Math.min(PHYSICS.maxSlices,Math.max(1,Math.ceil(d/PHYSICS.step))),step=d/slices;for(let i=0;i<slices&&ball?.moving;i++){updateExpanded(step);if(ball.pulse>0){ball.pulse-=step;const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84,dx=wx-ball.x,dy=wy-ball.y,l=Math.hypot(dx,dy)||1;ball.vx+=dx/l*190*step}ball.vy+=PHYSICS.gravity*step;ball.x+=ball.vx*step;ball.y+=ball.vy*step;const drag=Math.pow(.9984,step*60);ball.vx*=drag;ball.vy*=drag;if(ball.x<ball.r){ball.x=ball.r;ball.vx=Math.abs(ball.vx)*PHYSICS.wallRestitution;tableWall()}else if(ball.x>W-ball.r){ball.x=W-ball.r;ball.vx=-Math.abs(ball.vx)*PHYSICS.wallRestitution;tableWall()}if(ball.y<ball.r){ball.y=ball.r;ball.vy=Math.abs(ball.vy)*PHYSICS.wallRestitution;tableWall()}if(ball.y>H+ball.r){endShot();break}bounceOffFlipper(-1);bounceOffFlipper(1);for(const b of bumpers)resolveCircle(b,b.r,PHYSICS.bumperRestitution,()=>{ball.bounces++;hitBumper(b)});for(const a of adds){if(a.down>0)continue;resolveCircle(a,a.r,.86,()=>{if(a.hitCooldown<=0){a.hitCooldown=.20;damageAdd(a,11+Math.round(ball.power*5),'직격','#d8c3ff');ball.runeBurst=.46}})}const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84;const weak=resolveCircle({x:wx,y:wy},21,1.03,()=>{if(boss.hitCooldown<=0){boss.hitCooldown=.25;damage(true)}});if(!weak)resolveCircle(boss,58,.78,()=>{if(boss.hitCooldown<=0){boss.hitCooldown=.25;damage(false)}});ball.flipperCooldown=Math.max(0,(ball.flipperCooldown||0)-step);ball.flipperContact=Math.max(0,(ball.flipperContact||0)-step);ball.wallShock=Math.max(0,(ball.wallShock||0)-step);ball.trail.push({x:ball.x,y:ball.y});if(ball.trail.length>20)ball.trail.shift()}if(ball?.moving&&Math.hypot(ball.vx,ball.vy)<24)endShot()}
 function hitBumper(b){if(b.on>0||battleComplete)return;b.on=.16;const speed=Math.hypot(ball.vx,ball.vy)||1,boosted=Math.min(1180,speed+108);ball.vx*=boosted/speed;ball.vy*=boosted/speed;ball.power+=.14;ball.runeBurst=.5;const amount=4+Math.min(5,Math.floor(ball.bounces/3));boss.hp=Math.max(0,boss.hp-amount);registerBossHit(false);impact(false);addPopup(b.x,b.y-26,'룬 범퍼 -'+amount,'#80e8df',false);fieldFx.push({type:'bumper',x:b.x,y:b.y,t:0,d:.36,col:'#80e8df'});triggerZone('bumper');if(boss.hp<=0)scheduleWin();sync()}
 function updateExpanded(d){for(const f of fieldFx)f.t+=d;fieldFx=fieldFx.filter(f=>f.t<f.d);barriers=barriers.filter(v=>(v.t-=d)>0);seeds=seeds.filter(v=>(v.t-=d)>0);if(!ball?.moving)return;if(ball.gravity){ball.gravity.t-=d;const dx=ball.gravity.x-ball.x,dy=ball.gravity.y-ball.y,l=Math.hypot(dx,dy)||1;ball.vx+=dx/l*245*d;ball.vy+=dy/l*245*d;if(ball.gravity.t<=0)ball.gravity=null}if(ball.magnet){ball.magnet.t-=d;const dx=ball.magnet.x-ball.x,dy=ball.magnet.y-ball.y,l=Math.hypot(dx,dy)||1;ball.vx+=dx/l*175*d;ball.vy+=dy/l*175*d;if(ball.magnet.t<=0)ball.magnet=null}if(ball.butterfly){const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84,dx=wx-ball.x,dy=wy-ball.y,l=Math.hypot(dx,dy)||1;ball.vx+=dx/l*310*d;ball.vy+=dy/l*310*d;ball.butterfly-=d;if(ball.butterfly<=0)ball.butterfly=0}if(ball.flame){ball.flame-=d;ball.flameTick=(ball.flameTick||0)-d;if(ball.flameTick<=0){ball.flameTick=.16;fieldFx.push({type:'flame',x:ball.x,y:ball.y,t:0,d:.65,col:'#ff7d55'})}}for(const wall of barriers){if(Math.hypot(ball.x-wall.x,ball.y-wall.y)<ball.r+wall.r){const dx=ball.x-wall.x,dy=ball.y-wall.y,l=Math.hypot(dx,dy)||1,nx=dx/l,ny=dy/l,dot=ball.vx*nx+ball.vy*ny;if(dot<0){ball.vx-=2*dot*nx;ball.vy-=2*dot*ny;wall.t=0;areaBursts.push({x:wall.x,y:wall.y,r:55,col:wall.col,t:0,d:.35});toast('벨라 수정 벽 반사!')}}}for(const seed of seeds){if(Math.hypot(ball.x-seed.x,ball.y-seed.y)<ball.r+seed.r){seed.t=0;areaAttack('유나 덩굴 폭발',16,seed.col)}}if(battle.constel>0){battle.constel-=d;for(let i=0;i<gates.length;i++){const a=gates[i],b=gates[(i+1)%gates.length];if(pointLineDistance(ball.x,ball.y,a,b)<ball.r+3&&!ball.constelHit){ball.constelHit=.4;areaAttack('아틀라스 별자리 낙하',20,'#e6b4ff')}}ball.constelHit=Math.max(0,(ball.constelHit||0)-d)}}
 function update(d){if(toastTimer>0){toastTimer-=d;if(toastTimer<=0)U.toast.classList.remove('show')}flippers.left=Math.max(0,flippers.left-d*7.5);flippers.right=Math.max(0,flippers.right-d*7.5);for(const p of popups)p.t+=d;popups=popups.filter(p=>p.t<.9);for(const a of adds){a.hitCooldown=Math.max(0,a.hitCooldown-d);a.frozen=Math.max(0,(a.frozen||0)-d);if(a.down>0){a.down-=d;if(a.down<=0){a.down=0;a.hp=a.maxHp;toast('공허 잔재 재생성')}}}if(!run)return;battle.slow=Math.max(0,(battle.slow||0)-d);boss.a+=d*.62*(battle.slow>0?.24:1);boss.hitCooldown=Math.max(0,boss.hitCooldown-d);for(const g of gates)g.on=Math.max(0,g.on-d);for(const b of bumpers)b.on=Math.max(0,b.on-d);if(!ball.moving)return;if(ball.relay){updateRelay(d);return}if(ball.orbit){updateOrbit(d);return}updateExpanded(d);if(ball.pulse>0){ball.pulse-=d;const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84,dx=wx-ball.x,dy=wy-ball.y,l=Math.hypot(dx,dy)||1;ball.vx+=dx/l*190*d}ball.vy+=720*d;ball.x+=ball.vx*d;ball.y+=ball.vy*d;ball.vx*=Math.pow(.997,d*60);ball.vy*=Math.pow(.997,d*60);ball.flipperCooldown=Math.max(0,(ball.flipperCooldown||0)-d);ball.flipperContact=Math.max(0,(ball.flipperContact||0)-d);ball.trail.push({x:ball.x,y:ball.y});if(ball.trail.length>20)ball.trail.shift();
@@ -345,6 +401,22 @@ function draw(){drawArena();for(let i=1;i<ball.trail.length;i++){x.strokeStyle='
 x.save();x.translate(boss.x,boss.y);x.fillStyle='#182d35';x.shadowBlur=34;x.shadowColor='#c0674d';x.beginPath();x.arc(0,0,79,0,Math.PI*2);x.fill();x.restore();if(!drawFrame(bossArt,boss.x,boss.y,Math.floor(performance.now()/145)))circle(boss.x,boss.y,64,'#34545b',30);const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84;circle(wx,wy,21,'#ffce52',20);if(!drawStatic('weak',wx,wy,34))circle(wx,wy,12,'#fff0aa',20);x.fillStyle='#e5eee4';x.font='11px ui-monospace';x.textAlign='center';x.fillText('공허의 왕',boss.x,boss.y+126);
 if(drag&&!ball.moving){x.setLineDash([5,4]);x.strokeStyle='#ecf4e9';x.lineWidth=2;x.beginPath();x.moveTo(ball.x,ball.y);x.lineTo(ball.x,Math.min(H-24,ball.y+84*ball.launchPower));x.stroke();x.setLineDash([])}circle(ball.x,ball.y,ball.r+3,ball.moving?'#d3e7cf':'#e0b45a',ball.moving?25:16);if(!drawStatic('orb',ball.x,ball.y,31)){circle(ball.x,ball.y,ball.r,ball.moving?'#f6fdff':'#a6f5ff',ball.moving?24:16);circle(ball.x,ball.y,4,'#ffffff',2)}for(const p of popups){const a=1-p.t/.9;x.save();x.globalAlpha=a;x.fillStyle='#071117';x.font=(p.big?'bold 22px':'bold 16px')+' ui-monospace';x.textAlign='center';x.fillText(p.text,p.x+2,p.y-p.t*34+2);x.fillStyle=p.col;x.fillText(p.text,p.x,p.y-p.t*34);x.restore()}}
 function drawCombo(){if(!comboTimer||!boss)return;const riposte=hitCombo>=3,scale=1+comboPulse*.28;x.save();x.translate(boss.x,boss.y-112);x.scale(scale,scale);x.textAlign='center';x.font=(riposte?'bold 22px':'bold 15px')+' ui-monospace';x.fillStyle='#071117';x.fillText(riposte?'RIPOSTE!':'COMBO x'+hitCombo,2,2);x.fillStyle=riposte?'#fff08f':'#d1efe2';x.shadowBlur=riposte?18:8;x.shadowColor=x.fillStyle;x.fillText(riposte?'RIPOSTE!':'COMBO x'+hitCombo,0,0);x.restore()}
+function modernUpdate(d){
+  if(toastTimer>0){toastTimer-=d;if(toastTimer<=0)U.toast.classList.remove('show')}
+  for(const key of ['left','right']){const rising=(flippers[key+'Strike']||0)>0;flippers[key]=rising?Math.min(1,(flippers[key]||0)+d/PHYSICS.flipperRise):Math.max(0,(flippers[key]||0)-d/PHYSICS.flipperFall);flippers[key+'Strike']=Math.max(0,(flippers[key+'Strike']||0)-d)}
+  for(const p of popups)p.t+=d;popups=popups.filter(p=>p.t<.9);
+  for(const a of adds){a.hitCooldown=Math.max(0,a.hitCooldown-d);a.frozen=Math.max(0,(a.frozen||0)-d);if(a.down>0){a.down-=d;if(a.down<=0){a.down=0;a.hp=a.maxHp;toast('공허 잔재 재생성')}}}
+  if(!run)return;
+  battle.slow=Math.max(0,(battle.slow||0)-d);boss.a+=d*.62*(battle.slow>0?.24:1);boss.hitCooldown=Math.max(0,boss.hitCooldown-d);
+  for(const g of gates)g.on=Math.max(0,g.on-d);for(const b of bumpers)b.on=Math.max(0,b.on-d);
+  if(!ball.moving)return;
+  if(ball.relay){updateRelay(d);return}if(ball.orbit){updateOrbit(d);return}
+  simulatePhysics(d);
+}
+update=modernUpdate;
+// Damage is feedback only.  The collision solver has already chosen the
+// rebound vector, so combat must not reverse it a second time.
+damage=function(weak=false){if(battleComplete)return;let amount=RULES.baseDamage+build.weakFlat;amount*=1+Math.max(0,chain.length-1)*(RULES.chainStep+build.chainStep);amount*=1+ball.power*.18;const marked=weak&&ball.mark;if(marked)amount*=build.markMultiplier;amount*=weak?1.8:.72;amount*=1+Math.min(.48,ball.bounces*build.bounceStep);const crit=weak&&Math.random()<.1+Math.min(.18,chain.length*.04);if(crit)amount*=1.6;amount=Math.max(1,Math.round(amount));const label=weak?(crit?'치명 약점':'약점'):'몸체';boss.hp=Math.max(0,boss.hp-amount);addPopup(ball.x,ball.y-28,label+' -'+amount,weak?'#ffe59a':'#e6c7ff',crit);triggerZone('boss');if(marked)areaAttack('비연 표식 폭발',Math.max(9,Math.round(amount*.34)),'#ef718d');if(ball.blink){const a=Math.atan2(ball.y-boss.y,ball.x-boss.x)+Math.PI;ball.x=boss.x+Math.cos(a)*96;ball.y=boss.y+Math.sin(a)*96;ball.vx=Math.cos(a)*760;ball.vy=Math.sin(a)*760;ball.blink=false;fieldFx.push({type:'blink',x:ball.x,y:ball.y,t:0,d:.5,col:'#ff7fc8'});toast('카이 · 균열 도약!')}else toast(weak?label+' '+amount+' 피해':'몸체 '+amount+' 피해');if(boss.hp<=0)scheduleWin();ball.power=0;if(weak)ball.mark=false;ball.pulse=0;chain=[];sync()};
 function loop(t){const d=Math.min(.033,(t-last)/1000||0);last=t;if(impactStop>0)impactStop-=d;else{update(d);updateSpecial(d)}updateFeedback(d);if(boss&&ball){draw();drawProjectileOverlay();drawAimGuide();drawAssists();drawSpecial();drawCombo()}requestAnimationFrame(loop)}
 resetBuild();boss={x:W/2,y:196,hp:RULES.coreHp,maxHp:RULES.coreHp,a:0,hitCooldown:0};ball={x:W/2,y:H-74,r:13,trail:[],launchPower:.35};sync();showTitle();requestAnimationFrame(loop);
 </script>
