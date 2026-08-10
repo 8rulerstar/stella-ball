@@ -27,4 +27,4 @@
 
 ## 재사용 패키지
 
-다른 프로젝트에서 쓸 원본과 4프레임 애니메이션 시트는 `/Users/8rulerstar/Assets/Prism-Breakers-Pixel-Asset-Pack/`에 별도로 보관한다. 패키지의 `manifest.json`에는 프레임 규격·FPS·애니메이션 모드가, `tools/build_animations.py`에는 재생성 절차가 있다.
+다른 프로젝트에서 쓸 원본과 4프레임 애니메이션 시트는 `/Users/8rulerstar/Assets/Prism-Breakers-Pixel-Asset-Pack/`에 별도로 보관한다. 유닛 4종은 각각 `idle`, `move`, `attack`, `hit` 시트를 갖고, 효과·소품은 전용 펄스/발광 시트를 갖는다. 패키지의 `manifest.json`에는 프레임 규격·FPS·애니메이션 모드가, `tools/build_animations.py`에는 재생성 절차가 있다.
