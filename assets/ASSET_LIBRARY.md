@@ -24,3 +24,7 @@
 - `library/props/void-lantern.png` — 공허 수정 등불.
 
 게임에 채택할 때는 기존 캔버스 좌표와 충돌 반경에 맞춰 표시 크기를 별도로 정하고, 이미지 보간은 끈다.
+
+## 재사용 패키지
+
+다른 프로젝트에서 쓸 원본과 4프레임 애니메이션 시트는 `/Users/8rulerstar/Assets/Prism-Breakers-Pixel-Asset-Pack/`에 별도로 보관한다. 패키지의 `manifest.json`에는 프레임 규격·FPS·애니메이션 모드가, `tools/build_animations.py`에는 재생성 절차가 있다.

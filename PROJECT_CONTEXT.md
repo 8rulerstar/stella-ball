@@ -55,6 +55,8 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 
 현재 아트 기준은 **Tiny Swords 계열 픽셀 캐릭터 + 어두운 유적 배경 + 고대비 프리즘 이펙트**다. 실제 반입 목록과 프레임 규격은 `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, 향후 사용 후보는 `assets/ASSET_LIBRARY.md`, 출처는 `assets/ATTRIBUTION.md`에서 관리한다.
 
+재사용 가능한 프리즘 에셋 패키지(원본 11개 + 4프레임 애니메이션 시트)는 `/Users/8rulerstar/Assets/Prism-Breakers-Pixel-Asset-Pack/`에 별도 보관한다.
+
 - 파티: 전사, 궁수, 주술사, 창병, 사제, 광부, 관측자, 기사. 보스: 트롤.
 - 발사체·룬·보스 약점은 `assets/original/`의 Prism Breakers 전용 픽셀 SVG다.
 - 서로 다른 픽셀 팩을 무분별하게 섞지 않는다. Retro Lines와 Tiny RPG Soldier & Orc는 현재 화면에 사용하지 않는다.
