@@ -70,6 +70,7 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 - 매일 기록: `DEVLOG.md`
 - 구현 후 자동 검증: `BOT_REPORT.md` 및 봇 출력
 - 개발 이력 및 검증 운영: `EVIDENCE_PROTOCOL.md` — `main` push → GitHub Actions artifact → GitHub Pages 배포 → DEVLOG의 commit SHA 연결
+- Codex 에셋 제작 근거: `assets/ASSET_GENERATION_LOG.md`
 
 과정의 핵심 사실: Codex는 다수의 프로토타입, 웹 물리/UI, 향후 자동 테스트를 빠르게 만들고 비교하는 역할이다. 사람은 죽음 누적 구조와 직관성이 낮은 보드형 시안을 폐기하고, Prism Breakers의 코어·범위·재미 기준을 결정했다.
 
