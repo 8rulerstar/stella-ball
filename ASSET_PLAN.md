@@ -10,11 +10,11 @@
 
 | 게임 역할 | 프로젝트 파일 | 원본 | 사용 방식 |
 | --- | --- | --- | --- |
-| 가온 · 강반사 | `assets/characters/gaon-warrior-idle.png` | Tiny Swords Free Pack / Blue Warrior | 8프레임 대기. 수호 룬과 함께 표시 |
-| 비연 · 표식 | `assets/characters/biyeon-archer-idle.png` | Tiny Swords Free Pack / Yellow Archer | 6프레임 대기. 약점 피해 증폭 |
-| 루미 · 유도 | `assets/characters/lumi-shaman-idle.png` | Tiny Swords Enemy Pack / Hex Shaman | 8프레임 대기. 탄도 유도 |
-| 하루 · 릴레이 | `assets/characters/haru-lancer-idle.png` | Tiny Swords Free Pack / Purple Lancer | 12프레임 대기. 다음 파티 룬으로 공 전달 |
-| 세라 · 원심 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 6프레임 대기. 플리퍼 충격을 원심 재발사로 전환 |
+| 가온 · 근접 베기 | `assets/characters/gaon-warrior-idle.png` | Tiny Swords Free Pack / Blue Warrior | 멈춘 자리에서 근거리 고위력 검격 |
+| 비연 · 거리 저격 | `assets/characters/biyeon-archer-idle.png` | Tiny Swords Free Pack / Yellow Archer | 멀수록 강해지는 보스 저격 |
+| 루미 · 이중 분열 | `assets/characters/lumi-shaman-idle.png` | Tiny Swords Enemy Pack / Hex Shaman | 이번 샷에 한 번 룬볼을 둘로 복제 |
+| 하루 · 강제 중계 | `assets/characters/haru-lancer-idle.png` | Tiny Swords Free Pack / Purple Lancer | 가장 가까운 다른 유닛에게 룬볼 재발사 |
+| 세라 · 전환 명령 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 클릭 한 번으로 90° 전환 및 에너지 획득 |
 | 태오 · 충격 | `assets/characters/taeo-miner-idle.png` | Tiny Swords Free Pack / Yellow Pawn (Pickaxe) | 8프레임 대기. 벽 충돌 강화 |
 | 닉스 · 성위 고정 | `assets/characters/nyx-oracle-idle.png` | Tiny Swords Free Pack / Purple Warrior | 8프레임 대기. 세 번째 충돌에 약점 유도탄 전환 |
 | 리오 · 우회전 명령 | `assets/characters/rio-compass-idle.png` | Tiny Swords Free Pack / Red Lancer | 12프레임 대기. 클릭 한 번으로 90° 우회전 |
