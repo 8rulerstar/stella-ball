@@ -53,7 +53,7 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 
 ## 아트 에셋 기준
 
-현재 아트 기준은 **Tiny Swords 계열 픽셀 캐릭터 + 어두운 유적 배경 + 고대비 프리즘 이펙트**다. 실제 반입 목록과 프레임 규격은 `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, 출처는 `assets/ATTRIBUTION.md`에서 관리한다.
+현재 아트 기준은 **Tiny Swords 계열 픽셀 캐릭터 + 어두운 유적 배경 + 고대비 프리즘 이펙트**다. 실제 반입 목록과 프레임 규격은 `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, 향후 사용 후보는 `assets/ASSET_LIBRARY.md`, 출처는 `assets/ATTRIBUTION.md`에서 관리한다.
 
 - 파티: 전사, 궁수, 주술사, 창병, 사제, 광부, 관측자, 기사. 보스: 트롤.
 - 발사체·룬·보스 약점은 `assets/original/`의 Prism Breakers 전용 픽셀 SVG다.

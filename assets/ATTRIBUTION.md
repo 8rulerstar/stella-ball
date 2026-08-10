@@ -12,6 +12,6 @@ This project ships only the selected game-ready files listed in `ASSET_MANIFEST.
 - `assets/original/prism-orb.svg`
 - `assets/original/rune-glyphs.svg`
 - `assets/original/weakpoint.svg`
-- `assets/enemies/void-wisp.png` — OpenAI image generation, chroma-key background removed locally.
+- `assets/enemies/void-wisp.png` and `assets/library/**` — OpenAI image generation, chroma-key background removed locally.
 
 These files were created for Prism Breakers and may be modified with the game.
