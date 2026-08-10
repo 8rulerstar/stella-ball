@@ -14,7 +14,7 @@
 | 비연 · 표식 | `assets/characters/biyeon-archer-idle.png` | Tiny Swords Free Pack / Yellow Archer | 6프레임 대기. 약점 피해 증폭 |
 | 루미 · 유도 | `assets/characters/lumi-shaman-idle.png` | Tiny Swords Enemy Pack / Hex Shaman | 8프레임 대기. 탄도 유도 |
 | 하루 · 릴레이 | `assets/characters/haru-lancer-idle.png` | Tiny Swords Free Pack / Purple Lancer | 12프레임 대기. 다음 파티 룬으로 공 전달 |
-| 세라 · 원심 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 6프레임 대기. 정지한 공을 원심 재발사 |
+| 세라 · 원심 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 6프레임 대기. 플리퍼 충격을 원심 재발사로 전환 |
 | 태오 · 충격 | `assets/characters/taeo-miner-idle.png` | Tiny Swords Free Pack / Yellow Pawn (Pickaxe) | 8프레임 대기. 벽 충돌 강화 |
 | 닉스 · 성위 고정 | `assets/characters/nyx-oracle-idle.png` | Tiny Swords Free Pack / Purple Warrior | 8프레임 대기. 세 번째 충돌에 약점 유도탄 전환 |
 | 리오 · 우회전 명령 | `assets/characters/rio-compass-idle.png` | Tiny Swords Free Pack / Red Lancer | 12프레임 대기. 클릭 한 번으로 90° 우회전 |
