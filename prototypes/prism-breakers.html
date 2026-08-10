@@ -81,6 +81,8 @@ html,body{height:100%;overflow:hidden}body{min-height:100dvh}main{width:min(720p
 /* Combat information lives beside the table, so its board stays fully readable. */
 .battle-layout{display:flex;justify-content:center;align-items:flex-start;gap:12px}.combat-dashboard{display:none}.game-mode main{width:min(960px,calc(100vw - 32px));width:min(960px,calc(100dvw - 32px))}.game-mode .combat-dashboard{display:flex;flex:0 0 188px;flex-direction:column;gap:9px;font-family:"Apple SD Gothic Neo","Noto Sans KR",ui-monospace,monospace}.game-mode .hud{position:static;inset:auto;display:grid;grid-template-columns:1fr;gap:9px;pointer-events:none}.game-mode .stage{width:min(720px,calc(80vh - 90px));width:min(720px,calc(80dvh - 90px));margin:0}.game-mode .hud-card,.game-mode .boss-panel,.game-mode .blaze-card{min-height:0;border:1px solid #557e80;background:#0a151df2;box-shadow:0 3px 0 #02070abb,0 0 18px #0008}.game-mode .hud-card{padding:10px 11px}.game-mode .boss-panel{padding:10px 11px;text-align:left}.game-mode .boss-name{gap:5px}.game-mode .blaze-card{position:relative;top:auto;right:auto;display:grid;min-width:0;padding:9px 10px 8px;border-color:#9a623b;background:linear-gradient(135deg,#271914,#633018e8)}.game-mode .blaze-card:before{right:8px;top:-14px}.game-mode .blaze-card b{font-size:24px}.game-mode #toast{top:14px;right:14px}.title-mode .combat-dashboard,.meta-mode .combat-dashboard,.menu-mode .combat-dashboard{display:none}
 @media(max-width:760px){.game-mode main{width:min(720px,calc(100vw - 12px));width:min(720px,calc(100dvw - 12px));padding:0}.game-mode .battle-layout{display:block}.game-mode .combat-dashboard{width:100%;margin:0 0 7px;display:grid;grid-template-columns:1fr 1.45fr 1fr;gap:5px}.game-mode .hud{display:contents}.game-mode .hud-card:last-child{display:none}.game-mode .hud-card,.game-mode .boss-panel,.game-mode .blaze-card{padding:6px 7px;font-size:9px}.game-mode .boss-panel{min-height:0}.game-mode .phase,.game-mode .combo-readout{display:none}.game-mode .meter{height:7px}.game-mode .blaze-card b{font-size:17px}.game-mode .blaze-card small{font-size:8px;overflow:hidden;text-overflow:ellipsis}.game-mode .stage{width:min(720px,calc(80dvh - 92px));margin:auto}}
+.battle-column{display:contents}.boss-banner{display:none}.game-mode header{display:none}.game-mode .battle-column{display:flex;flex:0 0 auto;flex-direction:column;gap:8px;width:min(720px,calc(80dvh - 76px))}.game-mode .boss-banner{display:block;width:100%;padding:9px 13px;border-color:#668b89;background:#0a151dcc;text-align:center;backdrop-filter:blur(7px);box-shadow:0 3px 14px #0009}.game-mode .boss-banner .phase{margin-bottom:3px;font-size:10px}.game-mode .boss-banner .boss-name{margin-bottom:5px}.game-mode .boss-banner .combo-readout{margin-top:4px}.game-mode .stage{width:100%}
+@media(max-width:760px){.game-mode .battle-column{width:100%;gap:5px}.game-mode .boss-banner{padding:6px 8px}.game-mode .stage{width:min(720px,calc(80dvh - 160px))}}
 </style>
 <body>
 <main>
@@ -92,17 +94,19 @@ html,body{height:100%;overflow:hidden}body{min-height:100dvh}main{width:min(720p
     <aside class="combat-dashboard" aria-label="전투 상태">
     <div class="hud">
       <section class="hud-card"><div class="hud-label"><span>잔여 룬볼</span><b id="shotsText">4 / 4</b></div><div class="shot-dots" id="shotDots">● ● ● ●</div></section>
-      <section class="boss-panel"><div class="phase" id="phaseText">전투 · 공허의 왕</div><div class="boss-name"><span>공허의 왕</span><b id="hpText">체력 240</b></div><div class="meter hp"><i id="hpFill"></i></div><div class="combo-readout" id="comboText">COMBO —</div></section>
       <section class="hud-card"><div class="hud-label"><span>약점 위력</span><b id="powerText">16</b></div><div class="status-line"><span>룬 연계</span><b id="chainText">—</b></div><div class="status-line"><span>운동량</span><b id="momentumText">—</b></div></section>
     </div>
     <section class="blaze-card" id="blazeCard" aria-live="polite"><span>FLAME</span><b id="blazeValue">×1.0</b><small id="blazeDetail">묘기 배율 대기</small></section>
     </aside>
+    <div class="battle-column">
+    <section class="boss-panel boss-banner"><div class="phase" id="phaseText">전투 · 공허의 왕</div><div class="boss-name"><span>공허의 왕</span><b id="hpText">체력 240</b></div><div class="meter hp"><i id="hpFill"></i></div><div class="combo-readout" id="comboText">COMBO —</div></section>
     <section class="stage">
     <canvas id="game" width="720" height="900"></canvas>
     <div class="toast" id="toast"></div><div class="impact-flash" id="impactFlash"></div>
     <div class="tip" id="tip" aria-live="polite"></div>
     <div id="overlay" class="overlay"></div>
     </section>
+    </div>
   </div>
   <section class="runes" id="runeSummary"></section>
 </main>
