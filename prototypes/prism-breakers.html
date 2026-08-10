@@ -99,7 +99,7 @@ U.combo=document.querySelector('#comboText');
 const RULES={baseDamage:16,chainStep:.55,shots:4,coreHp:240};
 // Pinball is simulated in small, fixed slices.  Keeping all contacts on the
 // same solver makes a flipper, bumper and wall feel like parts of one table.
-const PHYSICS={gravity:720,step:1/180,maxSlices:8,wallRestitution:.92,bumperRestitution:1.04,flipperRestitution:.84,flipperFriction:.10,flipperRadius:17,flipperRise:.085,flipperFall:.13};
+const PHYSICS={gravity:720,step:1/180,maxSlices:8,wallRestitution:.92,bumperRestitution:1.04,flipperRestitution:.28,flipperFriction:.025,flipperRadius:17,flipperRise:.085,flipperFall:.13};
 const ZONE_RULES=[{id:'flip',name:'플리퍼 구역',hint:'플리퍼 타격 시 발동'},{id:'bumper',name:'범퍼 구역',hint:'범퍼 충돌 시 발동'},{id:'boss',name:'보스 구역',hint:'보스 명중 시 발동'}];
 const heroes={
   gaon:{n:'성벽 기사 가온',s:'가온',e:'반사',d:'룬 충돌 뒤 강한 반사력을 얻습니다.',fx:'guard',col:'#f2c56b',sprite:'../assets/characters/gaon-warrior-idle.png',fw:192,fh:192,frames:8,scale:.38},
@@ -351,11 +351,15 @@ function resolveSegment(a,b,radius,rest,friction=0,surfaceAt=()=>({x:0,y:0}),onH
 function bounceOffFlipper(side){
   if(!ball?.moving)return false;
   const f=flipperPose(side),a={x:f.pivotX,y:f.pivotY},b={x:f.tipX,y:f.tipY};
-  return resolveSegment(a,b,PHYSICS.flipperRadius,PHYSICS.flipperRestitution,PHYSICS.flipperFriction,(px,py)=>{
+  // A resting flipper is a ramp, not a bumper: cancel only the inward normal
+  // velocity so gravity can carry the ball down its slope.  The short rising
+  // window is the sole source of a launch impulse.
+  const active=f.omega!==0,rest=active?PHYSICS.flipperRestitution:0;
+  return resolveSegment(a,b,PHYSICS.flipperRadius,rest,PHYSICS.flipperFriction,(px,py)=>{
     const rx=px-f.pivotX,ry=py-f.pivotY;return{x:-f.omega*ry,y:f.omega*rx};
   },(t,px,py)=>{
     ball.flipperContact=.07;ball.runeBurst=.42;
-    if(f.omega){
+    if(active){
       ball.bounces++;triggerZone('flip');
       if(ball.turnForce){ball.vx=Math.abs(ball.vx)*.92;ball.vy=-Math.abs(ball.vy)*1.08;ball.turnForce=0}
       if(ball.moonForce){ball.vx=-Math.abs(ball.vx)*.92;ball.vy=-Math.abs(ball.vy)*1.08;ball.moonForce=0}
