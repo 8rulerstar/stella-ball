@@ -17,7 +17,7 @@
 3. 캐릭터는 단순 `ATK +n%`가 아니다. 궤적, 충돌, 목표, 테이블 지형 중 하나를 바꿔 조합의 이유를 만들어야 한다.
 4. 한 판은 60~90초, 조작과 목표는 30초 안에 읽혀야 한다.
 5. 해커톤 MVP에 실제 가챠, 재화, 과도한 콘텐츠, 실시간 멀티플레이를 넣지 않는다. 8명 중 3명을 고르는 로스터 선택만으로 수집형 확장 가능성을 보인다.
-6. 구현하지 않은 Hive·봇·기능을 제출 성과처럼 말하지 않는다.
+6. 실제 Console 왕복이 끝나지 않은 Hive 기능은 제출 성과처럼 말하지 않는다. 헤드리스 봇은 현재 균형 모델로 실행 가능하며, 브라우저 전투와 수치를 계속 맞춘다.
 
 ## Hive 리더보드 원칙
 
@@ -48,8 +48,8 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 다음 우선순위:
 
 1. 캐릭터 스킬 쿨다운과 발동 가능 상태를 룬에 표시
-2. 게임 루프를 DOM/canvas 없이 호출 가능하게 분리하고, 헤드리스 봇으로 조합·발사각·실패 시드를 출력
-3. 코어 검증 뒤, 일일 기록/리더보드/Hive를 얇게 연동
+2. `bot/run-bot.mjs`를 수치 변경 때마다 실행해 조합·발사각·실패 시드를 확인하고, 브라우저 전투와의 수치 차이를 줄이기
+3. `HIVE_SETUP.md`의 실제 AppID·데이터 스토어·리더보드 왕복을 완료한 뒤, 일일 기록 UI를 열기
 
 ## 아트 에셋 기준
 
@@ -68,7 +68,7 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 
 - 제출용 원본: `CODEX_COLLABORATION.md`
 - 매일 기록: `DEVLOG.md`
-- 구현 후 자동 검증: `BOT_REPORT.md` 및 봇 출력
+- 구현 후 자동 검증: `bot/run-bot.mjs`와 `bot/latest-report.json`
 - 개발 이력 및 검증 운영: `EVIDENCE_PROTOCOL.md` — `main` push → GitHub Actions artifact → GitHub Pages 배포 → DEVLOG의 commit SHA 연결
 - Codex 에셋 제작 근거: `assets/ASSET_GENERATION_LOG.md`
 

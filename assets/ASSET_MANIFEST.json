@@ -18,7 +18,8 @@
     "voidKing": { "file": "bosses/void-troll-idle.png", "frameWidth": 384, "frameHeight": 384, "frames": 12, "displayScale": 0.62 }
   },
   "enemies": {
-    "voidWisp": { "file": "enemies/void-wisp.png", "width": 1254, "height": 1254, "displaySize": 96, "source": "OpenAI image generation; chroma-key removal" }
+    "voidWispIdle": { "file": "enemies/void-wisp-idle.png", "width": 1024, "height": 256, "frameWidth": 256, "frames": 4, "displaySize": 96, "source": "Codex-generated pixel asset animation" },
+    "voidWispHit": { "file": "enemies/void-wisp-hit.png", "width": 1024, "height": 256, "frameWidth": 256, "frames": 4, "displaySize": 96, "source": "Codex-generated pixel asset animation" }
   },
   "effects": {
     "impact": { "file": "fx/impact-white.png", "columns": 6, "rows": 5 },

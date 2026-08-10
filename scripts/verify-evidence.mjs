@@ -25,7 +25,8 @@ if (missingMarkers.length > 0) {
 const requiredAssetReferences = [
   "../assets/characters/gaon-warrior-idle.png",
   "../assets/bosses/void-troll-idle.png",
-  "../assets/enemies/void-wisp.png",
+  "../assets/enemies/void-wisp-idle.png",
+  "../assets/enemies/void-wisp-hit.png",
   "../assets/original/prism-orb.svg",
   "../assets/original/weakpoint.svg",
 ];

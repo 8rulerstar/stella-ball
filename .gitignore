@@ -1,5 +1,8 @@
 # 로컬/CI가 생성하는 증거 산출물은 원본 커밋과 분리한다.
 artifacts/
+.env
+.env.*
+!hive/.env.example
 
 # 운영체제·편집기 파일
 .DS_Store
