@@ -23,6 +23,20 @@
 | 전장 장식 | `assets/terrain/rock-*.png` | Tiny Swords Free Pack | 플레이 영역 바깥의 가장자리 장식만 사용 |
 | 유물탄·룬·약점 | `assets/original/*.svg` | Prism Breakers 오리지널 | 게임 고유 식별자. 픽셀 격자 SVG |
 
+## 유닛 전용 이펙트
+
+| 유닛 | 이펙트 파일 | 전투 타이밍 |
+| --- | --- | --- |
+| 가온 | `assets/library/restyle/fx/gaon-slash.png` | 멈춘 뒤 근접 베기 |
+| 비연 | `assets/library/restyle/fx/biyeon-volley.png` | 멈춘 뒤 거리 저격 |
+| 루미 | `assets/library/restyle/fx/lumi-wave.png` | 룬볼 분열 |
+| 하루 | `assets/library/restyle/fx/haru-dash.png` | 가장 가까운 유닛으로 강제 중계 |
+| 세라 | `assets/library/restyle/fx/rio-turn.png` | 전환 준비 및 클릭 90° 전환 |
+| 태오 | `assets/library/restyle/fx/taeo-quake.png` | 충돌 수 기반 충격파 |
+| 닉스 | `assets/library/restyle/fx/nyx-lock.png` | 마지막 충돌 아군 능력 모사 |
+
+위 이펙트는 프로젝트 라이브러리의 오리지널 픽셀 VFX를 재사용하며, 능력 발동 순간에만 짧게 확대·페이드한다.
+
 ## 사용하지 않는 에셋
 
 - **Retro Lines 16×16**: CC0이지만 네온 아케이드 감도가 현재 캐릭터 스프라이트와 다르다. 추후 메뉴/미니게임이 필요할 때만 재검토한다.
