@@ -485,9 +485,18 @@ function billiardAim(dx,dy){
   const angle=base+best.delta*.58;return{x:Math.cos(angle),y:Math.sin(angle),assisted:true,target:best.target};
 }
 function billiardPredict(dx,dy){
-  const points=[{x:ball.x,y:ball.y}],aim=billiardAim(dx,dy);let px=ball.x,py=ball.y,vx=aim.x,vy=aim.y;
-  for(let n=0;n<3;n++){const tx=vx>0?(W-ball.r-px)/vx:(ball.r-px)/vx,ty=vy>0?(H-ball.r-py)/vy:(ball.r-py)/vy,t=Math.min(Math.abs(tx),Math.abs(ty));px+=vx*t;py+=vy*t;points.push({x:px,y:py});if(Math.abs(tx)<Math.abs(ty))vx*=-1;else vy*=-1;}
-  return{points,assisted:aim.assisted,target:aim.target};
+  const aim=billiardAim(dx,dy),points=[{x:ball.x,y:ball.y}],hits=[];
+  let px=ball.x,py=ball.y,vx=aim.x,vy=aim.y;
+  const targets=[...gates.map(g=>({...g,type:'unit'})),...bumpers.map(b=>({...b,type:'bumper'})),...adds.filter(a=>a.down<=0).map(a=>({...a,type:'add'})),{...boss,r:66,type:'boss'}];
+  for(let n=0;n<4;n++){
+    let next=null;
+    const wallHit=(t,nx,ny)=>{if(t>.02&&(!next||t<next.t))next={t,nx,ny,type:'wall'}};
+    if(vx>.001)wallHit((W-ball.r-px)/vx,-1,0);else if(vx<-.001)wallHit((ball.r-px)/vx,1,0);
+    if(vy>.001)wallHit((H-ball.r-py)/vy,0,-1);else if(vy<-.001)wallHit((ball.r-py)/vy,0,1);
+    for(const target of targets){const ox=target.x-px,oy=target.y-py,reach=target.r+ball.r,along=ox*vx+oy*vy,near=ox*ox+oy*oy-along*along,inside=reach*reach-near;if(inside<0)continue;const t=along-Math.sqrt(inside);if(t<=.02||next&&t>=next.t)continue;const hx=px+vx*t,hy=py+vy*t,nx=(hx-target.x)/reach,ny=(hy-target.y)/reach;next={t,nx,ny,type:target.type,target};}
+    if(!next)break;px+=vx*next.t;py+=vy*next.t;points.push({x:px,y:py});hits.push({...next,x:px,y:py});const dot=vx*next.nx+vy*next.ny;vx-=2*dot*next.nx;vy-=2*dot*next.ny;px+=next.nx*.8;py+=next.ny*.8;
+  }
+  return{points,hits,assisted:aim.assisted,target:aim.target};
 }
 simulatePhysics=function(d){
   const slices=Math.min(8,Math.max(1,Math.ceil(d/(1/180)))),step=d/slices;
@@ -514,7 +523,7 @@ hitBumper=function(b){if(b.on>0||battleComplete)return;b.on=.22;const speed=Math
 drawPinballTable=function(){for(const b of bumpers){circle(b.x,b.y,b.r+7,'#10222c',b.on?25:8);circle(b.x,b.y,b.r,b.on?'#e4f5d5':'#4db8b3',b.on?28:12);circle(b.x,b.y,Math.max(7,b.r-9),'#e8cf77',b.on?14:4)}};
 drawCombatControls=function(){if(!run||ball?.moving)return;x.save();x.fillStyle='#07131be8';x.strokeStyle='#5e9290';x.lineWidth=1;x.beginPath();x.roundRect(W/2-156,H-118,312,26,6);x.fill();x.stroke();x.fillStyle='#e8dfbd';x.font='bold 10px ui-monospace';x.textAlign='center';x.fillText('유물탄을 반대 방향으로 끌어 당긴 뒤 놓기 · 2회 반사 예측',W/2,H-101);x.restore()};
 drawAimGuide=function(){
-  if(!run||ball?.moving)return;const p=drag||{x:ball.x,y:ball.y+145},dx=ball.x-p.x,dy=ball.y-p.y,guide=billiardPredict(dx,dy);x.save();x.setLineDash([7,5]);x.lineWidth=2;x.strokeStyle=guide.assisted?'#ffdf83':'#c9eee4';x.shadowBlur=guide.assisted?12:0;x.shadowColor='#ffcf62';x.beginPath();x.moveTo(guide.points[0].x,guide.points[0].y);for(const q of guide.points.slice(1))x.lineTo(q.x,q.y);x.stroke();x.setLineDash([]);x.fillStyle=guide.assisted?'#ffebad':'#d8ece5';x.font='bold 10px ui-monospace';x.textAlign='center';x.fillText(drag?(guide.assisted?'항로 보정 · 유닛/범퍼를 향함':'놓아 발사'):'유물탄을 드래그해 경로 확인',ball.x,ball.y-28);x.restore()};
+  if(!run||ball?.moving)return;const p=drag||{x:ball.x,y:ball.y+145},dx=ball.x-p.x,dy=ball.y-p.y,guide=billiardPredict(dx,dy);x.save();x.setLineDash([7,5]);x.lineWidth=2;x.strokeStyle=guide.assisted?'#ffdf83':'#c9eee4';x.shadowBlur=guide.assisted?12:0;x.shadowColor='#ffcf62';x.beginPath();x.moveTo(guide.points[0].x,guide.points[0].y);for(const q of guide.points.slice(1))x.lineTo(q.x,q.y);x.stroke();x.setLineDash([]);for(const hit of guide.hits){const col=hit.type==='unit'?hit.target.col:hit.type==='boss'?'#ff9d7a':hit.type==='bumper'?'#80e8df':'#d8c3ff';x.strokeStyle=col;x.fillStyle='#07151b';x.lineWidth=2;x.shadowBlur=10;x.shadowColor=col;x.beginPath();x.arc(hit.x,hit.y,7,0,Math.PI*2);x.fill();x.stroke();x.beginPath();x.moveTo(hit.x-11,hit.y);x.lineTo(hit.x+11,hit.y);x.moveTo(hit.x,hit.y-11);x.lineTo(hit.x,hit.y+11);x.stroke()}x.fillStyle=guide.assisted?'#ffebad':'#d8ece5';x.font='bold 10px ui-monospace';x.textAlign='center';const first=guide.hits[0];x.fillText(drag?(first?.type==='unit'?first.target.s+' 반사각까지 예측':'놓아 발사'):'유물탄을 드래그해 경로 확인',ball.x,ball.y-28);x.restore()};
 function billiardPointerDown(e){if(!run)return;const p=pointer(e);if(!ball?.moving){e.stopImmediatePropagation();drag={x:p.x,y:p.y};c.setPointerCapture(e.pointerId);return}e.stopImmediatePropagation();if(e.button===2&&ball.nudgeCooldown<=0){e.preventDefault();const dx=ball.x-p.x,dy=ball.y-p.y,l=Math.hypot(dx,dy)||1;ball.vx+=dx/l*150;ball.vy+=dy/l*150;ball.nudgeCooldown=.7;ball.runeBurst=.3;toast('미세 조정 · 운동량 +');}}
 function billiardPointerMove(e){if(!drag)return;e.stopImmediatePropagation();const p=pointer(e);drag.x=p.x;drag.y=p.y;ball.launchPower=clamp(Math.hypot(ball.x-p.x,ball.y-p.y)/260,.28,1)}
 function billiardPointerUp(e){if(!drag||ball?.moving)return;e.stopImmediatePropagation();const p=pointer(e),dx=ball.x-p.x,dy=ball.y-p.y,l=Math.hypot(dx,dy);drag=null;if(l<18){toast('유물탄을 더 멀리 끌어 당겨보세요.');return}const force=clamp(l/260,.28,1),aim=billiardAim(dx,dy),speed=500+force*650;ball.launchPower=force;ball.vx=aim.x*speed;ball.vy=aim.y*speed;ball.moving=true;ball.aimAssist=aim.assisted;battle.shots--;chain=[];msg='유물탄 발사! 유닛 충돌은 직접 보스 공격과 가속을 함께 만듭니다.';toast(aim.assisted?'항로 보정 · 연쇄 진입':'룬볼 발사 · 위력 '+Math.round(force*100)+'%');sync()}
