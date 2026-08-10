@@ -40,6 +40,20 @@
     "electricRing": { "file": "fx/electric-ring.png", "columns": 6, "rows": 5 },
     "starExplosion": { "file": "fx/star-explosion.png", "columns": 7, "rows": 6 }
   },
+  "ui": {
+    "panelFrame": { "file": "library/ui/panel-frame.png", "role": "파티 편성 패널 프레임" },
+    "cardFrame": { "file": "library/ui/card-frame.png", "role": "유물 강화 및 로스터 카드 프레임" },
+    "runeSlotMarker": { "file": "library/ui/rune-slot-marker.png", "role": "파티 선택 슬롯 표시" },
+    "shotDotOn": { "file": "library/ui/shot-dot-on.png", "role": "사용 가능한 발사 표시" },
+    "shotDotOff": { "file": "library/ui/shot-dot-off.png", "role": "소진된 발사 표시" },
+    "skillReady": { "file": "library/icons/skill-ready.png", "role": "선택/발동 가능 표시" },
+    "upgradeLens": { "file": "library/icons/upgrade-lens.png", "role": "약점 강화 아이콘" },
+    "upgradeChorus": { "file": "library/icons/upgrade-chorus.png", "role": "연계 강화 아이콘" },
+    "upgradeReserve": { "file": "library/icons/upgrade-reserve.png", "role": "발사 강화 아이콘" },
+    "upgradeKinetic": { "file": "library/icons/upgrade-kinetic.png", "role": "반사 강화 아이콘" },
+    "upgradeMark": { "file": "library/icons/upgrade-mark.png", "role": "표식 강화 아이콘" },
+    "upgradeBattery": { "file": "library/icons/upgrade-battery.png", "role": "공명 강화 아이콘" }
+  },
   "terrain": {
     "rock01": { "file": "terrain/rock-01.png", "width": 64, "height": 64 },
     "rock04": { "file": "terrain/rock-04.png", "width": 64, "height": 64 }
