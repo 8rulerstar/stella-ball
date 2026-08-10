@@ -4,6 +4,11 @@ artifacts/
 .env.*
 !hive/.env.example
 
+# Expanded roster keeps the approved 2x2 source atlases only.
+assets/characters/expanded/*.png
+!assets/characters/expanded/source/
+!assets/characters/expanded/source/*.png
+
 # 운영체제·편집기 파일
 .DS_Store
 .idea/

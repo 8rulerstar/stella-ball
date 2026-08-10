@@ -38,6 +38,7 @@ if (missingAssetReferences.length > 0) {
 const manifest = JSON.parse(readFileSync(resolve(root, "assets/ASSET_MANIFEST.json"), "utf8"));
 const assetFiles = [
   ...Object.values(manifest.characters).map((asset) => asset.file),
+  ...Object.values(manifest.expandedRoster ?? {}).map((asset) => asset.file),
   ...Object.values(manifest.boss).map((asset) => asset.file),
   ...Object.values(manifest.enemies ?? {}).map((asset) => asset.file),
   ...Object.values(manifest.effects).map((asset) => asset.file),

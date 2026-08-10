@@ -14,6 +14,13 @@
     "nyx": { "file": "characters/nyx-oracle-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
     "rio": { "file": "characters/rio-compass-idle.png", "frameWidth": 320, "frameHeight": 320, "frames": 12, "displayScale": 0.34 }
   },
+  "expandedRoster": {
+    "set01": { "file": "characters/expanded/source/set-01.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
+    "set02": { "file": "characters/expanded/source/set-02.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
+    "set03": { "file": "characters/expanded/source/set-03.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
+    "set04": { "file": "characters/expanded/source/set-04.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
+    "set05": { "file": "characters/expanded/source/set-05.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" }
+  },
   "boss": {
     "voidKing": { "file": "bosses/void-troll-idle.png", "frameWidth": 384, "frameHeight": 384, "frames": 12, "displayScale": 0.62 }
   },
