@@ -15,8 +15,8 @@
 | 루미 · 이중 분열 | `assets/characters/lumi-shaman-idle.png` | Tiny Swords Enemy Pack / Hex Shaman | 이번 샷에 한 번 룬볼을 둘로 복제 |
 | 하루 · 강제 중계 | `assets/characters/haru-lancer-idle.png` | Tiny Swords Free Pack / Purple Lancer | 가장 가까운 다른 유닛에게 룬볼 재발사 |
 | 세라 · 전환 명령 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 클릭 한 번으로 90° 전환 및 에너지 획득 |
-| 태오 · 충격 | `assets/characters/taeo-miner-idle.png` | Tiny Swords Free Pack / Yellow Pawn (Pickaxe) | 8프레임 대기. 벽 충돌 강화 |
-| 닉스 · 성위 고정 | `assets/characters/nyx-oracle-idle.png` | Tiny Swords Free Pack / Purple Warrior | 8프레임 대기. 세 번째 충돌에 약점 유도탄 전환 |
+| 태오 · 충돌 충격파 | `assets/characters/taeo-miner-idle.png` | Tiny Swords Free Pack / Yellow Pawn (Pickaxe) | 모든 충돌 수에 비례한 주변 충격파 |
+| 닉스 · 마지막 모사 | `assets/characters/nyx-oracle-idle.png` | Tiny Swords Free Pack / Purple Warrior | 마지막으로 충돌한 아군의 능력을 복제 |
 | 리오 · 우회전 명령 | `assets/characters/rio-compass-idle.png` | Tiny Swords Free Pack / Red Lancer | 12프레임 대기. 클릭 한 번으로 90° 우회전 |
 | 공허의 왕 | `assets/bosses/void-troll-idle.png` | Tiny Swords Enemy Pack / Troll | 12프레임 대기. 보스는 화면에서 가장 크게 |
 | 명중/연쇄/클리어 | `assets/fx/*.png` | brackeys_vfx_bundle / predrawn (CC0) | 명중, 전기 연쇄, 클리어 폭발 |
