@@ -587,18 +587,33 @@ startShot=function(restingPoint=null){
   if(restingPoint&&gates.length){
     cloneBalls=[];ball={x:clamp(restingPoint.x,31,W-31),y:clamp(restingPoint.y,31,H-31),vx:0,vy:0,r:13,moving:false,trail:[],power:0,bounces:0,launchPower:.35,billiards:true,nudgeCooldown:0,mark:Boolean(battle.nextMark),pulse:battle.nextPulse||0,blaze:createBlaze()};
     battle.nextMark=false;battle.nextPulse=0;
-    for(const g of gates){g.vx=0;g.vy=0;g.moved=false;g.travel=0;g.collisions=0;g.wallHits=0;g.bossHit=false;g.unitTrail=[];g.animState='idle';g.contactCooldown=0;}
+    for(const g of gates){g.vx=0;g.vy=0;g.moved=false;g.travel=0;g.collisions=0;g.wallHits=0;g.bossHit=false;g.unitTrail=[];g.animState='idle';g.contactCooldown=0;g.enemyHitCooldown=0;}
     drag=null;renderBlaze();return;
   }
   cloneBalls=[];prepareMobileBilliards();
   ball.blaze=createBlaze();renderBlaze();
-  for(const g of gates){g.vx=0;g.vy=0;g.moved=false;g.travel=0;g.collisions=0;g.wallHits=0;g.bossHit=false;g.unitTrail=[];g.mass=1;g.contactCooldown=0;}
+  for(const g of gates){g.vx=0;g.vy=0;g.moved=false;g.travel=0;g.collisions=0;g.wallHits=0;g.bossHit=false;g.unitTrail=[];g.mass=1;g.contactCooldown=0;g.enemyHitCooldown=0;}
 };
 function wakeUnit(g){g.moved=true;g.on=Math.max(g.on,.72);g.animState='attack'}
 function mobileWall(o,r,unit=null){let hit=false;if(o.x<r||o.x>W-r){o.x=clamp(o.x,r,W-r);o.vx*=-.94;hit=true}if(o.y<r||o.y>H-r){o.y=clamp(o.y,r,H-r);o.vy*=-.94;hit=true}if(hit){if(unit){unit.wallHits++;unit.collisions=(unit.collisions||0)+1;wakeUnit(unit)}else tableWall()}return hit}
 function mobileStatic(o,target,radius,restitution,onHit){let dx=o.x-target.x,dy=o.y-target.y,d=Math.hypot(dx,dy)||1,reach=radius;if(d>=reach)return false;let nx=dx/d,ny=dy/d;const overlap=reach-d;o.x+=nx*(overlap+.2);o.y+=ny*(overlap+.2);const dot=o.vx*nx+o.vy*ny;if(dot<0){o.vx-=(1+restitution)*dot*nx;o.vy-=(1+restitution)*dot*ny;onHit?.(nx,ny)}return true}
 function mobilePair(a,ar,b,br,onHit){let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1,reach=ar+br;if(d>=reach)return false;let nx=dx/d,ny=dy/d,overlap=reach-d;a.x-=nx*(overlap*.5+.12);a.y-=ny*(overlap*.5+.12);b.x+=nx*(overlap*.5+.12);b.y+=ny*(overlap*.5+.12);const along=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;if(along<=0)return true;const incoming={x:a.vx,y:a.vy},impulse=along*.98;a.vx-=impulse*nx;a.vy-=impulse*ny;b.vx+=impulse*nx;b.vy+=impulse*ny;onHit?.(nx,ny,along,incoming);return true}
 function guaranteeMomentum(o,dx,dy,minSpeed,maxSpeed){const speed=Math.hypot(o.vx,o.vy);if(speed<minSpeed){const length=Math.hypot(dx,dy)||1;o.vx=dx/length*minSpeed;o.vy=dy/length*minSpeed}else if(speed>maxSpeed){o.vx*=maxSpeed/speed;o.vy*=maxSpeed/speed}}
+function unitImpactDamage(g,target){
+  if(g.enemyHitCooldown>0||battleComplete)return;
+  g.enemyHitCooldown=.34;
+  const speed=Math.hypot(g.vx,g.vy),isBoss=target===boss;
+  const amount=(isBoss?18:12)+Math.min(isBoss?28:20,Math.round(speed/(isBoss?72:88)));
+  const label=g.s+' 충돌';
+  g.on=Math.max(g.on,.62);g.animState='hit';
+  areaBursts.push({x:g.x,y:g.y,r:isBoss?52:38,col:g.col,t:0,d:.3});
+  fieldFx.push({type:'assist',x:g.x,y:g.y,t:0,d:.34,col:g.col});
+  if(isBoss){
+    boss.hp=Math.max(0,boss.hp-amount);registerBossHit(false);impact(false);
+    addPopup(boss.x,boss.y-76,label+' -'+amount,g.col,amount>=36);
+    if(boss.hp<=0)scheduleWin();
+  }else damageAdd(target,amount,label,g.col);
+}
 function settleParty(){
   const awakened=gates.filter(g=>g.moved&&g.travel>10);if(awakened.length){
     for(const g of awakened){const base=14+Math.min(22,Math.round(g.travel/28))+g.collisions*3+g.wallHits*4+(g.bossHit?11:0),copied=g.copiedFx;if(g.fx==='slash'||g.fx==='copycat'&&copied==='slash'){resolveSlash(g,g.fx==='copycat'?'닉스 · '+g.copiedName+' 근접 베기':'가온 근접 베기');g.on=1;g.animState='attack';continue}if(g.fx==='longshot'||g.fx==='copycat'&&copied==='longshot'){resolveLongshot(g,g.fx==='copycat'?'닉스 · '+g.copiedName+' 거리 저격':'비연 거리 저격');g.on=1;g.animState='attack';continue}if(g.fx==='shockwave'||g.fx==='copycat'&&copied==='shockwave'){detonateShockwave(g,g.fx==='copycat'?'닉스 · '+g.copiedName+' 충격파':'태오 충돌 충격파');g.on=1;g.animState='attack';continue}if(g.fx==='copycat'&&!copied){addPopup(g.x,g.y-30,'모사 대상 없음',g.col,false);toast('닉스 · 아직 모사한 아군이 없습니다.')}queueUnitAssist(g,base,g.s+' 각성');g.on=1;g.animState='attack';}
@@ -616,12 +631,12 @@ simulatePhysics=function(d){
   for(let i=0;i<slices&&ball?.moving;i++){
     updateExpanded(step);if(ball.pulse>0){ball.pulse-=step;const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84,dx=wx-ball.x,dy=wy-ball.y,l=Math.hypot(dx,dy)||1;ball.vx+=dx/l*130*step;ball.vy+=dy/l*130*step}
     ball.x+=ball.vx*step;ball.y+=ball.vy*step;const cueDrag=Math.pow(.9915,step*60);ball.vx*=cueDrag;ball.vy*=cueDrag;mobileWall(ball,ball.r);
-    for(const g of gates){g.x+=g.vx*step;g.y+=g.vy*step;const speed=Math.hypot(g.vx,g.vy);if(speed>30){g.travel+=speed*step;wakeUnit(g)}g.vx*=Math.pow(.9875,step*60);g.vy*=Math.pow(.9875,step*60);g.contactCooldown=Math.max(0,(g.contactCooldown||0)-step);mobileWall(g,g.r,g);g.unitTrail.push({x:g.x,y:g.y});if(g.unitTrail.length>10)g.unitTrail.shift()}
+    for(const g of gates){g.x+=g.vx*step;g.y+=g.vy*step;const speed=Math.hypot(g.vx,g.vy);if(speed>30){g.travel+=speed*step;wakeUnit(g)}g.vx*=Math.pow(.9875,step*60);g.vy*=Math.pow(.9875,step*60);g.contactCooldown=Math.max(0,(g.contactCooldown||0)-step);g.enemyHitCooldown=Math.max(0,(g.enemyHitCooldown||0)-step);mobileWall(g,g.r,g);g.unitTrail.push({x:g.x,y:g.y});if(g.unitTrail.length>10)g.unitTrail.shift()}
     for(const g of gates)mobilePair(ball,ball.r,g,g.r,(nx,ny,impactSpeed,incoming)=>{const speed=Math.hypot(incoming.x,incoming.y)||1,ux=incoming.x/speed,uy=incoming.y/speed,ballDrive=495+Math.min(450,impactSpeed*.63),unitDrive=420+Math.min(390,impactSpeed*.51),ballDx=-nx*ballDrive+ux*225,ballDy=-ny*ballDrive+uy*225,unitDx=nx*unitDrive+ux*135,unitDy=ny*unitDrive+uy*135;ball.vx+=ballDx;ball.vy+=ballDy;g.vx+=unitDx;g.vy+=unitDy;guaranteeMomentum(ball,ballDx,ballDy,915,2220);guaranteeMomentum(g,unitDx,unitDy,645,1680);ball.power+=.48;ball.bounces++;wakeUnit(g);g.collisions++;trackBlazeUnit(g);const special=applyContactAbility(g,incoming);ball.runeBurst=.92;fieldFx.push({type:'relay',x:g.x,y:g.y,t:0,d:.48,col:g.col});addPopup(g.x,g.y-34,'쌍가속!',g.col,true);if(!special)toast(g.s+' 충돌 · 공과 유닛 동시 가속!');});
     for(let a=0;a<gates.length;a++)for(let b=a+1;b<gates.length;b++)mobilePair(gates[a],gates[a].r,gates[b],gates[b].r,()=>{wakeUnit(gates[a]);wakeUnit(gates[b]);gates[a].collisions++;gates[b].collisions++;copyLastUnitAbility(gates[a],gates[b]);copyLastUnitAbility(gates[b],gates[a])});
     for(const b of bumpers){mobileStatic(ball,b,ball.r+b.r,1.08,()=>{ball.bounces++;hitBumper(b)});for(const g of gates)mobileStatic(g,b,g.r+b.r,1.06,()=>{g.collisions++;wakeUnit(g);const speed=Math.hypot(g.vx,g.vy)||1,boost=Math.min(1470,speed+144);g.vx*=boost/speed;g.vy*=boost/speed;fieldFx.push({type:'bumper',x:b.x,y:b.y,t:0,d:.32,col:'#80e8df'})})}
-    for(const a of adds){if(a.down>0)continue;mobileStatic(ball,a,ball.r+a.r,.92,()=>{if(a.hitCooldown<=0){a.hitCooldown=.18;damageAdd(a,14+Math.round(ball.power*6),'직격','#d8c3ff')}});for(const g of gates)mobileStatic(g,a,g.r+a.r,.88,()=>{wakeUnit(g);g.collisions++})}
-    const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84;const weak=mobileStatic(ball,{x:wx,y:wy},ball.r+25,.98,()=>{if(boss.hitCooldown<=0){boss.hitCooldown=.22;damage(true)}});if(!weak)mobileStatic(ball,boss,ball.r+66,.90,()=>{if(boss.hitCooldown<=0){boss.hitCooldown=.22;damage(false)}});for(const g of gates)mobileStatic(g,boss,g.r+66,.88,()=>{wakeUnit(g);g.bossHit=true;g.collisions++;trackBlazeBossUnit(g)});
+    for(const a of adds){if(a.down>0)continue;mobileStatic(ball,a,ball.r+a.r,.92,()=>{if(a.hitCooldown<=0){a.hitCooldown=.18;damageAdd(a,14+Math.round(ball.power*6),'직격','#d8c3ff')}});for(const g of gates)mobileStatic(g,a,g.r+a.r,.88,()=>{wakeUnit(g);g.collisions++;unitImpactDamage(g,a)})}
+    const wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84;const weak=mobileStatic(ball,{x:wx,y:wy},ball.r+25,.98,()=>{if(boss.hitCooldown<=0){boss.hitCooldown=.22;damage(true)}});if(!weak)mobileStatic(ball,boss,ball.r+66,.90,()=>{if(boss.hitCooldown<=0){boss.hitCooldown=.22;damage(false)}});for(const g of gates)mobileStatic(g,boss,g.r+66,.88,()=>{wakeUnit(g);g.bossHit=true;g.collisions++;trackBlazeBossUnit(g);unitImpactDamage(g,boss)});
     updateCloneBalls(step);ball.wallShock=Math.max(0,(ball.wallShock||0)-step);ball.nudgeCooldown=Math.max(0,(ball.nudgeCooldown||0)-step);ball.trail.push({x:ball.x,y:ball.y});if(ball.trail.length>24)ball.trail.shift();
   }
   const partyStillRolling=gates.some(g=>Math.hypot(g.vx,g.vy)>55);if(ball?.moving&&Math.hypot(ball.vx,ball.vy)<68&&!partyStillRolling)endShot();
