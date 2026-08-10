@@ -54,6 +54,15 @@
     "upgradeMark": { "file": "library/icons/upgrade-mark.png", "role": "표식 강화 아이콘" },
     "upgradeBattery": { "file": "library/icons/upgrade-battery.png", "role": "공명 강화 아이콘" }
   },
+  "libraryIntegration": {
+    "stageTiles": ["library/stages/tile-corridor.png", "library/stages/tile-stairs.png", "library/stages/tile-garden.png"],
+    "stageEmblems": ["library/stages/emblem-corridor.png", "library/stages/emblem-stairs.png", "library/stages/emblem-garden.png"],
+    "stageProps": ["library/props/rune-pillar.png", "library/props/void-lantern.png", "library/props/crystal-spire.png", "library/props/void-portal.png"],
+    "skillIcons": ["library/skills/skill-gaon.png", "library/skills/skill-biyeon.png", "library/skills/skill-lumi.png", "library/skills/skill-haru.png", "library/skills/skill-sera.png", "library/skills/skill-taeo.png", "library/skills/skill-nyx.png", "library/skills/skill-rio.png"],
+    "tutorial": ["library/tutorial/hint-drag-shot.png", "library/tutorial/power-gauge-frame.png", "library/tutorial/power-gauge-fill.png"],
+    "projectiles": ["library/projectiles/charged-orb.png", "library/projectiles/homing-orb.png", "library/projectiles/marked-orb.png", "library/projectiles/support-bolt.png"],
+    "results": ["library/results/medal-clear.png", "library/results/medal-sharp.png", "library/results/medal-flawless.png", "library/results/metric-time.png", "library/results/metric-shots.png", "library/results/metric-damage.png"]
+  },
   "terrain": {
     "rock01": { "file": "terrain/rock-01.png", "width": 64, "height": 64 },
     "rock04": { "file": "terrain/rock-04.png", "width": 64, "height": 64 }
