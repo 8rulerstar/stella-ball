@@ -140,7 +140,7 @@ button{border-color:#6979ab!important;background:linear-gradient(180deg,#1a2450,
 /* Campaign map: a single constellation, not a list of isolated cards. */
 .constellation-map-scene{padding:0!important;place-content:stretch!important;background:#050713f5!important}.constellation-map-shell{width:min(760px,100%);min-height:100%;margin:auto;padding:18px 20px 14px;display:flex;flex-direction:column;background:radial-gradient(circle at 52% 8%,#424a9433,transparent 33%),linear-gradient(160deg,#0d1431,#060816 76%)}.constellation-map-head{display:flex;justify-content:space-between;align-items:end;gap:15px;padding:4px 2px 13px;border-bottom:1px solid #6477a655}.constellation-map-head h2{margin:3px 0 0!important;color:#fff0c5!important;font-size:28px!important}.constellation-map-head p{max-width:230px;margin:0!important;color:#aebce0!important;font-size:10px!important;line-height:1.5;text-align:right}.constellation-map{position:relative;flex:1;min-height:500px;overflow:hidden}.constellation-map:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,#f7e3a7aa 0 1px,transparent 1.6px),radial-gradient(circle,#b7c6ff88 0 .8px,transparent 1.4px);background-size:97px 113px,167px 149px;opacity:.32}.constellation-map:after{content:"";position:absolute;inset:12% 5%;pointer-events:none;background:radial-gradient(ellipse at 49% 45%,#8494ee17,transparent 46%)}.constellation-route{position:absolute;z-index:1;inset:0;width:100%;height:100%;overflow:visible}.constellation-route path{fill:none;stroke:#8293d0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4 8;filter:drop-shadow(0 0 5px #92a2ef99)}.constellation-route .future{stroke:#6674a766;stroke-dasharray:2 11}.constellation-node{position:absolute;z-index:2;display:flex;align-items:center;gap:9px;width:184px;padding:7px 9px 7px 7px;border:1px solid #6679ae!important;border-radius:7px!important;background:linear-gradient(105deg,#10183cf4,#0b1028e8)!important;color:#edf2ff!important;text-align:left;box-shadow:0 8px 18px #01020c99!important;transform:translate(-50%,-50%);cursor:pointer}.constellation-node:hover,.constellation-node.active{border-color:#ffe2a0!important;box-shadow:0 0 0 1px #ffe2a044,0 10px 22px #02030cbf,0 0 21px #9caaff44!important;transform:translate(-50%,-53%)}.constellation-node.locked{border-color:#49577e!important;background:#0a0e20d9!important;color:#8794b9!important;cursor:default;filter:saturate(.45)}.constellation-node.locked:hover{border-color:#49577e!important;box-shadow:0 8px 18px #01020c99!important;transform:translate(-50%,-50%)}.constellation-node .stage-star{display:grid;place-items:center;flex:0 0 auto;width:46px;height:46px;border:1px solid #e9c66f;border-radius:50%;background:radial-gradient(circle,#fff2bc 0 7%,#d9a952 12% 22%,#313565 29% 48%,#0a0e21 70%);color:#fff8d5;font-size:20px;box-shadow:0 0 0 4px #e6c36518,0 0 17px #f0c66d77}.constellation-node.locked .stage-star{border-color:#65719b;background:radial-gradient(circle,#98a6cd 0 7%,#4b577f 12% 23%,#151b38 29% 48%,#080b19 70%);color:#aab5d3;box-shadow:0 0 0 4px #8491bb0d}.constellation-node .stage-copy{min-width:0}.constellation-node small{display:block;color:#b7c5e8;font-size:8px;letter-spacing:.12em}.constellation-node b{display:block;margin:3px 0 1px;color:#fff0c5;font-size:13px}.constellation-node span{display:block;color:#b5c1e0;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.constellation-node.locked b{color:#aeb8d1}.constellation-node.locked span{color:#707d9f}.constellation-node .node-status{margin-left:auto;color:#ffe1a0;font-size:10px}.constellation-node.locked .node-status{color:#7987aa}.constellation-node.s1{left:16%;top:75%}.constellation-node.s2{left:34%;top:53%}.constellation-node.s3{left:57%;top:31%}.constellation-node.s4{left:78%;top:48%}.constellation-node.s5{left:72%;top:75%}.constellation-map-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:12px;border-top:1px solid #6477a644;color:#aebce0;font-size:10px}.constellation-map-foot button{min-width:112px}.constellation-training{border-color:#6779ac!important;background:#111a3c!important;color:#c4d0ef!important}.constellation-training:hover{border-color:#cbd8ff!important}@media(max-width:680px){.constellation-map-shell{padding:12px 10px}.constellation-map-head h2{font-size:24px!important}.constellation-map-head p{font-size:9px}.constellation-map{min-height:470px}.constellation-node{width:156px;gap:6px;padding:6px}.constellation-node .stage-star{width:38px;height:38px;font-size:16px}.constellation-node b{font-size:11px}.constellation-node span{font-size:8px}.constellation-node.s1{left:27%;top:78%}.constellation-node.s2{left:42%;top:57%}.constellation-node.s3{left:61%;top:34%}.constellation-node.s4{left:68%;top:53%}.constellation-node.s5{left:57%;top:76%}}
 /* First-session onboarding lives on the actual 1-1 table. */
-.onboarding-card{position:absolute;z-index:8;left:16px;bottom:16px;width:min(286px,calc(100% - 32px));padding:12px 13px 11px;border:1px solid #9daee6;background:linear-gradient(145deg,#121a3df5,#090e24f4);box-shadow:0 9px 26px #01020cb8,0 0 0 1px #ffe3a522}.onboarding-card:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 35%,#d5e0ff12 48%,transparent 61%);animation:onboardingSweep 3.8s ease-in-out infinite}.onboarding-card>*{position:relative;z-index:1}.onboarding-kicker{display:flex;justify-content:space-between;color:#c4d1fa;font-size:9px;letter-spacing:.12em}.onboarding-kicker b{color:#ffe2a0}.onboarding-card h3{margin:7px 0 5px;color:#fff1c4;font-size:15px}.onboarding-card p{margin:0;color:#c1cbe6;font-size:10px;line-height:1.55}.onboarding-progress{display:flex;gap:4px;margin:10px 0 0}.onboarding-progress i{width:22px;height:3px;background:#3d4d7d}.onboarding-progress i.active{background:#f1ca72;box-shadow:0 0 7px #f0c66d}.onboarding-card button{width:100%;margin-top:10px;padding:8px!important;border-color:#ffe1a0!important;background:linear-gradient(#f0d17e,#bd8744)!important;color:#1b1430!important;font-size:11px!important}.onboarding-card.waiting{border-color:#f0ca72;box-shadow:0 9px 26px #01020cb8,0 0 20px #f0ca7255}.onboarding-card.complete{border-color:#f4d38b;animation:onboardingComplete .5s ease-out}.onboarding-card.complete h3{color:#fff7d7}@keyframes onboardingSweep{45%,100%{transform:translateX(100%)}}@keyframes onboardingComplete{50%{transform:translateY(-4px) scale(1.03);filter:brightness(1.2)}}@media(max-width:680px){.onboarding-card{left:10px;bottom:10px;width:min(272px,calc(100% - 20px));padding:10px}.onboarding-card h3{font-size:13px}.onboarding-card p{font-size:9px}}
+.onboarding-card{position:absolute;z-index:8;left:16px;bottom:16px;width:min(320px,calc(100% - 32px));padding:12px 13px 11px;border:1px solid #9daee6;background:linear-gradient(145deg,#121a3df5,#090e24f4);box-shadow:0 9px 26px #01020cb8,0 0 0 1px #ffe3a522}.onboarding-card:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 35%,#d5e0ff12 48%,transparent 61%);animation:onboardingSweep 3.8s ease-in-out infinite}.onboarding-card>*{position:relative;z-index:1}.onboarding-helper{display:flex;align-items:center;gap:8px;margin:8px 0 6px}.onboarding-helper img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 0 7px #ffe49a99)}.onboarding-helper b{display:block;color:#ffe5a8;font-size:11px}.onboarding-helper small{display:block;margin-top:2px;color:#aab8e2;font-size:8px}.onboarding-kicker{display:flex;justify-content:space-between;color:#c4d1fa;font-size:9px;letter-spacing:.12em}.onboarding-kicker b{color:#ffe2a0}.onboarding-card h3{margin:7px 0 5px;color:#fff1c4;font-size:15px}.onboarding-card p{margin:0;color:#c1cbe6;font-size:10px;line-height:1.55}.onboarding-progress{display:flex;gap:4px;margin:10px 0 0}.onboarding-progress i{width:22px;height:3px;background:#3d4d7d}.onboarding-progress i.active{background:#f1ca72;box-shadow:0 0 7px #f0c66d}.onboarding-card button{width:100%;margin-top:10px;padding:8px!important;border-color:#ffe1a0!important;background:linear-gradient(#f0d17e,#bd8744)!important;color:#1b1430!important;font-size:11px!important}.onboarding-card.waiting{border-color:#f0ca72;box-shadow:0 9px 26px #01020cb8,0 0 20px #f0ca7255}.onboarding-card.complete{border-color:#f4d38b;animation:onboardingComplete .5s ease-out}.onboarding-card.complete h3{color:#fff7d7}@keyframes onboardingSweep{45%,100%{transform:translateX(100%)}}@keyframes onboardingComplete{50%{transform:translateY(-4px) scale(1.03);filter:brightness(1.2)}}@media(max-width:680px){.onboarding-card{left:10px;bottom:10px;width:min(292px,calc(100% - 20px));padding:10px}.onboarding-card h3{font-size:13px}.onboarding-card p{font-size:9px}}
 </style>
 <body>
 <main>
@@ -205,7 +205,7 @@ const cuteUnitArt={
 };
 for(const [id,art] of Object.entries(cuteUnitArt))Object.assign(heroes[id],{cuteSprite:art.sprite});
 const stages=[
-  {id:'1-1',name:'별빛의 첫 충돌',terrain:'유성을 끌어 비연을 깨우고, 멈춘 자리의 각성 공격을 확인하세요.',slots:[[182,542],[538,542],[360,470]],preview:[[25,65],[75,65],[50,56]],boss:{x:360,y:190},labels:['왼쪽 별지기','오른쪽 별지기','첫 관측점'],bumpers:[],tutorial:true},
+  {id:'1-1',name:'별빛의 첫 충돌',terrain:'루나의 안내를 따라 직격, 근접 각성, 별자리 배율을 차례로 관측하세요.',slots:[[182,542],[538,542],[360,470]],preview:[[25,65],[75,65],[50,56]],boss:{x:360,y:190},labels:['왼쪽 별지기','오른쪽 별지기','첫 관측점'],bumpers:[],tutorial:true},
   {id:'1-2',name:'균열 회랑',terrain:'두 공명 범퍼를 오가며 속도를 만들고, 범퍼 구역 룬을 발동시키세요.',slots:[[160,518],[560,518],[360,358]],preview:[[22,63],[78,63],[50,41]],boss:{x:360,y:192},labels:['좌측 중계점','우측 중계점','중앙 균열'],bumpers:[[250,310,27],[470,310,27]]},
   {id:'1-3',name:'침식의 계단',terrain:'좌우 공명 범퍼를 잇는 각도에서 강한 반사와 연계를 노리세요.',slots:[[170,446],[550,358],[360,550]],preview:[[24,53],[76,43],[50,67]],boss:{x:360,y:190},labels:['좌측 계단','우측 계단','하단 귀환점'],bumpers:[[205,338,27],[515,338,27]]},
   {id:'2-1',name:'원심 정원',terrain:'세 공명 범퍼가 보스 주변에 작은 고리 길을 만듭니다.',slots:[[180,390],[540,390],[360,538]],preview:[[26,46],[74,46],[50,65]],boss:{x:360,y:202},labels:['좌측 고리','우측 고리','하단 고리'],bumpers:[[258,302,25],[462,302,25],[360,372,27]]},
@@ -270,9 +270,9 @@ function showMetaHelp(){run=false;drag=null;setScene('meta');U.over.className='o
 let rosterFocus='gaon';
 function showRoster(){
   run=false;setScene('menu');U.over.className='overlay roster-scene';
-  const s=currentStage();
+  const s=currentStage(),slotCount=partySlotCount();
   if(!heroes[rosterFocus])rosterFocus=selected[0]||'gaon';
-  U.over.innerHTML='<div class="tag">별지기 편성</div><h2>함께할 별지기 세 명을 고르세요.</h2><p><b>'+s.id+' · '+s.name+'</b> — '+s.terrain+'</p><div id="stageChoices" class="choice-grid stage-grid" style="max-width:660px;margin-top:10px"></div><div class="roster-shell"><div id="partyStrip" class="party-strip"></div><div id="roster" class="roster-grid"></div><div id="rosterDetail" class="roster-detail"></div></div><div class="overlay-actions"><button id="backMeta">뒤로</button><button id="startTeam">다음</button></div>';
+  U.over.innerHTML='<div class="tag">별지기 편성</div><h2>함께할 별지기 '+slotCount+'명을 고르세요.</h2><p><b>'+s.id+' · '+s.name+'</b> — '+s.terrain+'</p><div id="stageChoices" class="choice-grid stage-grid" style="max-width:660px;margin-top:10px"></div><div class="roster-shell"><div id="partyStrip" class="party-strip"></div><div id="roster" class="roster-grid"></div><div id="rosterDetail" class="roster-detail"></div></div><div class="overlay-actions"><button id="backMeta">뒤로</button><button id="startTeam">다음</button></div>';
   const stageBox=document.querySelector('#stageChoices'),partyStrip=document.querySelector('#partyStrip'),box=document.querySelector('#roster'),detail=document.querySelector('#rosterDetail');
   for(const [i,st] of stages.entries()){
     const b=document.createElement('button');
@@ -281,7 +281,7 @@ function showRoster(){
     b.onclick=()=>{stageIndex=i;primeCombatTextures();showRoster()};stageBox.append(b);
   }
   const renderParty=()=>{
-    partyStrip.innerHTML=Array.from({length:3},(_,i)=>{
+    partyStrip.innerHTML=Array.from({length:slotCount},(_,i)=>{
       const h=heroes[selected[i]];
       return h?'<div class="party-chip"><img class="slot-marker" src="../assets/library/ui/rune-slot-marker.png" alt=""><span><small>선택 '+(i+1)+'</small><b style="color:'+h.col+'">'+h.s+'</b></span></div>':'<div class="party-chip empty"><img class="slot-marker" src="../assets/library/ui/rune-slot-marker.png" alt=""><span><small>선택 '+(i+1)+'</small><b>비어 있음</b></span></div>';
     }).join('');
@@ -300,13 +300,13 @@ function showRoster(){
       b.innerHTML='<span class="portrait"></span><b>'+h.s+'</b>'+(icon?'<img class="unit-skill" src="'+icon+'" alt="'+h.e+'">':'');
       setPortrait(b.querySelector('.portrait'),h,42);
       b.onpointerenter=()=>{rosterFocus=id;renderDetail()};
-      b.onclick=()=>{if(on)selected=selected.filter(v=>v!==id);else if(selected.length<3)selected.push(id);else{toast('파티는 세 명까지 선택할 수 있습니다.');rosterFocus=id;renderDetail();return}rosterFocus=id;renderParty();renderRoster();renderDetail()};
+      b.onclick=()=>{if(on)selected=selected.filter(v=>v!==id);else if(selected.length<slotCount)selected.push(id);else{toast('파티는 '+slotCount+'명까지 선택할 수 있습니다.');rosterFocus=id;renderDetail();return}rosterFocus=id;renderParty();renderRoster();renderDetail()};
       box.append(b);
     });
   };
   renderParty();renderRoster();renderDetail();
   document.querySelector('#backMeta').onclick=showMeta;
-  document.querySelector('#startTeam').onclick=()=>{if(selected.length!==3)return alert('세 명을 선택해주세요.');deployed=[...selected];placementPick=deployed[0];showDeployment()};
+  document.querySelector('#startTeam').onclick=()=>{if(selected.length!==slotCount)return alert(slotCount+'명을 선택해주세요.');deployed=[...selected];placementPick=deployed[0];showDeployment()};
   U.over.classList.remove('hide');
 }
 function showDeployment(){
@@ -349,7 +349,7 @@ function win(){if(!battle||battleComplete&&!battle.victory)return;const victory=
 function toast(text){U.toast.textContent=text;U.toast.classList.add('show');toastTimer=2.2}
 function damageAdd(a,amount,label,col){if(a.down>0)return;a.hitCooldown=Math.max(a.hitCooldown,.24);a.hp=Math.max(0,a.hp-amount);addPopup(a.x,a.y-24,label+' '+amount,col,amount>=18);if(a.hp<=0){a.down=1.6;areaBursts.push({x:a.x,y:a.y,r:44,col,t:0,d:.42});if(ball?.vortex){ball.vortex=false;ball.gravity={x:a.x,y:a.y,t:2};fieldFx.push({type:'vortex',x:a.x,y:a.y,t:0,d:2,col:'#a886ff'});toast('제로 흡수 포털 생성!')}else toast('공허 잔재 처치!')}}
 function areaAttack(name,amount,col){if(!boss||boss.hp<=0||battleComplete)return;boss.hp=Math.max(0,boss.hp-amount);registerBossHit(false);impact(true);addPopup(boss.x,boss.y-80,name+' '+amount,col,true);areaBursts.push({x:boss.x,y:boss.y,r:112,col,t:0,d:.42});for(const a of adds)damageAdd(a,amount,name,col);toast(name+' · 전 적 광역 피해');if(boss.hp<=0)scheduleWin();sync()}
-function sync(){U.shotsText.textContent=battle?(battle.training?'∞ · '+battle.shots+' / '+battle.shotMax:battle.shots+' / '+battle.shotMax):'—';U.shotDots.innerHTML=battle?Array.from({length:battle.shotMax},(_,i)=>'<img class="shot-icon" src="../assets/library/ui/shot-dot-'+(i<battle.shots?'on':'off')+'.png" alt="'+(i<battle.shots?'사용 가능':'사용 완료')+'">').join(''):'—';U.phase.textContent=battle?(battle.training?'훈련 · 불멸의 거상':battle.tutorial?'관측 수업 · 공허 거상':'전투 · 공허 거상'):'전투 준비';U.hp.textContent=boss?(boss.immortal?'체력 ∞':'체력 '+Math.ceil(boss.hp)):'체력 —';U.hpFill.style.transform='scaleX('+(boss?(boss.immortal?1:boss.hp/boss.maxHp):0)+')';U.power.textContent=RULES.baseDamage+build.weakFlat;U.chain.textContent=chain.length?chain.join(' → '):'—';U.tip.innerHTML=msg;U.summary.innerHTML=deployed.map((id,i)=>{const h=heroes[id],zone=ZONE_RULES[i];return '<div><b>'+zone.name+'</b><br>'+h.n+' · '+zone.hint+'</div>'}).join('')}
+function sync(){U.shotsText.textContent=battle?(battle.training||battle.tutorial?'∞ · 관측 유성':battle.shots+' / '+battle.shotMax):'—';U.shotDots.innerHTML=battle?(battle.tutorial?'관측 유성 · 무제한':Array.from({length:battle.shotMax},(_,i)=>'<img class="shot-icon" src="../assets/library/ui/shot-dot-'+(i<battle.shots?'on':'off')+'.png" alt="'+(i<battle.shots?'사용 가능':'사용 완료')+'">').join('')):'—';U.phase.textContent=battle?(battle.training?'훈련 · 불멸의 거상':battle.tutorial?'관측 수업 · 공허 거상':'전투 · 공허 거상'):'전투 준비';U.hp.textContent=boss?(boss.immortal?'체력 ∞':'체력 '+Math.ceil(boss.hp)):'체력 —';U.hpFill.style.transform='scaleX('+(boss?(boss.immortal?1:boss.hp/boss.maxHp):0)+')';U.power.textContent=RULES.baseDamage+build.weakFlat;U.chain.textContent=chain.length?chain.join(' → '):'—';U.tip.innerHTML=msg;U.summary.innerHTML=deployed.map((id,i)=>{const h=heroes[id],zone=ZONE_RULES[i];return '<div><b>'+zone.name+'</b><br>'+h.n+' · '+zone.hint+'</div>'}).join('')}
 function pointer(e){const r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
 function flipperKick(side){
   const key=side<0?'left':'right';
@@ -526,7 +526,7 @@ function ensureAudio(){const Context=window.AudioContext||window.webkitAudioCont
 function syncAudio(){if(!audioEngine)return;audioEngine.master.gain.value=settings.master;audioEngine.music.gain.value=settings.bgm}
 function playSfx(kind='confirm'){if(settings.sfx<=0)return;const engine=ensureAudio();if(!engine)return;const ac=engine.ac,osc=ac.createOscillator(),gain=ac.createGain(),now=ac.currentTime,tones={confirm:[420,620,.09],flip:[190,520,.07],unlock:[380,760,.22]}[kind]||[300,480,.08];osc.type='square';osc.frequency.setValueAtTime(tones[0],now);osc.frequency.exponentialRampToValueAtTime(tones[1],now+tones[2]);gain.gain.setValueAtTime(.055*settings.sfx,now);gain.gain.exponentialRampToValueAtTime(.001,now+tones[2]);osc.connect(gain);gain.connect(engine.master);osc.start(now);osc.stop(now+tones[2]+.02)}
 function formatRunTime(ms){if(!ms)return'—';return(ms/1000).toFixed(1)+'s'}
-function achievementList(){return[{id:'first',name:settings.language==='ko'?'첫 별':'FIRST STAR',text:settings.language==='ko'?'보스를 한 번 처치하세요.':'Defeat a boss once.',done:progress.clears>=1,ratio:Math.min(progress.clears,1)+'/1'},{id:'riposte',name:'RIPOSTE',text:settings.language==='ko'?'한 전투에서 3 HIT 콤보를 달성하세요.':'Reach a 3 HIT combo in one battle.',done:progress.bestCombo>=3,ratio:Math.min(progress.bestCombo,3)+'/3'},{id:'sharp',name:settings.language==='ko'?'한 발의 해답':'ONE SHOT',text:settings.language==='ko'?'유성 한 개만 사용해 클리어하세요.':'Clear using a single meteor.',done:progress.bestShots<=1,ratio:progress.bestShots<=1?'1/1':'0/1'},{id:'veteran',name:settings.language==='ko'?'밤하늘의 단골':'NIGHT SKY REGULAR',text:settings.language==='ko'?'세 번의 전투를 클리어하세요.':'Clear three battles.',done:progress.clears>=3,ratio:Math.min(progress.clears,3)+'/3'}]}
+function achievementList(){return[{id:'observer',name:settings.language==='ko'?'첫 관측자의 증명':'OBSERVER’S PROOF',text:settings.language==='ko'?'1-1 관측 수업을 마치고 파티 슬롯을 하나 해금하세요.':'Complete 1-1 observation training and unlock a party slot.',done:hasThirdPartySlot(),ratio:hasThirdPartySlot()?'1/1 · 파티 슬롯 +1':'0/1 · 파티 슬롯 +1'},{id:'first',name:settings.language==='ko'?'첫 별':'FIRST STAR',text:settings.language==='ko'?'보스를 한 번 처치하세요.':'Defeat a boss once.',done:progress.clears>=1,ratio:Math.min(progress.clears,1)+'/1'},{id:'riposte',name:'RIPOSTE',text:settings.language==='ko'?'한 전투에서 3 HIT 콤보를 달성하세요.':'Reach a 3 HIT combo in one battle.',done:progress.bestCombo>=3,ratio:Math.min(progress.bestCombo,3)+'/3'},{id:'sharp',name:settings.language==='ko'?'한 발의 해답':'ONE SHOT',text:settings.language==='ko'?'유성 한 개만 사용해 클리어하세요.':'Clear using a single meteor.',done:progress.bestShots<=1,ratio:progress.bestShots<=1?'1/1':'0/1'},{id:'veteran',name:settings.language==='ko'?'밤하늘의 단골':'NIGHT SKY REGULAR',text:settings.language==='ko'?'세 번의 전투를 클리어하세요.':'Clear three battles.',done:progress.clears>=3,ratio:Math.min(progress.clears,3)+'/3'}]}
 function metaHeader(label='PLAYER 01'){return '<div class="meta-brand"><img src="'+metaArt.wordmark+'" alt="STELLA BALL"><span class="meta-profile">OBSERVATORY ID<b>'+label+'</b></span></div>'}
 showMeta=function(){run=false;drag=null;setScene('meta');const s=currentStage(),today=new Intl.DateTimeFormat(settings.language==='ko'?'ko-KR':'en-US',{month:'long',day:'numeric'}).format(new Date()),party=selected.map(id=>{const h=heroes[id],stone=runeStone(id);return '<div class="meta-rune"><span class="meta-rune-art" data-hero="'+id+'" style="background-image:url(\''+stone+'\')"></span><b style="color:'+h.col+'">'+h.s+'</b><small>'+h.e+'</small></div>'}).join('');U.over.className='overlay meta-scene';U.over.innerHTML='<div class="meta-hub">'+metaHeader()+'<section class="meta-daily"><img src="'+metaArt.daily+'" alt="'+tr('daily')+'"><div><small>'+today+' · '+tr('daily')+'</small><h2>'+s.id+' · '+s.name+'</h2><p>'+tr('dailyNote')+'</p></div><button class="meta-launch" id="metaLaunch"><img src="'+metaArt.play+'" alt="">'+tr('start')+'</button></section><div class="meta-section-title"><span>'+tr('currentParty')+'</span><span>3 / 3</span></div><section class="meta-party">'+party+'</section><div class="meta-actions meta-tabs"><button class="meta-tab" id="metaRoster"><img src="../assets/library/system/icon-home.png" alt="">'+tr('party')+'</button><button class="meta-tab" id="metaHelp"><img src="'+metaArt.help+'" alt="">'+tr('guide')+'</button><button class="meta-tab" id="metaAchievements"><img src="../assets/library/event/achievement-unlocked.png" alt="">'+tr('achievements')+'</button><button class="meta-tab" id="metaSettings"><img src="../assets/library/system/icon-settings.png" alt="">'+tr('settings')+'</button></div><p class="meta-note">Hive 기록 인터페이스에는 클리어 시간 · 발사 수 · 처치 피해가 전달됩니다.</p></div>';for(const el of document.querySelectorAll('.meta-rune-art')){const id=el.dataset.hero;if(!['gaon','biyeon','lumi','haru','sera','taeo','nyx'].includes(id))setPortrait(el,heroes[id],58)}document.querySelector('#metaLaunch').onclick=()=>{playSfx();showRoster()};document.querySelector('#metaRoster').onclick=()=>{playSfx();showRoster()};document.querySelector('#metaHelp').onclick=()=>{playSfx();showMetaHelp()};document.querySelector('#metaAchievements').onclick=()=>{playSfx();showAchievements()};document.querySelector('#metaSettings').onclick=()=>{playSfx();showSettings()}};
 function showSettings(){run=false;drag=null;setScene('meta');U.over.className='overlay meta-scene';const volume=(key,label,note)=>'<label class="setting-row"><span><b>'+label+'</b><small>'+note+'</small></span><span><input id="setting-'+key+'" type="range" min="0" max="1" step="0.05" value="'+settings[key]+'"><output id="setting-'+key+'-value">'+Math.round(settings[key]*100)+'%</output></span></label>';U.over.innerHTML='<div class="meta-hub">'+metaHeader(tr('system'))+'<section class="system-panel"><h2>'+tr('settings')+'</h2><p>'+tr('saveNote')+'</p><div class="settings-group"><h3>'+tr('language')+'</h3><div class="setting-row"><span><b>'+tr('language')+'</b><small>'+tr('languageNote')+'</small></span><span class="language-choice"><button data-lang="ko" class="'+(settings.language==='ko'?'active':'')+'">한국어</button><button data-lang="en" class="'+(settings.language==='en'?'active':'')+'">English</button></span></div></div><div class="settings-group"><h3>'+tr('audio')+'</h3>'+volume('master',tr('master'),'MASTER')+volume('bgm',tr('bgm'),'AMBIENT')+volume('sfx',tr('sfx'),'PINBALL FX')+'</div><div class="settings-actions"><button id="settingsReset">'+tr('reset')+'</button><button id="settingsBack">'+tr('back')+'</button></div></section></div>';for(const button of document.querySelectorAll('[data-lang]'))button.onclick=()=>{settings.language=button.dataset.lang;saveSettings();playSfx('confirm');showSettings()};for(const key of ['master','bgm','sfx']){const input=document.querySelector('#setting-'+key),output=document.querySelector('#setting-'+key+'-value');input.oninput=()=>{settings[key]=Number(input.value);output.textContent=Math.round(settings[key]*100)+'%';ensureAudio();saveSettings()}}document.querySelector('#settingsReset').onclick=()=>{settings={language:'ko',master:.7,bgm:.28,sfx:.65};saveSettings();playSfx('unlock');showSettings()};document.querySelector('#settingsBack').onclick=()=>{playSfx();showMeta()}}
@@ -642,7 +642,7 @@ function billiardPointerDown(e){if(!run)return;const p=pointer(e);if(!ball?.movi
 // into a virtual cue pull; the guide uses the exact same vector.
 function cuePull(p){const dy=p.y-ball.y;return{x:p.x,y:ball.y+(dy>0?dy*4.8:dy)}}
 function billiardPointerMove(e){if(!drag)return;e.stopImmediatePropagation();const p=pointer(e);drag.x=p.x;drag.y=p.y;const pull=cuePull(p);ball.launchPower=clamp(Math.hypot(ball.x-pull.x,ball.y-pull.y)/260,.28,1)}
-function billiardPointerUp(e){if(!drag||ball?.moving)return;e.stopImmediatePropagation();const raw=pointer(e),p=cuePull(raw),dx=ball.x-p.x,dy=ball.y-p.y,l=Math.hypot(dx,dy);drag=null;if(l<18){toast('유성을 더 멀리 끌어 당겨보세요.');return}const force=clamp(l/260,.28,1),aim=billiardAim(dx,dy),speed=750+force*975;ball.launchPower=force;ball.vx=aim.x*speed;ball.vy=aim.y*speed;ball.moving=true;ball.aimAssist=aim.assisted;battle.shots--;chain=[];msg='유성 발사! 별지기 충돌은 직접 보스 공격과 가속을 함께 만듭니다.';toast(aim.assisted?'항로 보정 · 연쇄 진입':'유성 발사 · 위력 '+Math.round(force*100)+'%');if(onboarding?.step===0){onboarding.step=1;renderOnboarding()}sync()}
+function billiardPointerUp(e){if(!drag||ball?.moving)return;e.stopImmediatePropagation();if(onboarding&&onboarding.phase<3&&(onboarding.dialogue??0)===0){drag=null;toast('루나의 설명을 읽고 아래 버튼을 눌러 주세요.');return}const raw=pointer(e),p=cuePull(raw),dx=ball.x-p.x,dy=ball.y-p.y,l=Math.hypot(dx,dy);drag=null;if(l<18){toast('유성을 더 멀리 끌어 당겨보세요.');return}const force=clamp(l/260,.28,1),aim=billiardAim(dx,dy),speed=750+force*975;ball.launchPower=force;ball.vx=aim.x*speed;ball.vy=aim.y*speed;ball.moving=true;ball.aimAssist=aim.assisted;battle.shots--;chain=[];msg='유성 발사! 별지기 충돌은 직접 보스 공격과 가속을 함께 만듭니다.';toast(aim.assisted?'항로 보정 · 연쇄 진입':'유성 발사 · 위력 '+Math.round(force*100)+'%');if(onboarding&&onboarding.phase<3){onboarding.launched=true;renderOnboarding()}sync()}
 c.addEventListener('pointerdown',billiardPointerDown,true);c.addEventListener('pointermove',billiardPointerMove,true);c.addEventListener('pointerup',billiardPointerUp,true);c.addEventListener('contextmenu',e=>{if(run){e.preventDefault();e.stopImmediatePropagation()}},true);
 // Mobile party billiards: heroes are physical rune spheres.  They are not
 // static bumpers; any hero that actually rolls wakes up and attacks only after
@@ -868,30 +868,97 @@ function loop(t){const d=Math.min(.033,(t-last)/1000||0);last=t;if(impactStop>0)
 const STORY_INTRO_STORAGE='prism-breakers.story-intro.v1';
 const STORY_CONSTELLATION_TOOLTIP='별지기들이 멈춘 자리가 별자리를 이룹니다. 크게, 대담하게 그릴수록 강해집니다.';
 const ONBOARDING_STORAGE='stella-ball.onboarding.v1';
+const ONBOARDING_CLEAR_STORAGE='stella-ball.onboarding-clear.v1';
+const PARTY_SLOT_STORAGE='stella-ball.party-slots.v1';
 let constellationReveal=null;
 function markStoryIntroSeen(){try{localStorage.setItem(STORY_INTRO_STORAGE,'1')}catch{}}
 function hasSeenStoryIntro(){try{return localStorage.getItem(STORY_INTRO_STORAGE)==='1'}catch{return false}}
 function markOnboardingSeen(){try{localStorage.setItem(ONBOARDING_STORAGE,'1')}catch{}}
 function hasSeenOnboarding(){try{return localStorage.getItem(ONBOARDING_STORAGE)==='1'}catch{return false}}
+function hasOnboardingClear(){try{return localStorage.getItem(ONBOARDING_CLEAR_STORAGE)==='1'}catch{return false}}
+function hasThirdPartySlot(){try{return localStorage.getItem(PARTY_SLOT_STORAGE)==='3'}catch{return false}}
+function partySlotCount(){return hasThirdPartySlot()?3:2}
+function unlockThirdPartySlot(){try{localStorage.setItem(PARTY_SLOT_STORAGE,'3')}catch{}}
 let onboarding=null;
+const onboardingLayouts=[
+  {party:[],slots:[[360,430],[360,340],[360,480]]},
+  {party:['gaon'],slots:[[360,405],[360,340],[360,480]]},
+  {party:['gaon','biyeon'],slots:[[360,430],[360,350],[360,480]]},
+  {party:['gaon','biyeon'],slots:[[246,442],[474,350],[360,480]]}
+];
+function setOnboardingPhase(phase,first=false){
+  const layout=onboardingLayouts[phase];
+  if(!onboarding)return;
+  stageIndex=0;stages[0].slots=layout.slots.map(point=>[...point]);
+  selected=[...layout.party];deployed=[...layout.party];
+  onboarding={...onboarding,phase,dialogue:0,contacts:new Set(),bossHit:false,launched:false,settled:false,transitioning:false};
+  if(first||!battle)setupBattle();else setupBattle();
+  msg=['도우미 루나 · 유성을 보스에게 곧장 보내 보세요.','도우미 루나 · 가온을 굴려, 멈춘 자리의 근접 베기를 확인하세요.','도우미 루나 · 두 별지기를 한 번의 흐름으로 깨워 별자리 배율을 만드세요.','도우미 루나 · 두 별지기가 준비됐어요. 이제 첫 관측을 마무리하세요.'][phase];
+  sync();renderOnboarding();
+}
+function setOnboardingDialogue(dialogue){if(!onboarding)return;onboarding.dialogue=dialogue;onboarding.launched=false;renderOnboarding()}
+function continueOnboarding(action){
+  if(!onboarding)return;
+  playSfx?.('confirm');
+  if(action==='direct-aim')return setOnboardingDialogue(1);
+  if(action==='add-gaon')return setOnboardingPhase(1);
+  if(action==='gaon-aim')return setOnboardingDialogue(1);
+  if(action==='add-pair')return setOnboardingPhase(2);
+  if(action==='pair-aim')return setOnboardingDialogue(1);
+  if(action==='final-setup')return setOnboardingPhase(3);
+  if(action==='complete')return completeOnboarding();
+}
 function renderOnboarding(){
   document.querySelector('.onboarding-card')?.remove();
   if(!onboarding)return;
-  const step=onboarding.step,copy=[
-    {title:'유성을 끌어 발사하세요',body:'화면 아래의 유성을 아래로 끌었다가 놓으세요. 유성은 반대 방향으로 날아갑니다.'},
-    {title:onboarding.awakened?'별지기가 깨어났습니다':'별지기를 향해 날아가고 있습니다',body:onboarding.awakened?'유성이 별지기에 닿으면 둘 다 움직입니다. 모든 공이 멈출 때까지 궤적을 지켜보세요.':'유성이 별지기와 닿아야 각성합니다. 빗나갔다면 다음 유성을 중앙의 비연 쪽으로 보내 보세요.'},
-    {title:'첫 관측을 마쳤습니다',body:'멈춘 비연은 보스에게 각성 공격을 합니다. 다음에는 빛나는 약점을 노려 더 큰 피해를 만들 수 있어요.'}
-  ][step];
-  const card=document.createElement('section');card.className='onboarding-card '+(step===1?'waiting':step===2?'complete':'');
-  card.innerHTML='<div class="onboarding-kicker"><span>ONBOARDING · 1-1</span><b>'+String(step+1)+' / 3</b></div><h3>'+copy.title+'</h3><p>'+copy.body+'</p><div class="onboarding-progress"><i class="active"></i><i class="'+(step>0?'active':'')+'"></i><i class="'+(step>1?'active':'')+'"></i></div>'+(step===2?'<button id="finishOnboarding">별자리 지도 열기</button>':'');
+  const step=onboarding.phase,dialogue=onboarding.dialogue??0;
+  const lessons=[
+    [
+      {n:1,title:'안녕, 관측자님.',body:'나는 루나예요. 급하게 하지 않아도 괜찮아요. 이 수업에서는 한 번에 딱 하나씩만 알려 줄게요. 지금 전장에는 유성 하나와 공허 거상 하나만 있어요.',button:'루나의 첫 설명 듣기',action:'direct-aim'},
+      {n:2,title:'먼저, 유성을 찾아볼까요?',body:'화면 아래 가운데의 작은 빛이 유성이에요. 유성을 마우스로 잡은 뒤 아래쪽으로 끌어 보세요. 손을 놓으면 당긴 방향의 반대로, 즉 위쪽으로 날아가요.'},
+      {n:3,title:onboarding.bossHit?'아주 잘했어요. 직격 성공!':'유성이 날아가고 있어요.',body:onboarding.bossHit?'보스 몸체에 닿자 피해 숫자가 떴죠? 빛나는 약점이 아니어도 보스는 피해를 받아요. 처음에는 몸체를 향하는 것만으로 충분해요.':'지금은 조작하지 말고 유성이 어디로 가는지 지켜보세요. 빗나가도 괜찮아요. 유성이 멈추면 같은 방법으로 다시 시도할 수 있어요.'},
+      {n:3,title:'첫 번째 규칙을 기억하세요.',body:'유성 자체도 보스에게 피해를 줄 수 있어요. 하지만 다음부터는 잠든 별지기를 깨워 더 큰 공격을 만들 거예요. 이제 첫 별지기를 불러올게요.',button:'다음: 가온 만나기',action:'add-gaon'}
+    ],[
+      {n:4,title:'이 별지기는 가온이에요.',body:'가온은 유성과 마찬가지로 부딪히면 굴러가요. 다만 가온은 멈춘 뒤, 자기 주변을 검으로 베는 근접 공격을 해요. 그래서 보스 가까이에서 멈추게 하면 좋아요.',button:'가온을 굴려 볼게요',action:'gaon-aim'},
+      {n:5,title:'이번에는 보스가 아니라 가온이에요.',body:'점선 끝의 금빛 원이 가온이에요. 유성을 가온 쪽으로 보내 보세요. 유성과 가온이 닿으면 둘 다 움직이기 시작합니다.'},
+      {n:6,title:'딩! 가온이 깨어났어요.',body:'가온이 움직였다는 뜻이에요. 아직은 공격하지 않아요. 모든 공이 완전히 멈출 때까지 기다린 뒤, 가온이 마지막 위치에서 검을 휘둘러요.'},
+      {n:6,title:'가온의 각성 공격을 봤어요.',body:'핵심은 “어디에서 멈췄는가”예요. 같은 충돌이라도 가온이 보스 가까이 멈추면 훨씬 좋은 결과가 나와요. 이번에는 별지기를 하나 더 늘려 볼까요?',button:'다음: 비연 추가하기',action:'add-pair'}
+    ],[
+      {n:7,title:'이번 별지기는 비연이에요.',body:'비연은 멈춘 자리에서 보스를 향해 화살을 쏘는 원거리 별지기예요. 가온과 비연을 모두 깨우면, 한 번의 유성이 두 번의 각성 공격을 준비하게 됩니다.',button:'두 별지기의 길 보기',action:'pair-aim'},
+      {n:8,title:'이번 목표는 둘을 한 흐름으로 잇는 것.',body:'가온이 먼저 비연 쪽으로 굴러갈 수 있게 가운데 선을 따라 발사해 보세요. 유성이 가온을 깨우고, 가온이 비연까지 밀어 주면 둘 다 깨어납니다.'},
+      {n:9,title:onboarding.contacts.size>=2?'두 별지기가 모두 깨어났어요!':'첫 별지기가 움직였어요.',body:onboarding.contacts.size>=2?'좋아요. 가온과 비연이 모두 움직였어요. 오른쪽 CONSTELLATION 패널을 보세요. 전원 연결 보너스로 별자리 배율이 올라갑니다.':'아직 비연이 잠들어 있어요. 괜찮아요. 다음 유성으로 비연에게 닿게 해 보세요. 별지기 둘을 모두 움직여야 별자리 배율이 올라가요.'},
+      {n:10,title:'별자리 배율은 왜 중요할까요?',body:'같은 보스를 맞혀도, 여러 별지기를 한 번의 흐름으로 깨운 유성이 더 큰 피해를 만들어요. 이것이 Stella Ball의 기본 전략이에요. 충돌 순서와 멈춘 자리를 함께 설계하는 거죠.'},
+      {n:10,title:'마지막으로 전장을 정리할게요.',body:'이제 가온과 비연을 서로 다른 자리에 준비해 둘게요. 실제 전투에서는 세 번째 별지기까지 더해 나만의 별자리를 만들 수 있어요.',button:'마지막 정리 보기',action:'final-setup'}
+    ],[
+      {n:11,title:'첫 관측 수업을 마쳤습니다.',body:'직접 맞히기, 별지기 깨우기, 둘을 연결해 별자리 배율 만들기까지 전부 해냈어요. 보상으로 세 번째 별지기 슬롯을 열어 드릴게요. 이제부터는 세 명의 조합을 직접 선택할 수 있어요.',button:'1-1 관측 완료',action:'complete'}
+    ]
+  ];
+  const copy=lessons[step][Math.min(dialogue,lessons[step].length-1)];
+  const card=document.createElement('section');card.className='onboarding-card '+(onboarding.launched?'waiting ':'')+(step===3?'complete':'');
+  const bars=Array.from({length:11},(_,i)=>'<i class="'+(i<copy.n?'active':'')+'"></i>').join('');
+  card.innerHTML='<div class="onboarding-kicker"><span>관측 수업 · 1-1</span><b>'+copy.n+' / 11</b></div><div class="onboarding-helper"><img src="'+feedbackArt.critStar+'" alt=""><span><b>루나 · 관측 보조</b><small>LAST OBSERVATORY</small></span></div><h3>'+copy.title+'</h3><p>'+copy.body+'</p><div class="onboarding-progress">'+bars+'</div>'+(copy.button?'<button id="onboardingContinue">'+copy.button+'</button>':'');
   stageEl.append(card);
-  if(step===2)document.querySelector('#finishOnboarding').onclick=()=>{markOnboardingSeen();onboarding=null;playSfx?.('confirm');showMeta()};
+  if(copy.button)document.querySelector('#onboardingContinue').onclick=()=>continueOnboarding(copy.action);
 }
 function showOnboardingTutorial(replay=false){
-  stageIndex=0;selected=['gaon','lumi','biyeon'];deployed=['gaon','lumi','biyeon'];resetBuild();onboarding={step:0,replay};setupBattle();renderOnboarding();
+  const returnParty=selected.length?[...selected]:['gaon','biyeon'];
+  resetBuild();onboarding={phase:0,dialogue:0,replay,returnParty,contacts:new Set(),bossHit:false,launched:false,settled:false,transitioning:false};setOnboardingPhase(0,true);
 }
+function completeOnboarding(){
+  const firstClear=!hasOnboardingClear();
+  markOnboardingSeen();unlockThirdPartySlot();
+  if(firstClear){try{localStorage.setItem(ONBOARDING_CLEAR_STORAGE,'1')}catch{};progress.clears++;saveProgress()}
+  selected=onboarding?.replay&&onboarding.returnParty?.length?[...onboarding.returnParty]:['gaon','biyeon'];deployed=[...selected];onboarding=null;run=false;drag=null;playSfx?.('unlock');
+  U.over.className='overlay';U.over.innerHTML='<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">업적 해금</div><h2>첫 관측자의 증명</h2><p>별지기 파티 슬롯이 하나 열렸습니다. 이제 세 명의 별지기를 함께 관측할 수 있어요.</p><button id="openOnboardingAchievement">업적 도감 확인</button><button id="openConstellationMap">별자리 지도</button></div>';U.over.classList.remove('hide');
+  document.querySelector('#openOnboardingAchievement').onclick=()=>{playSfx();showAchievements()};
+  document.querySelector('#openConstellationMap').onclick=()=>{playSfx();showStageSelect()};
+}
+const baseOnboardingDamage=damage;
+damage=function(weak=false){baseOnboardingDamage(weak);if(onboarding?.phase===0&&!onboarding.bossHit){onboarding.bossHit=true;onboarding.dialogue=2;renderOnboarding()}};
+const baseOnboardingTrackBlazeUnit=trackBlazeUnit;
+trackBlazeUnit=function(g){baseOnboardingTrackBlazeUnit(g);if(onboarding&&(onboarding.phase===1||onboarding.phase===2)&&!onboarding.contacts.has(g.id)){onboarding.contacts.add(g.id);onboarding.dialogue=onboarding.phase===1?2:onboarding.contacts.size>=2?3:2;renderOnboarding()}};
 const baseOnboardingWakeUnit=wakeUnit;
-wakeUnit=function(g){baseOnboardingWakeUnit(g);if(onboarding?.step===1&&!onboarding.awakened){onboarding.awakened=true;renderOnboarding()}};
+wakeUnit=function(g){baseOnboardingWakeUnit(g);if(onboarding&&(onboarding.phase===1||onboarding.phase===2)&&!onboarding.contacts.has(g.id)){onboarding.contacts.add(g.id);onboarding.dialogue=onboarding.phase===1?2:onboarding.contacts.size>=2?3:2;renderOnboarding()}};
 function showStoryIntro(){
   run=false;drag=null;setScene('title');
   U.over.className='overlay story-intro-scene';
@@ -908,7 +975,7 @@ showTitle=function(){
   U.over.innerHTML='<section class="title-sequence" aria-label="STELLA BALL 시작 화면"><div class="title-stars" aria-hidden="true">'+stars+'</div><div class="title-rift" aria-hidden="true"></div><img class="title-boss" src="'+bossArt.sprite+'" alt=""><img class="title-impact" src="'+feedbackArt.corebreak+'" alt="" aria-hidden="true"><img class="title-orb" src="'+staticArt.orb+'" alt="" aria-hidden="true"><div class="title-copy"><img class="title-wordmark" src="'+metaArt.wordmark+'" alt="STELLA BALL"><small class="title-kicker">THE LAST OBSERVATORY</small><p>유성을 굴려 잠든 별지기를 깨우세요. 그들이 멈춘 자리가 별자리가 됩니다.</p><div class="title-party" aria-label="대표 별지기">'+party+'</div><button class="title-enter" id="enterHub"><img src="'+metaArt.play+'" alt="">게임 시작</button><small class="title-skip">METEOR TACTICAL ACTION</small></div></section>';
   const enter=document.querySelector('#enterHub');
   setTimeout(()=>{if(sequence===titleSequence&&document.body.classList.contains('title-mode'))enter.classList.add('ready')},880);
-  enter.onclick=()=>{if(!hasSeenStoryIntro())showStoryIntro();else if(!hasSeenOnboarding()){playSfx?.('confirm');showOnboardingTutorial()}else{playSfx?.('confirm');showMeta()}};
+  enter.onclick=()=>{if(!hasSeenStoryIntro())showStoryIntro();else if(!hasSeenOnboarding()||!hasThirdPartySlot()){playSfx?.('confirm');showOnboardingTutorial()}else{playSfx?.('confirm');showMeta()}};
 };
 function storySkyStars(count){return Array.from({length:Math.min(30,count)},(_,i)=>'<i aria-hidden="true" style="left:'+((i*47+13)%91+4)+'%;top:'+((i*29+17)%82+7)+'%"></i>').join('')}
 showMeta=function(){
@@ -926,13 +993,13 @@ showMeta=function(){
   document.querySelector('#hubGuide').onclick=()=>{playSfx();showTutorial()};
 };
 const baseStorySetupBattle=setupBattle;
-setupBattle=function(){baseStorySetupBattle();const stage=currentStage();msg=battle.training?'무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기.':stage.tutorial?'1-1 · 유성을 아래로 끌어 비연에게 부딪혀 보세요.':stage.name+' · 별지기를 깨우고, 멈춘 자리로 별자리를 그리세요.';sync()};
+setupBattle=function(){baseStorySetupBattle();const stage=currentStage();if(stage.tutorial){battle.shots=99;battle.shotMax=99}msg=battle.training?'무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기.':stage.tutorial?'1-1 · 루나의 안내를 따라 유성과 별지기의 첫 연계를 관측하세요.':stage.name+' · 별지기를 깨우고, 멈춘 자리로 별자리를 그리세요.';sync()};
 resultCard=function(shotsUsed,elapsedMs){const medal=shotsUsed<=1?'flawless':shotsUsed<=2?'sharp':'clear',seconds=(elapsedMs/1000).toFixed(1);return '<div class="result-card"><img class="result-medal" src="'+libraryArt.result[medal]+'" alt="전투 메달"><div class="result-metrics"><span class="result-metric"><img src="'+libraryArt.result.time+'" alt=""><span>클리어<b>'+seconds+'초</b></span></span><span class="result-metric"><img src="'+libraryArt.result.shots+'" alt=""><span>사용 유성<b>'+shotsUsed+'개</b></span></span><span class="result-metric"><img src="'+libraryArt.result.damage+'" alt=""><span>처치 피해<b>'+boss.maxHp+'</b></span></span></div></div>'};
 fail=function(){battleComplete=true;assistShots=[];U.over.className='overlay';U.over.innerHTML='<div class="outcome-cut fail"><div class="outcome-constellation" aria-hidden="true"><i>·</i><i>✧</i><i>·</i></div><div class="tag">관측 실패</div><h2>별빛이 닿지 않았습니다.</h2><p>다른 별지기와 다른 궤적으로 다시 관측하세요.</p><button onclick="showRoster()">다시 관측하기</button></div>';U.over.classList.remove('hide')};
 const baseStoryEndShot=endShot;
 endShot=function(){baseStoryEndShot();if(run&&battle&&!battle.training){msg='다음 유성을 준비하세요. 남은 배치에서 별자리를 다시 설계하세요.';sync()}};
 const baseStorySettleParty=settleParty;
-settleParty=function(){baseStorySettleParty();if(gates.length===3){constellationReveal={points:gates.map(g=>({x:g.x,y:g.y})),endsAt:performance.now()+800,mult:ball?.blaze?.mult||1}}if(onboarding?.step===1&&onboarding.awakened){onboarding.step=2;setTimeout(renderOnboarding,420)}else if(onboarding?.step===1)setTimeout(renderOnboarding,220)};
+settleParty=function(){baseStorySettleParty();if(gates.length===3){constellationReveal={points:gates.map(g=>({x:g.x,y:g.y})),endsAt:performance.now()+800,mult:ball?.blaze?.mult||1}}if(!onboarding)return;onboarding.settled=true;if(onboarding.phase===0&&onboarding.bossHit)onboarding.dialogue=3;else if(onboarding.phase===1&&onboarding.contacts.has('gaon'))onboarding.dialogue=3;else if(onboarding.phase===2&&onboarding.contacts.size>=2)onboarding.dialogue=4;else onboarding.launched=false;setTimeout(renderOnboarding,180)};
 function drawConstellationReveal(){
   if(!constellationReveal)return;const left=constellationReveal.endsAt-performance.now();if(left<=0){constellationReveal=null;return}
   const p=left/800,points=constellationReveal.points,cx=points.reduce((sum,v)=>sum+v.x,0)/points.length,cy=points.reduce((sum,v)=>sum+v.y,0)/points.length;
@@ -940,6 +1007,16 @@ function drawConstellationReveal(){
 }
 const baseStoryDraw=draw;
 draw=function(){baseStoryDraw();drawConstellationReveal()};
+function drawOnboardingGuide(){
+  if(!onboarding||!battle||!ball||ball.moving||(onboarding.dialogue??0)===0)return;
+  const phase=onboarding.phase,target=phase===0?boss:phase===1?gates[0]:null;
+  x.save();x.lineWidth=1.5;x.setLineDash([5,5]);x.strokeStyle='#ffe6a1';x.shadowBlur=11;x.shadowColor='#ffd36f';
+  if(target){x.beginPath();x.moveTo(ball.x,ball.y);x.lineTo(target.x,target.y);x.stroke();x.setLineDash([]);x.strokeStyle=phase===0?'#f2a48d':target.col;x.lineWidth=2;x.beginPath();x.arc(target.x,target.y,phase===0?72:35,0,Math.PI*2);x.stroke();x.fillStyle='#fff0bd';x.font='bold 10px Galmuri11, ui-monospace';x.textAlign='center';x.fillText(phase===0?'직격 목표':target.s+'을 향해',target.x,target.y-44)}
+  if(phase===2&&gates.length===2){const pivot={x:360,y:490};x.beginPath();x.moveTo(pivot.x,pivot.y);for(const gate of gates)x.lineTo(gate.x,gate.y);x.stroke();x.setLineDash([]);x.fillStyle='#fff0bd';x.font='bold 10px Galmuri11, ui-monospace';x.textAlign='center';x.fillText('두 별지기를 잇는 관측 각도',pivot.x,pivot.y+20);for(const gate of gates){x.strokeStyle=gate.col;x.beginPath();x.arc(gate.x,gate.y,35,0,Math.PI*2);x.stroke()}}
+  x.restore();
+}
+const baseOnboardingDraw=draw;
+draw=function(){baseOnboardingDraw();drawOnboardingGuide()};
 const baseStoryVictoryFx=drawVictoryFx;
 drawVictoryFx=function(){baseStoryVictoryFx();const v=battle?.victory;if(!v||!boss)return;const p=Math.min(1,v.t/v.d),wx=boss.x+Math.cos(boss.a)*84,wy=boss.y+Math.sin(boss.a)*84,image=textures[feedbackArt.critStar];x.save();x.globalAlpha=Math.min(1,p/.18,1-p*.35);x.translate(wx,wy-p*(H*.58));x.rotate(p*.45);x.imageSmoothingEnabled=false;x.shadowBlur=20;x.shadowColor='#ffe38e';if(image?.complete&&image.naturalWidth)x.drawImage(image,-19,-19,38,38);else{circle(0,0,10,'#fff1a5',15);circle(0,0,4,'#fff',2)}x.restore()};
 const baseStoryWin=win;
