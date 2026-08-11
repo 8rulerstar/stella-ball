@@ -178,7 +178,7 @@ const bossArt={sprite:'../assets/library/boss2/void-colossus.png',fw:384,fh:384,
 const staticArt={orb:'../assets/original/prism-orb.svg',weak:'../assets/library/boss2/void-colossus-weakgem.png',rock1:'../assets/terrain/rock-01.png',rock4:'../assets/terrain/rock-04.png',wispIdle:'../assets/enemies/void-wisp-idle.png',wispHit:'../assets/enemies/void-wisp-hit.png'};
 // Existing pixel FX are intentionally reused in the combat pass.  They give
 // high-value events a recognizable silhouette instead of another coloured ring.
-const feedbackArt={impact:'../assets/library/fx/prism-impact.png',shockwave:'../assets/library/fx/rune-shockwave.png',comet:'../assets/library/fx/prism-comet.png',electric:'../assets/fx/electric-ring.png',burst:'../assets/library/fx/prism-impact.png'};
+const feedbackArt={impact:'../assets/library/fx/prism-impact.png',shockwave:'../assets/library/fx/rune-shockwave.png',comet:'../assets/library/fx/prism-comet.png',electric:'../assets/fx/electric-ring.png',burst:'../assets/library/fx/prism-impact.png',corebreak:'../assets/library/fx/core-break-signature-512.png'};
 const libraryArt={
   stages:[
     {tile:'../assets/library/stages/tile-corridor.png',emblem:'../assets/library/stages/emblem-corridor.png',frame:['../assets/library/arena-frames/corridor-edge-h.png','../assets/library/arena-frames/corridor-edge-v.png','../assets/library/arena-frames/corridor-corner.png'],props:[['../assets/library/props/rune-pillar.png',82,642,58],['../assets/library/props/void-lantern.png',638,570,40]]},
@@ -222,7 +222,7 @@ function showTitle(){
   const stars=Array.from({length:18},(_,i)=>'<i style="left:'+((i*37+11)%94+3)+'%;top:'+((i*53+7)%68+4)+'%;--d:-'+((i%7)*.31).toFixed(2)+'s"></i>').join('');
   const party=['gaon','biyeon','lumi'].map(id=>'<img src="'+runeStone(id)+'" alt="'+heroes[id].s+'">').join('');
   U.over.className='overlay title-scene';
-  U.over.innerHTML='<section class="title-sequence" aria-label="Prism Breakers 시작 화면"><div class="title-stars" aria-hidden="true">'+stars+'</div><div class="title-rift" aria-hidden="true"></div><img class="title-boss" src="'+bossArt.sprite+'" alt=""><img class="title-impact" src="'+feedbackArt.impact+'" alt="" aria-hidden="true"><img class="title-orb" src="'+staticArt.orb+'" alt="" aria-hidden="true"><div class="title-copy"><img class="title-wordmark" src="'+metaArt.wordmark+'" alt="PRISM BREAKERS"><small class="title-kicker">ROLL · AWAKEN · BREAK</small><p>룬볼로 동료를 굴리고, 멈춘 자리의 각성 공격으로 공허 거상을 무너뜨리세요.</p><div class="title-party" aria-label="대표 유닛">'+party+'</div><button class="title-enter" id="enterHub"><img src="'+metaArt.play+'" alt="">게임 시작</button><small class="title-skip">RUNE BALL TACTICAL ACTION</small></div></section>';
+  U.over.innerHTML='<section class="title-sequence" aria-label="Prism Breakers 시작 화면"><div class="title-stars" aria-hidden="true">'+stars+'</div><div class="title-rift" aria-hidden="true"></div><img class="title-boss" src="'+bossArt.sprite+'" alt=""><img class="title-impact" src="'+feedbackArt.corebreak+'" alt="" aria-hidden="true"><img class="title-orb" src="'+staticArt.orb+'" alt="" aria-hidden="true"><div class="title-copy"><img class="title-wordmark" src="'+metaArt.wordmark+'" alt="PRISM BREAKERS"><small class="title-kicker">ROLL · AWAKEN · BREAK</small><p>룬볼로 동료를 굴리고, 멈춘 자리의 각성 공격으로 공허 거상을 무너뜨리세요.</p><div class="title-party" aria-label="대표 유닛">'+party+'</div><button class="title-enter" id="enterHub"><img src="'+metaArt.play+'" alt="">게임 시작</button><small class="title-skip">RUNE BALL TACTICAL ACTION</small></div></section>';
   const enter=document.querySelector('#enterHub');
   setTimeout(()=>{if(sequence===titleSequence&&document.body.classList.contains('title-mode'))enter.classList.add('ready')},880);
   enter.onclick=()=>{playSfx?.('confirm');showMeta()};
@@ -709,6 +709,7 @@ function feedbackBeat(kind,px,py,col='#fff1a6',power=1,label=''){
 }
 function combatSfx(kind='hit',strength=1){
   if(settings.sfx<=0)return;
+  playSampleSfx(kind,strength);
   const engine=ensureAudio();if(!engine)return;
   const ac=engine.ac,now=ac.currentTime,tones={wall:[170,235,.055],unit:[215,405,.085],hit:[250,390,.10],weak:[360,760,.16],riposte:[290,930,.24],awaken:[420,640,.13],mult:[510,820,.13]}[kind]||[260,420,.08];
   const gain=ac.createGain(),osc=ac.createOscillator();
@@ -716,6 +717,13 @@ function combatSfx(kind='hit',strength=1){
   osc.frequency.setValueAtTime(tones[0],now);osc.frequency.exponentialRampToValueAtTime(tones[1],now+tones[2]);
   gain.gain.setValueAtTime(.042*settings.sfx*Math.min(1.5,strength),now);gain.gain.exponentialRampToValueAtTime(.001,now+tones[2]);
   osc.connect(gain);gain.connect(engine.master);osc.start(now);osc.stop(now+tones[2]+.025);
+}
+const sampleSfxCue={wall:'wall-03',unit:'unit-03',hit:'unit-06',weak:'weak-03',riposte:'riposte-03',awaken:'ability-05',mult:'mult-03'};
+const sampleSfxCooldown={};
+function playSampleSfx(kind='hit',strength=1){
+  const cue=sampleSfxCue[kind];if(!cue||settings.sfx<=0)return;
+  const now=performance.now(),last=sampleSfxCooldown[cue]||0;if(now-last<58)return;sampleSfxCooldown[cue]=now;
+  const sound=new Audio('../assets/audio/sfx50/'+cue+'.wav');sound.preload='auto';sound.volume=Math.min(.24,settings.master*settings.sfx*.18*Math.min(1.35,strength));sound.play().catch(()=>{});
 }
 function paintFeedbackAsset(path,px,py,size,alpha=1,angle=0,turn=0){
   const image=textures[path];if(!image?.complete||!image.naturalWidth)return;

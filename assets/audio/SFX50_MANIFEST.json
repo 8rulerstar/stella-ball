@@ -1,0 +1,307 @@
+{
+  "name": "Prism Breakers SFX Pack 50",
+  "format": "WAV / mono / PCM 16-bit",
+  "licence": "project-original procedural synthesis",
+  "cues": [
+    {
+      "file": "audio/sfx50/launch-01.wav",
+      "cue": "launch-01",
+      "durationMs": 162,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/launch-02.wav",
+      "cue": "launch-02",
+      "durationMs": 174,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/launch-03.wav",
+      "cue": "launch-03",
+      "durationMs": 150,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/launch-04.wav",
+      "cue": "launch-04",
+      "durationMs": 162,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/launch-05.wav",
+      "cue": "launch-05",
+      "durationMs": 174,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/wall-01.wav",
+      "cue": "wall-01",
+      "durationMs": 102,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/wall-02.wav",
+      "cue": "wall-02",
+      "durationMs": 114,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/wall-03.wav",
+      "cue": "wall-03",
+      "durationMs": 90,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/wall-04.wav",
+      "cue": "wall-04",
+      "durationMs": 102,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/wall-05.wav",
+      "cue": "wall-05",
+      "durationMs": 114,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-01.wav",
+      "cue": "unit-01",
+      "durationMs": 132,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-02.wav",
+      "cue": "unit-02",
+      "durationMs": 144,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-03.wav",
+      "cue": "unit-03",
+      "durationMs": 120,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-04.wav",
+      "cue": "unit-04",
+      "durationMs": 132,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-05.wav",
+      "cue": "unit-05",
+      "durationMs": 144,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-06.wav",
+      "cue": "unit-06",
+      "durationMs": 120,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-07.wav",
+      "cue": "unit-07",
+      "durationMs": 132,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/unit-08.wav",
+      "cue": "unit-08",
+      "durationMs": 144,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/weak-01.wav",
+      "cue": "weak-01",
+      "durationMs": 202,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/weak-02.wav",
+      "cue": "weak-02",
+      "durationMs": 214,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/weak-03.wav",
+      "cue": "weak-03",
+      "durationMs": 190,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/weak-04.wav",
+      "cue": "weak-04",
+      "durationMs": 202,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/weak-05.wav",
+      "cue": "weak-05",
+      "durationMs": 214,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/riposte-01.wav",
+      "cue": "riposte-01",
+      "durationMs": 292,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/riposte-02.wav",
+      "cue": "riposte-02",
+      "durationMs": 304,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/riposte-03.wav",
+      "cue": "riposte-03",
+      "durationMs": 280,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/riposte-04.wav",
+      "cue": "riposte-04",
+      "durationMs": 292,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/riposte-05.wav",
+      "cue": "riposte-05",
+      "durationMs": 304,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-01.wav",
+      "cue": "ability-01",
+      "durationMs": 232,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-02.wav",
+      "cue": "ability-02",
+      "durationMs": 244,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-03.wav",
+      "cue": "ability-03",
+      "durationMs": 220,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-04.wav",
+      "cue": "ability-04",
+      "durationMs": 232,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-05.wav",
+      "cue": "ability-05",
+      "durationMs": 244,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-06.wav",
+      "cue": "ability-06",
+      "durationMs": 220,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-07.wav",
+      "cue": "ability-07",
+      "durationMs": 232,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ability-08.wav",
+      "cue": "ability-08",
+      "durationMs": 244,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/mult-01.wav",
+      "cue": "mult-01",
+      "durationMs": 172,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/mult-02.wav",
+      "cue": "mult-02",
+      "durationMs": 184,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/mult-03.wav",
+      "cue": "mult-03",
+      "durationMs": 160,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/mult-04.wav",
+      "cue": "mult-04",
+      "durationMs": 172,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ui-01.wav",
+      "cue": "ui-01",
+      "durationMs": 92,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ui-02.wav",
+      "cue": "ui-02",
+      "durationMs": 104,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ui-03.wav",
+      "cue": "ui-03",
+      "durationMs": 80,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ui-04.wav",
+      "cue": "ui-04",
+      "durationMs": 92,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/ui-05.wav",
+      "cue": "ui-05",
+      "durationMs": 104,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/victory-01.wav",
+      "cue": "victory-01",
+      "durationMs": 432,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/victory-02.wav",
+      "cue": "victory-02",
+      "durationMs": 444,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/victory-03.wav",
+      "cue": "victory-03",
+      "durationMs": 420,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/fail-01.wav",
+      "cue": "fail-01",
+      "durationMs": 282,
+      "sampleRate": 22050
+    },
+    {
+      "file": "audio/sfx50/fail-02.wav",
+      "cue": "fail-02",
+      "durationMs": 294,
+      "sampleRate": 22050
+    }
+  ]
+}
