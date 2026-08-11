@@ -14,6 +14,8 @@ const requiredMarkers = [
   "gaon",
   "biyeon",
   "lumi",
+  "nyx",
+  "RULES={baseDamage:24,chainStep:.55,shots:5,coreHp:260}",
   "function damage",
 ];
 
@@ -24,11 +26,13 @@ if (missingMarkers.length > 0) {
 
 const requiredAssetReferences = [
   "../assets/characters/gaon-warrior-idle.png",
-  "../assets/bosses/void-troll-idle.png",
+  "../assets/library/boss2/void-colossus.png",
+  "../assets/library/anim/boss2/void-colossus-idle.png",
+  "../assets/library/anim/boss2/void-colossus-hit.png",
+  "../assets/library/boss2/void-colossus-weakgem.png",
   "../assets/enemies/void-wisp-idle.png",
   "../assets/enemies/void-wisp-hit.png",
   "../assets/original/prism-orb.svg",
-  "../assets/original/weakpoint.svg",
 ];
 const missingAssetReferences = requiredAssetReferences.filter((asset) => !source.includes(asset));
 if (missingAssetReferences.length > 0) {
@@ -44,6 +48,7 @@ const assetFiles = [
   ...Object.values(manifest.effects).map((asset) => asset.file),
   ...Object.values(manifest.terrain).map((asset) => asset.file),
   ...Object.values(manifest.original),
+  ...Object.values(manifest.combat ?? {}),
 ];
 const missingAssets = assetFiles.filter((asset) => !existsSync(resolve(root, "assets", asset)));
 if (missingAssets.length > 0) {

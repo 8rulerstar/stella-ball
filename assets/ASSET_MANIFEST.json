@@ -29,7 +29,7 @@
     "source": "Deterministic pixel animation generation from the expanded roster portraits"
   },
   "boss": {
-    "voidKing": { "file": "bosses/void-troll-idle.png", "frameWidth": 384, "frameHeight": 384, "frames": 12, "displayScale": 0.62 }
+    "voidColossus": { "file": "library/boss2/void-colossus.png", "frameWidth": 384, "frameHeight": 384, "frames": 1, "displayScale": 0.48, "idleAnimation": "library/anim/boss2/void-colossus-idle.png", "hitAnimation": "library/anim/boss2/void-colossus-hit.png" }
   },
   "enemies": {
     "voidWispIdle": { "file": "enemies/void-wisp-idle.png", "width": 1024, "height": 256, "frameWidth": 256, "frames": 4, "displaySize": 96, "source": "Codex-generated pixel asset animation" },
@@ -78,7 +78,9 @@
   },
   "original": {
     "prismOrb": "original/prism-orb.svg",
-    "runeGlyphs": "original/rune-glyphs.svg",
-    "weakpoint": "original/weakpoint.svg"
+    "runeGlyphs": "original/rune-glyphs.svg"
+  },
+  "combat": {
+    "voidColossusWeakGem": "library/boss2/void-colossus-weakgem.png"
   }
 }
