@@ -6,13 +6,22 @@
       <stop stop-color="#fff6cf" offset="0"/>
       <stop stop-color="#f1c96d" offset="1"/>
     </linearGradient>
+    <linearGradient id="orbit" x1="0" x2="1">
+      <stop stop-color="#90a2ff" stop-opacity="0" offset="0"/>
+      <stop stop-color="#dfe7ff" stop-opacity=".82" offset=".45"/>
+      <stop stop-color="#f3cc78" stop-opacity="0" offset="1"/>
+    </linearGradient>
     <filter id="glow" x="-20%" y="-30%" width="140%" height="170%">
       <feGaussianBlur stdDeviation="5" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
+  <path fill="none" stroke="url(#orbit)" stroke-width="2" d="M105 113C230 14 490 14 618 109"/>
+  <path fill="none" stroke="#aebdff" stroke-opacity=".4" stroke-width="1" stroke-dasharray="3 9" d="M132 132C258 157 475 157 588 128"/>
   <path fill="#9daeff" d="m53 44 7 19 20 7-20 7-7 19-7-19-20-7 20-7zm592 21 5 13 13 5-13 5-5 13-5-13-13-5 13-5z" filter="url(#glow)"/>
-  <text x="360" y="102" fill="#080b20" font-family="monospace" font-size="78" font-weight="900" letter-spacing="-5" text-anchor="middle">STELLA BALL</text>
-  <text x="356" y="96" fill="url(#stella)" font-family="monospace" font-size="78" font-weight="900" letter-spacing="-5" text-anchor="middle">STELLA BALL</text>
+  <text x="360" y="102" fill="#080b20" font-family="Galmuri11,monospace" font-size="78" font-weight="900" letter-spacing="-5" text-anchor="middle">STELLA BALL</text>
+  <text x="356" y="96" fill="url(#stella)" stroke="#fff7d5" stroke-opacity=".32" stroke-width="1" paint-order="stroke" font-family="Galmuri11,monospace" font-size="78" font-weight="900" letter-spacing="-5" text-anchor="middle">STELLA BALL</text>
   <path fill="#b9c8ff" d="M166 123h388v5H166z"/>
+  <circle cx="151" cy="125.5" r="3" fill="#f4d17c"/><circle cx="570" cy="125.5" r="3" fill="#f4d17c"/>
+  <text x="174" y="148" fill="#b8c7ff" font-family="monospace" font-size="10" font-weight="700" letter-spacing="3">THE LAST OBSERVATORY</text>
 </svg>

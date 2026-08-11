@@ -255,3 +255,11 @@
 - 결과: 공식 표시명은 **Stella Ball**로 고정했다. 타이틀과 메타 UI는 새 별빛 워드마크 SVG를 사용하며, README·방향 문서·제출용 협업 문서도 같은 이름을 따른다.
 - 사람이 직접 결정·수정한 점: 공개 저장소명과 URL 경로 `prism-breakers`는 이미 배포·검증 이력에 연결돼 있으므로, 게임의 표시명만 변경하고 기술 경로는 유지한다.
 - 증거: `assets/original/stella-ball-wordmark.svg`, `prototypes/prism-breakers.html`, `GAME_DIRECTION.md`, `CODEX_COLLABORATION.md`.
+
+## 2026-08-11 — Stella Ball 연출·피드백 정교화
+
+- Codex에게 시킨 일: 이름 교체 뒤 약해진 타이틀 존재감과 전투·결과 화면의 피드백 계층을 화면별로 다시 점검하고 보강.
+- 결과: 워드마크에 관측 궤도선·서브마크를 추가하고, 타이틀/허브/UI의 빛 흐름을 정리했다. 전투판에는 낮은 광도의 별먼지와 보스·발사 지점의 초점광을, 약점·RIPOSTE에는 별burst와 더 읽기 쉬운 라벨을, 승패 화면에는 별자리 행과 결과 카드 계층을 추가했다.
+- 막힌 점 / 우회: 배경과 모든 이벤트를 동시에 밝히면 화면이 다시 난잡해진다. 상시 배경은 거의 보이지 않는 남청·달빛으로 제한하고, 높은 가치의 사건에만 금색·청백색 광도와 짧은 모션을 사용했다.
+- 사람이 직접 결정·수정한 점: 파티별 고유 색과 능력 이펙트는 전술 식별용으로 유지한다. 공통 세계관 연출은 이 색을 덮지 않고, 보스 처치·별자리 완성·UI 프레임에만 더한다.
+- 증거: `prototypes/prism-breakers.html`의 Premium feedback pass, `drawObservatoryAtmosphere`, `drawFeedbackBeats`, `outcome-constellation`; `assets/original/stella-ball-wordmark.svg`.
