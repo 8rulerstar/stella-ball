@@ -263,3 +263,10 @@
 - 막힌 점 / 우회: 배경과 모든 이벤트를 동시에 밝히면 화면이 다시 난잡해진다. 상시 배경은 거의 보이지 않는 남청·달빛으로 제한하고, 높은 가치의 사건에만 금색·청백색 광도와 짧은 모션을 사용했다.
 - 사람이 직접 결정·수정한 점: 파티별 고유 색과 능력 이펙트는 전술 식별용으로 유지한다. 공통 세계관 연출은 이 색을 덮지 않고, 보스 처치·별자리 완성·UI 프레임에만 더한다.
 - 증거: `prototypes/prism-breakers.html`의 Premium feedback pass, `drawObservatoryAtmosphere`, `drawFeedbackBeats`, `outcome-constellation`; `assets/original/stella-ball-wordmark.svg`.
+
+## 2026-08-11 — 별자리 캠페인 지도
+
+- Codex에게 시킨 일: 카드 목록형 스테이지 선택을 별자리 위의 스테이지 버튼 형태로 바꾸고, 5장까지의 진행 구조를 먼저 보여 주기.
+- 결과: 「별자리 관측도」에서 1~3장은 현재 전투로 진입하고, 4~5장은 잠긴 관측 지점으로 이어진다. 무한 훈련장은 캠페인과 분리한 하단 도구 진입으로 유지했다.
+- 사람이 직접 결정·수정한 점: 아직 전투가 없는 4·5장을 플레이 가능한 것처럼 만들지 않는다. 이후 보스·지형·목표가 확정될 때 잠금만 해제한다.
+- 증거: `prototypes/prism-breakers.html`의 `showStageSelect`, `constellation-map` CSS.
