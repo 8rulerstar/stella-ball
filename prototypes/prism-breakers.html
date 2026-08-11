@@ -91,6 +91,14 @@ html,body{height:100%;overflow:hidden}body{min-height:100dvh}main{width:min(720p
 @font-face{font-family:"Galmuri11";src:url("../assets/fonts/galmuri/Galmuri11-Bold.woff2") format("woff2");font-weight:700 900;font-style:normal;font-display:swap}
 :root,body,button,input,select,textarea{font-family:"Galmuri11","Apple SD Gothic Neo",sans-serif;font-synthesis:none}button,strong,b,h1,h2,h3,.tag,.meta-profile,.hud,.blaze-card,.boss-panel,.toast{font-family:"Galmuri11","Apple SD Gothic Neo",sans-serif;letter-spacing:0}h1,h2,h3,button,strong,b{font-weight:700}canvas{font-family:"Galmuri11",ui-monospace,monospace}
 </style>
+<style>
+/* Combat juice pass: every meaningful event has a distinct visual beat. */
+.stage.impact-heavy{animation:heavyImpact .18s steps(2);box-shadow:0 0 0 2px #fff0a8,0 0 38px #ff9d5b99,0 28px 88px #05030d99}
+.boss-banner.impact-heavy{border-color:#fff0ae;box-shadow:0 0 0 1px #fff4bd,0 0 24px #ff9a5c99;background:#392033f0}
+.blaze-card.impact-heavy{animation:multHeavy .32s cubic-bezier(.18,.82,.24,1.35)}
+@keyframes heavyImpact{0%{filter:brightness(1)}42%{filter:brightness(1.62) saturate(1.28)}100%{filter:brightness(1)}}
+@keyframes multHeavy{45%{transform:scale(1.15) rotate(-2deg);filter:brightness(1.5)}}
+</style>
 <body>
 <main>
   <header>
@@ -277,7 +285,7 @@ function pickUpgrades(){return [...upgrades].sort(()=>Math.random()-.5).slice(0,
 function showDraft(title,sub,next){run=false;const picks=pickUpgrades();U.over.className='overlay draft-scene';U.over.innerHTML='<div class="tag">강화 선택</div><h2>'+title+'</h2><p>'+sub+'</p><div id="draft" class="choice-grid"></div><div class="overlay-actions"><button id="backDeployment">뒤로</button></div>';const box=document.querySelector('#draft');for(const up of picks){const b=document.createElement('button');b.className='choice-card draft-card';b.style.setProperty('--accent',up.accent);b.innerHTML='<span class="accent"></span><img class="upgrade-icon" src="'+up.icon+'" alt=""><strong>'+up.title+'</strong><small>'+up.text+'</small><em>'+up.tag+' 강화</em>';b.onclick=()=>{up.apply(build);build.names.push(up.title);toast(up.title+' 획득');next()};box.append(b)}document.querySelector('#backDeployment').onclick=showDeployment;U.over.classList.remove('hide')}
 function endShot(){if(ball.needle){for(let i=-1;i<=1;i++)assistShots.push({x:ball.x,y:ball.y,fromX:ball.x,fromY:ball.y,t:0,dur:.25+Math.abs(i)*.05,amount:9,name:'도라 바늘',col:'#ffcf6d'});fieldFx.push({type:'needle',x:ball.x,y:ball.y,t:0,d:.5,col:'#ffcf6d'});ball.needle=false}ball.moving=false;ball.vx=ball.vy=0;ball.trail=[];if(battle.shots<=0){run=false;if(boss.hp>0)return fail('공허 거상이 버텼습니다. 범퍼 연계와 파티 조합을 바꿔보세요.')}else{startShot();msg='다음 룬볼을 준비하세요. 플런저 위력과 플리퍼 타이밍이 콤보를 키웁니다.';sync()}}
 function fail(text){battleComplete=true;assistShots=[];U.over.className='overlay';U.over.innerHTML='<div class="outcome-cut fail"><div class="tag">전투 종료</div><h2>공허 거상이 버텼습니다.</h2><p>'+text+'</p><button onclick="showRoster()">다시 하기</button></div>';U.over.classList.remove('hide')}
-function scheduleWin(){const id=battle?.id;if(!id||battleComplete||battle?.victory)return;battleComplete=true;ball.moving=false;cloneBalls=[];assistShots=[];battle.victory={t:0,d:1.9,elapsedMs:Math.round(performance.now()-battle.startedAt)};screenShake=Math.max(screenShake,15);screenFlash=1;areaBursts.push({x:boss.x,y:boss.y,r:168,col:'#fff0a3',t:0,d:1.15});fieldFx.push({type:'blaze',x:boss.x,y:boss.y,t:0,d:1.15,col:'#ffcd6e'});addPopup(boss.x,boss.y-92,'CORE BREAK!','#fff0a3',true);toast('공허 거상 처치 · 균열이 붕괴합니다!');if(navigator.vibrate)navigator.vibrate([20,38,22,38,55]);setTimeout(()=>{if(battle?.id===id&&battle?.victory)win()},1900)}
+function scheduleWin(){const id=battle?.id;if(!id||battleComplete||battle?.victory)return;battleComplete=true;ball.moving=false;cloneBalls=[];assistShots=[];battle.victory={t:0,d:2.55,elapsedMs:Math.round(performance.now()-battle.startedAt)};screenShake=Math.max(screenShake,15);screenFlash=1;areaBursts.push({x:boss.x,y:boss.y,r:168,col:'#fff0a3',t:0,d:1.15});fieldFx.push({type:'blaze',x:boss.x,y:boss.y,t:0,d:1.15,col:'#ffcd6e'});addPopup(boss.x,boss.y-92,'CORE BREAK!','#fff0a3',true);toast('공허 거상 처치 · 균열이 붕괴합니다!');if(navigator.vibrate)navigator.vibrate([20,38,22,38,55]);setTimeout(()=>{if(battle?.id===id&&battle?.victory)win()},2550)}
 function resultCard(shotsUsed,elapsedMs){const medal=shotsUsed<=1?'flawless':shotsUsed<=2?'sharp':'clear',seconds=(elapsedMs/1000).toFixed(1);return '<div class="result-card"><img class="result-medal" src="'+libraryArt.result[medal]+'" alt="전투 메달"><div class="result-metrics"><span class="result-metric"><img src="'+libraryArt.result.time+'" alt=""><span>클리어<b>'+seconds+'초</b></span></span><span class="result-metric"><img src="'+libraryArt.result.shots+'" alt=""><span>사용 룬볼<b>'+shotsUsed+'개</b></span></span><span class="result-metric"><img src="'+libraryArt.result.damage+'" alt=""><span>처치 피해<b>'+boss.maxHp+'</b></span></span></div></div>'}
 function win(){if(!battle||battleComplete&&!battle.victory)return;const victory=battle.victory;battleComplete=true;run=false;assistShots=[];const shotsUsed=battle.shotMax-battle.shots,elapsedMs=victory?.elapsedMs??Math.round(performance.now()-battle.startedAt);battle.victory=null;window.PrismHive?.submitRun({stage:currentStage().id,party:deployed,shotsUsed,totalDamage:boss.maxHp,elapsedMs,source:'browser'}).catch(()=>{});U.over.className='overlay';U.over.innerHTML='<div class="outcome-cut win"><div class="tag">코어 파괴</div><h2>공허 거상을 무너뜨렸습니다.</h2>'+resultCard(shotsUsed,elapsedMs)+'<p>선택한 강화: '+(build.names.join(' · ')||'없음')+'<br>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';U.over.classList.remove('hide')}
 function toast(text){U.toast.textContent=text;U.toast.classList.add('show');toastTimer=2.2}
@@ -670,8 +678,72 @@ billiardPredict=function(dx,dy){
 };
 drawAimGuide=function(){if(!run||battle?.victory||ball?.moving)return;const raw=drag||{x:ball.x,y:ball.y+145},p=cuePull(raw),guide=billiardPredict(ball.x-p.x,ball.y-p.y);x.save();x.setLineDash([7,5]);x.lineWidth=2;x.strokeStyle='#d8ece5';x.beginPath();x.moveTo(guide.points[0].x,guide.points[0].y);for(const q of guide.points.slice(1))x.lineTo(q.x,q.y);x.stroke();x.setLineDash([4,4]);for(const path of guide.unitPaths){x.strokeStyle=path.target.col;x.shadowBlur=12;x.shadowColor=path.target.col;x.beginPath();x.moveTo(path.from.x,path.from.y);x.lineTo(path.to.x,path.to.y);x.stroke();x.fillStyle=path.target.col;x.font='bold 10px ui-monospace';x.textAlign='center';x.fillText(path.target.s+' 굴림',path.to.x,path.to.y-9)}x.setLineDash([]);x.fillStyle='#d8ece5';x.font='bold 10px ui-monospace';x.textAlign='center';x.fillText(drag?(guide.unitPaths.length?'유닛 이동선까지 예측':'아래로 끌어 유닛을 굴리세요'):'아래로 끌어 유닛을 굴리세요',ball.x,ball.y-28);x.restore()};
 const baseCombatDraw=draw;draw=function(){baseCombatDraw();drawCloneBalls()};
+// Feedback pass: collisions, high-value hits, unit awakenings, and multipliers
+// each get their own readable beat.  The short stop is intentionally paired
+// with a longer ring/popup so the player has time to register the result.
+let feedbackBeats=[],feedbackCooldown=0;
+function feedbackBeat(kind,px,py,col='#fff1a6',power=1,label=''){
+  if(!Number.isFinite(px)||!Number.isFinite(py))return;
+  feedbackBeats.push({kind,x:px,y:py,col,power:Math.min(1.8,power),label,t:0,d:(kind==='weak'||kind==='riposte') ? .68 : (kind==='awaken' ? .58 : .42)});
+  if(feedbackBeats.length>20)feedbackBeats.shift();
+}
+function combatSfx(kind='hit',strength=1){
+  if(settings.sfx<=0)return;
+  const engine=ensureAudio();if(!engine)return;
+  const ac=engine.ac,now=ac.currentTime,tones={wall:[170,235,.055],unit:[215,405,.085],hit:[250,390,.10],weak:[360,760,.16],riposte:[290,930,.24],awaken:[420,640,.13],mult:[510,820,.13]}[kind]||[260,420,.08];
+  const gain=ac.createGain(),osc=ac.createOscillator();
+  osc.type=kind==='weak'||kind==='riposte'?'sawtooth':'square';
+  osc.frequency.setValueAtTime(tones[0],now);osc.frequency.exponentialRampToValueAtTime(tones[1],now+tones[2]);
+  gain.gain.setValueAtTime(.042*settings.sfx*Math.min(1.5,strength),now);gain.gain.exponentialRampToValueAtTime(.001,now+tones[2]);
+  osc.connect(gain);gain.connect(engine.master);osc.start(now);osc.stop(now+tones[2]+.025);
+}
+function drawFeedbackBeats(){
+  for(const beat of feedbackBeats){
+    const p=Math.min(1,beat.t/beat.d),fade=1-p,size=(28+76*p)*beat.power;
+    x.save();x.globalAlpha=fade;x.translate(beat.x,beat.y);x.strokeStyle=beat.col;x.fillStyle=beat.col;x.shadowBlur=16;x.shadowColor=beat.col;
+    if(beat.kind==='unit'||beat.kind==='awaken'){for(let i=0;i<8;i++){const a=i*Math.PI/4+p*1.4,inner=10,outer=size*.48;x.lineWidth=i%2?2:4;x.beginPath();x.moveTo(Math.cos(a)*inner,Math.sin(a)*inner);x.lineTo(Math.cos(a)*outer,Math.sin(a)*outer);x.stroke()}}
+    else if(beat.kind==='weak'||beat.kind==='riposte'){for(let i=0;i<3;i++){x.lineWidth=3+i;x.beginPath();x.arc(0,0,size*(.18+i*.13),p*4+i,Math.PI*2+p*4+i);x.stroke()}for(let i=0;i<8;i++){const a=i*Math.PI/4-p*3;x.fillRect(Math.cos(a)*size*.46-3,Math.sin(a)*size*.46-3,6,6)}}
+    else{x.lineWidth=3;x.beginPath();x.arc(0,0,size*.34,0,Math.PI*2);x.stroke();x.lineWidth=1;x.beginPath();x.arc(0,0,size*.52,0,Math.PI*2);x.stroke()}
+    if(beat.label&&p<.7){x.globalAlpha=fade*1.3;x.font='bold 12px ui-monospace';x.textAlign='center';x.fillText(beat.label,0,-size*.55)}
+    x.restore();
+  }
+}
+const baseImpact=impact;
+impact=function(weak=false){
+  const force=Math.min(1.9,1+(hitCombo-1)*.18),heavy=Boolean(weak)||hitCombo>=3;
+  impactStop=Math.max(Number.isFinite(impactStop)?impactStop:0,(heavy ? .115 : .052)*force);
+  screenShake=Math.max(Number.isFinite(screenShake)?screenShake:0,(heavy?10:5.5)*force);
+  screenFlash=Math.max(Number.isFinite(screenFlash)?screenFlash:0,(heavy?1:.58)*force);
+  const kind=hitCombo>=3?'riposte':weak?'weak':'hit';
+  feedbackBeat(kind,ball?.x??boss?.x,boss?.y??ball?.y,heavy?'#fff0a3':'#e6f7ef',force,hitCombo>=3?'RIPOSTE!':weak?'WEAK!':'');
+  combatSfx(kind,force);
+  stageEl.classList.remove('impact-heavy');void stageEl.offsetWidth;if(heavy)stageEl.classList.add('impact-heavy');
+  const banner=document.querySelector('.boss-banner');if(heavy&&banner){banner.classList.remove('impact-heavy');void banner.offsetWidth;banner.classList.add('impact-heavy')}
+  if(navigator.vibrate)navigator.vibrate(heavy?[12,22,16]:8);
+};
+const baseRegisterBossHit=registerBossHit;
+registerBossHit=function(weak){baseRegisterBossHit(weak);if(hitCombo>=3){comboTimer=Math.max(comboTimer,1.45);comboPulse=1.45;feedbackBeat('riposte',boss.x,boss.y-58,'#fff0a3',1.35,'RIPOSTE!')}};
+const baseTableWall=tableWall;
+tableWall=function(){baseTableWall();if(!ball)return;feedbackBeat('wall',ball.x,ball.y,'#8ae9e0',.62);combatSfx('wall',.7)};
+const baseMobilePair=mobilePair;
+mobilePair=function(a,ar,b,br,onHit){return baseMobilePair(a,ar,b,br,(...args)=>{onHit?.(...args);const hero=gates.includes(a)?a:gates.includes(b)?b:null;if(hero&&feedbackCooldown<=0){feedbackCooldown=.045;feedbackBeat('unit',hero.x,hero.y,hero.col,1.05,'공명!');combatSfx('unit',1)}})};
+const baseUnitImpactDamage=unitImpactDamage;
+unitImpactDamage=function(g,target){baseUnitImpactDamage(g,target);if(target===boss)feedbackBeat('awaken',g.x,g.y,g.col,1.2,g.s+' 직격')};
+const baseEarnBlaze=earnBlaze;
+earnBlaze=function(amount,detail){baseEarnBlaze(amount,detail);feedbackBeat('awaken',ball?.x??W/2,ball?.y??H/2,'#ffb35c',1.08,'MULT +'+amount.toFixed(1));combatSfx('mult',1);if(U.blazeCard){U.blazeCard.classList.remove('impact-heavy');void U.blazeCard.offsetWidth;U.blazeCard.classList.add('impact-heavy')}};
+const baseQueueUnitAssist=queueUnitAssist;
+queueUnitAssist=function(g,amount,name){
+  const queued=assistShots.length;baseQueueUnitAssist(g,amount,name);const shot=assistShots.at(-1);
+  if(shot){shot.delay=Math.min(.32,queued*.085);shot.dur=Math.max(.30,shot.dur+.10)}
+  feedbackBeat('awaken',g.x,g.y,g.col,1.08,g.s+' 각성');combatSfx('awaken',.9);
+};
+updateAssists=function(d){
+  for(const shot of assistShots){if(shot.delay>0){shot.delay=Math.max(0,shot.delay-d);continue}shot.t+=d}
+  const arrived=assistShots.filter(shot=>shot.delay<=0&&shot.t>=shot.dur);assistShots=assistShots.filter(shot=>shot.delay>0||shot.t<shot.dur);for(const shot of arrived)resolveAssist(shot);
+};
 const baseAbilityFeedback=updateFeedback;updateFeedback=function(d){baseAbilityFeedback(d);for(const burst of abilityBursts)burst.t+=d;abilityBursts=abilityBursts.filter(burst=>burst.t<burst.d);if(battle?.victory)battle.victory.t=Math.min(battle.victory.d,battle.victory.t+d)};
-const baseAbilitySpecial=drawSpecial;drawSpecial=function(){baseAbilitySpecial();drawAbilityFx();drawVictoryFx()};
+const baseAbilitySpecial=drawSpecial;drawSpecial=function(){baseAbilitySpecial();drawAbilityFx();drawFeedbackBeats();drawVictoryFx()};
+const baseFeedbackUpdate=updateFeedback;updateFeedback=function(d){baseFeedbackUpdate(d);for(const beat of feedbackBeats)beat.t+=d;feedbackBeats=feedbackBeats.filter(beat=>beat.t<beat.d);feedbackCooldown=Math.max(0,feedbackCooldown-d)};
 function loop(t){const d=Math.min(.033,(t-last)/1000||0);last=t;if(impactStop>0)impactStop-=d;else{update(d);updateSpecial(d)}updateFeedback(d);if(boss&&ball){draw();drawProjectileOverlay();drawAimGuide();drawAssists();drawSpecial();drawCombo()}requestAnimationFrame(loop)}
 resetBuild();boss={x:W/2,y:196,hp:RULES.coreHp,maxHp:RULES.coreHp,a:0,hitCooldown:0};ball={x:W/2,y:LAUNCH_Y,r:13,trail:[],launchPower:.35};sync();showTitle();requestAnimationFrame(loop);
 </script>
