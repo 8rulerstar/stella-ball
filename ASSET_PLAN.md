@@ -1,4 +1,4 @@
-# Prism Breakers — 아트 에셋 계획
+# Stella Ball — 아트 에셋 계획
 
 ## 아트 방향
 
@@ -17,10 +17,11 @@
 | 세라 · 전환 명령 | `assets/characters/sera-monk-idle.png` | Tiny Swords Free Pack / Blue Monk | 클릭 한 번으로 90° 전환 및 에너지 획득 |
 | 태오 · 충돌 충격파 | `assets/characters/taeo-miner-idle.png` | Tiny Swords Free Pack / Yellow Pawn (Pickaxe) | 모든 충돌 수에 비례한 주변 충격파 |
 | 닉스 · 마지막 모사 | `assets/characters/nyx-oracle-idle.png` | Tiny Swords Free Pack / Purple Warrior | 마지막으로 충돌한 아군의 능력을 복제 |
-| 공허 거상 | `assets/library/boss2/void-colossus.png` | Prism Breakers 오리지널 픽셀 에셋 | 4프레임 idle/hit 시트와 전용 약점 젬. 보스는 화면에서 가장 크게 |
+| Stella Ball 워드마크 | `assets/original/stella-ball-wordmark.svg` | 프로젝트 오리지널 벡터 | 타이틀·메타·튜토리얼의 공식 게임명 표기 |
+| 공허 거상 | `assets/library/boss2/void-colossus.png` | Stella Ball 오리지널 픽셀 에셋 | 4프레임 idle/hit 시트와 전용 약점 젬. 보스는 화면에서 가장 크게 |
 | 명중/연쇄/클리어 | `assets/fx/*.png` | brackeys_vfx_bundle / predrawn (CC0) | 명중, 전기 연쇄, 클리어 폭발 |
 | 전장 장식 | `assets/terrain/rock-*.png` | Tiny Swords Free Pack | 플레이 영역 바깥의 가장자리 장식만 사용 |
-| 유물탄·룬·약점 | `assets/original/*.svg`, `assets/library/boss2/void-colossus-weakgem.png` | Prism Breakers 오리지널 | 게임 고유 식별자. 유물탄/룬은 SVG, 공허 거상 약점은 픽셀 젬 |
+| 유성·별지기·약점 | `assets/original/*.svg`, `assets/library/boss2/void-colossus-weakgem.png` | Stella Ball 오리지널 | 게임 고유 식별자. 유성/별지기는 SVG, 공허 거상 약점은 픽셀 젬 |
 
 ## 유닛 전용 이펙트
 

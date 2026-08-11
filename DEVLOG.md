@@ -248,3 +248,10 @@
 - 막힌 점 / 우회: 기존 에셋은 서로 다른 시기의 색보정을 가지고 있었다. 새 에셋을 추가하지 않고, CSS 오버레이와 Canvas 색상 레이어로 배경을 통일해 캐릭터별 고유 색은 식별성으로 보존했다.
 - 사람이 직접 결정·수정한 점: 캐릭터 능력색은 전술 인지에 필요하므로 단일 팔레트로 탈색하지 않는다. 세계관 공통색은 배경·프레임·보상·중요 순간에만 사용한다.
 - 증거: `prototypes/prism-breakers.html`의 Observatory art direction CSS, `drawStageFloor`, `drawArena`, `drawVictoryFx`, `earnBlaze`.
+
+## 2026-08-11 — 게임명 확정: Stella Ball
+
+- Codex에게 시킨 일: 확정한 게임명을 타이틀·워드마크·제출용 핵심 문서에 반영.
+- 결과: 공식 표시명은 **Stella Ball**로 고정했다. 타이틀과 메타 UI는 새 별빛 워드마크 SVG를 사용하며, README·방향 문서·제출용 협업 문서도 같은 이름을 따른다.
+- 사람이 직접 결정·수정한 점: 공개 저장소명과 URL 경로 `prism-breakers`는 이미 배포·검증 이력에 연결돼 있으므로, 게임의 표시명만 변경하고 기술 경로는 유지한다.
+- 증거: `assets/original/stella-ball-wordmark.svg`, `prototypes/prism-breakers.html`, `GAME_DIRECTION.md`, `CODEX_COLLABORATION.md`.

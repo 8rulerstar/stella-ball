@@ -1,11 +1,11 @@
-# Prism Breakers 진행 보고 · 세션 인수인계
+# Stella Ball 진행 보고 · 세션 인수인계
 
 > 기준일: 2026-08-11
 > 이 문서는 보고용 요약이자 다음 Codex 세션의 시작점이다. 상세한 방향은 `GAME_DIRECTION.md`, 제출용 협업 서사는 `CODEX_COLLABORATION.md`, 날짜별 판단은 `DEVLOG.md`를 따른다.
 
 ## 현재 한 줄
 
-**룬볼로 3명의 유닛을 실제 당구공처럼 굴리고, 멈춘 위치에서 터지는 각성 공격과 묘기 배율로 공허 거상을 공략하는 웹 액션 전략 프로토타입**이다.
+**유성으로 3명의 별지기를 실제 당구공처럼 굴리고, 멈춘 위치에서 터지는 각성 공격과 별자리 배율로 공허 거상을 공략하는 웹 액션 전략 프로토타입**이다.
 
 실행 파일은 `prototypes/prism-breakers.html`이며, 공개 주소는 <https://8rulerstar.github.io/prism-breakers/prototypes/prism-breakers.html>이다.
 

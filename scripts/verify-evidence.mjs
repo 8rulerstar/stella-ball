@@ -9,7 +9,7 @@ const demoPath = resolve(root, "prototypes/prism-breakers.html");
 const source = readFileSync(demoPath, "utf8");
 
 const requiredMarkers = [
-  "PRISM BREAKERS",
+  "STELLA BALL",
   "별지기 편성",
   "drag",
   "gaon",
