@@ -1,0 +1,49 @@
+{
+  "name": "Stella Ball Observatory Pack 01 (candidate)",
+  "status": "unreferenced candidate; no runtime loading or manifest registration",
+  "licence": "project-original procedural synthesis",
+  "cues": [
+    {
+      "cue": "luna-arrival",
+      "file": "audio/luna-arrival.wav",
+      "durationMs": 420,
+      "sampleRate": 22050,
+      "format": "WAV / mono / PCM 16-bit"
+    },
+    {
+      "cue": "luna-advance",
+      "file": "audio/luna-advance.wav",
+      "durationMs": 150,
+      "sampleRate": 22050,
+      "format": "WAV / mono / PCM 16-bit"
+    },
+    {
+      "cue": "tutorial-pulse",
+      "file": "audio/tutorial-pulse.wav",
+      "durationMs": 300,
+      "sampleRate": 22050,
+      "format": "WAV / mono / PCM 16-bit"
+    },
+    {
+      "cue": "constellation-link",
+      "file": "audio/constellation-link.wav",
+      "durationMs": 460,
+      "sampleRate": 22050,
+      "format": "WAV / mono / PCM 16-bit"
+    },
+    {
+      "cue": "constellation-complete",
+      "file": "audio/constellation-complete.wav",
+      "durationMs": 640,
+      "sampleRate": 22050,
+      "format": "WAV / mono / PCM 16-bit"
+    },
+    {
+      "cue": "core-fracture",
+      "file": "audio/core-fracture.wav",
+      "durationMs": 380,
+      "sampleRate": 22050,
+      "format": "WAV / mono / PCM 16-bit"
+    }
+  ]
+}

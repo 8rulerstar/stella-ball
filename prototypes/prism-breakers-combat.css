@@ -1,0 +1,637 @@
+/* Combat information lives beside the table, so its board stays fully readable. */
+.battle-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+}
+.combat-dashboard {
+  display: none;
+}
+.game-mode main {
+  width: min(960px, calc(100vw - 32px));
+  width: min(960px, calc(100dvw - 32px));
+}
+.game-mode .combat-dashboard {
+  display: flex;
+  flex: 0 0 188px;
+  flex-direction: column;
+  gap: 9px;
+  font-family: "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace;
+}
+.game-mode .hud {
+  position: static;
+  inset: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+  pointer-events: none;
+}
+.game-mode .stage {
+  width: min(720px, calc(80vh - 90px));
+  width: min(720px, calc(80dvh - 90px));
+  margin: 0;
+}
+.game-mode .hud-card,
+.game-mode .boss-panel {
+  min-height: 0;
+  border: 1px solid #557e80;
+  background: #0a151df2;
+  box-shadow:
+    0 3px 0 #02070abb,
+    0 0 18px #0008;
+}
+.game-mode .hud-card {
+  padding: 10px 11px;
+}
+.game-mode .boss-panel {
+  padding: 10px 11px;
+  text-align: left;
+}
+.game-mode .boss-name {
+  gap: 5px;
+}
+.game-mode .blaze-card {
+  position: relative;
+  top: auto;
+  right: auto;
+  display: grid;
+  min-width: 0;
+  padding: 9px 10px 8px;
+}
+.game-mode .blaze-card:before {
+  right: 8px;
+  top: -14px;
+}
+.game-mode .blaze-card b {
+  font-size: 24px;
+}
+.game-mode #toast {
+  top: 14px;
+  right: 14px;
+}
+.title-mode .combat-dashboard,
+.meta-mode .combat-dashboard,
+.menu-mode .combat-dashboard {
+  display: none;
+}
+@media (max-width: 760px) {
+  .game-mode main {
+    width: min(720px, calc(100vw - 12px));
+    width: min(720px, calc(100dvw - 12px));
+    padding: 0;
+  }
+  .game-mode .battle-layout {
+    display: block;
+  }
+  .game-mode .combat-dashboard {
+    width: 100%;
+    margin: 0 0 7px;
+    display: grid;
+    grid-template-columns: 1fr 1.45fr 1fr;
+    gap: 5px;
+  }
+  .game-mode .hud {
+    display: contents;
+  }
+  .game-mode .hud-card:last-child {
+    display: none;
+  }
+  .game-mode .hud-card,
+  .game-mode .boss-panel,
+  .game-mode .blaze-card {
+    padding: 6px 7px;
+    font-size: 9px;
+  }
+  .game-mode .boss-panel {
+    min-height: 0;
+  }
+  .game-mode .phase,
+  .game-mode .combo-readout {
+    display: none;
+  }
+  .game-mode .meter {
+    height: 7px;
+  }
+  .game-mode .blaze-card b {
+    font-size: 17px;
+  }
+  .game-mode .blaze-card small {
+    font-size: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .game-mode .stage {
+    width: min(720px, calc(80dvh - 92px));
+    margin: auto;
+  }
+}
+.battle-column {
+  display: contents;
+}
+.boss-banner {
+  display: none;
+}
+.game-mode header {
+  display: none;
+}
+.game-mode .battle-column {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 8px;
+  width: min(720px, calc(80dvh - 76px));
+}
+.game-mode .boss-banner {
+  display: block;
+  width: 100%;
+  padding: 9px 13px;
+  border-color: #668b89;
+  background: #0a151dcc;
+  text-align: center;
+  backdrop-filter: blur(7px);
+  box-shadow: 0 3px 14px #0009;
+}
+.game-mode .boss-banner .phase {
+  margin-bottom: 3px;
+  font-size: 10px;
+}
+.game-mode .boss-banner .boss-name {
+  margin-bottom: 5px;
+}
+.game-mode .boss-banner .combo-readout {
+  margin-top: 4px;
+}
+.game-mode .stage {
+  width: 100%;
+}
+@media (max-width: 760px) {
+  .game-mode .battle-column {
+    width: 100%;
+    gap: 5px;
+  }
+  .game-mode .boss-banner {
+    padding: 6px 8px;
+  }
+  .game-mode .stage {
+    width: min(720px, calc(80dvh - 160px));
+  }
+}
+.survivor-hub {
+  width: min(680px, 100%);
+  min-height: 100%;
+  margin: auto;
+  padding: 16px 18px 18px;
+  text-align: left;
+}
+.hub-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid #436b6e;
+}
+.hub-player {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #dce9e4;
+  font:
+    700 10px ui-monospace,
+    monospace;
+}
+.hub-avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 2px solid #d6b55f;
+  border-radius: 12px;
+  background: #102731;
+  color: #ffe6a5;
+  box-shadow: 0 3px 0 #061015;
+}
+.hub-avatar img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.hub-player b {
+  display: block;
+  color: #f6e6bd;
+  font-size: 13px;
+}
+.hub-player small {
+  display: block;
+  margin-top: 3px;
+  color: #90b9b2;
+}
+.hub-resources {
+  display: flex;
+  gap: 6px;
+}
+.hub-resource {
+  min-width: 68px;
+  padding: 6px 7px;
+  border: 1px solid #41686b;
+  background: #0b1b23;
+  color: #a8c9c2;
+  font:
+    700 9px ui-monospace,
+    monospace;
+  text-align: center;
+}
+.hub-resource b {
+  display: block;
+  margin-top: 2px;
+  color: #f2cb79;
+  font-size: 12px;
+}
+.hub-mission {
+  position: relative;
+  min-height: 186px;
+  margin: 14px 0 10px;
+  padding: 18px;
+  overflow: hidden;
+  border: 2px solid #d2b05c;
+  background-color: #122932;
+  background-image:
+    linear-gradient(90deg, #08171fd9 0%, #0a1b22c9 52%, #152f3288 100%),
+    var(--stage-art);
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 20px #000a;
+}
+.hub-mission:after {
+  content: "";
+  position: absolute;
+  inset: auto -28px -48px auto;
+  width: 170px;
+  height: 170px;
+  border: 18px solid #e6c46522;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hub-mission-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 72%;
+}
+.hub-mission small {
+  color: #9ec7be;
+  font:
+    700 10px ui-monospace,
+    monospace;
+  letter-spacing: 0.1em;
+}
+.hub-mission h2 {
+  margin: 5px 0 4px;
+  color: #fff0c7;
+  font-size: 24px;
+  text-shadow: 0 2px 0 #081218;
+}
+.hub-mission p {
+  margin: 0;
+  color: #d0e1db;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.hub-start {
+  position: absolute !important;
+  z-index: 1;
+  right: 16px;
+  bottom: 16px;
+  min-width: 148px;
+  padding: 12px 14px !important;
+  border: 2px solid #f5d675 !important;
+  background: linear-gradient(#f0c95f, #bd7a32) !important;
+  color: #251609 !important;
+  font-weight: 900 !important;
+  box-shadow: 0 4px 0 #5c3516 !important;
+}
+.hub-start:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+.hub-party-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid #40696d;
+  background: #0b1b23;
+}
+.hub-party-label {
+  color: #d9c182;
+  font:
+    700 10px ui-monospace,
+    monospace;
+  letter-spacing: 0.08em;
+}
+.hub-party-slots {
+  display: flex;
+  gap: 6px;
+}
+.hub-party-slot {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #426a6d;
+  border-radius: 50%;
+  background: #10252d;
+}
+.hub-party-slot.empty {
+  color: #617f7f;
+  font: 700 15px ui-monospace;
+}
+.hub-party-slot img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.hub-party-row button {
+  padding: 7px 10px !important;
+  font-size: 10px;
+}
+.hub-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  margin-top: 10px;
+}
+.hub-quick {
+  min-height: 78px;
+  padding: 8px 5px !important;
+  border: 1px solid #426a6d !important;
+  background: #0d2029 !important;
+  color: #e5eee9 !important;
+  font-size: 10px !important;
+}
+.hub-quick:hover {
+  border-color: #e8c46d !important;
+  background: #17333b !important;
+}
+.hub-quick img {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 5px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: hue-rotate(145deg) saturate(0.72);
+}
+.hub-quick strong {
+  display: block;
+  font-size: 10px;
+}
+.hub-quick small {
+  display: block;
+  margin-top: 2px;
+  color: #9ebbb4;
+  font-size: 8px;
+}
+.hub-record {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-left: 2px solid #d1ac58;
+  background: #091920;
+  color: #a9c4bd;
+  font-size: 10px;
+}
+.tutorial-scene {
+  padding: 0 !important;
+  place-content: stretch !important;
+  background: #07131bf5 !important;
+}
+.tutorial-shell {
+  width: min(620px, 100%);
+  min-height: 100%;
+  margin: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+.tutorial-card {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 18px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 22px;
+  border: 1px solid #5b8385;
+  background: linear-gradient(145deg, #102933, #091820);
+  box-shadow: 0 10px 24px #000a;
+}
+.tutorial-visual {
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  border: 1px solid #638e8d;
+  background: radial-gradient(circle, #1d4247, #0b1922 68%);
+}
+.tutorial-visual img {
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: hue-rotate(145deg) saturate(0.72) drop-shadow(0 0 12px #6dd9cb88);
+}
+.tutorial-copy small {
+  color: #a4c8c1;
+  font:
+    700 10px ui-monospace,
+    monospace;
+  letter-spacing: 0.12em;
+}
+.tutorial-copy h2 {
+  margin: 7px 0;
+  color: #f4e5bb;
+  font-size: 25px;
+}
+.tutorial-copy p {
+  margin: 0;
+  color: #d2e0da;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.tutorial-progress {
+  display: flex;
+  gap: 5px;
+  margin: 12px 0;
+}
+.tutorial-progress i {
+  flex: 1;
+  height: 4px;
+  background: #27494c;
+}
+.tutorial-progress i.active {
+  background: #e5bd64;
+  box-shadow: 0 0 8px #e5bd6488;
+}
+.tutorial-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tutorial-actions button {
+  min-width: 110px;
+}
+.tutorial-actions #tutorialNext {
+  border-color: #f1cf72;
+  background: #b67a35;
+  color: #1c140b;
+}
+@media (max-width: 680px) {
+  .survivor-hub {
+    padding: 12px;
+  }
+  .hub-mission {
+    min-height: 170px;
+    padding: 14px;
+  }
+  .hub-mission h2 {
+    font-size: 21px;
+  }
+  .hub-mission-copy {
+    max-width: 68%;
+  }
+  .hub-start {
+    right: 12px;
+    bottom: 12px;
+    min-width: 126px;
+    padding: 10px !important;
+    font-size: 11px;
+  }
+  .hub-quick {
+    min-height: 68px;
+  }
+  .hub-quick img {
+    width: 24px;
+    height: 24px;
+  }
+  .hub-resources {
+    gap: 3px;
+  }
+  .hub-resource {
+    min-width: 56px;
+    padding: 5px;
+  }
+  .tutorial-shell {
+    padding: 12px;
+  }
+  .tutorial-card {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px;
+  }
+  .tutorial-visual {
+    width: 100%;
+    height: 108px;
+  }
+  .tutorial-visual img {
+    width: 84px;
+    height: 84px;
+  }
+  .tutorial-copy {
+    text-align: center;
+  }
+  .tutorial-copy h2 {
+    font-size: 22px;
+  }
+}
+
+@font-face {
+  font-family: "Galmuri11";
+  src: url("../assets/fonts/galmuri/Galmuri11.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Galmuri11";
+  src: url("../assets/fonts/galmuri/Galmuri11-Bold.woff2") format("woff2");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+:root,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Galmuri11", "Apple SD Gothic Neo", sans-serif;
+  font-synthesis: none;
+}
+button,
+strong,
+b,
+h1,
+h2,
+h3,
+.tag,
+.meta-profile,
+.hud,
+.blaze-card,
+.boss-panel,
+.toast {
+  font-family: "Galmuri11", "Apple SD Gothic Neo", sans-serif;
+  letter-spacing: 0;
+}
+h1,
+h2,
+h3,
+button,
+strong,
+b {
+  font-weight: 700;
+}
+canvas {
+  font-family: "Galmuri11", ui-monospace, monospace;
+}
+
+/* Combat juice pass: every meaningful event has a distinct visual beat. */
+.stage.impact-heavy {
+  animation: heavyImpact 0.18s steps(2);
+  box-shadow:
+    0 0 0 2px #fff0a8,
+    0 0 38px #ff9d5b99,
+    0 28px 88px #05030d99;
+}
+.boss-banner.impact-heavy {
+  border-color: #fff0ae;
+  box-shadow:
+    0 0 0 1px #fff4bd,
+    0 0 24px #ff9a5c99;
+  background: #392033f0;
+}
+.blaze-card.impact-heavy {
+  animation: multHeavy 0.32s cubic-bezier(0.18, 0.82, 0.24, 1.35);
+}
+@keyframes heavyImpact {
+  0% {
+    filter: brightness(1);
+  }
+  42% {
+    filter: brightness(1.62) saturate(1.28);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+@keyframes multHeavy {
+  45% {
+    transform: scale(1.15) rotate(-2deg);
+    filter: brightness(1.5);
+  }
+}

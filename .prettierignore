@@ -1,0 +1,12 @@
+.claude/
+artifacts/
+assets/audio/
+assets/characters/
+assets/enemies/
+assets/fonts/
+assets/fx/
+assets/import/
+assets/library/
+assets/original/
+assets/terrain/
+bot/latest-report.json

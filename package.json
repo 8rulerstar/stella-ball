@@ -1,0 +1,12 @@
+{
+  "name": "stella-ball",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node scripts/verify-evidence.mjs",
+    "smoke": "node scripts/smoke-runtime.mjs",
+    "serve": "node scripts/serve.mjs",
+    "format": "npx --yes prettier@3.5.3 --write .",
+    "format:check": "npx --yes prettier@3.5.3 --check ."
+  }
+}

@@ -1,0 +1,1627 @@
+/* Premium feedback pass: quiet surfaces, readable hierarchy, one bright event at a time. */
+.stage {
+  isolation: isolate;
+  background: #080c20 !important;
+}
+.stage:before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 8px;
+  pointer-events: none;
+  border: 1px solid #cbd8ff16;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 1px #050713aa,
+    inset 0 0 44px #7385d216;
+}
+.stage canvas {
+  position: relative;
+  z-index: 0;
+}
+.stage .toast,
+.stage .tip,
+.stage .impact-flash {
+  z-index: 4;
+}
+.game-mode .boss-banner {
+  position: relative;
+  overflow: hidden;
+}
+.game-mode .boss-banner:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #aab9ff11 50%, transparent);
+  transform: translateX(-70%);
+  animation: panelScan 6s ease-in-out infinite;
+}
+.game-mode .boss-banner > * {
+  position: relative;
+  z-index: 1;
+}
+.phase {
+  letter-spacing: 0.12em !important;
+  color: #aebce2 !important;
+}
+.boss-name b {
+  font-variant-numeric: tabular-nums;
+}
+.meter {
+  position: relative;
+  border-radius: 999px !important;
+}
+.meter i {
+  border-radius: inherit;
+}
+.meter:after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 18%,
+    #080b1b66 18.5% 19.5%,
+    transparent 20%
+  );
+  pointer-events: none;
+}
+.combo-readout {
+  min-height: 15px;
+  font-size: 11px !important;
+  letter-spacing: 0.11em !important;
+}
+.combo-readout.hot {
+  color: #fff0bb !important;
+  text-shadow:
+    0 0 12px #f0c768,
+    0 0 26px #8898ff !important;
+  animation: comboIgnite 0.28s ease-out;
+}
+.blaze-card {
+  overflow: visible !important;
+  border-radius: 3px;
+}
+.blaze-card:before {
+  opacity: 0.8 !important;
+}
+.blaze-card[data-heat="0"]:before {
+  opacity: 0.28 !important;
+}
+.blaze-card[data-heat="3"] {
+  animation: constellationCrown 1.1s ease-in-out infinite;
+}
+.blaze-card[data-heat="3"]:before {
+  animation: starBreathe 1.1s ease-in-out infinite !important;
+}
+.blaze-card small {
+  font-variant-numeric: tabular-nums;
+}
+.blaze-card b {
+  font-variant-numeric: tabular-nums;
+}
+.title-sequence:before {
+  opacity: 0.82 !important;
+}
+.title-sequence:after {
+  opacity: 0.5;
+}
+.title-rift {
+  width: min(78vw, 590px) !important;
+  filter: drop-shadow(0 0 28px #8998ff77);
+}
+.title-rift:before {
+  box-shadow: 0 0 18px #f6cf7a44;
+}
+.title-boss {
+  filter: saturate(0.82) contrast(1.06) brightness(0.98)
+    drop-shadow(0 0 26px #7777d2aa) !important;
+}
+.title-orb {
+  width: 66px !important;
+  height: 66px !important;
+  filter: drop-shadow(0 0 13px #fff1a9) drop-shadow(0 0 31px #8998ff) !important;
+}
+.title-wordmark {
+  width: min(510px, 92%) !important;
+  max-height: 142px;
+  object-fit: contain;
+  image-rendering: auto !important;
+  filter: drop-shadow(0 5px 0 #080a1b) drop-shadow(0 0 13px #f4cd78aa)
+    drop-shadow(0 0 32px #97a6ff77) !important;
+}
+.title-copy:before {
+  content: "";
+  width: min(360px, 72%);
+  height: 1px;
+  margin: 0 0 12px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #f7d889,
+    #c8d4ff,
+    #f7d889,
+    transparent
+  );
+  box-shadow: 0 0 12px #f1c96d88;
+  opacity: 0;
+  animation: titleFade 0.35s ease 0.84s forwards;
+}
+.title-kicker {
+  padding: 4px 9px;
+  border-top: 1px solid #c7d4ff44;
+  border-bottom: 1px solid #c7d4ff44;
+  text-shadow: 0 0 10px #9cabff;
+}
+.title-copy p {
+  max-width: 430px !important;
+  margin-bottom: 20px !important;
+}
+.title-enter {
+  min-width: 264px !important;
+  letter-spacing: 0.08em;
+}
+.title-enter:after {
+  content: "✦";
+  margin-left: 8px;
+  color: #fff7d5;
+  text-shadow: 0 0 8px #fff;
+}
+.title-party {
+  padding: 4px 9px;
+  border: 1px solid #cbd8ff24;
+  border-radius: 999px;
+  background: #070a1b55;
+}
+.title-party img {
+  width: 39px !important;
+  height: 39px !important;
+}
+.title-skip {
+  letter-spacing: 0.16em !important;
+}
+.survivor-hub {
+  background:
+    radial-gradient(circle at 80% 6%, #6675c829, transparent 26%),
+    linear-gradient(160deg, #0e1535ed, #070a1aef) !important;
+}
+.hub-topbar {
+  padding: 4px 0 13px !important;
+}
+.hub-mission {
+  border-width: 1px !important;
+}
+.hub-mission:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    #ffe6a510 37%,
+    transparent 48%
+  );
+  transform: translateX(-100%);
+  animation: missionSweep 7s ease-in-out infinite;
+}
+.hub-mission-copy,
+.hub-start {
+  position: relative;
+}
+.hub-start {
+  letter-spacing: 0.05em;
+}
+.hub-resource {
+  border-radius: 3px;
+}
+.hub-quick {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px !important;
+}
+.hub-quick:after {
+  content: "";
+  position: absolute;
+  inset: auto 10px 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c4d0ff, transparent);
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.hub-quick:hover:after {
+  opacity: 1;
+}
+.hub-party-slot {
+  box-shadow: inset 0 0 10px #9babff1a;
+}
+.hub-record {
+  border-radius: 0 3px 3px 0;
+}
+.roster-unit,
+.party-chip,
+.deploy-unit,
+.choice-card {
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+.roster-unit:hover,
+.party-chip:hover,
+.deploy-unit:hover,
+.choice-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd8ff !important;
+  box-shadow:
+    0 6px 16px #02030c99,
+    0 0 0 1px #cbd8ff24 !important;
+}
+.roster-unit.selected,
+.party-chip.active,
+.deploy-unit.selected {
+  transform: translateY(-2px);
+}
+.roster-detail {
+  border-left: 2px solid #e1b966 !important;
+}
+.hero-lore {
+  padding-left: 7px;
+  border-left: 1px solid #e0ba6266;
+}
+.outcome-cut {
+  position: relative;
+  overflow: hidden;
+  border-color: #7b8ec7 !important;
+  background-color: #0b1028f2 !important;
+  box-shadow:
+    0 18px 44px #01020bbb,
+    0 0 0 1px #f3d27a22 !important;
+}
+.outcome-cut:before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, #fff3bb20 0 2%, transparent 2.4%),
+    radial-gradient(circle, #b9c8ff18 0 1.5%, transparent 2.2%);
+  background-size:
+    53px 47px,
+    71px 67px;
+  transform: rotate(14deg);
+  animation: outcomeDrift 14s linear infinite;
+}
+.outcome-cut > * {
+  position: relative;
+  z-index: 1;
+}
+.outcome-constellation {
+  display: flex;
+  justify-content: center;
+  gap: 13px;
+  height: 24px;
+  margin: 0 0 6px;
+  color: #ffe7a5;
+  font-size: 18px;
+  letter-spacing: 0.25em;
+  text-shadow: 0 0 12px #f1c96d;
+}
+.outcome-constellation i {
+  font-style: normal;
+  animation: outcomeStar 1.9s ease-in-out infinite;
+}
+.outcome-constellation i:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.outcome-constellation i:nth-child(3) {
+  animation-delay: 0.36s;
+}
+.outcome-constellation i:nth-child(4) {
+  animation-delay: 0.54s;
+}
+.outcome-constellation i:nth-child(5) {
+  animation-delay: 0.72s;
+}
+.outcome-cut h2 {
+  color: #fff1bf !important;
+  text-shadow: 0 0 19px #e8bd6088;
+}
+.outcome-cut .tag {
+  color: #cdd9ff !important;
+  letter-spacing: 0.17em;
+}
+.result-card {
+  border-color: #6c80b5 !important;
+  background: linear-gradient(145deg, #121a3d, #0b1028) !important;
+  box-shadow: inset 0 0 0 1px #fff0bb0c;
+}
+.result-medal,
+.result-metric img {
+  filter: drop-shadow(0 0 7px #e1bc6c88) !important;
+}
+.result-metric {
+  color: #b8c5e6 !important;
+}
+.result-metric b {
+  color: #ffe4a2 !important;
+}
+.outcome-cut.win button {
+  border-color: #ffe2a0 !important;
+  background: linear-gradient(#f2d480, #c38b45) !important;
+  color: #1b1430 !important;
+}
+.outcome-cut.fail button {
+  border-color: #aebde9 !important;
+  background: linear-gradient(#3b4c83, #26345f) !important;
+}
+@keyframes panelScan {
+  42%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes comboIgnite {
+  45% {
+    transform: scale(1.14);
+    filter: brightness(1.38);
+  }
+}
+@keyframes constellationCrown {
+  50% {
+    box-shadow:
+      0 3px 0 #02030bbb,
+      0 0 28px #f3cd7688,
+      0 0 52px #8998ff55;
+  }
+}
+@keyframes starBreathe {
+  50% {
+    transform: scale(1.16) translateY(-4px);
+    filter: brightness(1.3);
+  }
+}
+@keyframes missionSweep {
+  35%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes outcomeDrift {
+  to {
+    transform: rotate(14deg) translate(54px, -36px);
+  }
+}
+@keyframes outcomeStar {
+  50% {
+    transform: translateY(-4px) scale(1.24);
+    filter: brightness(1.32);
+  }
+}
+@media (max-width: 680px) {
+  .title-wordmark {
+    width: min(420px, 94%) !important;
+  }
+  .title-rift {
+    width: 92vw !important;
+  }
+  .title-copy:before {
+    margin-bottom: 8px;
+  }
+  .title-party img {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .outcome-cut {
+    padding: 38px 17px 23px !important;
+  }
+  .result-card {
+    grid-template-columns: 54px 1fr !important;
+  }
+  .result-medal {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+/* A home-screen layout, not a splash poster: constellation progress lives on
+   the left, while the next objective and the three-step play loop stay next
+   to the primary action. */
+.title-mode main {
+  width: min(920px, calc(100vw - 28px));
+  padding: 0;
+}
+.title-mode .stage {
+  height: min(700px, calc(100dvh - 20px));
+  border-radius: 20px;
+}
+.title-mode canvas {
+  display: none;
+}
+.title-mode .title-sequence {
+  grid-template-columns: 54% 46%;
+}
+.title-mode .title-constellation {
+  inset: 0 auto 0 0;
+  width: 54%;
+  height: 100%;
+  border-right: 1px solid #9aaaff2b;
+  background:
+    radial-gradient(circle at 50% 27%, #aab8ff16, transparent 35%),
+    linear-gradient(90deg, #0a102a4d, transparent);
+}
+.title-mode .title-sky-map {
+  top: 2%;
+  height: 54%;
+}
+.title-mode .title-orb {
+  top: 10% !important;
+}
+.title-mode .title-guardian {
+  top: 27%;
+}
+.title-mode .title-guardian-center {
+  top: 24%;
+}
+.title-mode .title-hope {
+  top: 52%;
+}
+.title-route {
+  position: absolute;
+  z-index: 5;
+  top: 63%;
+  left: 8%;
+  width: 84%;
+  padding: 13px 14px 12px;
+  border: 1px solid #8ea0df5c;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #111a3ce8, #080d25e8);
+  box-shadow:
+    0 12px 30px #01030b88,
+    inset 0 0 24px #889aff0d;
+  opacity: 0;
+  animation: titleFadeUp 0.42s ease 1.3s forwards;
+}
+.title-route > small {
+  display: block;
+  margin-bottom: 11px;
+  color: #aebced;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.title-route span {
+  position: relative;
+  display: grid;
+  grid-template-columns: 27px 42px 1fr;
+  align-items: center;
+  min-height: 36px;
+  color: #d8e0ff;
+}
+.title-route span:not(:last-child):after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 29px;
+  width: 2px;
+  height: 16px;
+  background: #8192d8;
+  box-shadow: 0 0 7px #899cff;
+}
+.title-route i {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid #7588c6;
+  border-radius: 50%;
+  background: #0b1230;
+  color: #c8d2f6;
+  font-size: 10px;
+  font-style: normal;
+}
+.title-route b {
+  padding-left: 8px;
+  color: #f4e5bb;
+  font-size: 10px;
+}
+.title-route em {
+  color: #c2cdeb;
+  font-size: 10px;
+  font-style: normal;
+}
+.title-route .done i {
+  border-color: #7fdac5;
+  background: #173a3b;
+  color: #caffed;
+}
+.title-route .current {
+  color: #fff2bf;
+}
+.title-route .current i {
+  border-color: #f4d27b;
+  background: #5f4821;
+  color: #fff4c8;
+  box-shadow: 0 0 14px #f4cb6977;
+  animation: titleRoutePulse 1.8s ease-in-out infinite;
+}
+.title-route .current em {
+  color: #fff0bd;
+  font-weight: 800;
+}
+.title-route .locked {
+  opacity: 0.48;
+}
+.title-mode .title-copy {
+  grid-column: 2;
+  width: 100%;
+  min-height: 100%;
+  justify-content: center;
+  padding: 24px 34px 22px;
+  background: linear-gradient(90deg, transparent, #05081752 18%, #05071599);
+}
+.title-mode .title-wordmark {
+  width: min(410px, 98%) !important;
+  max-height: 108px;
+  margin-bottom: 3px;
+}
+.title-mode .title-kicker {
+  margin-bottom: 16px;
+}
+.title-mission {
+  width: 100%;
+  padding: 13px 14px 12px;
+  border: 1px solid #e4c87673;
+  border-left: 4px solid #f0cb70;
+  border-radius: 7px;
+  background: linear-gradient(110deg, #4b3a224f, transparent 55%), #0d1330d9;
+  box-shadow: 0 9px 24px #02030d77;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: titleFadeUp 0.38s ease 1.3s forwards;
+}
+.title-mission small {
+  display: block;
+  color: #efd384;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+.title-mission b {
+  display: block;
+  margin: 4px 0;
+  color: #fff2c5;
+  font-size: 17px;
+}
+.title-mission span {
+  color: #c7d1ef;
+  font-size: 10px;
+  line-height: 1.55;
+}
+.title-play-loop {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 10px 0 13px;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: titleFadeUp 0.38s ease 1.4s forwards;
+}
+.title-play-loop span {
+  position: relative;
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid #7285c04a;
+  border-radius: 7px;
+  background: #0b112bba;
+  color: #dce4ff;
+  text-align: left;
+}
+.title-play-loop span:not(:last-child):after {
+  content: "›";
+  position: absolute;
+  z-index: 2;
+  right: -7px;
+  color: #f1d27d;
+  font-size: 18px;
+  text-shadow: 0 0 8px #f1d27d;
+}
+.title-play-loop i {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: #6579bf;
+  color: #fff8d8;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+}
+.title-play-loop b {
+  font-size: 9px;
+  line-height: 1.45;
+}
+.title-mode .title-enter {
+  width: 100%;
+  min-height: 48px;
+  animation-delay: 1.5s;
+}
+.title-help {
+  margin-top: 9px;
+  padding: 4px 8px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #aebbe3 !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+  opacity: 0;
+  animation: titleFade 0.3s ease 1.66s forwards;
+}
+.title-help b {
+  margin-left: 4px;
+  color: #ffe3a1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.title-help:hover {
+  color: #f0f4ff !important;
+  transform: translateY(-1px);
+}
+@keyframes titleRoutePulse {
+  50% {
+    transform: scale(1.12);
+    filter: brightness(1.22);
+  }
+}
+@media (max-width: 720px) {
+  .title-mode main {
+    width: calc(100vw - 12px);
+  }
+  .title-mode .stage {
+    height: calc(100dvh - 12px);
+    border-radius: 12px;
+  }
+  .title-mode .title-sequence {
+    display: block;
+  }
+  .title-mode .title-constellation {
+    width: 100%;
+    height: 43%;
+    border-right: 0;
+    border-bottom: 1px solid #9aaaff24;
+  }
+  .title-mode .title-sky-map {
+    top: -4%;
+    height: 74%;
+  }
+  .title-mode .title-orb {
+    top: 6% !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+  .title-mode .title-guardian {
+    top: 29%;
+  }
+  .title-mode .title-guardian-center {
+    top: 25%;
+  }
+  .title-mode .title-hope {
+    top: 75%;
+  }
+  .title-route {
+    display: none;
+  }
+  .title-mode .title-copy {
+    position: absolute;
+    inset: 43% 0 0;
+    width: 100%;
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 8px 15px 10px;
+  }
+  .title-mode .title-wordmark {
+    width: min(320px, 78%) !important;
+    max-height: 68px;
+    margin: 0;
+  }
+  .title-mode .title-kicker {
+    display: none;
+  }
+  .title-mission {
+    padding: 8px 10px;
+  }
+  .title-mission b {
+    margin: 2px 0;
+    font-size: 13px;
+  }
+  .title-mission span {
+    font-size: 9px;
+  }
+  .title-play-loop {
+    margin: 7px 0 8px;
+  }
+  .title-play-loop span {
+    min-height: 38px;
+    justify-content: center;
+    padding: 5px;
+  }
+  .title-play-loop i {
+    width: 18px;
+    height: 18px;
+    font-size: 8px;
+  }
+  .title-play-loop b {
+    font-size: 8px;
+  }
+  .title-mode .title-enter {
+    min-height: 42px;
+  }
+  .title-help {
+    margin-top: 4px;
+  }
+}
+/* Campaign map: a single constellation, not a list of isolated cards. */
+.constellation-map-scene {
+  padding: 0 !important;
+  place-content: stretch !important;
+  background: #050713f5 !important;
+}
+.constellation-map-shell {
+  width: min(760px, 100%);
+  min-height: 100%;
+  margin: auto;
+  padding: 18px 20px 14px;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at 52% 8%, #424a9433, transparent 33%),
+    linear-gradient(160deg, #0d1431, #060816 76%);
+}
+.constellation-map-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 15px;
+  padding: 4px 2px 13px;
+  border-bottom: 1px solid #6477a655;
+}
+.constellation-map-head h2 {
+  margin: 3px 0 0 !important;
+  color: #fff0c5 !important;
+  font-size: 28px !important;
+}
+.constellation-map-head p {
+  max-width: 230px;
+  margin: 0 !important;
+  color: #aebce0 !important;
+  font-size: 10px !important;
+  line-height: 1.5;
+  text-align: right;
+}
+.constellation-map {
+  position: relative;
+  flex: 1;
+  min-height: 500px;
+  overflow: hidden;
+}
+.constellation-map:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, #f7e3a7aa 0 1px, transparent 1.6px),
+    radial-gradient(circle, #b7c6ff88 0 0.8px, transparent 1.4px);
+  background-size:
+    97px 113px,
+    167px 149px;
+  opacity: 0.32;
+}
+.constellation-map:after {
+  content: "";
+  position: absolute;
+  inset: 12% 5%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 49% 45%, #8494ee17, transparent 46%);
+}
+.constellation-route {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.constellation-route path {
+  fill: none;
+  stroke: #8293d0;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 4 8;
+  filter: drop-shadow(0 0 5px #92a2ef99);
+}
+.constellation-route .future {
+  stroke: #6674a766;
+  stroke-dasharray: 2 11;
+}
+.constellation-node {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 184px;
+  padding: 7px 9px 7px 7px;
+  border: 1px solid #6679ae !important;
+  border-radius: 7px !important;
+  background: linear-gradient(105deg, #10183cf4, #0b1028e8) !important;
+  color: #edf2ff !important;
+  text-align: left;
+  box-shadow: 0 8px 18px #01020c99 !important;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+.constellation-node:hover,
+.constellation-node.active {
+  border-color: #ffe2a0 !important;
+  box-shadow:
+    0 0 0 1px #ffe2a044,
+    0 10px 22px #02030cbf,
+    0 0 21px #9caaff44 !important;
+  transform: translate(-50%, -53%);
+}
+.constellation-node.locked {
+  border-color: #49577e !important;
+  background: #0a0e20d9 !important;
+  color: #8794b9 !important;
+  cursor: default;
+  filter: saturate(0.45);
+}
+.constellation-node.locked:hover {
+  border-color: #49577e !important;
+  box-shadow: 0 8px 18px #01020c99 !important;
+  transform: translate(-50%, -50%);
+}
+.constellation-node .stage-star {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border: 1px solid #e9c66f;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fff2bc 0 7%,
+    #d9a952 12% 22%,
+    #313565 29% 48%,
+    #0a0e21 70%
+  );
+  color: #fff8d5;
+  font-size: 20px;
+  box-shadow:
+    0 0 0 4px #e6c36518,
+    0 0 17px #f0c66d77;
+}
+.constellation-node.locked .stage-star {
+  border-color: #65719b;
+  background: radial-gradient(
+    circle,
+    #98a6cd 0 7%,
+    #4b577f 12% 23%,
+    #151b38 29% 48%,
+    #080b19 70%
+  );
+  color: #aab5d3;
+  box-shadow: 0 0 0 4px #8491bb0d;
+}
+.constellation-node .stage-copy {
+  min-width: 0;
+}
+.constellation-node small {
+  display: block;
+  color: #b7c5e8;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+.constellation-node b {
+  display: block;
+  margin: 3px 0 1px;
+  color: #fff0c5;
+  font-size: 13px;
+}
+.constellation-node span {
+  display: block;
+  color: #b5c1e0;
+  font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.constellation-node.locked b {
+  color: #aeb8d1;
+}
+.constellation-node.locked span {
+  color: #707d9f;
+}
+.constellation-node .node-status {
+  margin-left: auto;
+  color: #ffe1a0;
+  font-size: 10px;
+}
+.constellation-node.locked .node-status {
+  color: #7987aa;
+}
+.constellation-node.s1 {
+  left: 16%;
+  top: 75%;
+}
+.constellation-node.s2 {
+  left: 34%;
+  top: 53%;
+}
+.constellation-node.s3 {
+  left: 57%;
+  top: 31%;
+}
+.constellation-node.s4 {
+  left: 78%;
+  top: 48%;
+}
+.constellation-node.s5 {
+  left: 72%;
+  top: 75%;
+}
+.constellation-map-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #6477a644;
+  color: #aebce0;
+  font-size: 10px;
+}
+.constellation-map-foot button {
+  min-width: 112px;
+}
+.constellation-training {
+  border-color: #6779ac !important;
+  background: #111a3c !important;
+  color: #c4d0ef !important;
+}
+.constellation-training:hover {
+  border-color: #cbd8ff !important;
+}
+@media (max-width: 680px) {
+  .constellation-map-shell {
+    padding: 12px 10px;
+  }
+  .constellation-map-head h2 {
+    font-size: 24px !important;
+  }
+  .constellation-map-head p {
+    font-size: 9px;
+  }
+  .constellation-map {
+    min-height: 470px;
+  }
+  .constellation-node {
+    width: 156px;
+    gap: 6px;
+    padding: 6px;
+  }
+  .constellation-node .stage-star {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+  .constellation-node b {
+    font-size: 11px;
+  }
+  .constellation-node span {
+    font-size: 8px;
+  }
+  .constellation-node.s1 {
+    left: 27%;
+    top: 78%;
+  }
+  .constellation-node.s2 {
+    left: 42%;
+    top: 57%;
+  }
+  .constellation-node.s3 {
+    left: 61%;
+    top: 34%;
+  }
+  .constellation-node.s4 {
+    left: 68%;
+    top: 53%;
+  }
+  .constellation-node.s5 {
+    left: 57%;
+    top: 76%;
+  }
+}
+/* First-session onboarding lives on the actual 1-1 table. */
+.onboarding-card {
+  position: absolute;
+  z-index: 8;
+  left: 16px;
+  bottom: 16px;
+  width: min(320px, calc(100% - 32px));
+  padding: 12px 13px 11px;
+  border: 1px solid #9daee6;
+  background: linear-gradient(145deg, #121a3df5, #090e24f4);
+  box-shadow:
+    0 9px 26px #01020cb8,
+    0 0 0 1px #ffe3a522;
+}
+.onboarding-card:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    #d5e0ff12 48%,
+    transparent 61%
+  );
+  animation: onboardingSweep 3.8s ease-in-out infinite;
+}
+.onboarding-card > * {
+  position: relative;
+  z-index: 1;
+}
+.onboarding-helper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 6px;
+}
+.onboarding-helper img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 7px #ffe49a99);
+}
+.onboarding-helper b {
+  display: block;
+  color: #ffe5a8;
+  font-size: 11px;
+}
+.onboarding-helper small {
+  display: block;
+  margin-top: 2px;
+  color: #aab8e2;
+  font-size: 8px;
+}
+.onboarding-kicker {
+  display: flex;
+  justify-content: space-between;
+  color: #c4d1fa;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+.onboarding-kicker b {
+  color: #ffe2a0;
+}
+.onboarding-card h3 {
+  margin: 7px 0 5px;
+  color: #fff1c4;
+  font-size: 15px;
+}
+.onboarding-card p {
+  margin: 0;
+  color: #c1cbe6;
+  font-size: 10px;
+  line-height: 1.55;
+}
+.onboarding-progress {
+  display: flex;
+  gap: 4px;
+  margin: 10px 0 0;
+}
+.onboarding-progress i {
+  width: 22px;
+  height: 3px;
+  background: #3d4d7d;
+}
+.onboarding-progress i.active {
+  background: #f1ca72;
+  box-shadow: 0 0 7px #f0c66d;
+}
+.onboarding-card button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px !important;
+  border-color: #ffe1a0 !important;
+  background: linear-gradient(#f0d17e, #bd8744) !important;
+  color: #1b1430 !important;
+  font-size: 11px !important;
+}
+.onboarding-card.waiting {
+  border-color: #f0ca72;
+  box-shadow:
+    0 9px 26px #01020cb8,
+    0 0 20px #f0ca7255;
+}
+.onboarding-card.complete {
+  border-color: #f4d38b;
+  animation: onboardingComplete 0.5s ease-out;
+}
+.onboarding-card.complete h3 {
+  color: #fff7d7;
+}
+@keyframes onboardingSweep {
+  45%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes onboardingComplete {
+  50% {
+    transform: translateY(-4px) scale(1.03);
+    filter: brightness(1.2);
+  }
+}
+@media (max-width: 680px) {
+  .onboarding-card {
+    left: 10px;
+    bottom: 10px;
+    width: min(292px, calc(100% - 20px));
+    padding: 10px;
+  }
+  .onboarding-card h3 {
+    font-size: 13px;
+  }
+  .onboarding-card p {
+    font-size: 9px;
+  }
+}
+
+/* Guided lessons live inside the combat dashboard so the table itself always
+   stays visible. The dashboard stretches to the table height and the card
+   rests at its centre; while the table is live (meteor in flight, starkeepers
+   rolling, wake-up bursts) the card steps down and shrinks out of focus. */
+.game-mode.onboarding-active .combat-dashboard {
+  flex-basis: 236px;
+  align-self: stretch;
+}
+.onboarding-dock {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 4px 0 0;
+}
+.onboarding-dock:empty {
+  display: none;
+}
+body.onboarding-locked canvas {
+  pointer-events: none;
+}
+.onboarding-dock .onboarding-card {
+  position: relative;
+  z-index: 1;
+  left: auto;
+  bottom: auto;
+  width: 100%;
+  max-height: 100%;
+  padding: 14px 14px 12px;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-width: 2px;
+  box-shadow:
+    0 14px 36px #000c,
+    0 0 0 1px #ffe3a533,
+    0 0 24px #8798e93a;
+  transition:
+    transform 0.28s ease,
+    opacity 0.28s ease;
+}
+.onboarding-dock .onboarding-card.table-live {
+  align-self: end;
+  transform: scale(0.92);
+  transform-origin: bottom center;
+  opacity: 0.8;
+}
+.onboarding-dock .onboarding-card p {
+  font-size: 11px;
+  line-height: 1.62;
+}
+.onboarding-dock .onboarding-progress i {
+  flex: 1;
+  width: auto;
+}
+@media (max-width: 760px) {
+  .game-mode .onboarding-dock {
+    grid-column: 1 / -1;
+    padding: 0;
+  }
+  .onboarding-dock .onboarding-card {
+    width: 100%;
+    max-height: 34dvh;
+    padding: 11px 12px 10px;
+  }
+  .onboarding-dock .onboarding-card.table-live {
+    transform: scale(0.96);
+  }
+  .onboarding-dock .onboarding-helper {
+    margin: 5px 0;
+  }
+  .onboarding-dock .onboarding-card h3 {
+    font-size: 13px;
+  }
+  .onboarding-dock .onboarding-card p {
+    font-size: 10px;
+  }
+  .onboarding-dock .onboarding-card button {
+    margin-top: 7px;
+  }
+  .onboarding-dock .onboarding-progress {
+    margin-top: 7px;
+  }
+}
+
+/* The title opens on the star-guardians rebuilding a constellation. Keep the
+   scene hopeful and readable; enemies belong beyond the start button. */
+.title-scene {
+  background: #070a21 !important;
+}
+.title-sequence {
+  background:
+    radial-gradient(ellipse at 50% 14%, #8fa9ff42 0%, transparent 32%),
+    radial-gradient(ellipse at 50% 46%, #725cc62e 0%, transparent 45%),
+    linear-gradient(180deg, #101943 0%, #0b1130 50%, #050717 100%) !important;
+}
+.title-sequence:before {
+  background:
+    linear-gradient(180deg, #09102a26 0%, #070b2094 65%, #03040ddd 100%),
+    radial-gradient(circle at 50% 18%, #ffeab71f 0 1px, transparent 2px),
+    url("../assets/library/brand/video-title-card.png") center/cover !important;
+  filter: hue-rotate(24deg) saturate(0.58) brightness(0.72) !important;
+  opacity: 0.46 !important;
+}
+.title-sequence:after {
+  background:
+    linear-gradient(90deg, transparent 8%, #cbd4ff0d 50%, transparent 92%),
+    repeating-linear-gradient(0deg, #dce7ff04 0 1px, transparent 1px 5px) !important;
+  opacity: 0.38;
+}
+.title-stars {
+  z-index: 0;
+}
+.title-stars i {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff3c7 !important;
+  box-shadow:
+    0 0 7px #fff4c9,
+    0 0 14px #93a9ff !important;
+}
+.title-dawn {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: -16%;
+  width: min(760px, 95vw);
+  height: 52%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    #fff0b32b 0%,
+    #93a8ff18 37%,
+    transparent 70%
+  );
+  transform: translateX(-50%);
+  animation: titleDawn 5.8s ease-in-out infinite;
+}
+.title-constellation {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0 auto;
+  height: min(58vh, 420px);
+  height: min(58dvh, 420px);
+  pointer-events: none;
+}
+.title-sky-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.title-constellation-line {
+  fill: none;
+  stroke: #dbe2ff;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  filter: drop-shadow(0 0 6px #97a8ff);
+  opacity: 0.72;
+  animation: titleConstellationDraw 1.25s cubic-bezier(0.22, 0.78, 0.22, 1)
+    0.12s forwards;
+}
+.title-constellation-line.line-cross {
+  stroke: #ffe6a2;
+  animation-delay: 0.38s;
+}
+.title-constellation-line.line-spine {
+  animation-delay: 0.62s;
+}
+.title-constellation-nodes circle {
+  fill: #fff5c9;
+  stroke: #aebcff;
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(0 0 8px #fff0a4) drop-shadow(0 0 12px #8ba0ff);
+  animation: titleConstellationStar 0.5s steps(3) 0.82s forwards;
+}
+.title-constellation-nodes circle:nth-child(2),
+.title-constellation-nodes circle:nth-child(5) {
+  animation-delay: 0.95s;
+}
+.title-constellation-nodes circle:nth-child(3),
+.title-constellation-nodes circle:nth-child(6) {
+  animation-delay: 1.08s;
+}
+.title-shooting-star {
+  position: absolute;
+  z-index: 1;
+  top: 16%;
+  left: 13%;
+  width: 90px;
+  height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, #eaf0ff 66%, #fff8d4);
+  box-shadow: 0 0 8px #aebcff;
+  opacity: 0;
+  transform: rotate(-20deg);
+  animation: titleShootingStar 5.6s ease-in-out 1.5s infinite;
+}
+.title-orb {
+  z-index: 4 !important;
+  top: 18% !important;
+  width: 64px !important;
+  height: 64px !important;
+  filter: drop-shadow(0 0 12px #fff4bd) drop-shadow(0 0 30px #9aaaff) !important;
+  animation:
+    titleHopeOrb 0.76s cubic-bezier(0.12, 0.83, 0.26, 1.15) 0.18s both,
+    titleHopeOrbPulse 2.4s ease-in-out 1s infinite !important;
+}
+.title-guardian {
+  --scale: 1;
+  position: absolute;
+  z-index: 3;
+  top: 44%;
+  display: grid;
+  width: 128px;
+  justify-items: center;
+  opacity: 0;
+  transform: translate(-50%, 22px) scale(0.72);
+  animation: titleGuardianArrive 0.72s cubic-bezier(0.14, 0.88, 0.22, 1.18)
+    var(--arrival) forwards;
+}
+.title-guardian-left {
+  left: 29%;
+}
+.title-guardian-center {
+  --scale: 1.1;
+  left: 50%;
+  top: 40%;
+  z-index: 4;
+}
+.title-guardian-right {
+  left: 71%;
+}
+.title-guardian-art {
+  display: block;
+  width: 116px;
+  height: 116px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 7px 0 #030514aa) drop-shadow(0 0 13px var(--unit));
+  animation: titleGuardianFloat 3.4s ease-in-out calc(var(--arrival) + 0.75s)
+    infinite;
+}
+.title-guardian b {
+  position: relative;
+  margin-top: -7px;
+  padding: 4px 10px 3px;
+  border: 1px solid color-mix(in srgb, var(--unit) 70%, #fff 30%);
+  border-radius: 999px;
+  background: #080c24d9;
+  color: #fff2c9;
+  box-shadow: 0 0 13px color-mix(in srgb, var(--unit) 42%, transparent);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 0 #03040b;
+}
+.title-hope {
+  position: absolute;
+  z-index: 5;
+  top: 86%;
+  left: 50%;
+  padding: 5px 13px;
+  border-top: 1px solid #ffe6a26b;
+  border-bottom: 1px solid #bfcaff55;
+  color: #fff0bd;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  text-shadow: 0 0 10px #9faeff;
+  animation: titleHopeCopy 0.48s ease 1.22s forwards;
+}
+.title-copy {
+  width: min(560px, 100%);
+  padding: 0 24px 28px;
+}
+.title-copy:before {
+  display: none;
+}
+.title-wordmark {
+  width: min(470px, 88%) !important;
+  max-height: 116px;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 4px 0 #080a1b) drop-shadow(0 0 12px #f4cd78aa)
+    drop-shadow(0 0 26px #97a6ff66) !important;
+  animation-delay: 1.12s;
+}
+.title-kicker {
+  margin-bottom: 5px;
+  padding: 3px 9px;
+  animation-delay: 1.28s;
+}
+.title-copy p {
+  max-width: 460px !important;
+  margin-bottom: 13px !important;
+  color: #e8edff !important;
+  animation-delay: 1.36s;
+}
+.title-enter {
+  animation-delay: 1.48s;
+  overflow: hidden;
+}
+.title-skip {
+  color: #aeb9df;
+  animation-delay: 1.66s;
+}
+@keyframes titleConstellationDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes titleConstellationStar {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes titleGuardianArrive {
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(var(--scale));
+  }
+}
+@keyframes titleGuardianFloat {
+  50% {
+    transform: translateY(-5px);
+    filter: drop-shadow(0 9px 0 #03051499) drop-shadow(0 0 18px var(--unit));
+  }
+}
+@keyframes titleHopeOrb {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 36px) scale(0.25);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@keyframes titleHopeOrbPulse {
+  50% {
+    filter: drop-shadow(0 0 18px #fff5c9) drop-shadow(0 0 38px #a4b2ff);
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+@keyframes titleHopeCopy {
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@keyframes titleDawn {
+  50% {
+    opacity: 0.72;
+    transform: translateX(-50%) scale(1.06);
+  }
+}
+@keyframes titleShootingStar {
+  0%,
+  64% {
+    opacity: 0;
+    transform: translate(-80px, 40px) rotate(-20deg);
+  }
+  68% {
+    opacity: 0.9;
+  }
+  78%,
+  100% {
+    opacity: 0;
+    transform: translate(440px, -145px) rotate(-20deg);
+  }
+}
+@media (max-width: 680px) {
+  .title-constellation {
+    height: min(54dvh, 370px);
+  }
+  .title-guardian {
+    --scale: 0.84;
+    top: 43%;
+    width: 100px;
+  }
+  .title-guardian-left {
+    left: 24%;
+  }
+  .title-guardian-center {
+    --scale: 0.94;
+    left: 50%;
+    top: 39%;
+  }
+  .title-guardian-right {
+    left: 76%;
+  }
+  .title-guardian b {
+    font-size: 8px;
+  }
+  .title-hope {
+    top: 80%;
+    font-size: 9px;
+  }
+  .title-copy {
+    padding: 0 14px 18px;
+  }
+  .title-wordmark {
+    width: min(390px, 86%) !important;
+    max-height: 94px;
+  }
+  .title-copy p {
+    margin-bottom: 9px !important;
+    font-size: 10px !important;
+  }
+  .title-enter {
+    min-width: 230px !important;
+  }
+}

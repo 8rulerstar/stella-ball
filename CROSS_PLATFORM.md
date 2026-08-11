@@ -4,14 +4,33 @@
 
 ## Windows에서 시작
 
+설치 없이 플레이만 할 때는 탐색기에서 `PLAY_WINDOWS.cmd`를 더블클릭한다. 루트 `index.html`도 같은 공식 게임으로 연결된다.
+
+검증과 로컬 서버가 필요한 개발 작업은 아래 명령을 사용한다.
+
 ```powershell
 git clone https://github.com/8rulerstar/prism-breakers.git
 cd prism-breakers
-node scripts/verify-evidence.mjs
-py -m http.server 4173 --directory .
+npm run verify
+npm run smoke
+npm run serve
 ```
 
-브라우저에서 `http://127.0.0.1:4173/prototypes/prism-breakers.html`을 연다. `py`가 없으면 Python 설치 뒤 같은 명령을 실행하거나, 정적 서버 확장을 사용하면 된다.
+브라우저에서 `http://127.0.0.1:4173/`을 연다.
+
+## macOS에서 이어서 작업
+
+Node.js 20 이상과 Git이 있으면 외부 npm 패키지 설치 없이 바로 이어갈 수 있다.
+
+```sh
+git pull --ff-only
+node --version
+npm run verify
+npm run smoke
+npm run serve
+```
+
+브라우저에서 `http://127.0.0.1:4173/`을 연다. 첫 확인은 메인 CTA → 온보딩 모달 잠금/실습 전환 → `1-2 균열 회랑`의 공명 범퍼 → 별지기 정산 연출 순서로 한다. 작업 뒤에는 `git status --short`로 새 에셋이 Git 추적 상태인지 확인한다.
 
 ## 저장소 규칙
 
@@ -20,6 +39,7 @@ py -m http.server 4173 --directory .
 - 파일명은 영문 소문자·숫자·하이픈을 쓴다. 대소문자만 다른 파일 두 개를 만들지 않는다.
 - 게임에서 참조하는 에셋은 코드와 **같은 커밋에 Git 추적 상태**로 넣는다. 로컬에만 있는 에셋을 참조하지 않는다.
 - 생성용 원본이나 개인 실험 파일은 게임 런타임에서 참조하지 않는다. 반입할 최종 PNG만 추적한다.
+- `.claude/`와 `node_modules/`는 개인 설정·로컬 캐시이므로 커밋하지 않는다.
 
 ## 자동 확인
 

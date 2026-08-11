@@ -1,54 +1,18 @@
 <!doctype html>
 <html lang="ko">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Echo Run — Prototype</title>
-    <link rel="stylesheet" href="./style.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>STELLA BALL</title>
+    <meta
+      http-equiv="refresh"
+      content="0; url=./prototypes/prism-breakers.html"
+    />
+    <script>
+      location.replace("./prototypes/prism-breakers.html");
+    </script>
   </head>
   <body>
-    <main class="shell">
-      <header>
-        <div>
-          <p class="eyebrow">ECHO RUN · PROTOTYPE</p>
-          <h1>과거의 내가, 다음 판의 적이 된다.</h1>
-        </div>
-        <button id="restart" type="button">새 시도 <span>R</span></button>
-      </header>
-      <section class="game-frame" aria-label="Echo Run 게임 화면">
-        <canvas id="game" width="900" height="560"></canvas>
-        <div id="startOverlay" class="overlay">
-          <p class="eyebrow">60 SECOND ESCAPE</p>
-          <h2>빛의 코어를 탈출구까지 옮기세요</h2>
-          <p>이동: <kbd>WASD</kbd> 또는 <kbd>방향키</kbd> · 대시: <kbd>Space</kbd></p>
-          <p class="muted">죽으면 그 궤적이 오염된 Echo가 되어 다음 시도를 추적합니다.</p>
-          <button id="start" type="button">시작하기</button>
-        </div>
-        <div id="deathOverlay" class="overlay hidden">
-          <p class="eyebrow warning">SIGNAL LOST</p>
-          <h2>당신의 잔상이 깨어났습니다</h2>
-          <p id="deathText"></p>
-          <button id="retry" type="button">다시 탈출 <span>R</span></button>
-        </div>
-        <div id="winOverlay" class="overlay hidden">
-          <p class="eyebrow success">ESCAPED</p>
-          <h2>오염을 뚫고 탈출했습니다</h2>
-          <p id="winText"></p>
-          <button id="next" type="button">다음 탈출 <span>R</span></button>
-        </div>
-        <div class="hud">
-          <div><span>TIME</span><strong id="time">60.0</strong></div>
-          <div><span>ECHOES</span><strong id="echoCount">0</strong></div>
-          <div><span>ATTEMPT</span><strong id="attempt">01</strong></div>
-        </div>
-        <div id="hint" class="hint">처음에는 봇 Echo 하나가 있습니다. 벽에 닿지 말고 출구로.</div>
-      </section>
-      <section class="rule-card">
-        <div><b>1</b><p>사망 직전 6초의 궤적이 기록됩니다.</p></div>
-        <div><b>2</b><p>다음 판에서 Echo는 기록을 <em>변형</em>해 추적합니다.</p></div>
-        <div><b>3</b><p>일부러 죽어도 Echo의 속도·위치가 오염되어 통제할 수 없습니다.</p></div>
-      </section>
-    </main>
-    <script src="./game.js"></script>
+    <p><a href="./prototypes/prism-breakers.html">STELLA BALL 실행</a></p>
   </body>
 </html>

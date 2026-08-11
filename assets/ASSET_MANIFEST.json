@@ -5,21 +5,106 @@
     "imageSmoothing": false
   },
   "characters": {
-    "gaon": { "file": "characters/gaon-warrior-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
-    "biyeon": { "file": "characters/biyeon-archer-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 6, "displayScale": 0.55 },
-    "lumi": { "file": "characters/lumi-shaman-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
-    "haru": { "file": "characters/haru-lancer-idle.png", "frameWidth": 320, "frameHeight": 320, "frames": 12, "displayScale": 0.34 },
-    "sera": { "file": "characters/sera-monk-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 6, "displayScale": 0.55 },
-    "taeo": { "file": "characters/taeo-miner-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
-    "nyx": { "file": "characters/nyx-oracle-idle.png", "frameWidth": 192, "frameHeight": 192, "frames": 8, "displayScale": 0.55 },
-    "rio": { "file": "characters/rio-compass-idle.png", "frameWidth": 320, "frameHeight": 320, "frames": 12, "displayScale": 0.34 }
+    "gaon": {
+      "file": "characters/gaon-warrior-idle.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "frames": 8,
+      "displayScale": 0.55
+    },
+    "biyeon": {
+      "file": "characters/biyeon-archer-idle.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "frames": 6,
+      "displayScale": 0.55
+    },
+    "lumi": {
+      "file": "characters/lumi-shaman-idle.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "frames": 8,
+      "displayScale": 0.55
+    },
+    "haru": {
+      "file": "characters/haru-lancer-idle.png",
+      "frameWidth": 320,
+      "frameHeight": 320,
+      "frames": 12,
+      "displayScale": 0.34
+    },
+    "ria": {
+      "file": "characters/ria-bladewheel-idle.png",
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frames": 1,
+      "displayScale": 0.52
+    },
+    "sera": {
+      "file": "characters/sera-monk-idle.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "frames": 6,
+      "displayScale": 0.55
+    },
+    "taeo": {
+      "file": "characters/taeo-miner-idle.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "frames": 8,
+      "displayScale": 0.55
+    },
+    "nyx": {
+      "file": "characters/nyx-oracle-idle.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "frames": 8,
+      "displayScale": 0.55
+    },
+    "rio": {
+      "file": "characters/rio-compass-idle.png",
+      "frameWidth": 320,
+      "frameHeight": 320,
+      "frames": 12,
+      "displayScale": 0.34
+    }
   },
   "expandedRoster": {
-    "set01": { "file": "characters/expanded/source/set-01.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
-    "set02": { "file": "characters/expanded/source/set-02.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
-    "set03": { "file": "characters/expanded/source/set-03.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
-    "set04": { "file": "characters/expanded/source/set-04.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" },
-    "set05": { "file": "characters/expanded/source/set-05.png", "width": 1254, "height": 1254, "layout": "2x2 unit portrait atlas", "source": "OpenAI image generation; chroma-key removal" }
+    "set01": {
+      "file": "characters/expanded/source/set-01.png",
+      "width": 1254,
+      "height": 1254,
+      "layout": "2x2 unit portrait atlas",
+      "source": "OpenAI image generation; chroma-key removal"
+    },
+    "set02": {
+      "file": "characters/expanded/source/set-02.png",
+      "width": 1254,
+      "height": 1254,
+      "layout": "2x2 unit portrait atlas",
+      "source": "OpenAI image generation; chroma-key removal"
+    },
+    "set03": {
+      "file": "characters/expanded/source/set-03.png",
+      "width": 1254,
+      "height": 1254,
+      "layout": "2x2 unit portrait atlas",
+      "source": "OpenAI image generation; chroma-key removal"
+    },
+    "set04": {
+      "file": "characters/expanded/source/set-04.png",
+      "width": 1254,
+      "height": 1254,
+      "layout": "2x2 unit portrait atlas",
+      "source": "OpenAI image generation; chroma-key removal"
+    },
+    "set05": {
+      "file": "characters/expanded/source/set-05.png",
+      "width": 1254,
+      "height": 1254,
+      "layout": "2x2 unit portrait atlas",
+      "source": "OpenAI image generation; chroma-key removal"
+    }
   },
   "expandedRosterAnimations": {
     "manifest": "characters/expanded/animations/manifest.json",
@@ -29,48 +114,184 @@
     "source": "Deterministic pixel animation generation from the expanded roster portraits"
   },
   "boss": {
-    "voidColossus": { "file": "library/boss2/void-colossus.png", "frameWidth": 384, "frameHeight": 384, "frames": 1, "displayScale": 0.48, "idleAnimation": "library/anim/boss2/void-colossus-idle.png", "hitAnimation": "library/anim/boss2/void-colossus-hit.png" }
+    "voidColossus": {
+      "file": "library/boss2/void-colossus.png",
+      "frameWidth": 384,
+      "frameHeight": 384,
+      "frames": 1,
+      "displayScale": 0.48,
+      "idleAnimation": "library/anim/boss2/void-colossus-idle.png",
+      "hitAnimation": "library/anim/boss2/void-colossus-hit.png"
+    }
   },
   "enemies": {
-    "voidWispIdle": { "file": "enemies/void-wisp-idle.png", "width": 1024, "height": 256, "frameWidth": 256, "frames": 4, "displaySize": 96, "source": "Codex-generated pixel asset animation" },
-    "voidWispHit": { "file": "enemies/void-wisp-hit.png", "width": 1024, "height": 256, "frameWidth": 256, "frames": 4, "displaySize": 96, "source": "Codex-generated pixel asset animation" }
+    "voidWispIdle": {
+      "file": "enemies/void-wisp-idle.png",
+      "width": 1024,
+      "height": 256,
+      "frameWidth": 256,
+      "frames": 4,
+      "displaySize": 96,
+      "source": "Codex-generated pixel asset animation"
+    },
+    "voidWispHit": {
+      "file": "enemies/void-wisp-hit.png",
+      "width": 1024,
+      "height": 256,
+      "frameWidth": 256,
+      "frames": 4,
+      "displaySize": 96,
+      "source": "Codex-generated pixel asset animation"
+    }
   },
   "effects": {
     "impact": { "file": "fx/impact-white.png", "columns": 6, "rows": 5 },
     "electricRing": { "file": "fx/electric-ring.png", "columns": 6, "rows": 5 },
-    "starExplosion": { "file": "fx/star-explosion.png", "columns": 7, "rows": 6 }
+    "starExplosion": {
+      "file": "fx/star-explosion.png",
+      "columns": 7,
+      "rows": 6
+    }
   },
   "ui": {
-    "panelFrame": { "file": "library/ui/panel-frame.png", "role": "파티 편성 패널 프레임" },
-    "cardFrame": { "file": "library/ui/card-frame.png", "role": "유물 강화 및 로스터 카드 프레임" },
-    "runeSlotMarker": { "file": "library/ui/rune-slot-marker.png", "role": "파티 선택 슬롯 표시" },
-    "shotDotOn": { "file": "library/ui/shot-dot-on.png", "role": "사용 가능한 발사 표시" },
-    "shotDotOff": { "file": "library/ui/shot-dot-off.png", "role": "소진된 발사 표시" },
-    "skillReady": { "file": "library/icons/skill-ready.png", "role": "선택/발동 가능 표시" },
-    "upgradeLens": { "file": "library/icons/upgrade-lens.png", "role": "약점 강화 아이콘" },
-    "upgradeChorus": { "file": "library/icons/upgrade-chorus.png", "role": "연계 강화 아이콘" },
-    "upgradeReserve": { "file": "library/icons/upgrade-reserve.png", "role": "발사 강화 아이콘" },
-    "upgradeKinetic": { "file": "library/icons/upgrade-kinetic.png", "role": "반사 강화 아이콘" },
-    "upgradeMark": { "file": "library/icons/upgrade-mark.png", "role": "표식 강화 아이콘" },
-    "upgradeBattery": { "file": "library/icons/upgrade-battery.png", "role": "공명 강화 아이콘" }
+    "panelFrame": {
+      "file": "library/ui/panel-frame.png",
+      "role": "파티 편성 패널 프레임"
+    },
+    "cardFrame": {
+      "file": "library/ui/card-frame.png",
+      "role": "유물 강화 및 로스터 카드 프레임"
+    },
+    "runeSlotMarker": {
+      "file": "library/ui/rune-slot-marker.png",
+      "role": "파티 선택 슬롯 표시"
+    },
+    "shotDotOn": {
+      "file": "library/ui/shot-dot-on.png",
+      "role": "사용 가능한 발사 표시"
+    },
+    "shotDotOff": {
+      "file": "library/ui/shot-dot-off.png",
+      "role": "소진된 발사 표시"
+    },
+    "skillReady": {
+      "file": "library/icons/skill-ready.png",
+      "role": "선택/발동 가능 표시"
+    },
+    "upgradeLens": {
+      "file": "library/icons/upgrade-lens.png",
+      "role": "약점 강화 아이콘"
+    },
+    "upgradeChorus": {
+      "file": "library/icons/upgrade-chorus.png",
+      "role": "연계 강화 아이콘"
+    },
+    "upgradeReserve": {
+      "file": "library/icons/upgrade-reserve.png",
+      "role": "발사 강화 아이콘"
+    },
+    "upgradeKinetic": {
+      "file": "library/icons/upgrade-kinetic.png",
+      "role": "반사 강화 아이콘"
+    },
+    "upgradeMark": {
+      "file": "library/icons/upgrade-mark.png",
+      "role": "표식 강화 아이콘"
+    },
+    "upgradeBattery": {
+      "file": "library/icons/upgrade-battery.png",
+      "role": "공명 강화 아이콘"
+    }
   },
   "libraryIntegration": {
-    "stageTiles": ["library/stages/tile-corridor.png", "library/stages/tile-stairs.png", "library/stages/tile-garden.png"],
-    "stageEmblems": ["library/stages/emblem-corridor.png", "library/stages/emblem-stairs.png", "library/stages/emblem-garden.png"],
-    "stageProps": ["library/props/rune-pillar.png", "library/props/void-lantern.png", "library/props/crystal-spire.png", "library/props/void-portal.png"],
-    "skillIcons": ["library/skills/skill-gaon.png", "library/skills/skill-biyeon.png", "library/skills/skill-lumi.png", "library/skills/skill-haru.png", "library/skills/skill-sera.png", "library/skills/skill-taeo.png", "library/skills/skill-nyx.png", "library/skills/skill-rio.png"],
-    "tutorial": ["library/tutorial/hint-drag-shot.png", "library/tutorial/power-gauge-frame.png", "library/tutorial/power-gauge-fill.png"],
-    "projectiles": ["library/projectiles/charged-orb.png", "library/projectiles/homing-orb.png", "library/projectiles/marked-orb.png", "library/projectiles/support-bolt.png"],
-    "results": ["library/results/medal-clear.png", "library/results/medal-sharp.png", "library/results/medal-flawless.png", "library/results/metric-time.png", "library/results/metric-shots.png", "library/results/metric-damage.png"],
-    "arenaFrames": ["library/arena-frames/corridor-edge-h.png", "library/arena-frames/corridor-edge-v.png", "library/arena-frames/corridor-corner.png", "library/arena-frames/stairs-edge-h.png", "library/arena-frames/stairs-edge-v.png", "library/arena-frames/stairs-corner.png", "library/arena-frames/garden-edge-h.png", "library/arena-frames/garden-edge-v.png", "library/arena-frames/garden-corner.png"],
-    "cutins": ["library/cutin/win-backplate.png", "library/cutin/fail-backplate.png"]
+    "stageTiles": [
+      "library/stages/tile-corridor.png",
+      "library/stages/tile-stairs.png",
+      "library/stages/tile-garden.png"
+    ],
+    "stageEmblems": [
+      "library/stages/emblem-corridor.png",
+      "library/stages/emblem-stairs.png",
+      "library/stages/emblem-garden.png"
+    ],
+    "stageProps": [
+      "library/props/rune-pillar.png",
+      "library/props/void-lantern.png",
+      "library/props/crystal-spire.png",
+      "library/props/void-portal.png"
+    ],
+    "skillIcons": [
+      "library/skills/skill-gaon.png",
+      "library/skills/skill-biyeon.png",
+      "library/skills/skill-lumi.png",
+      "library/skills/skill-haru.png",
+      "library/skills/skill-sera.png",
+      "library/skills/skill-taeo.png",
+      "library/skills/skill-nyx.png",
+      "library/skills/skill-rio.png"
+    ],
+    "tutorial": [
+      "library/tutorial/hint-drag-shot.png",
+      "library/tutorial/power-gauge-frame.png",
+      "library/tutorial/power-gauge-fill.png"
+    ],
+    "projectiles": [
+      "library/projectiles/charged-orb.png",
+      "library/projectiles/homing-orb.png",
+      "library/projectiles/marked-orb.png",
+      "library/projectiles/support-bolt.png"
+    ],
+    "results": [
+      "library/results/medal-clear.png",
+      "library/results/medal-sharp.png",
+      "library/results/medal-flawless.png",
+      "library/results/metric-time.png",
+      "library/results/metric-shots.png",
+      "library/results/metric-damage.png"
+    ],
+    "arenaFrames": [
+      "library/arena-frames/corridor-edge-h.png",
+      "library/arena-frames/corridor-edge-v.png",
+      "library/arena-frames/corridor-corner.png",
+      "library/arena-frames/stairs-edge-h.png",
+      "library/arena-frames/stairs-edge-v.png",
+      "library/arena-frames/stairs-corner.png",
+      "library/arena-frames/garden-edge-h.png",
+      "library/arena-frames/garden-edge-v.png",
+      "library/arena-frames/garden-corner.png"
+    ],
+    "cutins": [
+      "library/cutin/win-backplate.png",
+      "library/cutin/fail-backplate.png"
+    ]
   },
   "metaUi": {
-    "brand": ["library/brand/logo-wordmark.png", "library/brand/video-title-card.png", "library/brand/favicon-32.png"],
-    "system": ["library/system/icon-play.png", "library/system/icon-home.png", "library/system/icon-help.png"],
-    "input": ["library/input/mouse-left.png", "library/input/touch-drag.png", "library/input/keycap-r.png"],
+    "brand": [
+      "library/brand/logo-wordmark.png",
+      "library/brand/video-title-card.png",
+      "library/brand/favicon-32.png"
+    ],
+    "system": [
+      "library/system/icon-play.png",
+      "library/system/icon-home.png",
+      "library/system/icon-help.png"
+    ],
+    "input": [
+      "library/input/mouse-left.png",
+      "library/input/touch-drag.png",
+      "library/input/keycap-r.png"
+    ],
     "record": ["library/record/daily-challenge-badge.png"],
-    "runeStones": ["library/runes/rune-stone-gaon.png", "library/runes/rune-stone-biyeon.png", "library/runes/rune-stone-lumi.png", "library/runes/rune-stone-haru.png", "library/runes/rune-stone-sera.png", "library/runes/rune-stone-taeo.png", "library/runes/rune-stone-nyx.png", "library/runes/rune-stone-rio.png"]
+    "runeStones": [
+      "library/runes/rune-stone-gaon.png",
+      "library/runes/rune-stone-biyeon.png",
+      "library/runes/rune-stone-lumi.png",
+      "library/runes/rune-stone-haru.png",
+      "library/runes/rune-stone-sera.png",
+      "library/runes/rune-stone-taeo.png",
+      "library/runes/rune-stone-nyx.png",
+      "library/runes/rune-stone-rio.png"
+    ]
   },
   "terrain": {
     "rock01": { "file": "terrain/rock-01.png", "width": 64, "height": 64 },

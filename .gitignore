@@ -1,5 +1,7 @@
 # 로컬/CI가 생성하는 증거 산출물은 원본 커밋과 분리한다.
 artifacts/
+node_modules/
+.claude/
 .env
 .env.*
 !hive/.env.example
