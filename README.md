@@ -36,6 +36,8 @@ python3 -m http.server 4173 --directory .
 
 그 뒤 `http://127.0.0.1:4173/prototypes/prism-breakers.html`을 엽니다.
 
+Windows·macOS·Linux에서 같은 저장소를 이어 작업하는 규칙과 Windows 실행 명령은 [크로스플랫폼 작업 안내](CROSS_PLATFORM.md)를 따른다.
+
 ## 범위 원칙
 
 현재는 코어 플레이 프로토타입입니다. 실제 가챠, 재화, 실시간 멀티플레이, Hive 실통신은 아직 구현되지 않았으며 완료된 것처럼 표현하지 않습니다. `무한 훈련장`은 기록 제출용이 아닌 물리·능력 QA용 전장입니다.

@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(import.meta.dirname, "..");
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const demoPath = resolve(root, "prototypes/prism-breakers.html");
 const source = readFileSync(demoPath, "utf8");
 
@@ -74,6 +75,11 @@ try {
 } catch (error) {
   throw new Error(`공백 또는 충돌 표식 검사 실패:\n${error.stdout?.toString() ?? ""}`);
 }
+
+execFileSync(process.execPath, [resolve(root, "scripts", "check-portability.mjs")], {
+  cwd: root,
+  stdio: "inherit",
+});
 
 const sha256 = createHash("sha256").update(source).digest("hex");
 const report = {

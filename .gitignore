@@ -9,6 +9,10 @@ assets/characters/expanded/*.png
 !assets/characters/expanded/source/
 !assets/characters/expanded/source/*.png
 
+# Image-generation chroma-key sources are working material only.  The final
+# transparent sprites in assets/characters/cute/ are the portable game assets.
+assets/characters/cute/source/
+
 # 운영체제·편집기 파일
 .DS_Store
 .idea/

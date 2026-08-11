@@ -57,6 +57,7 @@
 4. **검증 스크립트 기준선** — 공허 거상·전용 약점 에셋 기준으로 갱신했다. 이후 보스/핵심 에셋을 바꾸면 `scripts/verify-evidence.mjs`와 `assets/ASSET_MANIFEST.json`도 같은 커밋에서 맞춘다.
 5. **Hive 실통신** — 클라이언트 인터페이스는 연결돼 있으나 Console AppID/서버 어댑터를 통한 로그인·저장·리더보드 왕복은 아직 완료가 아니다.
 6. **외부 플레이 기록** — 다른 기기에서 첫 샷·다음 샷·유닛 각성·훈련장 재장전을 확인하고, 짧은 영상/스크린샷을 남긴다.
+7. **크로스플랫폼 작업** — `.gitattributes`, `scripts/check-portability.mjs`, Windows CI를 추가했다. 새 에셋/코드를 반입한 뒤에는 `node scripts/verify-evidence.mjs`를 실행하고, 필요한 파일이 반드시 Git 추적 상태인지 확인한다.
 
 ## 다음 세션의 작업 규칙
 

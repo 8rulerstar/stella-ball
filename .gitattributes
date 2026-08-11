@@ -1,0 +1,12 @@
+# Keep source files identical after macOS, Windows, and Linux checkouts.
+* text=auto eol=lf
+
+# Never let Git line-ending conversion touch binary game assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.woff2 binary
+*.mp3 binary
+*.ogg binary
