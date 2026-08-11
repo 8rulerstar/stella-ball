@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""Build the per-hero attack and roll sheets used by the combat animState.
+
+Every roster hero is a pure palette swap of a Tiny Swords source sheet, so a
+positional colour LUT learned from the idle pair transplants the hero palette
+onto the source pack's real action frames at original quality. Rolls are the
+idle pose tumbling in lossless 90-degree steps around its own centroid.
+
+The Tiny Swords packs are not part of the repository. Point TS_ASSETS_DIR at
+the folder that contains "Tiny Swords (Free Pack)" and "Tiny Swords (Enemy
+Pack)"; without the variable the script tries D:/Assets and ~/Assets.
+
+Usage:
+  python scripts/generate_unit_action_sheets.py          # write all sheets
+  python scripts/generate_unit_action_sheets.py --check  # verify bases only
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+from collections import Counter, defaultdict
+from pathlib import Path
+
+from PIL import Image, ImageDraw
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "assets" / "characters" / "anim"
+FACTIONS = ["Blue", "Purple", "Red", "Black", "Yellow"]
+
+# id: (idle sheet, cell, per-faction source unit, attack source, frame picks)
+HEROES = {
+    "gaon": ("gaon-warrior-idle.png", 192, "Warrior/Warrior_Idle.png", "Warrior/Warrior_Attack1.png", [0, 1, 2, 3]),
+    "nyx": ("nyx-oracle-idle.png", 192, "Warrior/Warrior_Idle.png", "Warrior/Warrior_Attack2.png", [0, 1, 2, 3]),
+    "biyeon": ("biyeon-archer-idle.png", 192, "Archer/Archer_Idle.png", "Archer/Archer_Shoot.png", [1, 3, 5, 6]),
+    "sera": ("sera-monk-idle.png", 192, "Monk/Idle.png", "Monk/Heal.png", [1, 4, 7, 9]),
+    "taeo": ("taeo-miner-idle.png", 192, "Pawn/Pawn_Idle Pickaxe.png", "Pawn/Pawn_Interact Pickaxe.png", [0, 2, 3, 5]),
+    "haru": ("haru-lancer-idle.png", 320, "Lancer/Lancer_Idle.png", "Lancer/Lancer_Right_Attack.png", [0, 0, 1, 2]),
+    "lumi": ("lumi-shaman-idle.png", 192, None, None, [1, 4, 6, 8]),
+}
+# lumi was recoloured from the Enemy Pack's Hex Shaman rather than a faction unit.
+LUMI_IDLE = "Enemies/Goblin Raiders/Hex Shaman/Hex Shaman_Idle.png"
+LUMI_ATTACK = "Enemies/Goblin Raiders/Hex Shaman/Hex Shaman_Attack.png"
+
+HERO_COL = {
+    "gaon": (242, 197, 107), "biyeon": (239, 113, 141), "lumi": (112, 220, 225),
+    "haru": (158, 228, 119), "sera": (188, 167, 255), "taeo": (255, 172, 103),
+    "nyx": (159, 131, 255),
+}
+
+
+def pack_root() -> Path:
+    candidates = []
+    if os.environ.get("TS_ASSETS_DIR"):
+        candidates.append(Path(os.environ["TS_ASSETS_DIR"]))
+    candidates += [Path("D:/Assets"), Path.home() / "Assets"]
+    for cand in candidates:
+        if (cand / "Tiny Swords (Free Pack)").exists():
+            return cand
+    raise SystemExit(
+        "Tiny Swords packs not found. Set TS_ASSETS_DIR to the folder that "
+        "contains 'Tiny Swords (Free Pack)' and 'Tiny Swords (Enemy Pack)'."
+    )
+
+
+def frames_of(img: Image.Image, cell: int) -> list[Image.Image]:
+    return [img.crop((i * cell, 0, (i + 1) * cell, img.height)) for i in range(img.width // cell)]
+
+
+def mask_iou(a: Image.Image, b: Image.Image) -> float:
+    am = a.getchannel("A").point(lambda v: 1 if v > 40 else 0)
+    bm = b.getchannel("A").point(lambda v: 1 if v > 40 else 0)
+    inter = union = 0
+    for pa, pb in zip(am.getdata(), bm.getdata()):
+        if pa or pb:
+            union += 1
+            if pa and pb:
+                inter += 1
+    return inter / union if union else 0.0
+
+
+def learn_lut(hero: Image.Image, source: Image.Image) -> tuple[dict, float]:
+    hp, sp = hero.load(), source.load()
+    votes: dict = defaultdict(Counter)
+    total = agree = 0
+    for y in range(hero.height):
+        for x in range(hero.width):
+            hpx, spx = hp[x, y], sp[x, y]
+            if hpx[3] > 40 and spx[3] > 40:
+                votes[spx[:3]][hpx[:3]] += 1
+                total += 1
+    lut = {}
+    for src, counter in votes.items():
+        dst, n = counter.most_common(1)[0]
+        lut[src] = dst
+        agree += n
+    return lut, (agree / total if total else 0.0)
+
+
+def apply_lut(img: Image.Image, lut: dict) -> Image.Image:
+    out = img.copy()
+    px = out.load()
+    keys = list(lut.keys())
+    cache: dict = {}
+    for y in range(out.height):
+        for x in range(out.width):
+            r, g, b, a = px[x, y]
+            if a <= 0:
+                continue
+            src = (r, g, b)
+            if src in lut:
+                px[x, y] = lut[src] + (a,)
+                continue
+            if src not in cache:
+                best, dist = None, 1 << 30
+                for key in keys:
+                    d = (key[0] - r) ** 2 + (key[1] - g) ** 2 + (key[2] - b) ** 2
+                    if d < dist:
+                        dist, best = d, key
+                cache[src] = lut[best] if best is not None and dist <= 3600 else src
+            px[x, y] = cache[src] + (a,)
+    return out
+
+
+def sprite_centroid(im: Image.Image) -> tuple[float, float]:
+    alpha = im.getchannel("A").load()
+    sx = sy = n = 0
+    for y in range(im.height):
+        for x in range(im.width):
+            if alpha[x, y] > 40:
+                sx += x
+                sy += y
+                n += 1
+    return (sx / n, sy / n) if n else (im.width / 2, im.height / 2)
+
+
+def roll_frames(idle0: Image.Image, cell: int, col: tuple) -> list[Image.Image]:
+    bbox = idle0.getbbox()
+    sprite = idle0.crop(bbox)
+    side = max(sprite.size)
+    square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    square.paste(sprite, ((side - sprite.width) // 2, (side - sprite.height) // 2))
+    cx, cy = sprite_centroid(idle0)
+    frames = []
+    for i, rot in enumerate([None, Image.ROTATE_270, Image.ROTATE_180, Image.ROTATE_90]):
+        turned = square if rot is None else square.transpose(rot)
+        frame = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
+        frame.paste(turned, (int(cx - side / 2), int(cy - side / 2)), turned)
+        px = frame.load()
+        sparks = [
+            (int(cx) - side // 2 - 4, int(cy) + (6 if i % 2 else -6)),
+            (int(cx) + side // 2 + 3, int(cy) + (-8 if i % 2 else 8)),
+        ]
+        for sx, sy in sparks:
+            for dx, dy in ((0, 0), (1, 0), (0, 1)):
+                qx, qy = sx + dx, sy + dy
+                if 0 <= qx < cell and 0 <= qy < cell:
+                    px[qx, qy] = (255, 244, 210, 235) if i % 2 else col + (225,)
+        frames.append(frame)
+    return frames
+
+
+def pack_sheet(frames: list[Image.Image], cell: int) -> Image.Image:
+    sheet = Image.new("RGBA", (cell * len(frames), cell), (0, 0, 0, 0))
+    for i, frame in enumerate(frames):
+        sheet.paste(frame, (i * cell, 0))
+    return sheet
+
+
+def main() -> None:
+    check_only = "--check" in sys.argv
+    packs = pack_root()
+    free = packs / "Tiny Swords (Free Pack)"
+    enemy = packs / "Tiny Swords (Enemy Pack)" / "Enemy Pack"
+    OUT.mkdir(parents=True, exist_ok=True)
+    failures = 0
+    for hid, (idle_rel, cell, unit_rel, attack_rel, picks) in HEROES.items():
+        hero = Image.open(ROOT / "assets" / "characters" / idle_rel).convert("RGBA")
+        if hid == "lumi":
+            source = Image.open(enemy / LUMI_IDLE).convert("RGBA")
+            attack_src = Image.open(enemy / LUMI_ATTACK).convert("RGBA")
+            lut, score = learn_lut(hero, source)
+            label = "HexShaman"
+        else:
+            best = None
+            for faction in FACTIONS:
+                source = Image.open(free / f"Units/{faction} Units" / unit_rel).convert("RGBA")
+                lut_f, score_f = learn_lut(hero, source)
+                if best is None or score_f > best[1]:
+                    best = (lut_f, score_f, faction, source)
+            lut, score, label, source = best
+            attack_src = Image.open(free / f"Units/{label} Units" / attack_rel).convert("RGBA")
+        iou = mask_iou(frames_of(hero, cell)[0], frames_of(source, cell)[0])
+        print(f"{hid:7s} base={label:10s} mask-iou={iou:.3f} lut-consistency={score:.3f}")
+        if iou < 0.999 or score < 0.995:
+            failures += 1
+        if check_only:
+            continue
+        attack_frames = frames_of(attack_src, cell)
+        attack = [apply_lut(attack_frames[min(i, len(attack_frames) - 1)], lut) for i in picks]
+        pack_sheet(attack, cell).save(OUT / f"{hid}-attack.png")
+        roll = roll_frames(frames_of(hero, cell)[0], cell, HERO_COL[hid])
+        pack_sheet(roll, cell).save(OUT / f"{hid}-roll.png")
+    if failures:
+        raise SystemExit(f"{failures} hero(es) no longer match their source sheets")
+    if not check_only:
+        print(f"sheets written to {OUT.relative_to(ROOT)}")
+
+
+if __name__ == "__main__":
+    main()
