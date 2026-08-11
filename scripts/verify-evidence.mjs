@@ -10,7 +10,7 @@ const source = readFileSync(demoPath, "utf8");
 
 const requiredMarkers = [
   "PRISM BREAKERS",
-  "파티 편성",
+  "별지기 편성",
   "drag",
   "gaon",
   "biyeon",
