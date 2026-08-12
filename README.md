@@ -44,12 +44,11 @@ macOS와 Windows 모두 Node.js 20 이상을 준비합니다. 이 프로젝트�
 
 ```sh
 git pull --ff-only
-npm run verify
-npm run smoke
+npm run check
 npm run serve
 ```
 
-그 뒤 `http://127.0.0.1:4173/`을 엽니다. `npm run format:check`은 포맷 검사, `npm run format`은 포맷 적용 명령입니다.
+그 뒤 `http://127.0.0.1:4173/`을 엽니다. `npm run check`은 정적 검증과 런타임 계약 검사를 함께 실행합니다. `npm run format:check`은 포맷 검사, `npm run format`은 포맷 적용 명령입니다.
 
 Windows·macOS·Linux에서 같은 저장소를 이어 작업하는 규칙과 운영체제별 시작 명령은 [크로스플랫폼 작업 안내](CROSS_PLATFORM.md)를 따릅니다.
 

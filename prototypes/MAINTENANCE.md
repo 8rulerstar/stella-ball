@@ -47,11 +47,15 @@ The infinite training table is the current reference configuration for all three
 
 ## Before handoff
 
-Run these from the repository root:
+Run this quick handoff check from the repository root:
 
 ```sh
-npm run smoke
-npm run verify
+npm run check
+```
+
+For a changed runtime module, add the focused formatting check and whitespace check:
+
+```sh
 npx --yes prettier@3.5.3 --check prototypes/js/game-platform.js prototypes/js/game-ui.js prototypes/js/game-data.js prototypes/js/game-session.js prototypes/js/game-meta.js prototypes/js/game-feedback.js scripts/smoke-runtime.mjs scripts/verify-evidence.mjs
 git diff --check
 ```
