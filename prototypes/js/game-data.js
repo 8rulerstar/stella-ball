@@ -48,7 +48,15 @@ const U = {
 };
 const stageEl = document.querySelector(".stage");
 U.combo = document.querySelector("#comboText");
-const RULES = { baseDamage: 24, chainStep: 0.55, shots: 5, coreHp: 260 };
+const RULES = {
+  baseDamage: 24,
+  chainStep: 0.55,
+  shots: 5,
+  coreHp: 260,
+  // The last onboarding lesson is a real kill, so the colossus stops being
+  // immortal there.  Half the campaign pool keeps it a two or three shot win.
+  tutorialCoreHp: 120,
+};
 const ECONOMY = { clearGold: 100, gachaCost: 100 };
 // Pinball is simulated in small, fixed slices.  Keeping all contacts on the
 // same solver makes a flipper, bumper and wall feel like parts of one table.

@@ -37,6 +37,12 @@ function isOnboardingInputLocked() {
 function isOnboardingSessionActive() {
   return Boolean(onboarding);
 }
+// Lessons 1-5 teach against an immortal colossus.  Lesson 6 is the real kill,
+// so the battle setup asks this before it decides the boss pool.
+const ONBOARDING_FINAL_PHASE = 3;
+function isOnboardingFinalLesson() {
+  return Boolean(onboarding && onboarding.phase === ONBOARDING_FINAL_PHASE);
+}
 const onboardingLayouts = [
   {
     party: [],
@@ -78,17 +84,21 @@ function setOnboardingPhase(phase, first = false) {
   stages[0].slots = layout.slots.map((point) => [...point]);
   selected = [...layout.party];
   deployed = [...layout.party];
+  // The closing lesson hands the table straight to the player, so its card is
+  // never shown and combat input stays unlocked from the first frame.
+  const finalLesson = phase === ONBOARDING_FINAL_PHASE;
   onboarding = {
     ...onboarding,
     phase,
     dialogue: 0,
     contacts: new Set(),
+    attempts: 0,
     bossHit: false,
     bladeHit: false,
-    launched: false,
+    launched: finalLesson,
     settled: false,
     transitioning: false,
-    panelVisible: true,
+    panelVisible: !finalLesson,
   };
   if (first || !battle) setupBattle();
   else setupBattle();
@@ -96,7 +106,7 @@ function setOnboardingPhase(phase, first = false) {
     "도우미 루나 · 유성을 보스에게 곧장 보내 보세요.",
     "도우미 루나 · 비연을 굴려, 멈춘 자리의 거리 저격을 확인하세요.",
     "도우미 루나 · 리아를 빠르게 굴려 회전 칼날로 보스를 스쳐 보세요.",
-    "도우미 루나 · 두 별지기가 준비됐어요. 이제 첫 관측을 마무리하세요.",
+    "실전 · 이제 거상은 쓰러집니다. 유성은 무제한이니 직접 무너뜨리세요.",
   ][phase];
   sync();
   renderOnboarding();
@@ -118,12 +128,10 @@ function beginOnboardingPractice() {
 function continueOnboarding(action) {
   if (!onboarding) return;
   playSfx?.("confirm");
-  if (action === "direct-aim") return setOnboardingDialogue(1);
   if (action === "add-biyeon") return setOnboardingPhase(1);
-  if (action === "biyeon-aim") return setOnboardingDialogue(1);
   if (action === "add-pair") return setOnboardingPhase(2);
-  if (action === "pair-aim") return setOnboardingDialogue(1);
-  if (action === "final-setup") return setOnboardingPhase(3);
+  if (action === "final-battle")
+    return setOnboardingPhase(ONBOARDING_FINAL_PHASE);
   if (action === "practice") return beginOnboardingPractice();
   if (action === "complete") return completeOnboarding();
 }
@@ -156,113 +164,84 @@ function renderOnboarding() {
   dock?.setAttribute("aria-hidden", "false");
   const step = onboarding.phase,
     dialogue = onboarding.dialogue ?? 0;
+  // Six cards, and every one of them waits for the player's button.  Gameplay
+  // events only record what happened; they never swap the card being read.
+  const retried = (onboarding.attempts ?? 0) >= 2;
   const lessons = [
     [
       {
         n: 1,
-        title: "안녕, 관측자님.",
-        body: "나는 루나예요. 급하게 하지 않아도 괜찮아요. 이 수업에서는 한 번에 딱 하나씩만 알려 줄게요. 지금 전장에는 유성 하나와 공허 거상 하나만 있어요.",
-        button: "루나의 첫 설명 듣기",
-        action: "direct-aim",
+        title: "안녕하세요, 관측자님. 루나예요.",
+        body: "화면 아래 가운데의 작은 빛이 유성이에요. 마우스로 잡고 아래로 끌었다가 놓으면, 당긴 방향의 반대인 위쪽으로 날아갑니다. 저 공허 거상에게 곧장 보내 보세요.",
+        button: "유성 발사하기",
+        action: "practice",
       },
       {
         n: 2,
-        title: "먼저, 유성을 찾아볼까요?",
-        body: "화면 아래 가운데의 작은 빛이 유성이에요. 유성을 마우스로 잡은 뒤 아래쪽으로 끌어 보세요. 손을 놓으면 당긴 방향의 반대로, 즉 위쪽으로 날아가요.",
-        button: "유성 발사해 보기",
-        action: "practice",
-      },
-      {
-        n: 3,
-        title: onboarding.bossHit
-          ? "아주 잘했어요. 직격 성공!"
-          : "유성이 날아가고 있어요.",
+        title: onboarding.bossHit ? "직격! 잘했어요." : "빗나갔네요. 괜찮아요.",
         body: onboarding.bossHit
-          ? "보스 몸체에 닿자 피해 숫자가 떴죠? 빛나는 약점이 아니어도 보스는 피해를 받아요. 처음에는 몸체를 향하는 것만으로 충분해요."
-          : "지금은 조작하지 말고 유성이 어디로 가는지 지켜보세요. 빗나가도 괜찮아요. 유성이 멈추면 같은 방법으로 다시 시도할 수 있어요.",
-      },
-      {
-        n: 3,
-        title: "첫 번째 규칙을 기억하세요.",
-        body: "유성 자체도 보스에게 피해를 줄 수 있어요. 하지만 다음부터는 잠든 별지기를 깨워 더 큰 공격을 만들 거예요. 이제 첫 별지기를 불러올게요.",
-        button: "다음: 비연 만나기",
-        action: "add-biyeon",
+          ? "빛나는 약점이 아니어도 거상은 피해를 받아요. 유성 자체가 무기예요. 하지만 훨씬 큰 공격은 잠든 별지기를 깨울 때 나옵니다."
+          : "각도만 조금 바꾸면 돼요. 아래로 길게 끌수록 세게 날아갑니다. 한 번 더 해볼까요?",
+        button: onboarding.bossHit
+          ? "다음 · 비연 만나기"
+          : retried
+            ? "괜찮아요, 다음으로"
+            : "다시 시도",
+        action: onboarding.bossHit || retried ? "add-biyeon" : "practice",
       },
     ],
     [
+      {
+        n: 3,
+        title: "첫 별지기, 비연이에요.",
+        body: "점선 끝의 붉은 원 안에 비연이 잠들어 있어요. 유성을 비연에게 부딪히면 둘 다 굴러갑니다. 모든 움직임이 멈추면 비연이 그 자리에서 거상을 저격해요. 멀리 멈출수록 강합니다.",
+        button: "비연에게 발사하기",
+        action: "practice",
+      },
       {
         n: 4,
-        title: "첫 별지기는 비연이에요.",
-        body: "비연은 유성과 부딪히면 굴러가요. 모든 움직임이 멈추면 마지막 자리에서 보스를 향해 화살을 쏩니다. 멀리 멈출수록 저격 피해가 강해져요.",
-        button: "비연을 굴려 볼게요",
-        action: "biyeon-aim",
-      },
-      {
-        n: 5,
-        title: "이번에는 보스가 아니라 비연이에요.",
-        body: "점선 끝의 붉은 원이 비연이에요. 유성을 비연 쪽으로 보내 보세요. 유성과 비연이 닿으면 둘 다 움직이기 시작합니다.",
-        button: "비연을 향해 발사하기",
-        action: "practice",
-      },
-      {
-        n: 6,
-        title: "딩! 비연이 깨어났어요.",
-        body: "비연이 움직였다는 뜻이에요. 아직은 공격하지 않아요. 모든 공이 완전히 멈출 때까지 기다린 뒤, 비연이 마지막 위치에서 보스를 저격해요.",
-      },
-      {
-        n: 6,
-        title: "비연의 각성 공격을 봤어요.",
-        body: "핵심은 “부딪혀 깨운 뒤, 멈추면 공격한다”예요. 비연은 어디에 멈춰도 보스를 겨누므로 첫 각성 흐름을 익히기 좋아요. 이제 이동 중에만 공격하는 별지기를 추가할게요.",
-        button: "다음: 리아 추가하기",
-        action: "add-pair",
+        title: onboarding.contacts.has("biyeon")
+          ? "비연이 깨어나 저격했어요."
+          : "비연에게 닿지 않았어요.",
+        body: onboarding.contacts.has("biyeon")
+          ? "이게 이 게임의 핵심이에요 — 부딪혀 깨우고, 멈추면 공격한다. 다음은 반대예요. 멈춘 뒤가 아니라 굴러가는 동안 공격하는 별지기를 만나 볼게요."
+          : "유성을 비연 쪽으로 조금 더 정확히 보내 보세요. 살짝만 스쳐도 깨어납니다.",
+        button: onboarding.contacts.has("biyeon")
+          ? "다음 · 리아 만나기"
+          : retried
+            ? "괜찮아요, 다음으로"
+            : "다시 시도",
+        action:
+          onboarding.contacts.has("biyeon") || retried
+            ? "add-pair"
+            : "practice",
       },
     ],
     [
       {
-        n: 7,
-        title: "두 번째 별지기는 리아예요.",
-        body: "리아는 따로 정산 공격을 하지 않아요. 대신 굴러가는 동안 보스를 그대로 관통하며 쌍칼을 선풍기처럼 돌려 주변을 베고, 빠를수록 피해와 칼날 반경이 커져요.",
-        button: "리아의 회전 칼날 보기",
-        action: "pair-aim",
-      },
-      {
-        n: 8,
-        title: "이번 목표는 리아를 빠르게 미는 것.",
-        body: "아래쪽 리아의 중심을 향해 강하게 발사해 보세요. 리아가 보스를 뚫고 지나가는 동안 회전 칼날이 여러 번 피해를 줍니다.",
+        n: 5,
+        title: "두 번째 별지기, 리아예요.",
+        body: "리아는 멈춘 뒤에 공격하지 않아요. 굴러가는 동안 거상을 그대로 관통하며 쌍칼을 돌립니다. 빠를수록 피해가 커져요. 리아를 세게 밀어 거상을 뚫고 지나가게 해보세요.",
         button: "리아를 강하게 밀기",
         action: "practice",
       },
       {
-        n: 9,
+        n: 6,
         title: onboarding.bladeHit
-          ? "리아의 회전 칼날이 적중했어요!"
-          : "리아가 회전하기 시작했어요.",
+          ? "회전 칼날이 적중했어요!"
+          : "칼날이 거상까지 닿지 않았어요.",
         body: onboarding.bladeHit
-          ? "좋아요. 정산을 기다리지 않고 이동 중에 피해가 들어갔어요. 속도가 높을수록 칼날이 더 멀리 돌고 한 번의 이동에서 더 큰 피해를 냅니다."
-          : "칼날은 돌기 시작했지만 보스까지 닿지 않았어요. 다음에는 리아를 더 강하게, 보스 쪽으로 밀어 보세요.",
-      },
-      {
-        n: 10,
-        title: "리아는 왜 정산 공격이 없을까요?",
-        body: "리아의 보상은 멈춘 뒤가 아니라 움직이는 시간에 전부 들어가요. 비연은 멈춘 위치를 설계하고, 리아는 속도와 통과 경로를 설계합니다. 서로 다른 공격 타이밍을 조합하는 것이 핵심이에요.",
-      },
-      {
-        n: 10,
-        title: "마지막으로 전장을 정리할게요.",
-        body: "이제 비연과 리아를 서로 다른 자리에 준비해 둘게요. 실제 전투에서는 세 번째 별지기까지 더해 정산형과 이동형을 섞을 수 있어요.",
-        button: "마지막 정리 보기",
-        action: "final-setup",
+          ? "비연은 멈출 자리를 설계하고, 리아는 지나갈 길을 설계합니다. 이제 배운 걸 전부 써 볼 차례예요. 거상은 더 이상 불멸이 아닙니다. 유성은 무제한이니 직접 무너뜨리세요."
+          : "리아를 더 세게, 거상 쪽으로 밀어야 해요. 다시 해볼까요?",
+        button: onboarding.bladeHit
+          ? "직접 잡아보기"
+          : retried
+            ? "괜찮아요, 실전으로"
+            : "다시 시도",
+        action: onboarding.bladeHit || retried ? "final-battle" : "practice",
       },
     ],
-    [
-      {
-        n: 11,
-        title: "첫 관측 수업을 마쳤습니다.",
-        body: "직접 맞히기, 별지기 깨우기, 둘을 연결해 별자리 배율 만들기까지 전부 해냈어요. 보상으로 세 번째 별지기 슬롯을 열어 드릴게요. 이제부터는 세 명의 조합을 직접 선택할 수 있어요.",
-        button: "1-1 관측 완료",
-        action: "complete",
-      },
-    ],
+    [],
   ];
   const copy = lessons[step][Math.min(dialogue, lessons[step].length - 1)];
   const revealId = String((onboarding.revealId || 0) + 1);
@@ -277,14 +256,14 @@ function renderOnboarding() {
     (onboarding.launched ? "waiting " : "") +
     (step === 3 ? "complete" : "");
   const bars = Array.from(
-    { length: 11 },
+    { length: 6 },
     (_, i) => '<i class="' + (i < copy.n ? "active" : "") + '"></i>',
   ).join("");
   card.dataset.revealId = revealId;
   card.innerHTML =
     '<div class="onboarding-kicker"><span>관측 수업 · 1-1</span><b>' +
     copy.n +
-    ' / 11</b></div><div class="onboarding-helper"><img src="' +
+    ' / 6</b></div><div class="onboarding-helper"><img src="' +
     metaArt.luna +
     '" alt=""><span><b>루나 · 관측 보조</b><small>LAST OBSERVATORY</small></span></div><h3>' +
     copy.title +
@@ -374,12 +353,8 @@ function completeOnboarding() {
 const baseOnboardingDamage = damage;
 damage = function (weak = false) {
   baseOnboardingDamage(weak);
-  if (onboarding?.phase === 0 && !onboarding.bossHit) {
-    onboarding.bossHit = true;
-    onboarding.dialogue = 2;
-    onboarding.panelVisible = true;
-    renderOnboarding();
-  }
+  // Record only.  The lesson card advances when the player presses the button.
+  if (onboarding?.phase === 0) onboarding.bossHit = true;
 };
 const baseOnboardingTrackBlazeUnit = trackBlazeUnit;
 trackBlazeUnit = function (g) {
@@ -387,14 +362,9 @@ trackBlazeUnit = function (g) {
   if (
     onboarding &&
     ((onboarding.phase === 1 && g.id === "biyeon") ||
-      (onboarding.phase === 2 && g.id === "ria")) &&
-    !onboarding.contacts.has(g.id)
-  ) {
+      (onboarding.phase === 2 && g.id === "ria"))
+  )
     onboarding.contacts.add(g.id);
-    onboarding.dialogue = 2;
-    onboarding.panelVisible = true;
-    renderOnboarding();
-  }
 };
 const baseOnboardingWakeUnit = wakeUnit;
 wakeUnit = function (g) {
@@ -402,23 +372,28 @@ wakeUnit = function (g) {
   if (
     onboarding &&
     ((onboarding.phase === 1 && g.id === "biyeon") ||
-      (onboarding.phase === 2 && g.id === "ria")) &&
-    !onboarding.contacts.has(g.id)
-  ) {
+      (onboarding.phase === 2 && g.id === "ria"))
+  )
     onboarding.contacts.add(g.id);
-    onboarding.dialogue = 2;
-    onboarding.panelVisible = true;
-    renderOnboarding();
-  }
 };
 const baseOnboardingBladeWheelHit = reportBladeWheelHit;
 reportBladeWheelHit = function (g, target, amount) {
   baseOnboardingBladeWheelHit(g, target, amount);
-  if (onboarding?.phase !== 2 || g.id !== "ria" || onboarding.bladeHit) return;
+  if (onboarding?.phase !== 2 || g.id !== "ria") return;
   onboarding.bladeHit = true;
-  onboarding.dialogue = 3;
-  onboarding.panelVisible = true;
-  renderOnboarding();
+};
+// Killing the colossus in the closing lesson finishes the tutorial itself
+// instead of opening the ordinary battle result screen.
+const baseOnboardingWin = win;
+win = function () {
+  if (!onboarding || onboarding.phase !== ONBOARDING_FINAL_PHASE)
+    return baseOnboardingWin();
+  if (!battle) return;
+  battle.victory = null;
+  battleComplete = true;
+  run = false;
+  assistShots = [];
+  completeOnboarding();
 };
 function showStoryIntro() {
   run = false;
@@ -626,12 +601,13 @@ settleParty = function () {
   }
   if (!onboarding) return;
   onboarding.settled = true;
-  if (onboarding.phase === 0 && onboarding.bossHit) onboarding.dialogue = 3;
-  else if (onboarding.phase === 1 && onboarding.contacts.has("biyeon"))
-    onboarding.dialogue = 3;
-  else if (onboarding.phase === 2 && onboarding.contacts.has("ria"))
-    onboarding.dialogue = 4;
-  else onboarding.launched = false;
+  // The closing lesson is a real fight, so no card interrupts it.
+  if (onboarding.phase === ONBOARDING_FINAL_PHASE) return;
+  // A practice shot resolved: bring back this lesson's result card and let the
+  // player read it for as long as they want.
+  onboarding.attempts = (onboarding.attempts ?? 0) + 1;
+  onboarding.dialogue = 1;
+  onboarding.launched = false;
   onboarding.panelVisible = true;
   setTimeout(renderOnboarding, 180);
 };
@@ -680,13 +656,16 @@ function drawConstellationReveal() {
 }
 registerRuntimeHook("afterDraw", drawConstellationReveal);
 function drawOnboardingGuide() {
+  // The guide belongs to practice: it draws whenever the lesson card has
+  // stepped aside, on the first attempt as well as on a retry.  The closing
+  // lesson is a real fight, so no target ring is drawn there.
   if (
     !onboarding ||
     !battle ||
     !ball ||
     ball.moving ||
     onboarding.panelVisible !== false ||
-    (onboarding.dialogue ?? 0) === 0
+    onboarding.phase === ONBOARDING_FINAL_PHASE
   )
     return;
   const phase = onboarding.phase;

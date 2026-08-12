@@ -504,7 +504,10 @@ function billiardPointerMove(e) {
 function billiardPointerUp(e) {
   if (!drag || ball?.moving) return;
   e.stopImmediatePropagation();
-  if (onboarding && onboarding.phase < 3 && (onboarding.dialogue ?? 0) === 0) {
+  // Launching is blocked only while a lesson card is on screen.  Every
+  // practice step (dialogue 0 included) hides the card first, so the panel
+  // flag is the one source of truth here.
+  if (onboarding && onboarding.panelVisible !== false) {
     drag = null;
     toast("루나의 설명을 읽고 아래 버튼을 눌러 주세요.");
     return;

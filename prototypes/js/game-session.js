@@ -23,12 +23,23 @@ function setupBattle() {
   };
   battleComplete = false;
   primeCombatTextures();
-  const hp = s.training || s.tutorial ? 999999999 : RULES.coreHp;
+  // The tutorial keeps the colossus immortal while Luna is teaching, then
+  // hands the player a real, winnable fight for the closing lesson.
+  const finalLesson =
+    Boolean(s.tutorial) &&
+    typeof isOnboardingFinalLesson === "function" &&
+    isOnboardingFinalLesson();
+  const immortal = Boolean(s.training || (s.tutorial && !finalLesson));
+  const hp = immortal
+    ? 999999999
+    : finalLesson
+      ? RULES.tutorialCoreHp
+      : RULES.coreHp;
   boss = {
     ...s.boss,
     hp,
     maxHp: hp,
-    immortal: Boolean(s.training || s.tutorial),
+    immortal,
     a: 0,
     hitCooldown: 0,
   };
@@ -543,6 +554,10 @@ function endShot() {
   ball.moving = false;
   ball.vx = ball.vy = 0;
   ball.trail = [];
+  // Training and the tutorial advertise unlimited meteors in the HUD, so they
+  // reload instead of ending the battle.  Nobody fails a lesson.
+  if (battle.shots <= 0 && (battle.training || battle.tutorial))
+    battle.shots = battle.shotMax;
   if (battle.shots <= 0) {
     run = false;
     if (boss.hp > 0) return fail("별빛이 닿지 않았습니다.");
@@ -836,6 +851,61 @@ function isCombatInputLocked() {
     typeof isOnboardingInputLocked === "function" && isOnboardingInputLocked()
   );
 }
+// Pause keeps the arena on screen and frozen: the scene stays "game" so the
+// table still draws, and `run` alone stops the solver.  A lesson card already
+// blocks play, so pausing on top of one is refused instead of stacking.
+let paused = false;
+function canPauseBattle() {
+  return Boolean(
+    battle && !battleComplete && isRuntimeScene("game") && !battle.victory,
+  );
+}
+function showPauseMenu() {
+  if (paused || !canPauseBattle() || isCombatInputLocked()) return;
+  paused = true;
+  run = false;
+  drag = null;
+  playSfx?.();
+  U.over.className = "overlay pause-scene";
+  U.over.innerHTML =
+    '<section class="pause-card" role="dialog" aria-modal="true" aria-label="일시정지"><small class="pause-kicker">PAUSED</small><h2>관측을 잠시 멈췄습니다</h2><p>전장은 그대로 남아 있습니다. 준비되면 이어서 관측하세요.</p><div class="pause-actions"><button id="pauseResume" class="pause-primary">계속하기</button><button id="pauseSettings">설정</button><button id="pauseExit" class="pause-exit">관측소로 나가기</button></div><small class="pause-hint">ESC 키로도 열고 닫을 수 있습니다</small></section>';
+  U.over.classList.remove("hide");
+  document.querySelector("#pauseResume").onclick = resumeBattle;
+  document.querySelector("#pauseSettings").onclick = () => {
+    playSfx?.();
+    // Settings returns here, not to the hub, so the battle is never dropped.
+    showSettings(showPauseMenuFromSettings);
+  };
+  document.querySelector("#pauseExit").onclick = () => {
+    playSfx?.();
+    paused = false;
+    showMeta();
+  };
+  document.querySelector("#pauseResume").focus({ preventScroll: true });
+}
+function showPauseMenuFromSettings() {
+  paused = false;
+  setScene("game");
+  showPauseMenu();
+}
+function resumeBattle() {
+  if (!paused) return;
+  paused = false;
+  drag = null;
+  playSfx?.();
+  U.over.innerHTML = "";
+  U.over.className = "overlay";
+  U.over.classList.add("hide");
+  run = true;
+}
+function togglePauseMenu() {
+  // Settings can sit on top of a paused battle, so resuming is only allowed
+  // from the arena itself.  Otherwise Escape would unfreeze combat behind a
+  // menu the player is still reading.
+  if (!isRuntimeScene("game")) return;
+  if (paused) return resumeBattle();
+  showPauseMenu();
+}
 c.addEventListener("pointerdown", (e) => {
   if (!run || isCombatInputLocked()) {
     drag = null;
@@ -888,7 +958,14 @@ c.addEventListener("pointercancel", () => {
   drag = null;
 });
 addEventListener("keydown", (e) => {
+  // Escape is checked before the combat guards so it still works during a
+  // tutorial practice shot, where the rest of the keyboard stays locked.
+  if (e.key === "Escape") {
+    e.preventDefault();
+    return togglePauseMenu();
+  }
   if (
+    paused ||
     isCombatInputLocked() ||
     (typeof isOnboardingSessionActive === "function" &&
       isOnboardingSessionActive())
@@ -896,3 +973,16 @@ addEventListener("keydown", (e) => {
     return;
   if (e.key.toLowerCase() === "r") showRoster();
 });
+// Touch and mouse players never get a keyboard, so the same menu is one tap
+// away from the arena.  The button lives beside the canvas, not in the HUD
+// markup, so the document contract in the smoke test stays unchanged.
+(() => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.id = "pauseButton";
+  button.className = "pause-button";
+  button.setAttribute("aria-label", "일시정지");
+  button.innerHTML = '<span aria-hidden="true">❚❚</span>';
+  button.onclick = () => togglePauseMenu();
+  stageEl?.append(button);
+})();

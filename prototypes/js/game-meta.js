@@ -387,7 +387,10 @@ showMeta = function () {
     showSettings();
   };
 };
-function showSettings() {
+// `onBack` lets the pause menu borrow this screen without losing the battle
+// behind it.  Menu callers keep the default hub return.
+function showSettings(onBack) {
+  const back = typeof onBack === "function" ? onBack : showMeta;
   run = false;
   drag = null;
   setScene("meta");
@@ -439,7 +442,7 @@ function showSettings() {
       settings.language = button.dataset.lang;
       saveSettings();
       playSfx("confirm");
-      showSettings();
+      showSettings(back);
     };
   for (const key of ["master", "bgm", "sfx"]) {
     const input = document.querySelector("#setting-" + key),
@@ -455,11 +458,11 @@ function showSettings() {
     settings = { language: "ko", master: 0.7, bgm: 0.28, sfx: 0.65 };
     saveSettings();
     playSfx("unlock");
-    showSettings();
+    showSettings(back);
   };
   document.querySelector("#settingsBack").onclick = () => {
     playSfx();
-    showMeta();
+    back();
   };
 }
 function showAchievements() {

@@ -438,3 +438,115 @@ button:hover {
 @media (prefers-reduced-motion: reduce) {
   .gacha-ritual::after, .gacha-orbit, .gacha-reveal.rolling, .gacha-reveal.revealed { animation: none; }
 }
+
+/* ---------------------------------------------------------------------
+   PAUSE — ESC or the arena button. The backdrop stays translucent so the
+   frozen table is still readable behind the card.
+   --------------------------------------------------------------------- */
+.pause-button {
+  /* Top-left: the toast owns the top-right corner of the stage. */
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 6;
+  display: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #b08d5566;
+  border-radius: 9px;
+  background: #0e0e15d9;
+  color: #efdcb2;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: .1em;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+body.game-mode .pause-button { display: grid; place-content: center; }
+body.onboarding-locked .pause-button { display: none; }
+.pause-button:hover { border-color: #b08d55; background: #1a1a26f2; transform: translateY(-1px); }
+.pause-button:focus-visible { outline: 2px solid var(--star); outline-offset: 2px; }
+.overlay.pause-scene { background: #0a0a11c4 !important; backdrop-filter: blur(2px); }
+.pause-card {
+  width: min(360px, 88vw);
+  padding: 22px 20px 16px;
+  border: 1px solid #b08d5544;
+  border-radius: 14px;
+  background: linear-gradient(165deg, #16161fF2, #0e0e15f7);
+  box-shadow: 0 20px 60px #04040699, 0 0 0 1px #ffffff08 inset;
+  text-align: center;
+}
+.pause-kicker {
+  display: block;
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: .34em;
+}
+.pause-card h2 {
+  margin: 10px 0 6px !important;
+  color: #efdcb2;
+  font-size: 19px !important;
+  letter-spacing: -.02em;
+}
+.pause-card p {
+  margin: 0 auto 16px !important;
+  max-width: 280px !important;
+  color: var(--mist);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.pause-actions { display: grid; gap: 7px; }
+.pause-actions button {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #494c63;
+  border-radius: 10px;
+  background: #1a1a26;
+  color: #d5dae7;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, color .16s ease;
+}
+.pause-actions button:hover { border-color: #b08d55; background: #22222f; color: #efdcb2; }
+.pause-actions button:focus-visible { outline: 2px solid var(--star); outline-offset: 2px; }
+/* The shared `.overlay button` brass/violet rule is heavy, so the pause
+   actions restate their own palette rather than fight it on specificity. */
+.pause-actions button {
+  border: 1px solid #494c63 !important;
+  background: #1a1a26 !important;
+  box-shadow: none !important;
+  color: #d5dae7 !important;
+}
+.pause-actions button:hover {
+  border-color: #b08d55 !important;
+  background: #22222f !important;
+  color: #efdcb2 !important;
+}
+.pause-actions .pause-primary {
+  border-color: #b08d55 !important;
+  background: linear-gradient(180deg, #d9b269, #b08d55) !important;
+  color: #191320 !important;
+  font-weight: 700;
+}
+.pause-actions .pause-primary:hover {
+  background: linear-gradient(180deg, #e6c684, #c19a5e) !important;
+  color: #191320 !important;
+}
+.pause-actions .pause-exit { border-color: #494c6377 !important; color: #9298ac !important; }
+.pause-hint {
+  display: block;
+  margin-top: 12px;
+  color: #6e7488;
+  font-size: 10px;
+  letter-spacing: .04em;
+}
+@media (max-width: 760px) {
+  .pause-button { top: 8px; right: 8px; width: 40px; height: 40px; }
+  .pause-card { padding: 18px 15px 13px; }
+  .pause-card h2 { font-size: 17px !important; }
+  .pause-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pause-button, .pause-actions button { transition: none; }
+}
