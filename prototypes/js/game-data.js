@@ -237,10 +237,13 @@ const heroes = {
     lore: "꺼진 화로에 마지막 불씨를 묻어둔, 대장장이의 별.",
     fx: "shockwave",
     col: "#ffac67",
-    sprite: "../assets/characters/taeo-miner-idle.png",
+    // Bronze-restyled Tiny RPG orc; the old Pawn sheet reads as a labourer
+    // between the knight and the archer.  Regenerate with
+    // scripts/generate_taeo_orc_restyle.py.
+    sprite: "../assets/characters/taeo-orc-idle.png",
     fw: 192,
     fh: 192,
-    frames: 8,
+    frames: 6,
     scale: 0.38,
   },
   nyx: {
@@ -291,7 +294,7 @@ const combatUnitSize = {
   haru: 96,
   ria: 116,
   sera: 96,
-  taeo: 111,
+  taeo: 118,
   nyx: 93,
 };
 for (const [id, size] of Object.entries(combatUnitSize))
@@ -300,7 +303,7 @@ const cuteUnitArt = {
   haru: { sprite: "../assets/characters/cute/haru-cute.png" },
   ria: { sprite: "../assets/characters/ria-bladewheel-idle.png" },
   sera: { sprite: "../assets/characters/cute/sera-cute.png" },
-  taeo: { sprite: "../assets/characters/cute/taeo-cute.png" },
+  taeo: { sprite: "../assets/characters/cute/taeo-orc-token.png" },
   nyx: { sprite: "../assets/characters/cute/nyx-cute.png" },
 };
 for (const [id, art] of Object.entries(cuteUnitArt))

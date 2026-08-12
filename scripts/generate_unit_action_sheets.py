@@ -35,7 +35,8 @@ HEROES = {
     "nyx": ("nyx-oracle-idle.png", 192, "Warrior/Warrior_Idle.png", "Warrior/Warrior_Attack2.png", [0, 1, 2, 3]),
     "biyeon": ("biyeon-archer-idle.png", 192, "Archer/Archer_Idle.png", "Archer/Archer_Shoot.png", [1, 3, 5, 6]),
     "sera": ("sera-monk-idle.png", 192, "Monk/Idle.png", "Monk/Heal.png", [1, 4, 7, 9]),
-    "taeo": ("taeo-miner-idle.png", 192, "Pawn/Pawn_Idle Pickaxe.png", "Pawn/Pawn_Interact Pickaxe.png", [0, 2, 3, 5]),
+    # taeo moved to the Tiny RPG orc base: generate_taeo_orc_restyle.py owns
+    # his idle/roll/attack sheets now, so he must not be regenerated here.
     "haru": ("haru-lancer-idle.png", 320, "Lancer/Lancer_Idle.png", "Lancer/Lancer_Right_Attack.png", [0, 0, 1, 2]),
     "lumi": ("lumi-shaman-idle.png", 192, None, None, [1, 4, 6, 8]),
 }
