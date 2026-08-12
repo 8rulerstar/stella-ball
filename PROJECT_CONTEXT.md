@@ -91,7 +91,6 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 
 ## 폐기·보존 대상
 
-- `index.html`: Windows 로컬 실행과 GitHub Pages의 공식 진입점. `prototypes/prism-breakers.html`로 연결한다.
-- 폐기된 Echo Run의 `game.js`, `style.css`와 과거 탐색용 프로토타입은 2026-08-11 정리했다.
+- 폐기된 Echo Run의 `game.js`, `style.css`와 과거 탐색용 프로토타입은 2026-08-11 정리했다. 루트 `index.html`은 Stella Ball의 공식 진입점이며, `RUN_STELLA_BALL.command`/`.bat`과 `PLAY_WINDOWS.cmd`가 설치 없는 운영체제별 실행 진입점이다.
 - `prototypes/`의 이전 시안: 탐색·Codex 협업 기록으로 보존한다. 현재 메인으로 홍보하지 않는다.
 - 글로벌 죽음 누적 / 플레이어 데이터로 난이도를 바꾸는 구조: 다시 채택하지 않는다. 대규모 난독화·악용·하향 나선 문제가 있다.

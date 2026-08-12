@@ -2,11 +2,18 @@
 
 이 저장소는 설치 과정 없이 정적 웹 게임을 실행한다. 운영체제에 따라 달라지는 경로, 심볼릭 링크, 파일명 대소문자, 줄바꿈에 의존하지 않는다.
 
-## Windows에서 시작
+## 바로 실행
 
-설치 없이 플레이만 할 때는 탐색기에서 `PLAY_WINDOWS.cmd`를 더블클릭한다. 루트 `index.html`도 같은 공식 게임으로 연결된다.
+저장소를 받은 뒤 별도 설치 없이 다음 파일을 더블클릭한다.
 
-검증과 로컬 서버가 필요한 개발 작업은 아래 명령을 사용한다.
+- **Windows**: `RUN_STELLA_BALL.bat` 또는 `PLAY_WINDOWS.cmd`
+- **macOS**: `RUN_STELLA_BALL.command`
+
+세 실행 파일은 프로젝트 내부 상대 경로만 사용해 기본 브라우저에서 공식 게임을 연다. macOS에서 실행 권한이 사라졌다면 터미널에서 `chmod +x RUN_STELLA_BALL.command`를 한 번 실행한다.
+
+## Windows에서 개발 시작
+
+Node.js 20 이상과 Git을 준비한 뒤 아래 명령을 사용한다.
 
 ```powershell
 git clone https://github.com/8rulerstar/prism-breakers.git
@@ -20,7 +27,7 @@ npm run serve
 
 ## macOS에서 이어서 작업
 
-Node.js 20 이상과 Git이 있으면 외부 npm 패키지 설치 없이 바로 이어갈 수 있다.
+외부 npm 패키지 설치 없이 바로 이어갈 수 있다.
 
 ```sh
 git pull --ff-only

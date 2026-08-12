@@ -1193,20 +1193,16 @@
   }
 }
 
-/* Guided lessons live inside the combat dashboard so the table itself always
-   stays visible. The dashboard stretches to the table height and the card
-   rests at its centre; while the table is live (meteor in flight, starkeepers
-   rolling, wake-up bursts) the card steps down and shrinks out of focus. */
-.game-mode.onboarding-active .combat-dashboard {
-  flex-basis: 236px;
-  align-self: stretch;
-}
+/* Guided explanations are centered over the table and block combat input.
+   Pressing the practice button removes the card before input is restored. */
 .onboarding-dock {
-  flex: 1 1 auto;
-  min-height: 0;
+  position: absolute;
+  z-index: 7;
+  inset: 0;
   display: grid;
   place-items: center;
-  padding: 4px 0 0;
+  padding: 18px;
+  pointer-events: none;
 }
 .onboarding-dock:empty {
   display: none;
@@ -1216,15 +1212,16 @@ body.onboarding-locked canvas {
 }
 .onboarding-dock .onboarding-card {
   position: relative;
-  z-index: 1;
+  z-index: 8;
   left: auto;
   bottom: auto;
-  width: 100%;
-  max-height: 100%;
+  width: min(380px, 100%);
+  max-height: calc(100% - 36px);
   padding: 14px 14px 12px;
   margin: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  pointer-events: auto;
   border-width: 2px;
   box-shadow:
     0 14px 36px #000c,
@@ -1250,12 +1247,11 @@ body.onboarding-locked canvas {
 }
 @media (max-width: 760px) {
   .game-mode .onboarding-dock {
-    grid-column: 1 / -1;
-    padding: 0;
+    padding: 10px;
   }
   .onboarding-dock .onboarding-card {
-    width: 100%;
-    max-height: 34dvh;
+    width: min(340px, 100%);
+    max-height: calc(100% - 20px);
     padding: 11px 12px 10px;
   }
   .onboarding-dock .onboarding-card.table-live {

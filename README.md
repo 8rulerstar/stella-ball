@@ -28,11 +28,16 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 
 `main` 브랜치에 푸시될 때마다 GitHub Actions가 정적 검증 및 기능 표식 검사를 실행하고, 커밋 SHA와 UTC 시각을 담은 검증 리포트를 Actions artifact로 보관합니다. GitHub Pages 배포도 같은 커밋에서 실행됩니다.
 
-## 로컬 확인
+## 한 번에 실행
 
-Windows에서는 저장소 루트의 `PLAY_WINDOWS.cmd`를 더블클릭하면 현재 게임이 열린다. 또는 `index.html`을 직접 열어도 된다.
+- **macOS**: `RUN_STELLA_BALL.command`를 더블클릭합니다.
+- **Windows**: `RUN_STELLA_BALL.bat` 또는 `PLAY_WINDOWS.cmd`를 더블클릭합니다.
 
-macOS에서는 Node.js 20 이상을 준비한 뒤 터미널에서 다음 순서로 시작한다. 이 프로젝트는 외부 npm 의존성이 없어 `npm install`이 필요하지 않다.
+모두 설치나 서버 실행 없이 기본 브라우저로 Stella Ball을 엽니다. 저장소 루트의 `index.html`도 같은 게임으로 바로 이동합니다.
+
+## 개발용 로컬 확인
+
+macOS와 Windows 모두 Node.js 20 이상을 준비합니다. 이 프로젝트는 외부 npm 의존성이 없어 `npm install`이 필요하지 않습니다.
 
 ```sh
 git pull --ff-only
@@ -41,17 +46,9 @@ npm run smoke
 npm run serve
 ```
 
-로컬 서버와 정적 검증이 필요한 개발 환경에서는 아래 명령을 사용한다.
+그 뒤 `http://127.0.0.1:4173/`을 엽니다. `npm run format:check`은 포맷 검사, `npm run format`은 포맷 적용 명령입니다.
 
-```sh
-npm run verify
-npm run smoke
-npm run serve
-```
-
-그 뒤 `http://127.0.0.1:4173/`을 엽니다. `npm run format:check`은 포맷 검사, `npm run format`은 포맷 적용 명령이다.
-
-Windows·macOS·Linux에서 같은 저장소를 이어 작업하는 규칙과 운영체제별 시작 명령은 [크로스플랫폼 작업 안내](CROSS_PLATFORM.md)를 따른다.
+Windows·macOS·Linux에서 같은 저장소를 이어 작업하는 규칙과 운영체제별 시작 명령은 [크로스플랫폼 작업 안내](CROSS_PLATFORM.md)를 따릅니다.
 
 ## 범위 원칙
 

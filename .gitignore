@@ -20,3 +20,7 @@ assets/characters/cute/source/
 .idea/
 .vscode/
 __pycache__/
+
+# Codex pet-generation workspaces are local tooling artifacts, not game files.
+nairong-pet/
+nairong-orange-pet/
