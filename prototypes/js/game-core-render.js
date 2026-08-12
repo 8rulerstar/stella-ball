@@ -1037,19 +1037,30 @@ function draw() {
     x.stroke();
     x.setLineDash([]);
   }
+  // Cosmetic only: the equipped skin repaints the glow and hue-rotates the
+  // shared orb sprite.  No skin touches radius, speed or damage.
+  const skin =
+    typeof equippedSkin === "function" ? equippedSkin() : METEOR_SKINS[0];
   circle(
     ball.x,
     ball.y,
     ball.r + 3,
-    ball.moving ? "#d3e7cf" : "#e0b45a",
+    ball.moving ? skin.moving : skin.rest,
     ball.moving ? 25 : 16,
   );
-  if (!drawStatic("orb", ball.x, ball.y, 31)) {
+  const tinted = skin.hue !== 0;
+  if (tinted) {
+    x.save();
+    x.filter = "hue-rotate(" + skin.hue + "deg) saturate(1.15)";
+  }
+  const drewOrb = drawStatic("orb", ball.x, ball.y, 31);
+  if (tinted) x.restore();
+  if (!drewOrb) {
     circle(
       ball.x,
       ball.y,
       ball.r,
-      ball.moving ? "#f6fdff" : "#a6f5ff",
+      ball.moving ? skin.core : skin.idle,
       ball.moving ? 24 : 16,
     );
     circle(ball.x, ball.y, 4, "#ffffff", 2);
@@ -1121,6 +1132,7 @@ function modernUpdate(d) {
   boss.hitCooldown = Math.max(0, boss.hitCooldown - d);
   for (const g of gates) {
     g.on = Math.max(0, g.on - d);
+    g.wakeFlash = Math.max(0, (g.wakeFlash || 0) - d);
     g.animClock = (g.animClock || 0) + d;
   }
   for (const b of bumpers) b.on = Math.max(0, b.on - d);

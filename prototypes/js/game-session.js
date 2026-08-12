@@ -423,8 +423,14 @@ function showDeployment() {
       showDeployment();
     };
   U.over.className = "overlay deployment-scene";
+  // The map mirrors the real 720x900 table, so a slot that looks close to the
+  // colossus here is close to it in combat.  That is the whole decision.
   U.over.innerHTML =
-    '<div class="deploy-layout"><div id="deployHeroes" class="deploy-tray" aria-label="별지기"></div><div id="slotChoices" class="deployment-map" aria-label="전장 배치"><span class="map-boss" aria-label="보스">◆</span></div><div class="overlay-actions"><button id="backRoster">뒤로</button><button id="startBattle">시작</button></div></div>';
+    '<div class="deploy-layout"><div class="deploy-head"><small>STAGE ' +
+    s.id +
+    " · " +
+    s.name +
+    '</small><h2>어디에 세울지 정하세요</h2><p>별지기를 끌어 자리를 맞바꿉니다. 위쪽은 거상과 가까워 <b>가온의 근접 베기</b>가 닿고, 아래쪽은 멀어 <b>비연의 저격</b>이 강해집니다. 세 자리가 이루는 삼각형이 그대로 별자리 배율이 됩니다.</p></div><div class="deploy-body"><div id="deployHeroes" class="deploy-tray" aria-label="별지기"></div><div class="deploy-stage"><div id="slotChoices" class="deployment-map" aria-label="전장 배치"><span class="map-boss" aria-label="보스">◆</span><span class="map-launch" aria-hidden="true">발사석</span></div></div></div><div class="overlay-actions"><button id="backRoster">뒤로</button><button id="startBattle">시작</button></div></div>';
   const heroBox = document.querySelector("#deployHeroes"),
     slotBox = document.querySelector("#slotChoices");
   for (const id of selected) {

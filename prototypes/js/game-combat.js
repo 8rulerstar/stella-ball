@@ -625,7 +625,7 @@ function trackBlazeDirect() {
   const b = ball?.blaze;
   if (!b || b.directBoss) return;
   b.directBoss = true;
-  earnBlaze(1, "흰공 보스 직격 +1.0");
+  earnBlaze(1, "유성 보스 직격 +1.0");
 }
 const baseBlazeWall = tableWall;
 tableWall = function () {
@@ -900,8 +900,11 @@ function queueUnitAssist(g, amount, name, options = {}) {
   if (!options.finisher)
     fieldFx.push({ type: "assist", x: g.x, y: g.y, t: 0, d: 0.5, col: g.col });
 }
+// Gaon only strikes inside this radius, so the arena draws the same number as
+// a faint ring.  Both readings must come from one constant.
+const SLASH_RANGE = 205;
 function resolveSlash(g, name = "가온 근접 베기", options = {}) {
-  const range = 205,
+  const range = SLASH_RANGE,
     distance = Math.hypot(g.x - boss.x, g.y - boss.y);
   if (distance <= range) {
     if (!options.finisher)
@@ -1370,6 +1373,8 @@ startShot = function (restingPoint = null) {
       g.vx = 0;
       g.vy = 0;
       g.moved = false;
+      g.awake = false;
+      g.wakeFlash = 0;
       g.travel = 0;
       g.collisions = 0;
       g.wallHits = 0;
@@ -1401,6 +1406,8 @@ startShot = function (restingPoint = null) {
     g.vx = 0;
     g.vy = 0;
     g.moved = false;
+    g.awake = false;
+    g.wakeFlash = 0;
     g.travel = 0;
     g.collisions = 0;
     g.wallHits = 0;
@@ -1423,12 +1430,59 @@ startShot = function (restingPoint = null) {
 };
 function wakeUnit(g) {
   if (g.animState !== "move") g.animClock = 0;
+  // The first wake of a shot is the moment the player needs to read, so it
+  // gets a ring, a label and a lasting halo instead of only a glow bump.
+  // `awake` is cleared with `moved` when the next shot is prepared.
+  // "깨어남" is the collision moment; the settle pass keeps "각성" for the
+  // attack itself, so the two readings never collide on screen.
+  if (!g.awake) {
+    g.awake = true;
+    g.wakeFlash = 0.62;
+    areaBursts.push({ x: g.x, y: g.y, r: g.r + 34, col: g.col, t: 0, d: 0.44 });
+    addPopup(g.x, g.y - 40, g.s + " 깨어남!", g.col, true);
+    combatSfx?.("awaken", 0.78);
+  }
   g.moved = true;
   g.on = Math.max(g.on, 0.72);
   // Rolling is only for decisive movement.  Slow residual slides should settle
   // into the resting token instead of continuously tumbling in place.
   g.animState = "move";
 }
+// Drawn after the base pass so the halo sits on top of the unit token.  It
+// reads state that already exists on each gate, so no new particle array is
+// introduced.
+registerRuntimeHook("afterDraw", function drawAwakeMarkers() {
+  if (!run && !battle) return;
+  // Gaon's reach is a placement decision, so it stays on screen all the time
+  // rather than only reporting "사거리 밖" after the shot has already settled.
+  for (const g of gates) {
+    if (g.id !== "gaon") continue;
+    x.save();
+    x.strokeStyle = g.col;
+    x.globalAlpha = 0.16;
+    x.lineWidth = 1.5;
+    x.setLineDash([3, 6]);
+    x.beginPath();
+    x.arc(g.x, g.y, SLASH_RANGE, 0, Math.PI * 2);
+    x.stroke();
+    x.restore();
+  }
+  for (const g of gates) {
+    if (!g.awake) continue;
+    const flash = g.wakeFlash > 0 ? g.wakeFlash / 0.62 : 0;
+    x.save();
+    x.translate(g.x, g.y);
+    x.rotate((frameClock || 0) / 900);
+    x.strokeStyle = g.col;
+    x.globalAlpha = 0.42 + flash * 0.5;
+    x.lineWidth = 2 + flash * 2;
+    x.setLineDash([6, 7]);
+    x.beginPath();
+    x.arc(0, 0, g.r + 11 + flash * 13, 0, Math.PI * 2);
+    x.stroke();
+    x.restore();
+  }
+});
 function playUnitAttack(g) {
   // Give the four-frame strike a full, readable beat after the table settles.
   g.on = Math.max(g.on, 1.35);

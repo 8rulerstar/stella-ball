@@ -320,6 +320,7 @@ function completeOnboarding() {
       appStorage.writeText(ONBOARDING_CLEAR_STORAGE, "1");
     } catch {}
     progress.clears++;
+    grantFreeSummon(1);
     saveProgress();
   }
   selected =
@@ -339,15 +340,15 @@ function completeOnboarding() {
     ?.setAttribute("aria-hidden", "true");
   U.over.className = "overlay";
   U.over.innerHTML =
-    '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">업적 해금</div><h2>첫 관측자의 증명</h2><p>별지기 파티 슬롯이 하나 열렸습니다. 이제 세 명의 별지기를 함께 관측할 수 있어요.</p><button id="openOnboardingAchievement">업적 도감 확인</button><button id="openConstellationMap">별자리 지도</button></div>';
+    '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">업적 해금</div><h2>첫 관측자의 증명</h2><p>세 번째 별지기 자리가 열렸습니다.<br>그 자리를 채울 <b>무료 소환권 1장</b>을 드릴게요.</p><button id="openOnboardingAchievement">무료로 소환하기</button><button id="openConstellationMap">나중에 하기</button></div>';
   U.over.classList.remove("hide");
   document.querySelector("#openOnboardingAchievement").onclick = () => {
     playSfx();
-    showAchievements();
+    showGacha();
   };
   document.querySelector("#openConstellationMap").onclick = () => {
     playSfx();
-    showStageSelect();
+    showMeta();
   };
 }
 const baseOnboardingDamage = damage;
@@ -403,6 +404,10 @@ function showStoryIntro() {
   U.over.innerHTML =
     '<section class="story-intro-card" aria-label="잊힌 별의 관측자 프롤로그"><small class="story-intro-kicker">THE LAST OBSERVATORY</small><h2>잊힌 별의 관측자</h2><div class="story-intro-lines"><p>어느 밤부터, 별이 하나씩 꺼졌다.</p><p>이야기가 잊힐 때마다 별이 지고, 그 자리에 공허가 고였다.</p><p>땅에 떨어져 잠든 별지기를 깨우는 방법은 단 하나 — 부딪히는 것.</p><p>관측자여, 유성을 굴려라. 별자리가 기억을 되찾을 것이다.</p></div><small class="story-intro-skip">클릭하여 계속</small></section>';
   const close = () => {
+    // The overlay element is reused by every later screen, so this handler has
+    // to be released.  Leaving it attached made any click on the hub, gacha,
+    // achievements or settings restart the tutorial underneath them.
+    U.over.onclick = null;
     markStoryIntroSeen();
     playSfx?.("confirm");
     showOnboardingTutorial();
@@ -514,13 +519,13 @@ showMeta = function () {
     storySkyStars(clear) +
     '</div><div class="hub-topbar"><div class="hub-player"><span class="hub-avatar">' +
     avatar +
-    '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><span class="hub-resource">되찾은 별<b>' +
+    '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><button class="hub-resource hub-record-chip" id="hubRecordChip">되찾은 별<b>' +
     clear +
-    '</b></span><span class="hub-resource hub-gold">골드<b>' +
+    '</b></button><span class="hub-resource hub-gold">골드<b>' +
     gold +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
-    '</b></span></div></div><section class="hub-map" aria-label="별자리 스테이지 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M16 75 L34 53 L57 31 L78 48"/><path class="future" d="M78 48 L72 75"/></svg>' +
+    '</b></span></div></div><section class="hub-map" aria-label="별자리 스테이지 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M20 75 L36 53 L57 31 L76 48"/><path class="future" d="M76 48 L70 75"/></svg>' +
     nodes +
     '</section><section class="hub-mission-bar"><div class="hub-mission-info"><small>STAGE ' +
     mapStage.id +
@@ -528,13 +533,11 @@ showMeta = function () {
     stageRule +
     "</small><b>" +
     mapStage.name +
-    '</b><span class="hub-party-slots">' +
-    party +
-    '</span></div><button class="hub-battle-play" id="hubStartBattle"><img src="' +
+    '</b><span class="hub-mission-hint">별지기는 관측 시작 후 고릅니다</span></div><button class="hub-battle-play" id="hubStartBattle"><img src="' +
     metaArt.play +
     '" alt="">' +
     (mapStage.onboarding ? "수업 다시 보기" : "관측 시작") +
-    '</button></section><nav class="hub-tabbar" aria-label="관측소 메뉴"><button class="hub-tab" id="hubParty"><span aria-hidden="true">✦</span><b>편성</b></button><button class="hub-tab" id="hubGacha"><span aria-hidden="true">☄</span><b>소환</b></button><button class="hub-tab center" id="hubBattleTab"><span aria-hidden="true">★</span><b>관측</b></button><button class="hub-tab" id="hubAchievements"><span aria-hidden="true">◈</span><b>업적</b></button><button class="hub-tab" id="hubSettings"><span aria-hidden="true">⚙</span><b>설정</b></button></nav></div>';
+    '</button></section><nav class="hub-tabbar" aria-label="관측소 메뉴"><button class="hub-tab" id="hubTitle"><span aria-hidden="true">⌂</span><b>타이틀</b></button><button class="hub-tab" id="hubGacha"><span aria-hidden="true">☄</span><b>소환</b></button><button class="hub-tab center" id="hubBattleTab"><span aria-hidden="true">★</span><b>관측</b></button><button class="hub-tab" id="hubShop"><span aria-hidden="true">◈</span><b>상점</b></button><button class="hub-tab" id="hubSettings"><span aria-hidden="true">⚙</span><b>설정</b></button></nav></div>';
   for (const node of document.querySelectorAll("[data-map-index]"))
     node.onclick = () => {
       hubMapSelection = Number(node.dataset.mapIndex);
@@ -550,15 +553,19 @@ showMeta = function () {
   };
   document.querySelector("#hubStartBattle").onclick = startObservation;
   document.querySelector("#hubBattleTab").onclick = startObservation;
-  document.querySelector("#hubParty").onclick = () => {
+  document.querySelector("#hubTitle").onclick = () => {
     playSfx();
-    showRoster();
+    showTitle();
   };
   document.querySelector("#hubGacha").onclick = () => {
     playSfx();
     showGacha();
   };
-  document.querySelector("#hubAchievements").onclick = () => {
+  document.querySelector("#hubShop").onclick = () => {
+    playSfx();
+    showShop();
+  };
+  document.querySelector("#hubRecordChip").onclick = () => {
     playSfx();
     showAchievements();
   };
@@ -836,6 +843,12 @@ win = function () {
     saveProgress();
   }
   baseStoryWin();
+  if (goldEarned > 0)
+    rewardToast(
+      "관측 보상 수령",
+      "+" + goldEarned + " 골드",
+      "상점·소환에 사용",
+    );
   if (shouldRecord) {
     U.over.className = "overlay";
     U.over.innerHTML =

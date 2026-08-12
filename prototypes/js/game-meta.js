@@ -126,6 +126,9 @@ let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   clears: 0,
   gold: 0,
   ownedHeroes: [...STARTER_HERO_IDS],
+  ownedSkins: [DEFAULT_METEOR_SKIN],
+  skin: DEFAULT_METEOR_SKIN,
+  freeSummons: 0,
   bestTime: 0,
   bestShots: 99,
   bestCombo: 0,
@@ -149,6 +152,72 @@ function grantGold(amount) {
   progress.gold = goldBalance() + reward;
   return reward;
 }
+// Reward feedback follows the RIPOSTE pattern: an ordinary line is promoted to
+// a louder, self-dismissing card when something was actually earned, so gold
+// and unlocks read as a claim instead of a number quietly changing.
+let rewardToastTimer = 0;
+function rewardToast(kicker, title, detail = "") {
+  const host = document.querySelector(".stage") ?? document.body;
+  document.querySelector(".reward-toast")?.remove();
+  const card = document.createElement("div");
+  card.className = "reward-toast";
+  card.setAttribute("role", "status");
+  card.innerHTML =
+    "<small>" +
+    kicker +
+    "</small><b>" +
+    title +
+    "</b>" +
+    (detail ? "<span>" + detail + "</span>" : "");
+  host.append(card);
+  requestAnimationFrame(() => card.classList.add("show"));
+  clearTimeout(rewardToastTimer);
+  rewardToastTimer = setTimeout(() => {
+    card.classList.remove("show");
+    setTimeout(() => card.remove(), 320);
+  }, 2600);
+  playSfx?.("unlock");
+}
+function ownedSkinIds() {
+  const stored = Array.isArray(progress.ownedSkins) ? progress.ownedSkins : [];
+  return [...new Set([DEFAULT_METEOR_SKIN, ...stored])].filter((id) =>
+    METEOR_SKINS.some((skin) => skin.id === id),
+  );
+}
+function equippedSkin() {
+  const id = progress.skin;
+  return (
+    METEOR_SKINS.find(
+      (skin) => skin.id === id && ownedSkinIds().includes(id),
+    ) ?? METEOR_SKINS[0]
+  );
+}
+function buySkin(id) {
+  const skin = METEOR_SKINS.find((entry) => entry.id === id);
+  if (!skin) return { reason: "missing" };
+  if (ownedSkinIds().includes(id)) return { reason: "owned" };
+  if (goldBalance() < ECONOMY.skinCost) return { reason: "gold" };
+  progress.gold = goldBalance() - ECONOMY.skinCost;
+  progress.ownedSkins = [...ownedSkinIds(), id];
+  progress.skin = id;
+  saveProgress();
+  return { id, cost: ECONOMY.skinCost };
+}
+function equipSkin(id) {
+  if (!ownedSkinIds().includes(id)) return false;
+  progress.skin = id;
+  saveProgress();
+  return true;
+}
+// The tutorial hands out one free summon instead of gold, so the "1-1 pays no
+// gold" economy rule stays intact.
+function hasFreeSummon() {
+  return Number(progress.freeSummons || 0) > 0;
+}
+function grantFreeSummon(count = 1) {
+  progress.freeSummons = Number(progress.freeSummons || 0) + count;
+  saveProgress();
+}
 function ownedHeroIds() {
   const stored = Array.isArray(progress.ownedHeroes)
     ? progress.ownedHeroes
@@ -163,12 +232,14 @@ function ownsHero(id) {
 function pullGachaHero() {
   const pool = GACHA_HERO_IDS.filter((id) => !ownsHero(id));
   if (!pool.length) return { reason: "complete" };
-  if (goldBalance() < ECONOMY.gachaCost) return { reason: "gold" };
+  const free = hasFreeSummon();
+  if (!free && goldBalance() < ECONOMY.gachaCost) return { reason: "gold" };
   const id = pool[Math.floor(Math.random() * pool.length)];
-  progress.gold = goldBalance() - ECONOMY.gachaCost;
+  if (free) progress.freeSummons = Number(progress.freeSummons || 0) - 1;
+  else progress.gold = goldBalance() - ECONOMY.gachaCost;
   progress.ownedHeroes = [...ownedHeroIds(), id];
   saveProgress();
-  return { id, cost: ECONOMY.gachaCost };
+  return { id, cost: free ? 0 : ECONOMY.gachaCost, free };
 }
 let audioEngine = null;
 function ensureAudio() {
@@ -525,13 +596,90 @@ function showAchievements() {
     showMeta();
   };
 }
+function showShop() {
+  run = false;
+  drag = null;
+  setScene("menu");
+  const owned = ownedSkinIds(),
+    current = equippedSkin().id,
+    gold = goldBalance();
+  const cards = METEOR_SKINS.map((skin) => {
+    const isOwned = owned.includes(skin.id),
+      isOn = skin.id === current,
+      afford = gold >= ECONOMY.skinCost;
+    const action = isOn
+      ? '<span class="shop-state on">장착 중</span>'
+      : isOwned
+        ? '<button class="shop-buy equip" data-equip="' +
+          skin.id +
+          '">장착하기</button>'
+        : '<button class="shop-buy' +
+          (afford ? "" : " short") +
+          '" data-buy="' +
+          skin.id +
+          '"' +
+          (afford ? "" : " disabled") +
+          ">" +
+          (afford ? ECONOMY.skinCost + " 골드" : "골드 부족") +
+          "</button>";
+    return (
+      '<article class="shop-card' +
+      (isOn ? " active" : "") +
+      '"><div class="shop-orb" style="--skin-glow:' +
+      skin.moving +
+      ";--skin-core:" +
+      skin.core +
+      ";--skin-hue:" +
+      skin.hue +
+      'deg"><img src="' +
+      staticArt.orb +
+      '" alt=""></div><div class="shop-copy"><b>' +
+      skin.name +
+      "</b><small>" +
+      skin.note +
+      "</small></div>" +
+      action +
+      "</article>"
+    );
+  }).join("");
+  U.over.className = "overlay shop-scene";
+  U.over.innerHTML =
+    '<section class="shop-shell"><div class="shop-head"><button id="shopBack">뒤로</button><span><small>관측소 상점</small><b>보유 골드 ' +
+    gold +
+    '</b></span></div><div class="shop-intro"><small>METEOR SKINS</small><h2>유성 도색</h2><p>겉모습만 바뀝니다. 피해·속도·물리에는 영향이 없습니다.</p></div><div class="shop-grid">' +
+    cards +
+    "</div></section>";
+  document.querySelector("#shopBack").onclick = () => {
+    playSfx();
+    showMeta();
+  };
+  for (const button of document.querySelectorAll("[data-equip]"))
+    button.onclick = () => {
+      equipSkin(button.dataset.equip);
+      playSfx("confirm");
+      showShop();
+    };
+  for (const button of document.querySelectorAll("[data-buy]"))
+    button.onclick = () => {
+      const result = buySkin(button.dataset.buy);
+      if (result.reason === "gold") {
+        playSfx("fail");
+        toast("골드가 부족합니다. 스테이지를 클리어해 보세요.");
+        return;
+      }
+      playSfx("unlock");
+      const skin = METEOR_SKINS.find((entry) => entry.id === result.id);
+      rewardToast("유성 도색 획득", skin.name, "-" + result.cost + " 골드");
+      showShop();
+    };
+}
 function showGacha() {
   run = false;
   drag = null;
   setScene("menu");
   const owned = ownedHeroIds(),
     pool = GACHA_HERO_IDS.filter((id) => !owned.includes(id)),
-    canAfford = goldBalance() >= ECONOMY.gachaCost,
+    canAfford = hasFreeSummon() || goldBalance() >= ECONOMY.gachaCost,
     poolCards = GACHA_HERO_IDS.map((id) => {
       const h = heroes[id],
         unlocked = owned.includes(id);
@@ -549,9 +697,9 @@ function showGacha() {
     }).join("");
   U.over.className = "overlay gacha-scene";
   U.over.innerHTML =
-    '<section class="gacha-shell"><header class="gacha-header"><button id="gachaBack">뒤로</button><span><small>별빛 보관함</small><b>보유 골드 ' +
-    goldBalance() +
-    '</b></span></header><div class="gacha-ritual"><div class="gacha-orbit" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div><div class="gacha-reveal" id="gachaReveal"><span>✦</span><small>아직 만나지 못한 별지기를<br>관측하세요</small></div></div><div class="gacha-copy"><small>STARKEEPER CALL</small><h2>별빛 소환</h2><p>100 골드로 아직 만나지 못한 별지기 한 명을 확정으로 맞이합니다.</p></div><section class="gacha-pool"><div class="gacha-pool-heading"><span>소환 후보</span><b>' +
+    '<section class="gacha-shell"><div class="gacha-header"><button id="gachaBack">뒤로</button><span><small>별빛 보관함</small><b>' +
+    (hasFreeSummon() ? "무료 소환권 1장" : "보유 골드 " + goldBalance()) +
+    '</b></span></div><div class="gacha-ritual"><div class="gacha-orbit" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div><div class="gacha-reveal" id="gachaReveal"><span>✦</span><small>아직 만나지 못한 별지기를<br>관측하세요</small></div></div><div class="gacha-copy"><small>STARKEEPER CALL</small><h2>별빛 소환</h2><p>100 골드로 아직 만나지 못한 별지기 한 명을 확정으로 맞이합니다.</p></div><section class="gacha-pool"><div class="gacha-pool-heading"><span>소환 후보</span><b>' +
     pool.length +
     " / " +
     GACHA_HERO_IDS.length +
@@ -565,7 +713,9 @@ function showGacha() {
     (!pool.length
       ? "모든 별지기를 만났어요"
       : canAfford
-        ? "별빛 소환 · " + ECONOMY.gachaCost + " 골드"
+        ? hasFreeSummon()
+          ? "무료로 소환하기"
+          : "별빛 소환 · " + ECONOMY.gachaCost + " 골드"
         : "골드 부족 · " + ECONOMY.gachaCost + " 골드 필요") +
     "</button></section>";
   document.querySelectorAll("[data-gacha-hero]").forEach((portrait) => {
@@ -832,7 +982,7 @@ function showStageSelect() {
     .join("");
   U.over.className = "overlay constellation-map-scene";
   U.over.innerHTML =
-    '<div class="constellation-map-shell"><header class="constellation-map-head"><div><div class="tag">TODAY\'S NIGHT SKY</div><h2>별자리 관측도</h2></div><p>1-2 균열 회랑의 관측 기록이 열렸습니다.<br>공명 범퍼로 반사각을 만들어 보세요.</p></header><section class="constellation-map" aria-label="스테이지 별자리 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M16 75 L34 53 L57 31 L78 48"/><path class="future" d="M78 48 L72 75"/></svg>' +
+    '<div class="constellation-map-shell"><div class="constellation-map-head"><div><div class="tag">TODAY\'S NIGHT SKY</div><h2>별자리 관측도</h2></div><p>1-2 균열 회랑의 관측 기록이 열렸습니다.<br>공명 범퍼로 반사각을 만들어 보세요.</p></div><section class="constellation-map" aria-label="스테이지 별자리 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M16 75 L34 53 L57 31 L78 48"/><path class="future" d="M78 48 L72 75"/></svg>' +
     nodes +
     '</section><footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><span>현재 플레이 가능: 1-1 · 1-2</span><button id="stageSelectBack">뒤로</button></footer></div>';
   for (const button of document.querySelectorAll("[data-stage]"))

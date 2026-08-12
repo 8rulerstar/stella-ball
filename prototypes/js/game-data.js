@@ -57,7 +57,53 @@ const RULES = {
   // immortal there.  Half the campaign pool keeps it a two or three shot win.
   tutorialCoreHp: 120,
 };
-const ECONOMY = { clearGold: 100, gachaCost: 100 };
+const ECONOMY = { clearGold: 100, gachaCost: 100, skinCost: 500 };
+// Meteor skins are cosmetic only: they repaint the existing prism orb with a
+// hue rotation and swap the trail/glow palette, so no new art is shipped and
+// no skin can change damage, speed or any physics value.
+const METEOR_SKINS = [
+  {
+    id: "prism",
+    name: "프리즘 원석",
+    note: "관측소 지급 기본 유성",
+    hue: 0,
+    moving: "#d3e7cf",
+    rest: "#e0b45a",
+    core: "#f6fdff",
+    idle: "#a6f5ff",
+  },
+  {
+    id: "ember",
+    name: "잔불의 유성",
+    note: "꺼지지 않은 별의 마지막 온기",
+    hue: 128,
+    moving: "#f2b184",
+    rest: "#e07a3c",
+    core: "#fff0dd",
+    idle: "#ffc79a",
+  },
+  {
+    id: "abyss",
+    name: "심연의 유성",
+    note: "공허를 삼키고 돌아온 빛",
+    hue: 300,
+    moving: "#9aa6f0",
+    rest: "#6f63c8",
+    core: "#eae6ff",
+    idle: "#b0a8ff",
+  },
+  {
+    id: "verdant",
+    name: "이끼별 유성",
+    note: "오래 잠든 자리에 돋아난 색",
+    hue: 200,
+    moving: "#a9dd94",
+    rest: "#6aa457",
+    core: "#effbe6",
+    idle: "#c2f0ab",
+  },
+];
+const DEFAULT_METEOR_SKIN = METEOR_SKINS[0].id;
 // Pinball is simulated in small, fixed slices.  Keeping all contacts on the
 // same solver makes a flipper, bumper and wall feel like parts of one table.
 const PHYSICS = {
