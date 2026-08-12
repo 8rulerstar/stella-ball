@@ -758,11 +758,10 @@ showMeta = function () {
     showStageSelect();
   };
 };
-function showStageSelect() {
-  run = false;
-  drag = null;
-  setScene("meta");
-  const mapStages = [
+// One list drives both the full map screen and the hub's inline map, so a
+// stage unlock never has to be edited in two places.
+function constellationMapStages() {
+  return [
     {
       id: "1-1",
       name: "별빛의 첫 충돌",
@@ -799,6 +798,12 @@ function showStageSelect() {
       locked: true,
     },
   ];
+}
+function showStageSelect() {
+  run = false;
+  drag = null;
+  setScene("meta");
+  const mapStages = constellationMapStages();
   const nodes = mapStages
     .map(
       (stage, index) =>

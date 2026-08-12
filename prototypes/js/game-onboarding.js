@@ -443,12 +443,28 @@ function storySkyStars(count) {
       '%"></i>',
   ).join("");
 }
+// The hub map remembers which star the player inspected last.  Null means
+// "the newest unlocked battle", which is stage 1-2 while 1-3+ stay locked.
+let hubMapSelection = null;
+function hubSelectedMapIndex(mapStages) {
+  if (
+    hubMapSelection !== null &&
+    mapStages[hubMapSelection] &&
+    !mapStages[hubMapSelection].locked
+  )
+    return hubMapSelection;
+  for (let i = mapStages.length - 1; i >= 0; i--)
+    if (!mapStages[i].locked && !mapStages[i].onboarding) return i;
+  return 0;
+}
 showMeta = function () {
   run = false;
   drag = null;
   setScene("meta");
-  const stage = currentStage(),
-    stageArt = libraryArt.stages[stageIndex],
+  const mapStages = constellationMapStages(),
+    mapIndex = hubSelectedMapIndex(mapStages),
+    mapStage = mapStages[mapIndex],
+    stageData = mapStage.onboarding ? stages[0] : stages[mapStage.stage],
     avatar = selected[0]
       ? '<img src="' + runeStone(selected[0]) + '" alt="">'
       : "◆";
@@ -464,15 +480,37 @@ showMeta = function () {
   const clear = progress.clears || 0,
     gold = goldBalance(),
     best = formatRunTime(progress.bestTime),
-    bumperCount = stage.bumpers?.length || 0,
-    stageRule = bumperCount
-      ? "공명 범퍼 × " + bumperCount
-      : stage.tutorial
-        ? "첫 관측 수업"
+    bumperCount = stageData.bumpers?.length || 0,
+    stageRule = mapStage.onboarding
+      ? "루나의 관측 수업"
+      : bumperCount
+        ? "공명 범퍼 × " + bumperCount
         : "별자리 전술";
+  const nodes = mapStages
+    .map(
+      (entry, index) =>
+        '<button class="constellation-node s' +
+        (index + 1) +
+        (entry.locked ? " locked" : "") +
+        (index === mapIndex ? " active" : "") +
+        '" ' +
+        (entry.locked ? "disabled" : 'data-map-index="' + index + '"') +
+        '><span class="stage-star">' +
+        entry.mark +
+        '</span><span class="stage-copy"><small>STAGE ' +
+        entry.id +
+        "</small><b>" +
+        entry.name +
+        "</b><span>" +
+        entry.note +
+        '</span></span><em class="node-status">' +
+        (entry.locked ? "잠김" : index === mapIndex ? "선택됨" : "선택") +
+        "</em></button>",
+    )
+    .join("");
   U.over.className = "overlay meta-scene";
   U.over.innerHTML =
-    '<div class="survivor-hub"><div class="hub-night-sky" aria-hidden="true">' +
+    '<div class="survivor-hub hub-map-mode"><div class="hub-night-sky" aria-hidden="true">' +
     storySkyStars(clear) +
     '</div><div class="hub-topbar"><div class="hub-player"><span class="hub-avatar">' +
     avatar +
@@ -482,39 +520,36 @@ showMeta = function () {
     gold +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
-    '</b></span></div></div><section class="hub-battle-card" style="--stage-art:url(\'' +
-    stageArt.tile +
-    '\')"><div class="hub-battle-crest"><img src="' +
-    stageArt.emblem +
-    '" alt="' +
-    stage.name +
-    ' 스테이지 상징"><small>STAGE ' +
-    stage.id +
-    '</small></div><div class="hub-battle-copy"><small>오늘의 메인 관측</small><h2>' +
-    stage.name +
-    "</h2><p>" +
-    stage.terrain +
-    '</p><div class="hub-battle-tags"><span>유성 ' +
-    RULES.shots +
-    "발</span><span>" +
+    '</b></span></div></div><section class="hub-map" aria-label="별자리 스테이지 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M16 75 L34 53 L57 31 L78 48"/><path class="future" d="M78 48 L72 75"/></svg>' +
+    nodes +
+    '</section><section class="hub-mission-bar"><div class="hub-mission-info"><small>STAGE ' +
+    mapStage.id +
+    " · " +
     stageRule +
-    '</span></div></div><button class="hub-stage-change" id="hubStageSelect">스테이지 변경</button><button class="hub-battle-play" id="hubStartBattle"><img src="' +
-    metaArt.play +
-    '" alt="">관측 시작</button></section><section class="hub-party-panel"><div class="hub-party-heading"><span><small>전투 편성</small><b>별지기 ' +
-    selected.length +
-    ' / 3</b></span><button id="hubParty">편성</button></div><div class="hub-party-slots">' +
+    "</small><b>" +
+    mapStage.name +
+    '</b><span class="hub-party-slots">' +
     party +
-    '</div></section><section class="hub-utility-grid"><button class="hub-utility" id="hubGacha"><span class="hub-gacha-mark" aria-hidden="true">✦</span><span><strong>별빛 소환</strong><small>새 별지기 만나기</small></span></button><button class="hub-utility" id="hubTutorial"><img src="' +
-    metaArt.help +
-    '" alt=""><span><strong>튜토리얼</strong><small>조작법 다시 보기</small></span></button><button class="hub-utility" id="hubAchievements"><img src="../assets/library/event/achievement-unlocked.png" alt=""><span><strong>업적</strong><small>관측 기록 확인</small></span></button><button class="hub-utility" id="hubSettings"><img src="../assets/library/system/icon-settings.png" alt=""><span><strong>설정</strong><small>언어 · 사운드</small></span></button></section></div>';
-  document.querySelector("#hubStageSelect").onclick = () => {
+    '</span></div><button class="hub-battle-play" id="hubStartBattle"><img src="' +
+    metaArt.play +
+    '" alt="">' +
+    (mapStage.onboarding ? "수업 다시 보기" : "관측 시작") +
+    '</button></section><nav class="hub-tabbar" aria-label="관측소 메뉴"><button class="hub-tab" id="hubParty"><span aria-hidden="true">✦</span><b>편성</b></button><button class="hub-tab" id="hubGacha"><span aria-hidden="true">☄</span><b>소환</b></button><button class="hub-tab center" id="hubBattleTab"><span aria-hidden="true">★</span><b>관측</b></button><button class="hub-tab" id="hubAchievements"><span aria-hidden="true">◈</span><b>업적</b></button><button class="hub-tab" id="hubSettings"><span aria-hidden="true">⚙</span><b>설정</b></button></nav></div>';
+  for (const node of document.querySelectorAll("[data-map-index]"))
+    node.onclick = () => {
+      hubMapSelection = Number(node.dataset.mapIndex);
+      playSfx();
+      showMeta();
+    };
+  const startObservation = () => {
     playSfx();
-    showStageSelect();
-  };
-  document.querySelector("#hubStartBattle").onclick = () => {
-    playSfx();
+    if (mapStage.onboarding) return showOnboardingTutorial(true);
+    stageIndex = mapStage.stage;
+    primeCombatTextures();
     showRoster();
   };
+  document.querySelector("#hubStartBattle").onclick = startObservation;
+  document.querySelector("#hubBattleTab").onclick = startObservation;
   document.querySelector("#hubParty").onclick = () => {
     playSfx();
     showRoster();
@@ -522,10 +557,6 @@ showMeta = function () {
   document.querySelector("#hubGacha").onclick = () => {
     playSfx();
     showGacha();
-  };
-  document.querySelector("#hubTutorial").onclick = () => {
-    playSfx();
-    showOnboardingTutorial(true);
   };
   document.querySelector("#hubAchievements").onclick = () => {
     playSfx();
