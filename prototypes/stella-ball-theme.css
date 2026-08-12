@@ -262,6 +262,44 @@ button:hover {
   image-rendering: pixelated;
   filter: saturate(.72) hue-rotate(-6deg) brightness(.36) !important;
 }
+.hub-gold b {
+  color: #efd08a !important;
+  text-shadow: 0 0 8px #b08d5555;
+}
+.hub-gold b::before,
+.result-gold i {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 4px;
+  border: 1px solid #f7d792;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 31%, #fff7bd 0 13%, #d8a54c 18% 58%, #72502a 62%);
+  box-shadow: 0 0 7px #e5bc6755;
+  content: "";
+  vertical-align: -1px;
+}
+.result-gold {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: min(220px, 100%);
+  margin: 12px auto 0;
+  padding: 8px 10px;
+  border: 1px solid #b08d55;
+  background: #0d0d15d9;
+  box-shadow: inset 0 0 0 1px #e6c68418, 0 3px 0 #050508;
+  color: #c3c9d6;
+  font-size: 10px;
+}
+.result-gold i {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin-right: 1px;
+}
+.result-gold b { color: #f1d38f; font-size: 12px; }
 .hub-party-panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

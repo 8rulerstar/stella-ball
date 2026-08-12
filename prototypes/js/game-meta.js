@@ -139,6 +139,7 @@ let settings = readStored(SETTINGS_STORAGE, {
 if (document.documentElement) document.documentElement.lang = settings.language;
 let progress = readStored(PROGRESS_STORAGE, {
   clears: 0,
+  gold: 0,
   bestTime: 0,
   bestShots: 99,
   bestCombo: 0,
@@ -153,6 +154,14 @@ function saveSettings() {
 }
 function saveProgress() {
   writeStored(PROGRESS_STORAGE, progress);
+}
+function goldBalance() {
+  return Math.max(0, Math.floor(Number(progress.gold) || 0));
+}
+function grantGold(amount) {
+  const reward = Math.max(0, Math.floor(Number(amount) || 0));
+  progress.gold = goldBalance() + reward;
+  return reward;
 }
 let audioEngine = null;
 function ensureAudio() {

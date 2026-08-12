@@ -634,6 +634,16 @@ function resultCard(shotsUsed, elapsedMs) {
     "</b></span></span></div></div>"
   );
 }
+function resultGoldReward(amount) {
+  if (!amount) return "";
+  return (
+    '<div class="result-gold" aria-label="골드 보상 ' +
+    amount +
+    '"><i aria-hidden="true"></i><span>클리어 보상</span><b>+' +
+    amount +
+    " 골드</b></div>"
+  );
+}
 function win() {
   if (!battle || (battleComplete && !battle.victory)) return;
   const victory = battle.victory;

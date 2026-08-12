@@ -509,6 +509,7 @@ showMeta = function () {
       : '<span class="hub-party-slot empty">+</span>',
   ).join("");
   const clear = progress.clears || 0,
+    gold = goldBalance(),
     best = formatRunTime(progress.bestTime),
     bumperCount = stage.bumpers?.length || 0,
     stageRule = bumperCount
@@ -524,6 +525,8 @@ showMeta = function () {
     avatar +
     '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><span class="hub-resource">되찾은 별<b>' +
     clear +
+    '</b></span><span class="hub-resource hub-gold">골드<b>' +
+    gold +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
     '</b></span></div></div><section class="hub-battle-card" style="--stage-art:url(\'' +
@@ -826,7 +829,11 @@ win = function () {
       .filter(Boolean)
       .join(" · "),
     shotsUsed = battle ? battle.shotMax - battle.shots : 0,
-    elapsedMs = battle?.victory?.elapsedMs ?? 0;
+    elapsedMs = battle?.victory?.elapsedMs ?? 0,
+    goldEarned =
+      shouldRecord && !battle?.training && !battle?.tutorial
+        ? grantGold(ECONOMY.clearGold)
+        : 0;
   if (shouldRecord) {
     battle.storyRecorded = true;
     progress.clears++;
@@ -842,6 +849,7 @@ win = function () {
     U.over.innerHTML =
       '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">별 해방</div><h2>별이 하늘로 돌아갔습니다.</h2>' +
       resultCard(shotsUsed, elapsedMs) +
+      resultGoldReward(goldEarned) +
       "<p>밤하늘에 별이 하나 켜졌습니다 — 오늘의 별자리: " +
       partyNames +
       '</p><button onclick="showRoster()">다음 관측</button></div>';
