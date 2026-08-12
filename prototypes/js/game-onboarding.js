@@ -856,7 +856,7 @@ win = function () {
       resultGoldReward(goldEarned) +
       "<p>밤하늘에 별이 하나 켜졌습니다 — 오늘의 별자리: " +
       partyNames +
-      '</p><button onclick="showRoster()">다음 관측</button></div>';
+      '</p><button onclick="showStageSelect()">다음 관측</button></div>';
     U.over.classList.remove("hide");
   }
 };
