@@ -1268,28 +1268,12 @@ body.onboarding-locked .pause-button { display: none; }
    --------------------------------------------------------------------- */
 .overlay.gacha-scene,
 .overlay.shop-scene,
-.overlay.profile-scene,
-.overlay.constellation-map-scene {
+.overlay.profile-scene {
   position: fixed !important;
   inset: 0 !important;
   z-index: 40;
   padding: 0 !important;
   place-content: stretch !important;
-}
-/* The full map was the one menu still boxed into the canvas column, which
-   left seven star cards overlapping inside a 460px strip after every clear.
-   The overlay grid's auto track sizes itself to content, so the scene pins an
-   explicit full-viewport track before the shell can take 100% of it. */
-.overlay.constellation-map-scene {
-  grid-template-columns: 100% !important;
-  grid-template-rows: 100% !important;
-}
-.constellation-map-shell {
-  width: 100% !important;
-  max-width: none !important;
-  height: 100%;
-  padding: 18px 26px 16px !important;
-  overflow-y: auto;
 }
 .gacha-shell, .shop-shell, .profile-shell {
   display: flex;

@@ -983,19 +983,19 @@
   left: 72%;
   top: 75%;
 }
-/* Seven stars per world no longer fit the old five-card layout: on the full
-   map every node rests as a compact star chip, and only the hovered, focused
-   or highlighted star expands into its full description card. */
+/* Seven stars per world no longer fit the old five-card layout inside the
+   game column: every node rests as a small star chip, and only the hovered
+   or keyboard-focused star expands into its full description card. */
 .constellation-map-scene .constellation-node {
   flex-direction: column;
-  gap: 4px;
-  width: 88px;
-  padding: 7px 6px 6px;
+  gap: 3px;
+  width: 68px;
+  padding: 6px 5px 5px;
 }
 .constellation-map-scene .constellation-node .stage-star {
-  width: 38px;
-  height: 38px;
-  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
 }
 .constellation-map-scene .constellation-node .stage-copy {
   width: 100%;
@@ -1009,13 +1009,12 @@
 .constellation-map-scene .constellation-node b {
   margin: 0;
   overflow: hidden;
-  font-size: 10px;
+  font-size: 9px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .constellation-map-scene .constellation-node:hover,
-.constellation-map-scene .constellation-node:focus-visible,
-.constellation-map-scene .constellation-node.active {
+.constellation-map-scene .constellation-node:focus-visible {
   z-index: 5;
   flex-direction: row;
   gap: 9px;
@@ -1023,24 +1022,19 @@
   padding: 7px 9px 7px 7px;
 }
 .constellation-map-scene .constellation-node:hover .stage-copy,
-.constellation-map-scene .constellation-node:focus-visible .stage-copy,
-.constellation-map-scene .constellation-node.active .stage-copy {
+.constellation-map-scene .constellation-node:focus-visible .stage-copy {
   text-align: left;
 }
 .constellation-map-scene .constellation-node:hover small,
 .constellation-map-scene .constellation-node:focus-visible small,
-.constellation-map-scene .constellation-node.active small,
 .constellation-map-scene .constellation-node:hover .stage-copy span,
 .constellation-map-scene .constellation-node:focus-visible .stage-copy span,
-.constellation-map-scene .constellation-node.active .stage-copy span,
 .constellation-map-scene .constellation-node:hover .node-status,
-.constellation-map-scene .constellation-node:focus-visible .node-status,
-.constellation-map-scene .constellation-node.active .node-status {
+.constellation-map-scene .constellation-node:focus-visible .node-status {
   display: block;
 }
 .constellation-map-scene .constellation-node:hover b,
-.constellation-map-scene .constellation-node:focus-visible b,
-.constellation-map-scene .constellation-node.active b {
+.constellation-map-scene .constellation-node:focus-visible b {
   margin: 3px 0 1px;
   font-size: 13px;
 }
@@ -1077,20 +1071,6 @@
   }
   .constellation-map {
     min-height: 470px;
-  }
-  /* Narrow screens shrink the resting chips one more step so seven stars
-     keep clear water between them. */
-  .constellation-map-scene .constellation-node {
-    width: 64px;
-    padding: 5px 4px 4px;
-  }
-  .constellation-map-scene .constellation-node .stage-star {
-    width: 30px;
-    height: 30px;
-    font-size: 13px;
-  }
-  .constellation-map-scene .constellation-node b {
-    font-size: 8px;
   }
   .constellation-node {
     width: 156px;
