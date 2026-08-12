@@ -599,7 +599,10 @@ function showAchievements() {
           '<article class="achievement-card ' +
           (a.done ? "" : "locked") +
           (ready ? " claimable" : "") +
-          '"><img src="../assets/library/event/achievement-' +
+          '">' +
+          // A card that owes the player gold has to say so before it is read.
+          (ready ? '<i class="claim-badge card-dot">수령</i>' : "") +
+          '<img src="../assets/library/event/achievement-' +
           (a.done ? "unlocked" : "locked") +
           '.png" alt=""><b>' +
           a.name +
@@ -777,6 +780,97 @@ function playClaimBurst(card, amount, done) {
   if (navigator.vibrate) navigator.vibrate([10, 26, 14]);
   setTimeout(() => done?.(), 620);
 }
+/* Profile icon ------------------------------------------------------------
+   The observatory ID had no face at all.  Rather than commission portraits,
+   the picker offers what the build already owns: the seven rune stones, the
+   dawn kit's procedural symbols, and its decor sprites.  Nothing here adds an
+   asset file, so this stays inside the deferred-art rule. */
+const PROFILE_ICON_STORAGE = "stella-ball.profile-icon";
+const PROFILE_ICON_DEFAULT = "star";
+const PROFILE_ICON_HEROES = [
+  "gaon",
+  "biyeon",
+  "lumi",
+  "haru",
+  "sera",
+  "taeo",
+  "nyx",
+];
+function profileIconOptions() {
+  const kit = window.StellaPixelUI,
+    symbol = (kind) => (kit ? kit.icon(kind, 52) : ""),
+    decor = (name) => (kit ? kit.sprite(name) : "");
+  return [
+    { id: "star", name: "별", src: symbol("star") },
+    { id: "moon", name: "달", src: symbol("moon") },
+    { id: "sun", name: "해", src: symbol("sun") },
+    { id: "heart", name: "하트", src: symbol("heart") },
+    { id: "rabbit", name: "달토끼", src: decor("rabbitUp") },
+    { id: "astro", name: "우주비행사", src: decor("astroIdle") },
+    { id: "tele", name: "망원경", src: decor("tele") },
+    { id: "compass", name: "나침반", src: decor("compass") },
+    { id: "keeper", name: "도색장 오르", src: decor("orr") },
+    ...PROFILE_ICON_HEROES.map((id) => ({
+      id: "hero-" + id,
+      name: heroes[id].s,
+      src: runeStone(id),
+    })),
+  ].filter((option) => option.src);
+}
+function profileIcon() {
+  const list = profileIconOptions(),
+    saved = appStorage.readText(PROFILE_ICON_STORAGE) || PROFILE_ICON_DEFAULT;
+  return list.find((option) => option.id === saved) || list[0] || null;
+}
+function profileIconMarkup() {
+  const icon = profileIcon();
+  return icon
+    ? '<img src="' + icon.src + '" alt="' + icon.name + '">'
+    : '<i aria-hidden="true">✦</i>';
+}
+function showProfileIconPicker() {
+  document.querySelector("#profileIconPicker")?.remove();
+  const current = profileIcon()?.id,
+    modal = document.createElement("div");
+  modal.id = "profileIconPicker";
+  modal.className = "icon-picker";
+  modal.innerHTML =
+    '<div class="icon-picker-card" role="dialog" aria-label="프로필 아이콘 선택"><div class="icon-picker-head"><div><small>PROFILE ICON</small><h3>아이콘 선택</h3></div><button id="profileIconClose">닫기</button></div><div class="icon-picker-grid">' +
+    profileIconOptions()
+      .map(
+        (option) =>
+          '<button class="profile-icon-option' +
+          (option.id === current ? " on" : "") +
+          '" data-icon="' +
+          option.id +
+          '" aria-pressed="' +
+          (option.id === current) +
+          '"><img src="' +
+          option.src +
+          '" alt=""><span>' +
+          option.name +
+          "</span></button>",
+      )
+      .join("") +
+    "</div></div>";
+  document.body.append(modal);
+  const close = () => modal.remove();
+  modal.querySelector("#profileIconClose").onclick = () => {
+    playSfx();
+    close();
+  };
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) close();
+  });
+  for (const button of modal.querySelectorAll("[data-icon]"))
+    button.onclick = () => {
+      appStorage.writeText(PROFILE_ICON_STORAGE, button.dataset.icon);
+      playSfx("confirm");
+      close();
+      showProfile();
+    };
+  window.StellaPixelUI?.apply(modal);
+}
 function showProfile() {
   run = false;
   drag = null;
@@ -823,7 +917,9 @@ function showProfile() {
       : '<p class="mail-empty">받은 우편이 없습니다.</p>';
   U.over.className = "overlay profile-scene";
   U.over.innerHTML =
-    '<section class="profile-shell"><div class="profile-head"><button id="profileBack">뒤로</button><span><small>OBSERVATORY ID</small><b>PLAYER 01</b></span></div><div class="profile-grid"><section class="profile-panel"><div class="panel-title"><small>PROFILE</small><h2>관측자 기록</h2></div><div class="profile-stats"><div class="profile-stat"><small>되찾은 별</small><b>' +
+    '<section class="profile-shell"><div class="profile-head"><button id="profileBack">뒤로</button><div class="profile-identity"><span><small>OBSERVATORY ID</small><b>PLAYER 01</b></span><button id="profileIconPick" class="profile-avatar" aria-label="프로필 아이콘 바꾸기">' +
+    profileIconMarkup() +
+    '<i class="profile-avatar-edit" aria-hidden="true">✎</i></button></div></div><div class="profile-grid"><section class="profile-panel"><div class="panel-title"><small>PROFILE</small><h2>관측자 기록</h2></div><div class="profile-stats"><div class="profile-stat"><small>되찾은 별</small><b>' +
     (progress.clears || 0) +
     '</b></div><div class="profile-stat"><small>최단 시간</small><b>' +
     formatRunTime(progress.bestTime) +
@@ -850,6 +946,10 @@ function showProfile() {
     playSfx();
     showMeta();
   };
+  document.querySelector("#profileIconPick").onclick = () => {
+    playSfx();
+    showProfileIconPicker();
+  };
   document.querySelector("#profileToTitle").onclick = () => {
     playSfx();
     showConfirm({
@@ -870,6 +970,13 @@ function showProfile() {
       else playSfx("confirm");
       showProfile();
     };
+}
+// The dawn UI kit draws its decor sprites procedurally, so a portrait costs no
+// asset file.  Falls back to the caller's glyph when the kit is absent, which
+// is what a direct local-file launch with the kit script blocked would see.
+function pixelSpriteMarkup(name, fallback, alt = "") {
+  const url = window.StellaPixelUI?.sprite(name);
+  return url ? '<img src="' + url + '" alt="' + alt + '">' : fallback;
 }
 // The shopkeeper reacts to what the player can afford, so the tab has a voice
 // without needing a new screen or a dialogue system.
@@ -952,7 +1059,9 @@ function showShop() {
   U.over.innerHTML =
     '<section class="shop-shell"><div class="shop-head"><button id="shopBack">뒤로</button><span><small>관측소 상점</small><b>보유 골드 ' +
     gold +
-    '</b></span></div><div class="shop-keeper"><span class="shop-keeper-art" aria-hidden="true">☄</span><div><small>도색장 · 오르</small><p>' +
+    '</b></span></div><div class="shop-keeper"><span class="shop-keeper-art">' +
+    pixelSpriteMarkup("orr", "☄", "도색장 오르") +
+    '</span><div><small>도색장 · 오르</small><p>' +
     shopKeeperLine(owned.length, gold) +
     '</p></div></div><div class="shop-intro"><small>METEOR SKINS</small><h2>유성 도색</h2><p>겉모습만 바뀝니다. 피해·속도·물리에는 영향이 없습니다.</p></div><div class="shop-grid">' +
     cards +
@@ -1397,9 +1506,9 @@ showMeta = function () {
   drag = null;
   setScene("meta");
   const stage = currentStage(),
-    avatar = selected[0]
-      ? '<img src="' + runeStone(selected[0]) + '" alt="">'
-      : "◆",
+    avatar =
+      profileIconMarkup() ||
+      (selected[0] ? '<img src="' + runeStone(selected[0]) + '" alt="">' : "◆"),
     party = Array.from({ length: 3 }, (_, i) =>
       selected[i]
         ? '<span class="hub-party-slot"><img src="' +

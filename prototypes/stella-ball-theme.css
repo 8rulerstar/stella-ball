@@ -836,90 +836,54 @@ body.onboarding-locked .pause-button { display: none; }
 .hub-mission-hint { display: block; margin-top: 3px; color: var(--mist); font-size: 10px; }
 
 /* ---------------------------------------------------------------------
-   ROSTER + DEPLOYMENT — both steps now use the whole frame.  The
-   deployment map keeps the arena's 720x900 ratio so a slot that reads as
-   "close to the colossus" really is.
+   SQUAD — choosing the party and placing it is one decision, so it is one
+   screen: the field map on top, every owned starkeeper in a tray below,
+   drag one onto the other.  The map keeps the arena's 720x900 ratio so a
+   slot that reads as "close to the colossus" really is.  The old
+   .roster-shell / .deploy-* rules went with the two-step flow.
    --------------------------------------------------------------------- */
-/* These two steps are the strategy decision, so they take the whole window
-   rather than the narrow arena column.  No ancestor creates a containing
-   block, so `fixed` resolves against the viewport. */
-.overlay.roster-scene, .overlay.deployment-scene {
+.overlay.squad-scene {
   position: fixed !important;
   inset: 0 !important;
   z-index: 40;
-  padding: 20px 24px !important;
+  padding: 0 !important;
   place-content: stretch !important;
 }
-/* Vertical rhythm: header block on top, the picker taking the slack, the
-   actions pinned at the bottom.  Without this the grid floats mid-screen. */
-.overlay.roster-scene {
-  display: flex !important;
-  flex-direction: column;
-  gap: 6px;
-}
-.overlay.roster-scene > .tag { flex: 0 0 auto; text-align: center; }
-.overlay.roster-scene h2 { flex: 0 0 auto; text-align: center; }
-.overlay.roster-scene > p { flex: 0 0 auto; text-align: center; }
-.overlay.roster-scene .roster-shell { flex: 1 1 auto; min-height: 0; align-content: start; }
-.overlay.roster-scene .overlay-actions { flex: 0 0 auto; }
-.overlay.roster-scene .roster-grid { overflow-y: auto; }
-.overlay.roster-scene > .tag { margin-bottom: 2px; }
-.overlay.roster-scene h2 { margin: 4px 0 2px !important; font-size: 24px !important; }
-.overlay.roster-scene > p { max-width: none !important; margin-bottom: 8px !important; }
-.roster-shell {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
-  grid-template-rows: auto minmax(0, 1fr);
-  grid-template-areas: "party detail" "grid detail";
-  gap: 10px;
-  width: 100%;
-  max-width: none !important;
-  min-height: 0;
-}
-.roster-shell .party-strip { grid-area: party; }
-/* The picker owns the leftover height instead of collapsing to its rows, so
-   the screen no longer ends in a large void under the cards. */
-.roster-shell .roster-grid {
-  grid-area: grid;
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important;
-  grid-auto-rows: minmax(64px, 1fr);
-  gap: 8px;
-  align-content: stretch;
-  min-height: 0;
-}
-.roster-shell .roster-detail {
-  grid-area: detail;
-  align-self: stretch;
-  align-content: start !important;
-  justify-content: start !important;
-  align-items: start !important;
-  overflow-y: auto;
-}
-.deploy-layout {
+.squad-layout {
   display: flex;
   flex-direction: column;
   gap: 10px;
   height: 100%;
+  padding: 15px 20px 16px;
   text-align: left;
 }
-.deploy-head small { color: var(--gold); font: 700 8px ui-monospace, monospace; letter-spacing: .18em; }
-.deploy-head h2 { margin: 4px 0 4px !important; color: #f3ede2; font-size: 23px !important; }
-.deploy-head p { margin: 0 !important; max-width: none !important; color: var(--mist); font-size: 11px; line-height: 1.6; }
-.deploy-head p b { color: #f3ede2; }
-.deploy-body { display: flex; flex: 1 1 auto; gap: 12px; min-height: 0; }
-.deploy-tray {
-  display: flex !important;
+.squad-head {
+  display: flex;
   flex: 0 0 auto;
-  flex-direction: column;
-  gap: 8px;
-  align-content: start;
-  padding: 9px;
-  border: 1px solid #34494d;
-  border-radius: 11px;
-  background: #0f191dd9;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
 }
-.deploy-stage { display: grid; flex: 1 1 auto; place-items: center; min-height: 0; }
+.squad-head small { display: block; color: var(--gold); font: 700 8px ui-monospace, monospace; letter-spacing: .18em; }
+.squad-head h2 { margin: 5px 0 0 !important; color: #f3ede2; font-size: 22px !important; }
+.squad-head p { margin: 0 !important; max-width: 380px !important; color: var(--mist); font-size: 11px; line-height: 1.6; text-align: right; }
+
+/* The map takes the full column height and the one detail card sits beside
+   it, so the board stays as large as a 720x900 ratio allows on a landscape
+   window.  Stacking the card underneath cost the map ~110px of height.
+   Grid, not flex: the map sizes itself from `height: 100%`, and only an
+   explicit `minmax(0, 1fr)` track gives that percentage a definite height to
+   resolve against.  In a flex row the line height comes from the detail card
+   instead, and the map collapses to it. */
+.squad-field {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 262px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+}
+.squad-field .deployment-map { justify-self: end; }
 .deployment-map {
   position: relative;
   width: auto !important;
@@ -941,40 +905,223 @@ body.onboarding-locked .pause-button { display: none; }
   letter-spacing: .16em;
   transform: translateX(-50%);
 }
-/* Smaller markers read as a point on the table instead of a blob. */
+.deployment-map .map-boss { font-size: 22px; }
+/* The base sheet stamps a "고정 룬석 배치도" caption from an older layout.
+   The header already names the stage, so the map does not repeat itself. */
+.deployment-map:after { content: none !important; }
+/* A marker has to read as the unit standing there, not as a dot, so the
+   portrait fills it and the name/zone hang outside the circle. */
 .deployment-map .slot-card {
-  width: 46px !important;
-  height: 46px !important;
+  display: grid !important;
+  place-items: center;
+  width: 76px !important;
+  height: 76px !important;
   min-width: 0 !important;
   min-height: 0 !important;
-  padding: 0 !important;
+  padding: 4px !important;
+  overflow: visible;
+  cursor: grab;
 }
-.deployment-map .slot-card .portrait { width: 32px !important; height: 32px !important; }
-.deployment-map .slot-card .slot-index { font-size: 8px !important; }
-.deployment-map .map-boss { font-size: 22px; }
-@media (max-width: 760px) {
-  .roster-shell { grid-template-columns: minmax(0, 1fr); grid-template-areas: "party" "grid" "detail"; }
-  .deploy-body { flex-direction: column; }
-  .deploy-tray { flex-direction: row; }
+.deployment-map .slot-card .portrait { width: 64px !important; height: 64px !important; }
+.deployment-map .slot-card .slot-index {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f0b078, #a05c32);
+  color: #241708;
+  font: 700 10px ui-monospace, monospace !important;
+}
+.deployment-map .slot-card .slot-name {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  color: #f3ede2;
+  font-size: 11px;
+  white-space: nowrap;
+  text-shadow: 0 2px 0 #04080a;
+  transform: translateX(-50%);
+}
+.deployment-map .slot-card .slot-zone {
+  position: absolute;
+  top: calc(100% + 21px);
+  left: 50%;
+  margin: 0;
+  color: var(--mist);
+  font: 700 8px ui-monospace, monospace;
+  letter-spacing: .1em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.deployment-map .slot-card.empty {
+  border-color: #3d5459 !important;
+  background: #0f191db8 !important;
+  box-shadow: 0 0 0 5px #07151b !important;
+}
+.deployment-map .slot-card.empty .slot-name { color: #52706e; }
+.deployment-map .slot-card.dragging { opacity: .4; }
+.deployment-map .slot-card.drop-ready {
+  border-color: #f6c48e !important;
+  box-shadow: 0 0 0 5px #07151b, 0 0 0 7px #f6c48e66 !important;
+}
+
+.squad-detail {
+  display: flex;
+  flex: 0 1 262px;
+  flex-direction: column;
+  gap: 9px;
+  align-self: center;
+  max-width: 262px;
+  padding: 13px;
+  border: 1px solid #34494d;
+  border-radius: 12px;
+  background: #0f191dd9;
+}
+.squad-detail-portrait {
+  flex: 0 0 auto;
+  width: 58px;
+  height: 58px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 #04080a);
+}
+.squad-detail-copy { min-width: 0; }
+.squad-detail-copy b { display: block; font-size: 14px; }
+.squad-detail-copy small { display: block; margin-top: 2px; color: var(--mist); font-size: 10px; }
+.squad-detail-copy p { margin: 7px 0 0 !important; max-width: none !important; color: #a3bab6; font-size: 10px; line-height: 1.6; }
+.squad-detail-zone {
+  margin-top: auto;
+  padding-top: 9px;
+  border-top: 1px solid #24363a;
+  color: var(--star);
+  font: 700 10px ui-monospace, monospace;
+}
+.squad-detail-zone i { display: block; margin-top: 4px; color: var(--mist); font: 400 9px ui-monospace, monospace; line-height: 1.5; }
+
+.squad-tray-shell {
+  flex: 0 0 auto;
+  padding: 9px 12px 10px;
+  border: 1px solid #34494d;
+  border-radius: 13px;
+  background: #0f191dd9;
+}
+.squad-tray-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.squad-tray-head small { color: var(--gold); font: 700 8px ui-monospace, monospace; letter-spacing: .18em; }
+.squad-tray-head b { color: #f3ede2; font-size: 11px; }
+.squad-tray { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 3px; }
+.squad-unit {
+  position: relative;
+  display: grid !important;
+  flex: 0 0 auto;
+  justify-items: center;
+  gap: 3px;
+  width: 72px;
+  padding: 7px 4px 6px !important;
+  border: 1px solid #3a5157 !important;
+  border-radius: 12px !important;
+  background: #16242a !important;
+  box-shadow: 0 3px 0 #05090b !important;
+  cursor: grab;
+}
+.squad-unit .portrait {
+  width: 48px;
+  height: 48px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 #04080a);
+}
+.squad-unit b { color: #b9cdc9; font-size: 10px; }
+.squad-unit:hover { border-color: #f6c48e !important; background: #1e3238 !important; }
+.squad-unit.on {
+  border-color: var(--unit) !important;
+  background: #1a2c33 !important;
+  box-shadow: 0 3px 0 #05090b, 0 0 0 1px color-mix(in srgb, var(--unit) 42%, transparent) !important;
+}
+.squad-unit.on b { color: #f3ede2; }
+.squad-unit.picked { border-color: #f6c48e !important; box-shadow: 0 3px 0 #05090b, 0 0 0 2px #f6c48e66 !important; }
+.squad-unit.dragging { opacity: .4; }
+.squad-slot-mark {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f0b078, #a05c32);
+  color: #241708;
+  font: 700 10px ui-monospace, monospace;
+  font-style: normal;
+}
+.overlay.squad-scene .overlay-actions { flex: 0 0 auto; justify-content: center; }
+@media (max-width: 860px) {
+  .squad-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .squad-head p { max-width: none !important; text-align: left; }
+  .squad-detail { flex-wrap: wrap; }
+  .squad-detail-zone { text-align: left; }
 }
 
 /* ---------------------------------------------------------------------
    CLAIMS — earned gold waits in the 업적 tab until the player collects it,
    so the hub badge and the claim buttons are the only "free money" surface.
    --------------------------------------------------------------------- */
+/* Red, not brass: this badge is the only "you left something behind" mark in
+   the game, and brass on a brass hub chip read as decoration. */
 .claim-badge {
   display: inline-block;
   margin-left: 6px;
   padding: 2px 6px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #f0b078, #a05c32);
-  color: #241708;
+  background: linear-gradient(180deg, #f2564e, #b32a28);
+  color: #fff1ea;
   font: 700 8px ui-monospace, monospace;
   font-style: normal;
   letter-spacing: .04em;
   vertical-align: middle;
+  box-shadow: 0 0 0 1px #4a0f0f, 0 0 10px #f2564e55;
 }
-.hub-record-chip.has-claim { border-color: #c97a45 !important; }
+.claim-badge.card-dot {
+  position: absolute;
+  top: -7px;
+  right: -6px;
+  z-index: 2;
+  margin: 0;
+  padding: 3px 7px;
+  animation: claimPulse 1.6s ease-in-out infinite;
+}
+@keyframes claimPulse {
+  0%, 100% { box-shadow: 0 0 0 1px #4a0f0f, 0 0 8px #f2564e55; }
+  50% { box-shadow: 0 0 0 1px #4a0f0f, 0 0 15px #f2564eaa; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .claim-badge.card-dot { animation: none; }
+}
+/* Wider cards, so the copy can be read instead of squeezed: the grid used to
+   fit five 233px columns and every card ran 8-9px type at three lines. */
+.achievement-card {
+  position: relative;
+  overflow: visible;
+  min-height: 118px !important;
+  padding: 12px 13px 12px 74px !important;
+  border-radius: 12px !important;
+}
+.achievement-card img { left: 13px !important; top: 15px !important; width: 46px !important; height: 46px !important; }
+.achievement-card b { font-size: 13px; }
+.achievement-card small { display: block; margin-top: 4px; color: #a3bab6; font-size: 11px; line-height: 1.55; }
+.achievement-card em { display: block; margin-top: 5px; color: var(--mist); font: 700 9px ui-monospace, monospace; font-style: normal; letter-spacing: .05em; }
+.achievement-reward { font-size: 11px !important; }
+.achievement-claim { font-size: 11px !important; }
+.achievement-claim-state { font-size: 10px !important; }
+.hub-record-chip.has-claim { border-color: #e2564e !important; }
 .claim-banner {
   display: flex;
   align-items: center;
@@ -992,7 +1139,9 @@ body.onboarding-locked .pause-button { display: none; }
   box-shadow: 0 0 0 1px #c97a4533, 0 8px 20px #03080988;
 }
 .claim-banner small { display: block; color: var(--gold); font: 700 8px ui-monospace, monospace; letter-spacing: .2em; }
-.claim-banner b { display: block; margin: 4px 0 3px; color: #f3ede2; font-size: 21px; text-shadow: 0 2px 0 #04080a; }
+/* Galmuri11 is a bitmap face: at 21px the ascenders of 쌓/찾 were clipped.
+   Multiples of 11 are the only sizes it renders whole. */
+.claim-banner b { display: block; margin: 4px 0 3px; color: #f3ede2; font-size: 22px; line-height: 1.35; text-shadow: 0 2px 0 #04080a; }
 .claim-banner span { display: block; color: var(--mist); font-size: 10px; }
 .claim-banner button { flex: 0 0 auto; padding: 10px 14px !important; font-size: 11px !important; }
 .claim-banner button[disabled] { opacity: .4; cursor: not-allowed; }
@@ -1134,15 +1283,17 @@ body.onboarding-locked .pause-button { display: none; }
 .shop-keeper-art {
   display: grid;
   flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
+  width: 58px;
+  height: 58px;
   place-items: center;
+  overflow: hidden;
   border: 1px solid #c97a4566;
   border-radius: 50%;
   background: radial-gradient(circle, #223438 0%, #0a1114 72%);
   color: var(--star);
   font-size: 20px;
 }
+.shop-keeper-art img { width: 46px; height: auto; image-rendering: pixelated; filter: drop-shadow(0 2px 0 #04080a); }
 .shop-keeper small { display: block; color: var(--gold); font: 700 8px ui-monospace, monospace; letter-spacing: .16em; }
 .shop-keeper p { margin: 4px 0 0 !important; max-width: none !important; color: #cfdad7; font-size: 12px; line-height: 1.55; }
 
@@ -1151,6 +1302,93 @@ body.onboarding-locked .pause-button { display: none; }
 .profile-head span { text-align: right; }
 .profile-head small { display: block; color: var(--mist); font: 700 8px ui-monospace, monospace; letter-spacing: .16em; }
 .profile-head b { display: block; margin-top: 3px; color: #f3ede2; font-size: 13px; }
+/* The observatory ID gets a face.  Every option is either a rune stone the
+   build already ships or a silhouette the dawn kit draws, so the picker costs
+   no new art. */
+.profile-identity { display: flex; align-items: center; gap: 12px; }
+.profile-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  padding: 0 !important;
+  border: 1px solid #c97a4566 !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, #223438 0%, #0a1114 72%) !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+.profile-avatar:hover { border-color: #f6c48e !important; }
+.profile-avatar img { width: 42px; max-height: 44px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 0 #04080a); }
+.profile-avatar-edit {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f0b078, #a05c32);
+  color: #241708;
+  font: 700 10px ui-monospace, monospace;
+  font-style: normal;
+}
+.icon-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #05090bcc;
+  backdrop-filter: blur(2px);
+}
+.icon-picker-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(560px, 100%);
+  max-height: min(78vh, 620px);
+  padding: 16px 18px 18px;
+  border: 1px solid #34494d;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #16242a, #0c1417);
+  box-shadow: 0 22px 50px #03080999;
+  text-align: left;
+}
+.icon-picker-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.icon-picker-head small { display: block; color: var(--gold); font: 700 8px ui-monospace, monospace; letter-spacing: .18em; }
+.icon-picker-head h3 { margin: 5px 0 0; color: #f3ede2; font-size: 18px; }
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
+  gap: 9px;
+  overflow-y: auto;
+  padding-right: 3px;
+}
+.profile-icon-option {
+  display: grid !important;
+  justify-items: center;
+  gap: 6px;
+  padding: 11px 6px 9px !important;
+  border: 1px solid #3a5157 !important;
+  border-radius: 12px !important;
+  background: #101a1e !important;
+  color: #b9cdc9 !important;
+  font-size: 10px !important;
+  cursor: pointer;
+}
+.profile-icon-option img { width: 44px; height: 44px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 0 #04080a); }
+.profile-icon-option:hover { border-color: #f6c48e !important; background: #1a2c33 !important; }
+.profile-icon-option.on {
+  border-color: #f6c48e !important;
+  background: #1e3238 !important;
+  color: #f3ede2 !important;
+  box-shadow: 0 0 0 1px #f6c48e55 !important;
+}
 .profile-head button { padding: 6px 9px !important; font-size: 9px !important; }
 .profile-grid {
   display: grid;
@@ -1263,7 +1501,7 @@ body.onboarding-locked .pause-button { display: none; }
 .overlay.archive-scene .profile-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .overlay.archive-scene .achievement-grid {
   flex: 1 1 auto;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)) !important;
+  grid-template-columns: repeat(auto-fill, minmax(304px, 1fr)) !important;
   align-content: start;
   min-height: 0;
   overflow-y: auto;

@@ -470,9 +470,11 @@ showMeta = function () {
     mapIndex = hubSelectedMapIndex(mapStages),
     mapStage = mapStages[mapIndex],
     stageData = mapStage.onboarding ? stages[0] : stages[mapStage.stage],
-    avatar = selected[0]
-      ? '<img src="' + runeStone(selected[0]) + '" alt="">'
-      : "◆";
+    // The player picks this in the profile tab; the lead starkeeper's rune
+    // stone is only the fallback for a build without the pixel kit.
+    avatar =
+      profileIconMarkup?.() ||
+      (selected[0] ? '<img src="' + runeStone(selected[0]) + '" alt="">' : "◆");
   const party = Array.from({ length: 3 }, (_, i) =>
     selected[i]
       ? '<span class="hub-party-slot"><img src="' +

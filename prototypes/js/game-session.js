@@ -273,226 +273,205 @@ function showMetaHelp() {
   document.querySelector("#backMetaHelp").onclick = showMeta;
 }
 let rosterFocus = "gaon";
+// One screen owns the whole squad decision.  The field map carries a marker
+// per board slot, every owned starkeeper sits in a tray underneath, and the
+// player drags one onto the other.  The old pick-then-place split made the
+// roster step choose blind and forced the placement step to re-explain the
+// same board, which is where the wall of copy came from.
+//
+// `deployed` is the placement itself: index = board slot, value = hero id, and
+// `s.slots[i]` / `s.preview[i]` are that slot on the real table and on the map.
+// `selected` stays a mirror of it because the hub and battle summary read it.
 function showRoster() {
   run = false;
   setScene("menu");
-  U.over.className = "overlay roster-scene";
   const s = currentStage(),
     slotCount = partySlotCount(),
     owned = ownedHeroIds();
-  selected = selected.filter((id) => owned.includes(id)).slice(0, slotCount);
-  if (!selected.length) selected = owned.slice(0, slotCount);
-  if (!owned.includes(rosterFocus)) rosterFocus = selected[0] || owned[0];
+  deployed = deployed.filter((id) => owned.includes(id)).slice(0, slotCount);
+  for (const id of owned) {
+    if (deployed.length >= slotCount) break;
+    if (!deployed.includes(id)) deployed.push(id);
+  }
+  selected = [...deployed];
+  if (!owned.includes(rosterFocus)) rosterFocus = deployed[0] || owned[0];
+  placementPick = null;
+  U.over.className = "overlay squad-scene";
   U.over.innerHTML =
-    '<div class="tag">별지기 편성</div><h2>함께할 별지기 ' +
-    slotCount +
-    "명을 고르세요.</h2><p><b>" +
+    '<div class="squad-layout"><div class="squad-head"><div><small>STAGE ' +
     s.id +
     " · " +
     s.name +
-    "</b> — " +
-    s.terrain +
-    '</p><div id="stageChoices" class="choice-grid stage-grid" style="max-width:660px;margin-top:10px"></div><div class="roster-shell"><div id="partyStrip" class="party-strip"></div><div id="roster" class="roster-grid"></div><div id="rosterDetail" class="roster-detail"></div></div><div class="overlay-actions"><button id="backMeta">뒤로</button><button id="startTeam">다음</button></div>';
-  const stageBox = document.querySelector("#stageChoices"),
-    partyStrip = document.querySelector("#partyStrip"),
-    box = document.querySelector("#roster"),
-    detail = document.querySelector("#rosterDetail");
-  for (const [i, st] of stages.entries()) {
-    const b = document.createElement("button");
-    b.className = "choice-card stage-card";
-    b.style.cssText =
-      "min-height:74px;text-align:left;border-color:" +
-      (i === stageIndex ? "#edc66d" : "#527479");
-    b.innerHTML =
-      '<img class="stage-emblem" src="' +
-      libraryArt.stages[i].emblem +
-      '" alt=""><span><strong>' +
-      st.id +
-      " · " +
-      st.name +
-      "</strong><small>" +
-      st.terrain +
-      "</small></span>";
-    b.onclick = () => {
-      stageIndex = i;
-      primeCombatTextures();
-      showRoster();
-    };
-    stageBox.append(b);
-  }
-  const renderParty = () => {
-    partyStrip.innerHTML = Array.from({ length: slotCount }, (_, i) => {
-      const h = heroes[selected[i]];
-      return h
-        ? '<div class="party-chip" style="--unit:' +
-            h.col +
-            '"><span class="party-portrait" data-party-hero="' +
-            selected[i] +
-            '" aria-hidden="true"></span><span><small>선택 ' +
-            (i + 1) +
-            '</small><b style="color:' +
-            h.col +
-            '">' +
-            h.s +
-            "</b></span></div>"
-        : '<div class="party-chip empty"><img class="slot-marker" src="../assets/library/ui/rune-slot-marker.png" alt=""><span><small>선택 ' +
-            (i + 1) +
-            "</small><b>비어 있음</b></span></div>";
-    }).join("");
-    partyStrip.querySelectorAll("[data-party-hero]").forEach((portrait) => {
-      setPortrait(portrait, heroes[portrait.dataset.partyHero], 34);
-    });
+    "</small><h2>별지기 " +
+    slotCount +
+    '명을 자리에 세우세요</h2></div><p>아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.</p></div><div class="squad-field"><div id="slotChoices" class="deployment-map" aria-label="전장 배치"><span class="map-boss" aria-label="보스">◆</span><span class="map-launch" aria-hidden="true">발사석</span></div><div id="squadDetail" class="squad-detail" aria-live="polite"></div></div><div class="squad-tray-shell"><div class="squad-tray-head"><small>보유 별지기</small><b>' +
+    owned.length +
+    "명</b></div><div id=\"squadTray\" class=\"squad-tray\" aria-label=\"보유 별지기\"></div></div><div class=\"overlay-actions\"><button id=\"backMeta\">뒤로</button><button id=\"startTeam\">시작</button></div></div>";
+  const slotBox = document.querySelector("#slotChoices"),
+    tray = document.querySelector("#squadTray"),
+    detail = document.querySelector("#squadDetail");
+  // Dropping a deployed hero swaps the two slots; dropping a benched one takes
+  // the slot over and sends its previous occupant back to the tray.
+  const place = (id, slot) => {
+    if (!heroes[id] || !owned.includes(id)) return;
+    const from = deployed.indexOf(id);
+    if (from === slot) return;
+    if (from >= 0)
+      [deployed[from], deployed[slot]] = [deployed[slot], deployed[from]];
+    else deployed[slot] = id;
+    selected = [...deployed];
+    rosterFocus = id;
+    placementPick = null;
+    playSfx?.("confirm");
+    renderAll();
+  };
+  const focus = (id) => {
+    rosterFocus = id;
+    renderDetail();
   };
   const renderDetail = () => {
     const h = heroes[rosterFocus];
+    if (!h) {
+      detail.innerHTML = "";
+      return;
+    }
+    const at = deployed.indexOf(rosterFocus),
+      zone = at >= 0 ? ZONE_RULES[at] : null;
     detail.innerHTML =
-      '<span class="portrait"></span><div><h3>' +
-      h.n +
-      ' · <span style="color:' +
+      '<span class="squad-detail-portrait" style="--unit:' +
+      h.col +
+      '"></span><div class="squad-detail-copy"><b style="color:' +
       h.col +
       '">' +
+      h.n +
+      "</b><small>" +
       h.e +
-      "</span></h3><p>" +
+      "</small><p>" +
       h.d +
-      '</p><em class="hero-lore">「' +
-      h.lore +
-      '」</em></div><img class="detail-skill-icon" src="../assets/library/icons/skill-ready.png" alt="발동 효과">';
-    setPortrait(detail.querySelector(".portrait"), h, 54);
+      '</p></div><span class="squad-detail-zone">' +
+      (zone ? at + 1 + "번 자리 · " + zone.name + "<i>" + zone.hint + "</i>" : "대기 중<i>자리로 끌어 놓으세요</i>") +
+      "</span>";
+    setPortrait(detail.querySelector(".squad-detail-portrait"), h, 46);
   };
-  const renderRoster = () => {
-    box.innerHTML = "";
-    Object.entries(heroes)
-      .filter(([id]) => owned.includes(id))
-      .forEach(([id, h]) => {
-        const on = selected.includes(id),
-          b = document.createElement("button");
-        b.className = "roster-unit" + (on ? " active" : "");
-        b.style.setProperty("--unit", h.col);
-        b.setAttribute("aria-pressed", on);
-        const icon = skillIcon(id);
-        b.innerHTML =
-          '<span class="portrait"></span><b>' +
-          h.s +
-          "</b>" +
-          (icon
-            ? '<img class="unit-skill" src="' + icon + '" alt="' + h.e + '">'
-            : "");
-        setPortrait(b.querySelector(".portrait"), h, 42);
-        b.onpointerenter = () => {
-          rosterFocus = id;
-          renderDetail();
-        };
-        b.onclick = () => {
-          if (on) selected = selected.filter((v) => v !== id);
-          else if (selected.length < slotCount) selected.push(id);
-          else {
-            toast("파티는 " + slotCount + "명까지 선택할 수 있습니다.");
-            rosterFocus = id;
-            renderDetail();
-            return;
-          }
-          rosterFocus = id;
-          renderParty();
-          renderRoster();
-          renderDetail();
-        };
-        box.append(b);
+  const renderSlots = () => {
+    for (const old of slotBox.querySelectorAll(".slot-card")) old.remove();
+    for (let i = 0; i < slotCount; i++) {
+      const id = deployed[i],
+        h = heroes[id],
+        zone = ZONE_RULES[i] || ZONE_RULES[ZONE_RULES.length - 1],
+        slot = document.createElement("div");
+      slot.className = "slot-card" + (h ? "" : " empty");
+      slot.style.left = s.preview[i][0] + "%";
+      slot.style.top = s.preview[i][1] + "%";
+      if (h) slot.style.setProperty("--unit", h.col);
+      slot.draggable = Boolean(h);
+      slot.setAttribute(
+        "aria-label",
+        i + 1 + "번 자리 · " + zone.name + " · " + (h ? h.s : "비어 있음"),
+      );
+      slot.innerHTML =
+        '<span class="slot-index">' +
+        (i + 1) +
+        '</span><span class="portrait"></span><b class="slot-name">' +
+        (h ? h.s : "비어 있음") +
+        '</b><small class="slot-zone">' +
+        zone.name +
+        "</small>";
+      if (h) setPortrait(slot.querySelector(".portrait"), h, 64);
+      slot.addEventListener("pointerenter", () => {
+        if (h) focus(id);
       });
+      slot.addEventListener("click", () => {
+        if (placementPick) place(placementPick, i);
+        else if (h) {
+          placementPick = id;
+          focus(id);
+          renderTray();
+        }
+      });
+      slot.addEventListener("dragstart", (e) => {
+        if (!h) return e.preventDefault();
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", id);
+        slot.classList.add("dragging");
+      });
+      slot.addEventListener("dragend", () => slot.classList.remove("dragging"));
+      slot.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        slot.classList.add("drop-ready");
+      });
+      slot.addEventListener("dragleave", () =>
+        slot.classList.remove("drop-ready"),
+      );
+      slot.addEventListener("drop", (e) => {
+        e.preventDefault();
+        slot.classList.remove("drop-ready");
+        place(e.dataTransfer.getData("text/plain"), i);
+      });
+      slotBox.append(slot);
+    }
   };
-  renderParty();
-  renderRoster();
-  renderDetail();
+  const renderTray = () => {
+    tray.innerHTML = "";
+    for (const id of owned) {
+      const h = heroes[id],
+        at = deployed.indexOf(id),
+        b = document.createElement("button");
+      b.className =
+        "squad-unit" +
+        (at >= 0 ? " on" : "") +
+        (placementPick === id ? " picked" : "");
+      b.draggable = true;
+      b.style.setProperty("--unit", h.col);
+      b.setAttribute("aria-pressed", at >= 0);
+      b.setAttribute("aria-label", h.s + (at >= 0 ? " · " + (at + 1) + "번 자리" : " · 대기"));
+      b.innerHTML =
+        '<span class="portrait"></span><b>' +
+        h.s +
+        "</b>" +
+        (at >= 0 ? '<i class="squad-slot-mark">' + (at + 1) + "</i>" : "");
+      setPortrait(b.querySelector(".portrait"), h, 48);
+      b.addEventListener("pointerenter", () => focus(id));
+      b.addEventListener("click", () => {
+        // Tapping a benched unit with a free slot open seats it right away, so
+        // the tray still works without a drag on touch.
+        const free = deployed.findIndex((entry) => !entry);
+        if (at < 0 && free >= 0) return place(id, free);
+        placementPick = placementPick === id ? null : id;
+        focus(id);
+        renderTray();
+      });
+      b.addEventListener("dragstart", (e) => {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", id);
+        b.classList.add("dragging");
+      });
+      b.addEventListener("dragend", () => b.classList.remove("dragging"));
+      tray.append(b);
+    }
+  };
+  const renderAll = () => {
+    renderSlots();
+    renderTray();
+    renderDetail();
+  };
+  renderAll();
   document.querySelector("#backMeta").onclick = showMeta;
   document.querySelector("#startTeam").onclick = () => {
-    if (selected.length !== slotCount)
-      return alert(slotCount + "명을 선택해주세요.");
-    deployed = [...selected];
-    placementPick = deployed[0];
-    showDeployment();
-  };
-  U.over.classList.remove("hide");
-}
-function showDeployment() {
-  run = false;
-  const s = currentStage(),
-    placeUnit = (incoming, i) => {
-      const from = deployed.indexOf(incoming);
-      if (from >= 0 && from !== i)
-        [deployed[from], deployed[i]] = [deployed[i], deployed[from]];
-      placementPick = null;
-      showDeployment();
-    };
-  U.over.className = "overlay deployment-scene";
-  // The map mirrors the real 720x900 table, so a slot that looks close to the
-  // colossus here is close to it in combat.  That is the whole decision.
-  U.over.innerHTML =
-    '<div class="deploy-layout"><div class="deploy-head"><small>STAGE ' +
-    s.id +
-    " · " +
-    s.name +
-    '</small><h2>어디에 세울지 정하세요</h2><p>별지기를 끌어 자리를 맞바꿉니다. 위쪽은 거상과 가까워 <b>가온의 근접 베기</b>가 닿고, 아래쪽은 멀어 <b>비연의 저격</b>이 강해집니다. 세 자리가 이루는 삼각형이 그대로 별자리 배율이 됩니다.</p></div><div class="deploy-body"><div id="deployHeroes" class="deploy-tray" aria-label="별지기"></div><div class="deploy-stage"><div id="slotChoices" class="deployment-map" aria-label="전장 배치"><span class="map-boss" aria-label="보스">◆</span><span class="map-launch" aria-hidden="true">발사석</span></div></div></div><div class="overlay-actions"><button id="backRoster">뒤로</button><button id="startBattle">시작</button></div></div>';
-  const heroBox = document.querySelector("#deployHeroes"),
-    slotBox = document.querySelector("#slotChoices");
-  for (const id of selected) {
-    const h = heroes[id],
-      b = document.createElement("button");
-    b.className = "deploy-unit";
-    b.draggable = true;
-    b.style.setProperty("--unit", h.col);
-    b.setAttribute("aria-label", h.s);
-    b.innerHTML = '<span class="portrait"></span>';
-    setPortrait(b.querySelector(".portrait"), h, 52);
-    b.addEventListener("pointerdown", () => {
-      placementPick = id;
-      b.classList.add("dragging");
-    });
-    b.addEventListener("pointerup", () => b.classList.remove("dragging"));
-    b.addEventListener("dragstart", (e) => {
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", id);
-      b.classList.add("dragging");
-    });
-    b.addEventListener("dragend", () => b.classList.remove("dragging"));
-    heroBox.append(b);
-  }
-  for (let i = 0; i < 3; i++) {
-    const id = deployed[i],
-      h = heroes[id],
-      slot = document.createElement("div");
-    slot.className = "slot-card";
-    slot.style.left = s.preview[i][0] + "%";
-    slot.style.top = s.preview[i][1] + "%";
-    slot.style.setProperty("--unit", h.col);
-    slot.setAttribute("aria-label", i + 1 + "번 위치 · " + h.s);
-    slot.innerHTML =
-      '<span class="slot-index">' +
-      (i + 1) +
-      '</span><span class="portrait"></span>';
-    setPortrait(slot.querySelector(".portrait"), h, 56);
-    slot.addEventListener("pointerup", () => {
-      if (placementPick) placeUnit(placementPick, i);
-    });
-    slot.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      slot.classList.add("drop-ready");
-    });
-    slot.addEventListener("dragleave", () =>
-      slot.classList.remove("drop-ready"),
-    );
-    slot.addEventListener("drop", (e) => {
-      e.preventDefault();
-      placeUnit(e.dataTransfer.getData("text/plain"), i);
-    });
-    slotBox.append(slot);
-  }
-  document.querySelector("#backRoster").onclick = showRoster;
-  document.querySelector("#startBattle").onclick = () => {
+    if (deployed.filter(Boolean).length !== slotCount)
+      return toast(slotCount + "명을 모두 자리에 세워주세요.");
+    selected = [...deployed];
     resetBuild();
     showDraft("강화 선택", "게임 시작 전 강화 하나를 고르세요.", setupBattle);
   };
   U.over.classList.remove("hide");
   sync();
+}
+// The placement step now lives inside showRoster().  Keep the old entry point
+// so the draft screen's back button and any saved flow still land on a screen.
+function showDeployment() {
+  showRoster();
 }
 function pickUpgrades() {
   return [...upgrades].sort(() => Math.random() - 0.5).slice(0, 3);

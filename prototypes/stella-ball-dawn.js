@@ -9,8 +9,8 @@
 
   var MAP = [
     ['.hub-tab.center', 'tabActive', 'translateY(-6px)'],
-    ['.meta-launch, .hub-battle-play, .title-enter, .hub-start, .gacha-draw, .pause-primary, .confirm-yes', 'cta'],
-    ['.hub-stage-change, .settings-actions button, .profile-exit, .shop-buy, .claim-banner button, .achievement-claim, .mail-item button, .pause-actions button, .confirm-actions button, header button, #shopBack, #gachaBack, #profileBack, #settingsBack, #settingsReset, #achievementBack', 'sub'],
+    ['.meta-launch, .hub-battle-play, .title-enter, .hub-start, .gacha-draw, .pause-primary, .confirm-yes, #startTeam', 'cta'],
+    ['.hub-stage-change, .settings-actions button, .profile-exit, .shop-buy, .claim-banner button, .achievement-claim, .mail-item button, .pause-actions button, .confirm-actions button, header button, #shopBack, #gachaBack, #profileBack, #settingsBack, #settingsReset, #achievementBack, #backMeta, #profileIconClose', 'sub'],
     ['.meta-tab, .hub-tab', 'tab'],
     ['.hub-battle-tags span, .hub-record-chip', 'chip'],
     ['.pause-button', 'moon']

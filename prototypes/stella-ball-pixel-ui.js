@@ -22,7 +22,9 @@
     paleH: { o:'#241d10', L:'#ffffff', D:'#c9b98c', b:['#fff9e2','#ffedc8','#f2e0b4','#dec99c','#c9b382'] },
     paleP: { o:'#241d10', L:'#d9c99c', D:'#a99970', b:['#e8d6a4','#dcca98','#d0be8c','#c4b280','#b8a674'] },
     panel: { o:'#04080a', L:'#31474b', D:'#080e10', b:['#152225','#131e22','#111b1f','#0f181c','#0d1519'] },
-    panelW:{ o:'#241106', L:'#c97a45', D:'#20140c', b:['#1c2a30','#18242a','#152025','#121c21','#101a1e'] }
+    panelW:{ o:'#241106', L:'#c97a45', D:'#20140c', b:['#1c2a30','#18242a','#152025','#121c21','#101a1e'] },
+    rose:  { o:'#2a0a12', L:'#ffc2cd', D:'#7a2434', b:['#ff9fb0','#f47d92','#e2607a','#c44a64','#a03750'], shine:1 },
+    sunny: { o:'#2a1a04', L:'#fff6d8', D:'#a8600f', b:['#ffe9a8','#ffd06a','#f9b543','#e29327','#c2761a'], shine:1 }
   };
   const KINDS = {
     cta:       { shape:'pill',     idle:PAL.warm, hover:PAL.warmH, press:PAL.warmP },
@@ -32,6 +34,8 @@
     chip:      { shape:'pill',     idle:PAL.flat },
     star:      { shape:'star',     idle:PAL.gold, hover:PAL.goldH, press:PAL.goldP },
     moon:      { shape:'crescent', idle:PAL.pale, hover:PAL.paleH, press:PAL.paleP },
+    heart:     { shape:'heart',    idle:PAL.rose },
+    sun:       { shape:'sun',      idle:PAL.sunny },
     panel:     { shape:'round',    idle:PAL.panel },
     panelWarm: { shape:'round',    idle:PAL.panelW }
   };
@@ -45,6 +49,24 @@
         for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const xi = pts[i][0], yi = pts[i][1], xj = pts[j][0], yj = pts[j][1];
           if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) c = !c; }
         return c; };
+    } else if (kind === 'heart') {
+      /* (u²+v²-1)³ - u²v³ ≤ 0 — the classic heart curve, nudged down so the
+         cleft sits inside the box instead of on its top edge. */
+      const cx = cw / 2, cy = ch / 2, R = Math.min(cw, ch) / 2 - .5;
+      inside = (x, y) => {
+        const u = (x + .5 - cx) / (R * 1.14), v = (cy + R * .3 - (y + .5)) / (R * 1.08);
+        const t = u * u + v * v - 1;
+        return t * t * t - u * u * v * v * v <= 0;
+      };
+    } else if (kind === 'sun') {
+      const cx = cw / 2, cy = ch / 2, R = Math.min(cw, ch) / 2 - .5, core = R * .58;
+      inside = (x, y) => {
+        const dx = x + .5 - cx, dy = y + .5 - cy, d = Math.sqrt(dx * dx + dy * dy);
+        if (d <= core) return true;
+        if (d > R) return false;
+        const a = Math.atan2(dy, dx) * 180 / Math.PI, m = ((a % 45) + 45) % 45;
+        return Math.min(m, 45 - m) < 2 + 11 * (1 - (d - core) / (R - core));
+      };
     } else if (kind === 'crescent') {
       const cx = cw / 2, cy = ch / 2, R = Math.min(cw, ch) / 2 - .5;
       inside = (x, y) => { const px = x + .5 - cx, py = y + .5 - cy;
@@ -136,7 +158,16 @@
       if (el.complete && el.naturalWidth) fix(); else el.addEventListener('load', fix, { once: true });
     });
   }
-  window.StellaPixelUI = { apply, paint, shape, sprite, cropSheets, PAL, KINDS, MAPS };
+  /* A kind's silhouette on its own, for places that want the symbol rather
+     than a button: profile icons, legends, decoration. */
+  const iconCache = {};
+  function icon(kind, size) {
+    const px = size || 48, key = kind + '@' + px, d = KINDS[kind];
+    if (!d) return '';
+    if (!iconCache[key]) iconCache[key] = shape(d.shape, px, px, d.idle);
+    return iconCache[key];
+  }
+  window.StellaPixelUI = { apply, paint, shape, icon, sprite, cropSheets, PAL, KINDS, MAPS };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => apply());
   else apply();
   if (document.fonts) document.fonts.ready.then(() => {
