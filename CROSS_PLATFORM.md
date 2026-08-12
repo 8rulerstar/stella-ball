@@ -2,7 +2,16 @@
 
 이 저장소는 설치 과정 없이 정적 웹 게임을 실행한다. 운영체제에 따라 달라지는 경로, 심볼릭 링크, 파일명 대소문자, 줄바꿈에 의존하지 않는다.
 
-## Windows에서 시작
+## 바로 실행
+
+저장소를 받은 뒤 별도 설치 없이 다음 파일을 더블 클릭한다.
+
+- **Windows**: `RUN_STELLA_BALL.bat`
+- **macOS**: `RUN_STELLA_BALL.command`
+
+두 실행 파일은 프로젝트 내부의 상대 경로만 사용해 기본 브라우저에서 `prototypes/prism-breakers.html`을 연다.
+
+## Windows에서 개발 시작
 
 ```powershell
 git clone https://github.com/8rulerstar/prism-breakers.git
@@ -11,7 +20,7 @@ node scripts/verify-evidence.mjs
 py -m http.server 4173 --directory .
 ```
 
-브라우저에서 `http://127.0.0.1:4173/prototypes/prism-breakers.html`을 연다. `py`가 없으면 Python 설치 뒤 같은 명령을 실행하거나, 정적 서버 확장을 사용하면 된다.
+브라우저에서 `http://127.0.0.1:4173/prototypes/prism-breakers.html`을 연다. `py`가 없으면 Python 설치 뒤 같은 명령을 실행하거나, 정적 서버 확장을 사용하면 된다. 단순 플레이만 할 때는 위의 `RUN_STELLA_BALL.bat`이면 충분하다.
 
 ## 저장소 규칙
 

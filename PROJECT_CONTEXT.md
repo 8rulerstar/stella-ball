@@ -82,6 +82,6 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 
 ## 폐기·보존 대상
 
-- `index.html`, `game.js`, `style.css`: deprecated Echo Run 기술 스파이크. 명시 요청 전 삭제하지 않는다.
+- deprecated Echo Run 루트(`index.html`, `game.js`, `style.css`)는 정리했다. 루트 `index.html`은 Stella Ball 진입점으로 전환했고, `RUN_STELLA_BALL.command`/`.bat`이 macOS·Windows의 설치 없는 실행 진입점이다.
 - `prototypes/`의 이전 시안: 탐색·Codex 협업 기록으로 보존한다. 현재 메인으로 홍보하지 않는다.
 - 글로벌 죽음 누적 / 플레이어 데이터로 난이도를 바꾸는 구조: 다시 채택하지 않는다. 대규모 난독화·악용·하향 나선 문제가 있다.
