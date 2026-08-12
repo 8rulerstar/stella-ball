@@ -313,6 +313,7 @@ const heroAnimArt = {
   biyeon: "biyeon",
   lumi: "lumi",
   haru: "haru",
+  ria: "ria",
   sera: "sera",
   taeo: "taeo",
   nyx: "nyx",

@@ -78,7 +78,7 @@
 
 ### 남은 작업
 
-1. **C단계 · 리아 모션** — `heroAnimArt` 맵에 리아만 빠져 있고 `assets/characters/anim/ria-roll.png`·`ria-attack.png`가 없다. 리아 idle은 단일 프레임이다. `scripts/generate_unit_action_sheets.py`의 `HEROES` 딕셔너리에도 리아 항목이 없다. roll은 스크립트가 idle을 90도씩 무손실 회전시키는 방식이라 리아 자체 idle만으로 만들 수 있고, attack은 소스 유닛을 정해야 한다.
+1. **C단계 · 리아 모션 — 완료 (2026-08-12)** — `ria-roll.png`(idle 90도 무손실 텀블)·`ria-attack.png`(자체 idle + 칼날 플러리 오버레이)를 반입하고 `heroAnimArt`에 리아를 등록했다. `scripts/generate_unit_action_sheets.py`에 리아는 자체 idle 기반 특수 항목으로 추가되어 재생성 가능하다. 실전에서 구르기 시트 재생·속도 비례 칼날·관통 피해를 확인했다. attack 시트는 현재 규칙상 정산에 쓰이지 않지만 데이터 등록 일관성과 참조 무결성을 위해 함께 반입했다.
 2. **C단계 · 태오 스프라이트** — 태오만 Pawn(잡부 유닛)이라 기사·사수 사이에서 이질적이다. **Warrior로 바꾸는 안은 사용자가 취소했다**(가온·닉스가 이미 Warrior). 소스 팩(`~/Assets/Tiny Swords (Free Pack)`)에는 Warrior·Lancer·Archer·Monk·Pawn 5종뿐이고 전부 배정돼 있어, 남은 선택지는 ① `~/Assets/Tiny RPG Character Asset Pack`의 Orc + 아웃라인·팔레트 리스타일 ② Pawn 유지 + 곡괭이→해머 + scale 상향 ③ Lancer/Monk 재사용 + 강한 색 대비다. **먼저 사람의 결정을 받아야 한다.**
 3. **새 콘텐츠 밸런스 미측정** — 캠페인 12개 스테이지의 난이도 곡선과 새 기믹 5종(굳은 껍질·흐린 발판·도는 방벽·모서리 밀어내기·재수면)은 수치를 재지 않았다. 봇 하니스가 현재 물리로 갱신된 뒤의 작업이다.
 4. **전투 캔버스 톤** — 전장 바닥은 여전히 보라색으로, 주변 UI의 청록–살구와 어긋난다(`game-core-render.js`의 스테이지 아트 캐시 색). 판정 가독성 검증 후 별도 패스.

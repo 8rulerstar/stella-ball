@@ -17,6 +17,7 @@ Usage:
 
 from __future__ import annotations
 
+import math
 import os
 import sys
 from collections import Counter, defaultdict
@@ -45,7 +46,7 @@ LUMI_ATTACK = "Enemies/Goblin Raiders/Hex Shaman/Hex Shaman_Attack.png"
 HERO_COL = {
     "gaon": (242, 197, 107), "biyeon": (239, 113, 141), "lumi": (112, 220, 225),
     "haru": (158, 228, 119), "sera": (188, 167, 255), "taeo": (255, 172, 103),
-    "nyx": (159, 131, 255),
+    "nyx": (159, 131, 255), "ria": (95, 224, 207),
 }
 
 
@@ -167,12 +168,68 @@ def pack_sheet(frames: list[Image.Image], cell: int) -> Image.Image:
     return sheet
 
 
+def build_ria(check_only: bool) -> None:
+    # Ria has no Tiny Swords source: her single-frame idle is the base.  The
+    # roll is the shared tumble; the attack is a blade flurry drawn over her
+    # own pose, matching the chunky pixel density of the fx burst sheets.
+    cell = 256
+    idle = Image.open(ROOT / "assets" / "characters" / "ria-bladewheel-idle.png").convert("RGBA")
+    frames = idle.width // cell
+    print(f"ria     base=self       frames={frames} cell={cell}")
+    if frames != 1:
+        raise SystemExit("ria idle is expected to be a single 256px frame")
+    if check_only:
+        return
+    col = HERO_COL["ria"]
+    pack_sheet(roll_frames(idle.crop((0, 0, cell, cell)), cell, col), cell).save(OUT / "ria-roll.png")
+
+    def overlay(draw_fn) -> Image.Image:
+        art = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        draw_fn(ImageDraw.Draw(art))
+        return art.resize((cell, cell), Image.NEAREST)
+
+    def blades(d, r0, r1, width, sweep=52):
+        for angle in (35, 215):
+            d.arc((32 - r1, 32 - r1, 32 + r1, 32 + r1), angle, angle + sweep, fill=(255, 255, 255, 235), width=width)
+        for angle in (125, 305):
+            d.arc((32 - r0, 32 - r0, 32 + r0, 32 + r0), angle, angle + sweep, fill=col + (235,), width=width)
+
+    def sparks(d, radius, count=4):
+        for i in range(count):
+            a = i * 6.283 / count + 0.7
+            sx = int(32 + math.cos(a) * radius)
+            sy = int(32 + math.sin(a) * radius)
+            d.line((sx - 2, sy, sx + 2, sy), fill=(255, 223, 128, 240))
+            d.line((sx, sy - 2, sx, sy + 2), fill=(255, 223, 128, 240))
+            d.point((sx, sy), fill=(255, 255, 255, 255))
+
+    base = idle.crop((0, 0, cell, cell))
+    flash = base.copy()
+    tint = Image.new("RGBA", (cell, cell), (235, 255, 252, 0))
+    tint.putalpha(base.getchannel("A").point(lambda v: 210 if v > 40 else 0))
+    flash.alpha_composite(tint)
+    attack = []
+    for i in range(4):
+        frame = (flash if i == 1 else base).copy()
+        if i == 0:
+            frame.alpha_composite(overlay(lambda d: blades(d, 17, 20, 2, 34)))
+        elif i == 1:
+            frame.alpha_composite(overlay(lambda d: (blades(d, 21, 26, 4, 74), sparks(d, 27, 4))))
+        elif i == 2:
+            frame.alpha_composite(overlay(lambda d: (blades(d, 24, 29, 3, 58), sparks(d, 30, 6))))
+        else:
+            frame.alpha_composite(overlay(lambda d: sparks(d, 26, 4)))
+        attack.append(frame)
+    pack_sheet(attack, cell).save(OUT / "ria-attack.png")
+
+
 def main() -> None:
     check_only = "--check" in sys.argv
     packs = pack_root()
     free = packs / "Tiny Swords (Free Pack)"
     enemy = packs / "Tiny Swords (Enemy Pack)" / "Enemy Pack"
     OUT.mkdir(parents=True, exist_ok=True)
+    build_ria(check_only)
     failures = 0
     for hid, (idle_rel, cell, unit_rel, attack_rel, picks) in HEROES.items():
         hero = Image.open(ROOT / "assets" / "characters" / idle_rel).convert("RGBA")
