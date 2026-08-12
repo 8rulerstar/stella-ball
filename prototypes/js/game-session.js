@@ -39,7 +39,7 @@ function setupBattle() {
     r,
     on: 0,
   }));
-  adds = [];
+  setupStageGimmicks(s);
   areaBursts = [];
   fieldFx = [];
   barriers = [];

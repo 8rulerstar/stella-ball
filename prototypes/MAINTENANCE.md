@@ -18,6 +18,24 @@ New render or feedback behavior must register with `registerRuntimeHook(name, ca
 
 Do not add new assignments such as `draw = function () { ... }` or `updateFeedback = function () { ... }`. A few historical wrappers remain in the combat, feedback, meta, and onboarding scripts; leave their order intact until a dedicated migration replaces them with named hooks.
 
+## Adding one stage gimmick
+
+Define a stage's `gimmicks` in `js/game-data.js`; `setupStageGimmicks()` creates the runtime objects when a battle starts. Do not put per-stage coordinates in the collision loop.
+
+```js
+gimmicks: {
+  walls: [{ x: 156, y: 398, w: 104, h: 18 }],
+  boostPads: [{ x: 360, y: 504, w: 156, h: 38, boost: 300 }],
+  adds: [{ x: 360, y: 306, r: 23, hp: 56 }],
+}
+```
+
+- A `wall` is an axis-aligned rebound surface. The meteor, clone meteor, and rolling starkeepers all collide with it.
+- A `boostPad` applies one momentum gain per object pass. Its `boost` and optional `maxSpeed` are balance values, not visual settings.
+- An `add` is a physical void remnant with HP. Meteor, clone meteor, starkeepers, and existing area attacks can damage it.
+
+The infinite training table is the current reference configuration for all three. Keep campaign stages to a single new gimmick until their player purpose and bot validation are decided.
+
 ## Performance guardrails
 
 - Reuse `loadTexture()` and `primeCombatTextures()`; never create `Image` objects inside a frame function.

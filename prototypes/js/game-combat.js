@@ -320,6 +320,28 @@ hitBumper = function (b) {
   sync();
 };
 drawPinballTable = function () {
+  for (const pad of boostPads) {
+    x.save();
+    x.fillStyle = pad.on > 0 ? "#d7ffb4" : "#5c9d73";
+    x.shadowBlur = pad.on > 0 ? 24 : 10;
+    x.shadowColor = "#b9ef86";
+    x.fillRect(pad.x - pad.w / 2, pad.y - pad.h / 2, pad.w, pad.h);
+    x.fillStyle = "#1a473d";
+    for (let px = pad.x - pad.w / 2 + 14; px < pad.x + pad.w / 2; px += 22)
+      x.fillRect(px, pad.y - 3, 11, 6);
+    x.restore();
+  }
+  for (const wall of stageWalls) {
+    x.save();
+    x.fillStyle = wall.on > 0 ? "#e3edf0" : "#7699a3";
+    x.strokeStyle = "#243b47";
+    x.lineWidth = 3;
+    x.shadowBlur = wall.on > 0 ? 18 : 6;
+    x.shadowColor = "#c3f3ff";
+    x.fillRect(wall.x - wall.w / 2, wall.y - wall.h / 2, wall.w, wall.h);
+    x.strokeRect(wall.x - wall.w / 2, wall.y - wall.h / 2, wall.w, wall.h);
+    x.restore();
+  }
   for (const b of bumpers) {
     circle(b.x, b.y, b.r + 7, "#10222c", b.on ? 25 : 8);
     circle(b.x, b.y, b.r, b.on ? "#e4f5d5" : "#4db8b3", b.on ? 28 : 12);
@@ -1225,7 +1247,9 @@ function updateCloneBalls(step) {
     const drag = Math.pow(0.989, step * 60);
     o.vx *= drag;
     o.vy *= drag;
+    tickGimmickCooldowns(o, step);
     mobileWall(o, o.r);
+    applyStageGimmicks(o);
     for (const b of bumpers)
       mobileStatic(o, b, o.r + b.r, 1.06, () => {
         const speed = Math.hypot(o.vx, o.vy) || 1,
@@ -1440,6 +1464,104 @@ function mobileStatic(o, target, radius, restitution, onHit) {
   }
   return true;
 }
+function mobileRect(o, r, rect, restitution, onHit) {
+  const left = rect.x - rect.w / 2,
+    right = rect.x + rect.w / 2,
+    top = rect.y - rect.h / 2,
+    bottom = rect.y + rect.h / 2,
+    nearestX = clamp(o.x, left, right),
+    nearestY = clamp(o.y, top, bottom);
+  let dx = o.x - nearestX,
+    dy = o.y - nearestY,
+    distance = Math.hypot(dx, dy);
+  if (distance >= r) return false;
+  let nx = dx / (distance || 1),
+    ny = dy / (distance || 1),
+    overlap = r - distance;
+  if (distance < 0.001) {
+    const edge = [
+      { distance: Math.abs(o.x - left), nx: -1, ny: 0 },
+      { distance: Math.abs(right - o.x), nx: 1, ny: 0 },
+      { distance: Math.abs(o.y - top), nx: 0, ny: -1 },
+      { distance: Math.abs(bottom - o.y), nx: 0, ny: 1 },
+    ].sort((a, b) => a.distance - b.distance)[0];
+    nx = edge.nx;
+    ny = edge.ny;
+    overlap = r + edge.distance;
+  }
+  o.x += nx * (overlap + 0.2);
+  o.y += ny * (overlap + 0.2);
+  const dot = o.vx * nx + o.vy * ny;
+  if (dot < 0) {
+    o.vx -= (1 + restitution) * dot * nx;
+    o.vy -= (1 + restitution) * dot * ny;
+    onHit?.(nx, ny);
+  }
+  return true;
+}
+function tickGimmickCooldowns(o, step) {
+  if (!o.gimmickCooldowns) return;
+  for (const key of Object.keys(o.gimmickCooldowns)) {
+    o.gimmickCooldowns[key] -= step;
+    if (o.gimmickCooldowns[key] <= 0) delete o.gimmickCooldowns[key];
+  }
+}
+function applyBoostPad(o, pad, unit = null) {
+  const inside =
+    Math.abs(o.x - pad.x) <= pad.w / 2 + o.r &&
+    Math.abs(o.y - pad.y) <= pad.h / 2 + o.r;
+  if (!inside) return false;
+  const key = "boost:" + pad.id;
+  o.gimmickCooldowns ??= {};
+  if (o.gimmickCooldowns[key] > 0) return false;
+  const speed = Math.hypot(o.vx, o.vy);
+  if (speed < 50) return false;
+  const boosted = Math.min(pad.maxSpeed, speed + pad.boost);
+  o.vx *= boosted / speed;
+  o.vy *= boosted / speed;
+  o.gimmickCooldowns[key] = 0.32;
+  pad.on = 0.22;
+  fieldFx.push({
+    type: "booster",
+    x: pad.x,
+    y: pad.y,
+    t: 0,
+    d: 0.34,
+    col: "#b9ef86",
+  });
+  if (unit) {
+    unit.collisions = (unit.collisions || 0) + 1;
+    wakeUnit(unit);
+    addPopup(unit.x, unit.y - 32, "가속!", "#caff9a", false);
+  } else if (o === ball) {
+    ball.power += 0.2;
+    ball.bounces++;
+    addPopup(pad.x, pad.y - 28, "운동량 상승!", "#caff9a", true);
+    toast("가속 발판 · 유성 운동량 상승");
+  }
+  return true;
+}
+function applyStageGimmicks(o, unit = null) {
+  for (const wall of stageWalls)
+    mobileRect(o, o.r, wall, wall.restitution, () => {
+      wall.on = 0.18;
+      fieldFx.push({
+        type: "wall",
+        x: o.x,
+        y: o.y,
+        t: 0,
+        d: 0.28,
+        col: "#c3f3ff",
+      });
+      if (unit) {
+        unit.wallHits = (unit.wallHits || 0) + 1;
+        unit.collisions = (unit.collisions || 0) + 1;
+        wakeUnit(unit);
+      } else if (o === ball) tableWall();
+      else o.bounces = (o.bounces || 0) + 1;
+    });
+  for (const pad of boostPads) applyBoostPad(o, pad, unit);
+}
 function mobilePair(a, ar, b, br, onHit) {
   let dx = b.x - a.x,
     dy = b.y - a.y,
@@ -1606,6 +1728,8 @@ simulatePhysics = function (d) {
   // frame. Running this in every collision slice caused avoidable filtering
   // and allocation during the busiest contacts.
   updateExpanded(d);
+  for (const wall of stageWalls) wall.on = Math.max(0, wall.on - d);
+  for (const pad of boostPads) pad.on = Math.max(0, pad.on - d);
   for (let i = 0; i < slices && ball?.moving; i++) {
     if (ball.pulse > 0) {
       ball.pulse -= step;
@@ -1622,7 +1746,9 @@ simulatePhysics = function (d) {
     const cueDrag = Math.pow(0.9915, step * 60);
     ball.vx *= cueDrag;
     ball.vy *= cueDrag;
+    tickGimmickCooldowns(ball, step);
     mobileWall(ball, ball.r);
+    applyStageGimmicks(ball);
     for (const g of gates) {
       g.x += g.vx * step;
       g.y += g.vy * step;
@@ -1636,6 +1762,7 @@ simulatePhysics = function (d) {
       // than the meteor, so use visibly stronger table friction for them.
       g.vx *= Math.pow(0.974, step * 60);
       g.vy *= Math.pow(0.974, step * 60);
+      tickGimmickCooldowns(g, step);
       g.contactCooldown = Math.max(0, (g.contactCooldown || 0) - step);
       g.enemyHitCooldown = Math.max(0, (g.enemyHitCooldown || 0) - step);
       g.feedbackContactCooldown = Math.max(
@@ -1643,6 +1770,7 @@ simulatePhysics = function (d) {
         (g.feedbackContactCooldown || 0) - step,
       );
       mobileWall(g, g.r, g);
+      applyStageGimmicks(g, g);
       g.trailSample = (g.trailSample || 0) + step;
       if (g.trailSample >= 1 / 60) {
         g.trailSample = 0;

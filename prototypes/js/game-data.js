@@ -361,9 +361,56 @@ const stages = [
       [496, 320, 27],
       [360, 420, 25],
     ],
+    // The training table is the only place where the next-stage gimmick
+    // modules are enabled before a campaign stage is designed around one.
+    gimmicks: {
+      walls: [
+        { x: 156, y: 398, w: 104, h: 18 },
+        { x: 564, y: 398, w: 104, h: 18 },
+      ],
+      boostPads: [{ x: 360, y: 504, w: 156, h: 38, boost: 300 }],
+      adds: [{ x: 360, y: 306, r: 23, hp: 56 }],
+    },
     training: true,
   },
 ];
+
+function setupStageGimmicks(stage) {
+  const gimmicks = stage.gimmicks ?? {};
+  stageWalls = (gimmicks.walls ?? []).map((wall, index) => ({
+    id: wall.id ?? "wall-" + index,
+    x: wall.x,
+    y: wall.y,
+    w: wall.w ?? 96,
+    h: wall.h ?? 18,
+    restitution: wall.restitution ?? 1.01,
+    on: 0,
+  }));
+  boostPads = (gimmicks.boostPads ?? []).map((pad, index) => ({
+    id: pad.id ?? "boost-" + index,
+    x: pad.x,
+    y: pad.y,
+    w: pad.w ?? 140,
+    h: pad.h ?? 34,
+    boost: pad.boost ?? 260,
+    maxSpeed: pad.maxSpeed ?? 1900,
+    on: 0,
+  }));
+  adds = (gimmicks.adds ?? []).map((add, index) => {
+    const hp = add.hp ?? 48;
+    return {
+      id: add.id ?? "add-" + index,
+      x: add.x,
+      y: add.y,
+      r: add.r ?? 23,
+      hp,
+      maxHp: hp,
+      down: 0,
+      frozen: 0,
+      hitCooldown: 0,
+    };
+  });
+}
 const bossArt = {
   sprite: "../assets/library/boss2/void-colossus.png",
   fw: 384,
@@ -609,6 +656,8 @@ let build,
   boss,
   gates = [],
   bumpers = [],
+  stageWalls = [],
+  boostPads = [],
   adds = [],
   areaBursts = [],
   battle,

@@ -61,12 +61,28 @@ const requiredMarkers = [
   "function damage",
 ];
 
+const requiredGimmickMarkers = [
+  "setupStageGimmicks",
+  "applyStageGimmicks",
+  "mobileRect",
+  "boostPads",
+];
+
 const missingMarkers = requiredMarkers.filter(
   (marker) => !combinedSource.includes(marker),
 );
 if (missingMarkers.length > 0) {
   throw new Error(
     `핵심 기능 표식을 찾지 못했습니다: ${missingMarkers.join(", ")}`,
+  );
+}
+
+const missingGimmickMarkers = requiredGimmickMarkers.filter(
+  (marker) => !gameSource.includes(marker),
+);
+if (missingGimmickMarkers.length > 0) {
+  throw new Error(
+    `스테이지 기믹 기반 표식을 찾지 못했습니다: ${missingGimmickMarkers.join(", ")}`,
   );
 }
 
