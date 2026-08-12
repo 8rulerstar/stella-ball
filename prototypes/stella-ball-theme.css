@@ -1216,3 +1216,119 @@ body.onboarding-locked .pause-button { display: none; }
   .gacha-shell, .shop-shell, .profile-shell { padding: 14px 14px 16px !important; }
   .profile-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* The old Prism Breakers key art still showed through the title backdrop.
+   Stella Ball owns this screen now, so the brand card is replaced by the
+   observatory gradient it was sitting under. */
+.title-sequence:before {
+  background:
+    linear-gradient(180deg, #0b0b12a8 0%, transparent 34%, #0a0a11f2 92%),
+    radial-gradient(ellipse at 50% 26%, #2c274066 0%, #14141fe6 46%, #0a0a11 88%) !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------------------
+   ACHIEVEMENTS — full window, its own scroll region, and a back button
+   that stays reachable instead of being clipped off the bottom.
+   --------------------------------------------------------------------- */
+.overlay.archive-scene {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 40;
+  padding: 0 !important;
+  place-content: stretch !important;
+}
+.overlay.archive-scene .meta-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: none !important;
+  height: 100%;
+  padding: 18px 22px 16px !important;
+  min-height: 0;
+}
+.overlay.archive-scene .system-panel {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  width: auto !important;
+  max-width: none !important;
+  /* The shared panel centres itself with auto side margins; the archive uses
+     the whole column instead. */
+  margin: 0 !important;
+}
+.overlay.archive-scene .profile-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.overlay.archive-scene .achievement-grid {
+  flex: 1 1 auto;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)) !important;
+  align-content: start;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.overlay.archive-scene .settings-actions {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.overlay.archive-scene .settings-actions button { min-width: 120px; }
+
+/* ---------------------------------------------------------------------
+   CLAIM FEEL — the card is pressed, pops, then the reward lifts away.
+   Reference: opening a chest — squash on press, overshoot on release.
+   --------------------------------------------------------------------- */
+.achievement-claim, .claim-banner button, .mail-item button {
+  transition: transform .12s cubic-bezier(.2, 1.6, .4, 1), border-color .16s ease, background .16s ease;
+}
+.achievement-claim:active, .claim-banner button:active, .mail-item button:active {
+  transform: scale(.94);
+}
+.achievement-card.claiming {
+  animation: claimPop .52s cubic-bezier(.2, 1.5, .35, 1);
+}
+.claim-banner.claiming {
+  animation: claimPop .52s cubic-bezier(.2, 1.5, .35, 1);
+}
+@keyframes claimPop {
+  0% { transform: scale(1); }
+  22% { transform: scale(.955); }
+  52% { transform: scale(1.045); }
+  76% { transform: scale(.99); }
+  100% { transform: scale(1); }
+}
+.claim-burst {
+  position: absolute;
+  z-index: 12;
+  color: var(--star);
+  font: 700 15px ui-monospace, monospace;
+  text-shadow: 0 2px 0 #050508;
+  pointer-events: none;
+  animation: claimFloat .95s cubic-bezier(.15, .8, .3, 1) forwards;
+}
+@keyframes claimFloat {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(.7); }
+  18% { opacity: 1; transform: translate(-50%, -12px) scale(1.12); }
+  100% { opacity: 0; transform: translate(-50%, -54px) scale(1); }
+}
+.claim-spark {
+  position: absolute;
+  z-index: 11;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--star);
+  box-shadow: 0 0 8px #e6c684;
+  pointer-events: none;
+  animation: claimSpark .7s ease-out forwards;
+}
+@keyframes claimSpark {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--sx, 0px)), calc(-50% + var(--sy, 0px))) scale(.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .achievement-card.claiming, .claim-banner.claiming { animation: none; }
+  .claim-burst, .claim-spark { display: none; }
+}

@@ -587,8 +587,8 @@ function showSettings(onBack) {
 function showAchievements() {
   run = false;
   drag = null;
-  setScene("meta");
-  U.over.className = "overlay meta-scene";
+  setScene("menu");
+  U.over.className = "overlay archive-scene";
   const list = achievementList(),
     unlocked = list.filter((v) => v.done).length,
     cards = list
@@ -672,22 +672,32 @@ function showAchievements() {
     playSfx();
     showMeta();
   };
-  document.querySelector("#claimPending").onclick = () => {
+  document.querySelector("#claimPending").onclick = (event) => {
     const amount = claimPendingGold();
     if (!amount) return;
-    rewardToast("관측 보상함", "+" + amount + " 골드", "보유 " + goldBalance());
-    showAchievements();
-  };
-  for (const button of document.querySelectorAll("[data-claim]"))
-    button.onclick = () => {
-      const entry = claimAchievement(button.dataset.claim);
-      if (!entry) return;
+    playClaimBurst(event.currentTarget.closest(".claim-banner"), amount, () => {
       rewardToast(
-        "업적 보상 · " + entry.name,
-        "+" + entry.gold + " 골드",
+        "관측 보상함",
+        "+" + amount + " 골드",
         "보유 " + goldBalance(),
       );
       showAchievements();
+    });
+  };
+  for (const button of document.querySelectorAll("[data-claim]"))
+    button.onclick = (event) => {
+      const id = button.dataset.claim,
+        card = event.currentTarget.closest(".achievement-card"),
+        entry = claimAchievement(id);
+      if (!entry) return;
+      playClaimBurst(card, entry.gold, () => {
+        rewardToast(
+          "업적 보상 · " + entry.name,
+          "+" + entry.gold + " 골드",
+          "보유 " + goldBalance(),
+        );
+        showAchievements();
+      });
     };
 }
 // Profile gathers identity, the record board and the mailbox in one tab.  The
@@ -738,6 +748,34 @@ function localLeaderboard() {
     },
   ];
   return rows;
+}
+// Chest-opening feel: the card squashes and overshoots, the amount lifts off
+// it, and a few sparks scatter.  The redraw waits for the animation so the
+// number does not change under the player's finger.
+function playClaimBurst(card, amount, done) {
+  if (!card) return done?.();
+  playSfx?.("unlock");
+  card.classList.add("claiming");
+  card.style.position = card.style.position || "relative";
+  const burst = document.createElement("span");
+  burst.className = "claim-burst";
+  burst.textContent = "+" + amount;
+  burst.style.left = "50%";
+  burst.style.top = "38%";
+  card.append(burst);
+  for (let i = 0; i < 6; i++) {
+    const spark = document.createElement("i");
+    spark.className = "claim-spark";
+    const angle = (Math.PI * 2 * i) / 6 + 0.4;
+    spark.style.left = "50%";
+    spark.style.top = "42%";
+    spark.style.setProperty("--sx", Math.round(Math.cos(angle) * 46) + "px");
+    spark.style.setProperty("--sy", Math.round(Math.sin(angle) * 40) + "px");
+    spark.style.animationDelay = i * 22 + "ms";
+    card.append(spark);
+  }
+  if (navigator.vibrate) navigator.vibrate([10, 26, 14]);
+  setTimeout(() => done?.(), 620);
 }
 function showProfile() {
   run = false;
