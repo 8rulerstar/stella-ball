@@ -344,7 +344,7 @@ showMeta = function () {
     tr("achievements") +
     '</button><button class="meta-tab" id="metaSettings"><img src="../assets/library/system/icon-settings.png" alt="">' +
     tr("settings") +
-    '</button></div><p class="meta-note">Hive 기록 인터페이스에는 클리어 시간 · 발사 수 · 처치 피해가 전달됩니다.</p></div>';
+    '</button></div><p class="meta-note">오늘의 관측은 한 번의 궤적으로 더 큰 별자리를 완성하는 도전입니다.</p></div>';
   for (const el of document.querySelectorAll(".meta-rune-art")) {
     const id = el.dataset.hero;
     if (!["gaon", "biyeon", "lumi", "haru", "sera", "taeo", "nyx"].includes(id))
@@ -860,7 +860,7 @@ showMeta = function () {
     metaArt.help +
     '" alt=""><strong>튜토리얼</strong><small>다시 보기</small></button><button class="hub-quick" id="hubAchievements"><img src="../assets/library/event/achievement-unlocked.png" alt=""><strong>업적</strong><small>전투 기록</small></button><button class="hub-quick" id="hubSettings"><img src="../assets/library/system/icon-settings.png" alt=""><strong>설정</strong><small>언어 · 사운드</small></button><button class="hub-quick" id="hubGuide"><img src="' +
     metaArt.play +
-    '" alt=""><strong>플레이 방법</strong><small>핵심 규칙</small></button></section><p class="hub-record">Hive 기록 인터페이스 · 클리어 시간 · 발사 수 · 처치 피해</p></div>';
+    '" alt=""><strong>플레이 방법</strong><small>핵심 규칙</small></button></section></div>';
   document.querySelector("#hubStageSelect").onclick = () => {
     playSfx();
     showStageSelect();

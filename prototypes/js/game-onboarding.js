@@ -467,6 +467,7 @@ showMeta = function () {
   drag = null;
   setScene("meta");
   const stage = currentStage(),
+    stageArt = libraryArt.stages[stageIndex],
     avatar = selected[0]
       ? '<img src="' + runeStone(selected[0]) + '" alt="">'
       : "◆";
@@ -480,7 +481,13 @@ showMeta = function () {
       : '<span class="hub-party-slot empty">+</span>',
   ).join("");
   const clear = progress.clears || 0,
-    best = formatRunTime(progress.bestTime);
+    best = formatRunTime(progress.bestTime),
+    bumperCount = stage.bumpers?.length || 0,
+    stageRule = bumperCount
+      ? "공명 범퍼 × " + bumperCount
+      : stage.tutorial
+        ? "첫 관측 수업"
+        : "별자리 전술";
   U.over.className = "overlay meta-scene";
   U.over.innerHTML =
     '<div class="survivor-hub"><div class="hub-night-sky" aria-hidden="true">' +
@@ -491,20 +498,38 @@ showMeta = function () {
     clear +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
-    '</b></span></div></div><section class="hub-mission" style="--stage-art:url(\'' +
-    libraryArt.stages[stageIndex].tile +
-    '\')"><div class="hub-mission-copy"><small>오늘의 밤하늘</small><h2>' +
+    '</b></span></div></div><section class="hub-battle-card" style="--stage-art:url(\'' +
+    stageArt.tile +
+    '\')"><div class="hub-battle-crest"><img src="' +
+    stageArt.emblem +
+    '" alt="' +
     stage.name +
-    '</h2><p>오늘의 밤하늘 · 위기의 별자리에 도전하세요.</p></div><button class="hub-start" id="hubStageSelect">스테이지 선택</button></section><section class="hub-party-row"><span class="hub-party-label">별지기 편성</span><span class="hub-party-slots">' +
-    party +
-    '</span><button id="hubParty">편성</button></section><section class="hub-quick-grid"><button class="hub-quick" id="hubTutorial"><img src="' +
-    metaArt.help +
-    '" alt=""><strong>튜토리얼</strong><small>다시 보기</small></button><button class="hub-quick" id="hubAchievements"><img src="../assets/library/event/achievement-unlocked.png" alt=""><strong>업적</strong><small>관측 기록</small></button><button class="hub-quick" id="hubSettings"><img src="../assets/library/system/icon-settings.png" alt=""><strong>설정</strong><small>언어 · 사운드</small></button><button class="hub-quick" id="hubGuide"><img src="' +
+    ' 스테이지 상징"><small>STAGE ' +
+    stage.id +
+    '</small></div><div class="hub-battle-copy"><small>오늘의 메인 관측</small><h2>' +
+    stage.name +
+    '</h2><p>' +
+    stage.terrain +
+    '</p><div class="hub-battle-tags"><span>유성 ' +
+    RULES.shots +
+    '발</span><span>' +
+    stageRule +
+    '</span></div></div><button class="hub-stage-change" id="hubStageSelect">스테이지 변경</button><button class="hub-battle-play" id="hubStartBattle"><img src="' +
     metaArt.play +
-    '" alt=""><strong>플레이 방법</strong><small>핵심 규칙</small></button></section><p class="hub-record">Hive 기록 인터페이스 · 클리어 시간 · 발사 수 · 처치 피해</p></div>';
+    '" alt="">관측 시작</button></section><section class="hub-party-panel"><div class="hub-party-heading"><span><small>전투 편성</small><b>별지기 ' +
+    selected.length +
+    ' / 3</b></span><button id="hubParty">편성</button></div><div class="hub-party-slots">' +
+    party +
+    '</div></section><section class="hub-utility-grid"><button class="hub-utility" id="hubTutorial"><img src="' +
+    metaArt.help +
+    '" alt=""><span><strong>튜토리얼</strong><small>조작법 다시 보기</small></span></button><button class="hub-utility" id="hubAchievements"><img src="../assets/library/event/achievement-unlocked.png" alt=""><span><strong>업적</strong><small>관측 기록 확인</small></span></button><button class="hub-utility" id="hubSettings"><img src="../assets/library/system/icon-settings.png" alt=""><span><strong>설정</strong><small>언어 · 사운드</small></span></button></section></div>';
   document.querySelector("#hubStageSelect").onclick = () => {
     playSfx();
     showStageSelect();
+  };
+  document.querySelector("#hubStartBattle").onclick = () => {
+    playSfx();
+    showRoster();
   };
   document.querySelector("#hubParty").onclick = () => {
     playSfx();
@@ -521,10 +546,6 @@ showMeta = function () {
   document.querySelector("#hubSettings").onclick = () => {
     playSfx();
     showSettings();
-  };
-  document.querySelector("#hubGuide").onclick = () => {
-    playSfx();
-    showTutorial();
   };
 };
 const baseStorySetupBattle = setupBattle;

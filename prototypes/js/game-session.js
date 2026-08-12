@@ -246,7 +246,7 @@ function showMeta() {
     metaArt.home +
     '" alt="">별지기 편성</button><button id="metaHelp"><img src="' +
     metaArt.help +
-    '" alt="">조작법</button></div><p class="meta-note">일일 도전 기록은 발사 수 · 클리어 시간 · 처치 피해로 정리됩니다. 전투 결과는 Hive 기록 인터페이스에 전달됩니다.</p></div>';
+    '" alt="">조작법</button></div><p class="meta-note">오늘의 관측은 한 번의 궤적에서 더 큰 별자리를 완성하는 도전입니다.</p></div>';
   for (const el of document.querySelectorAll(".meta-rune-art")) {
     const id = el.dataset.hero;
     if (
