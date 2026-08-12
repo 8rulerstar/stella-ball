@@ -160,9 +160,22 @@
     if (!RM) { setInterval(meteor, 9000); setTimeout(meteor, 2500); }
     S.addEventListener('click', function (e) { sparkle(e.clientX, e.clientY); });
   }
+  /* 킷의 금속 아이콘(코인·엠블럼·순위·우편)을 CSS 변수로 1회 등록한다.
+     화면 코드는 그대로 두고, 스타일 레이어가 자리 표시용 CSS 도형을 이 스프라이트로 바꾼다. */
+  function registerKitIcons() {
+    var kit = window.StellaPixelUI;
+    if (!kit) return;
+    var root = document.documentElement, names = ['coin', 'emblem', 'rank', 'mail'];
+    for (var i = 0; i < names.length; i++) {
+      var url = kit.sprite(names[i]);
+      if (url) root.style.setProperty('--px-' + names[i], 'url(' + url + ')');
+    }
+    root.classList.add('pixel-kit-icons');
+  }
   function boot() {
     tag();
     buildSky();
+    registerKitIcons();
     new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

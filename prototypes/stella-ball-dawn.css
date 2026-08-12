@@ -46,3 +46,33 @@ main { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
   #dawn-sky * { animation: none !important; }
 }
+
+/* 킷 금속 아이콘 — stella-ball-dawn.js가 --px-* 변수를 등록하면
+   자리 표시용 CSS 원형 코인과 프로필 패널 글리프를 스프라이트로 바꾼다 */
+.pixel-kit-icons .hub-gold b::before,
+.pixel-kit-icons .result-gold i {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--px-coin) center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.pixel-kit-icons .result-gold i { width: 18px; height: 18px; }
+.pixel-kit-icons .profile-grid .panel-title h2 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.pixel-kit-icons .profile-grid .panel-title h2::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 21px;
+  height: 21px;
+  background: var(--px-icon, none) center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.pixel-kit-icons .profile-grid .profile-panel:nth-child(1) .panel-title h2 { --px-icon: var(--px-emblem); }
+.pixel-kit-icons .profile-grid .profile-panel:nth-child(2) .panel-title h2 { --px-icon: var(--px-rank); }
+.pixel-kit-icons .profile-grid .mail-panel .panel-title h2 { --px-icon: var(--px-mail); }

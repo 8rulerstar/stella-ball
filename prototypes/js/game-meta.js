@@ -1331,7 +1331,10 @@ hitBumper = function (b) {
 };
 // Support characters use the full frame centre as their anchor.  The earlier
 // sprite baseline was tuned for the boss and made small hero frames look cut.
-drawFrame = function (
+// Replace the RAW renderer, not drawFrame itself: the drawFrame wrapper in
+// game-core-render.js applies the equipped hero-skin hue filter around this,
+// so overriding the wrapper silently dropped bought skins in battle.
+drawFrameRaw = function (
   spec,
   cx,
   cy,
