@@ -669,6 +669,7 @@ let build,
   fieldFx = [],
   barriers = [],
   seeds = [],
+  frameClock = 0,
   last = 0,
   toastTimer = 0,
   impactStop = 0,
@@ -704,6 +705,27 @@ function runRuntimeHooks(name, ...args) {
   // Snapshot the list so a hook may unregister itself without skipping the
   // next extension in the same frame.
   for (const callback of [...runtimeHooks[name]]) callback(...args);
+}
+
+// Short-lived combat arrays are updated every frame. Compacting them in place
+// avoids new arrays and garbage-collection hitches during busy combos.
+function advanceTimed(items, delta) {
+  let write = 0;
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    item.t += delta;
+    if (item.t < item.d) items[write++] = item;
+  }
+  items.length = write;
+}
+function tickTimed(items, delta) {
+  let write = 0;
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    item.t -= delta;
+    if (item.t > 0) items[write++] = item;
+  }
+  items.length = write;
 }
 
 primeCombatTextures();

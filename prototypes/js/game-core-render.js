@@ -255,8 +255,7 @@ let lastStageTransform = "",
   lastMomentumHud = -1;
 function updateFeedback(d) {
   updateAssists(d);
-  for (const burst of areaBursts) burst.t += d;
-  areaBursts = areaBursts.filter((burst) => burst.t < burst.d);
+  advanceTimed(areaBursts, d);
   screenShake = Math.max(0, screenShake - d * 18);
   screenFlash = Math.max(0, screenFlash - d * 4.8);
   comboTimer = Math.max(0, comboTimer - d);
@@ -268,7 +267,7 @@ function updateFeedback(d) {
       U.combo.classList.remove("hot");
     }
   }
-  const s = screenShake ? Math.sin(performance.now() * 0.11) * screenShake : 0,
+  const s = screenShake ? Math.sin(frameClock * 0.11) * screenShake : 0,
     stageTransform = screenShake
       ? "translate(" + s.toFixed(1) + "px," + (-s * 0.45).toFixed(1) + "px)"
       : "translate(0px,0px)",
@@ -329,6 +328,7 @@ function updateSpecial(d) {
   ball.vx = (dx / l) * 920;
   ball.vy = (dy / l) * 920;
 }
+const orbitalFieldFxTypes = new Set(["gravity", "magnet", "vortex", "time"]);
 function drawFieldFx() {
   for (const f of fieldFx) {
     const p = 1 - f.t / f.d;
@@ -339,7 +339,7 @@ function drawFieldFx() {
     x.shadowBlur = 16;
     x.shadowColor = f.col;
     x.lineWidth = 2;
-    if (["gravity", "magnet", "vortex", "time"].includes(f.type)) {
+    if (orbitalFieldFxTypes.has(f.type)) {
       x.beginPath();
       x.arc(f.x, f.y, 24 + Math.sin(f.t * 10) * 7, 0, Math.PI * 2);
       x.stroke();
@@ -981,7 +981,7 @@ function draw() {
     if (a.down > 0) continue;
     circle(a.x, a.y, a.r + 13, "#10212a", 22);
     const hit = a.hitCooldown > 0,
-      frame = Math.floor(performance.now() / (hit ? 55 : 155));
+      frame = Math.floor(frameClock / (hit ? 55 : 155));
     if (!drawAnimated(hit ? "wispHit" : "wispIdle", a.x, a.y, 96, frame)) {
       circle(a.x, a.y, a.r, "#a65d57", 18);
       circle(a.x, a.y, a.r - 7, "#3c2529");
@@ -1013,7 +1013,7 @@ function draw() {
       bossArt,
       boss.x,
       boss.y,
-      Math.floor(performance.now() / (boss.hitCooldown > 0 ? 70 : 145)),
+      Math.floor(frameClock / (boss.hitCooldown > 0 ? 70 : 145)),
       boss.scale,
       boss.hitCooldown > 0 ? "hit" : "idle",
     )

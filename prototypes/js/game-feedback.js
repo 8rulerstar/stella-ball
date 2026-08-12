@@ -143,24 +143,21 @@ const sampleSfxCue = {
   fail: "fail-01",
 };
 const sampleSfxCooldown = {};
-const sampleSfxPools = Object.fromEntries(
-  [
-    ...new Set([
-      ...Object.values(sampleSfxCue),
-      ...Object.values(abilitySampleCue),
-    ]),
-  ].map((cue) => [
-    cue,
-    {
-      cursor: 0,
-      voices: Array.from({ length: 2 }, () => {
-        const sound = new Audio("../assets/audio/sfx50/" + cue + ".wav");
-        sound.preload = "auto";
-        return sound;
-      }),
-    },
-  ]),
-);
+const sampleSfxPools = new Map();
+function sampleSfxPool(cue) {
+  let pool = sampleSfxPools.get(cue);
+  if (pool) return pool;
+  pool = {
+    cursor: 0,
+    voices: Array.from({ length: 2 }, () => {
+      const sound = new Audio("../assets/audio/sfx50/" + cue + ".wav");
+      sound.preload = "auto";
+      return sound;
+    }),
+  };
+  sampleSfxPools.set(cue, pool);
+  return pool;
+}
 function playSampleSfx(kind = "hit", strength = 1, heroId = "") {
   const cue =
     kind === "finisherCharge"
@@ -171,7 +168,7 @@ function playSampleSfx(kind = "hit", strength = 1, heroId = "") {
     last = sampleSfxCooldown[cue] || 0;
   if (now - last < 90) return true;
   sampleSfxCooldown[cue] = now;
-  const pool = sampleSfxPools[cue],
+  const pool = sampleSfxPool(cue),
     sound = pool.voices[pool.cursor++ % pool.voices.length];
   sound.pause();
   sound.currentTime = 0;
@@ -589,9 +586,18 @@ settleParty = function () {
   return baseFeedbackSettleParty();
 };
 updateAssists = function (d) {
-  for (const impact of finisherImpacts) impact.t += d;
-  finisherImpacts = finisherImpacts.filter((impact) => impact.t < impact.d);
-  for (const shot of assistShots) {
+  let writeImpact = 0;
+  for (let index = 0; index < finisherImpacts.length; index++) {
+    const impact = finisherImpacts[index];
+    impact.t += d;
+    if (impact.t < impact.d) finisherImpacts[writeImpact++] = impact;
+  }
+  finisherImpacts.length = writeImpact;
+
+  let writeShot = 0,
+    nextFocus = null;
+  for (let index = 0; index < assistShots.length; index++) {
+    const shot = assistShots[index];
     if (shot.delay > 0) {
       const waiting = shot.delay;
       shot.delay = Math.max(0, shot.delay - d);
@@ -600,17 +606,20 @@ updateAssists = function (d) {
         combatSfx("finisherRelease", 1.08, shot.sourceId);
         screenFlash = Math.max(screenFlash || 0, 0.32);
       }
+    } else shot.t += d;
+    if (shot.delay <= 0 && shot.t >= shot.dur) {
+      if (shot.finisher) {
+        finisherImpacts.push({ ...shot, t: 0, d: 0.58 });
+        if (finisherImpacts.length > 2) finisherImpacts.shift();
+        combatSfx("finisherHit", 1.2, shot.sourceId);
+      }
+      resolveAssist(shot);
       continue;
     }
-    shot.t += d;
+    assistShots[writeShot++] = shot;
+    if (!nextFocus && shot.finisher) nextFocus = shot;
   }
-  const arrived = assistShots.filter(
-    (shot) => shot.delay <= 0 && shot.t >= shot.dur,
-  );
-  assistShots = assistShots.filter(
-    (shot) => shot.delay > 0 || shot.t < shot.dur,
-  );
-  const nextFocus = assistShots.find((shot) => shot.finisher) || null;
+  assistShots.length = writeShot;
   if (nextFocus !== finisherFocus) {
     finisherFocus = nextFocus;
     if (finisherFocus) {
@@ -649,14 +658,6 @@ updateAssists = function (d) {
   if (finisherFocus) {
     finisherFocus.focusT += d;
     battle.slow = Math.max(battle.slow || 0, 0.08);
-  }
-  for (const shot of arrived) {
-    if (shot.finisher) {
-      finisherImpacts.push({ ...shot, t: 0, d: 0.58 });
-      if (finisherImpacts.length > 2) finisherImpacts.shift();
-      combatSfx("finisherHit", 1.2, shot.sourceId);
-    }
-    resolveAssist(shot);
   }
 };
 function drawFinisherMotif(gate, heroX, heroY, release, alpha) {
@@ -1154,8 +1155,7 @@ function drawBladeWheels() {
   }
 }
 registerRuntimeHook("afterFeedbackUpdate", (d) => {
-  for (const burst of abilityBursts) burst.t += d;
-  abilityBursts = abilityBursts.filter((burst) => burst.t < burst.d);
+  advanceTimed(abilityBursts, d);
   if (settlementBeat) {
     settlementBeat.t += d;
     if (settlementBeat.t >= settlementBeat.d) settlementBeat = null;
@@ -1173,13 +1173,13 @@ registerRuntimeHook("afterSpecialDraw", () => {
   drawVictoryFx();
 });
 registerRuntimeHook("afterFeedbackUpdate", (d) => {
-  for (const beat of feedbackBeats) beat.t += d;
-  feedbackBeats = feedbackBeats.filter((beat) => beat.t < beat.d);
+  advanceTimed(feedbackBeats, d);
   feedbackCooldown = Math.max(0, feedbackCooldown - d);
 });
 function loop(t) {
   const d = Math.min(0.033, (t - last) / 1000 || 0);
   last = t;
+  frameClock = t;
   // Title, map and roster screens are DOM-only. Skipping the canvas solver,
   // texture draws and feedback scans there prevents an old battle state from
   // consuming a full frame budget behind an overlay. The time delta stays

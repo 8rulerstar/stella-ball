@@ -576,10 +576,9 @@ function hitBumper(b) {
 }
 function updateExpanded(d) {
   if (fieldFx.length > 12) fieldFx.splice(0, fieldFx.length - 12);
-  for (const f of fieldFx) f.t += d;
-  fieldFx = fieldFx.filter((f) => f.t < f.d);
-  barriers = barriers.filter((v) => (v.t -= d) > 0);
-  seeds = seeds.filter((v) => (v.t -= d) > 0);
+  advanceTimed(fieldFx, d);
+  tickTimed(barriers, d);
+  tickTimed(seeds, d);
   if (!ball?.moving) return;
   if (ball.gravity) {
     ball.gravity.t -= d;

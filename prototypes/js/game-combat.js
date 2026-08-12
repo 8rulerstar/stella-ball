@@ -64,12 +64,12 @@ function billiardAim(dx, dy) {
   const len = Math.hypot(dx, dy) || 1,
     base = Math.atan2(dy, dx);
   let best = null;
-  for (const target of [...gates, ...bumpers, boss]) {
+  const consider = (target) => {
     const tx = target.x - ball.x,
       ty = target.y - ball.y,
       d = Math.hypot(tx, ty);
-    if (d < 55 || d > 620) continue;
-    let delta = Math.atan2(
+    if (d < 55 || d > 620) return;
+    const delta = Math.atan2(
       Math.sin(Math.atan2(ty, tx) - base),
       Math.cos(Math.atan2(ty, tx) - base),
     );
@@ -78,7 +78,10 @@ function billiardAim(dx, dy) {
       (!best || Math.abs(delta) < Math.abs(best.delta))
     )
       best = { delta, target };
-  }
+  };
+  for (const gate of gates) consider(gate);
+  for (const bumper of bumpers) consider(bumper);
+  consider(boss);
   if (!best) return { x: dx / len, y: dy / len, assisted: false };
   const angle = base + best.delta * 0.58;
   return {
@@ -1019,12 +1022,7 @@ function splitRuneBall(g, incoming) {
   msg = g.s + "의 분열체도 별지기를 굴리고 고유 능력을 발동합니다.";
 }
 function redirectToNearestUnit(g) {
-  const target = gates
-    .filter((v) => v !== g)
-    .sort(
-      (a, b) =>
-        Math.hypot(a.x - g.x, a.y - g.y) - Math.hypot(b.x - g.x, b.y - g.y),
-    )[0];
+  const target = nearestGate(g, g.x, g.y);
   if (!target) return;
   const dx = target.x - ball.x,
     dy = target.y - ball.y,
@@ -1153,6 +1151,21 @@ function copyLastUnitAbility(a, b) {
   fieldFx.push({ type: "mirror", x: a.x, y: a.y, t: 0, d: 0.62, col: a.col });
   toast("닉스 · " + b.s + " 능력 모사");
 }
+function nearestGate(excluded, fromX, fromY) {
+  let target = null,
+    bestDistance = Infinity;
+  for (const gate of gates) {
+    if (gate === excluded) continue;
+    const dx = gate.x - fromX,
+      dy = gate.y - fromY,
+      distance = dx * dx + dy * dy;
+    if (distance < bestDistance) {
+      target = gate;
+      bestDistance = distance;
+    }
+  }
+  return target;
+}
 function activateCloneUnit(o, g, incoming) {
   if (o.contactCooldown > 0) return;
   o.contactCooldown = 0.14;
@@ -1176,12 +1189,7 @@ function activateCloneUnit(o, g, incoming) {
     emitAbilityFx(g, g.x, g.y, 112, 0.54, angle);
     toast("루미 · 분열체 추가 분열!");
   } else if (fx === "seek") {
-    const target = gates
-      .filter((v) => v !== g)
-      .sort(
-        (a, b) =>
-          Math.hypot(a.x - o.x, a.y - o.y) - Math.hypot(b.x - o.x, b.y - o.y),
-      )[0];
+    const target = nearestGate(g, o.x, o.y);
     if (target) {
       const dx = target.x - o.x,
         dy = target.y - o.y,
@@ -1479,15 +1487,28 @@ function mobileRect(o, r, rect, restitution, onHit) {
     ny = dy / (distance || 1),
     overlap = r - distance;
   if (distance < 0.001) {
-    const edge = [
-      { distance: Math.abs(o.x - left), nx: -1, ny: 0 },
-      { distance: Math.abs(right - o.x), nx: 1, ny: 0 },
-      { distance: Math.abs(o.y - top), nx: 0, ny: -1 },
-      { distance: Math.abs(bottom - o.y), nx: 0, ny: 1 },
-    ].sort((a, b) => a.distance - b.distance)[0];
-    nx = edge.nx;
-    ny = edge.ny;
-    overlap = r + edge.distance;
+    let edgeDistance = Math.abs(o.x - left);
+    nx = -1;
+    ny = 0;
+    const rightDistance = Math.abs(right - o.x),
+      topDistance = Math.abs(o.y - top),
+      bottomDistance = Math.abs(bottom - o.y);
+    if (rightDistance < edgeDistance) {
+      edgeDistance = rightDistance;
+      nx = 1;
+      ny = 0;
+    }
+    if (topDistance < edgeDistance) {
+      edgeDistance = topDistance;
+      nx = 0;
+      ny = -1;
+    }
+    if (bottomDistance < edgeDistance) {
+      edgeDistance = bottomDistance;
+      nx = 0;
+      ny = 1;
+    }
+    overlap = r + edgeDistance;
   }
   o.x += nx * (overlap + 0.2);
   o.y += ny * (overlap + 0.2);

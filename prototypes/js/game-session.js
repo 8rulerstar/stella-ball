@@ -701,53 +701,105 @@ function areaAttack(name, amount, col) {
   sync();
 }
 function syncBossHealth() {
-  U.hp.textContent = boss
+  const label = boss
     ? boss.immortal
       ? "체력 ∞"
       : "체력 " + Math.ceil(boss.hp)
     : "체력 —";
-  U.hpFill.style.transform =
+  const fill =
     "scaleX(" + (boss ? (boss.immortal ? 1 : boss.hp / boss.maxHp) : 0) + ")";
+  if (hudState.bossLabel !== label) {
+    U.hp.textContent = label;
+    hudState.bossLabel = label;
+  }
+  if (hudState.bossFill !== fill) {
+    U.hpFill.style.transform = fill;
+    hudState.bossFill = fill;
+  }
 }
+const hudState = {
+  bossLabel: null,
+  bossFill: null,
+  shots: null,
+  phase: null,
+  power: null,
+  chain: null,
+  tip: null,
+  summary: null,
+};
 function sync() {
-  U.shotsText.textContent = battle
+  const shotsText = battle
     ? battle.training || battle.tutorial
       ? "∞ · 관측 유성"
       : battle.shots + " / " + battle.shotMax
     : "—";
-  U.shotDots.innerHTML = battle
+  const shotsKey = battle
     ? battle.tutorial
-      ? "관측 유성 · 무제한"
-      : Array.from(
-          { length: battle.shotMax },
-          (_, i) =>
-            '<img class="shot-icon" src="../assets/library/ui/shot-dot-' +
-            (i < battle.shots ? "on" : "off") +
-            '.png" alt="' +
-            (i < battle.shots ? "사용 가능" : "사용 완료") +
-            '">',
-        ).join("")
-    : "—";
-  U.phase.textContent = battle
+      ? "tutorial"
+      : battle.shots + "/" + battle.shotMax
+    : "none";
+  if (hudState.shots !== shotsKey) {
+    U.shotsText.textContent = shotsText;
+    U.shotDots.innerHTML = battle
+      ? battle.tutorial
+        ? "관측 유성 · 무제한"
+        : Array.from(
+            { length: battle.shotMax },
+            (_, i) =>
+              '<img class="shot-icon" src="../assets/library/ui/shot-dot-' +
+              (i < battle.shots ? "on" : "off") +
+              '.png" alt="' +
+              (i < battle.shots ? "사용 가능" : "사용 완료") +
+              '">',
+          ).join("")
+      : "—";
+    hudState.shots = shotsKey;
+  }
+  const phase = battle
     ? battle.training
       ? "훈련 · 불멸의 거상"
       : battle.tutorial
         ? "관측 수업 · 공허 거상"
         : "전투 · 공허 거상"
     : "전투 준비";
+  if (hudState.phase !== phase) {
+    U.phase.textContent = phase;
+    hudState.phase = phase;
+  }
   syncBossHealth();
-  U.power.textContent = RULES.baseDamage + build.weakFlat;
-  U.chain.textContent = chain.length ? chain.join(" → ") : "—";
-  U.tip.innerHTML = msg;
-  U.summary.innerHTML = deployed
-    .map((id, i) => {
-      const h = heroes[id],
-        zone = ZONE_RULES[i];
-      return (
-        "<div><b>" + zone.name + "</b><br>" + h.n + " · " + zone.hint + "</div>"
-      );
-    })
-    .join("");
+  const power = RULES.baseDamage + build.weakFlat;
+  if (hudState.power !== power) {
+    U.power.textContent = power;
+    hudState.power = power;
+  }
+  const chained = chain.length ? chain.join(" → ") : "—";
+  if (hudState.chain !== chained) {
+    U.chain.textContent = chained;
+    hudState.chain = chained;
+  }
+  if (hudState.tip !== msg) {
+    U.tip.textContent = msg;
+    hudState.tip = msg;
+  }
+  const summaryKey = deployed.join("|");
+  if (hudState.summary !== summaryKey) {
+    U.summary.innerHTML = deployed
+      .map((id, i) => {
+        const h = heroes[id],
+          zone = ZONE_RULES[i];
+        return (
+          "<div><b>" +
+          zone.name +
+          "</b><br>" +
+          h.n +
+          " · " +
+          zone.hint +
+          "</div>"
+        );
+      })
+      .join("");
+    hudState.summary = summaryKey;
+  }
 }
 function pointer(e) {
   const r = c.getBoundingClientRect();
