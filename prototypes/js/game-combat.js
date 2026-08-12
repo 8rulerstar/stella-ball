@@ -526,6 +526,10 @@ function billiardPointerDown(e) {
     msg = "세라 · 전환 명령으로 운동량을 크게 얻었습니다.";
     return;
   }
+  if (e.button === 0 && labSteerBoost(p.x, p.y)) {
+    e.preventDefault();
+    return;
+  }
   if (e.button === 2 && ball.nudgeCooldown <= 0) {
     e.preventDefault();
     const dx = ball.x - p.x,
@@ -581,7 +585,7 @@ function billiardPointerUp(e) {
   }
   const force = clamp(l / 260, 0.28, 1),
     aim = billiardAim(dx, dy),
-    speed = 750 + force * 975;
+    speed = LAB.launchBase + force * LAB.launchScale;
   ball.launchPower = force;
   ball.vx = aim.x * speed;
   ball.vy = aim.y * speed;
@@ -1592,12 +1596,12 @@ function mobileWall(o, r, unit = null) {
   let hit = false;
   if (o.x < r || o.x > W - r) {
     o.x = clamp(o.x, r, W - r);
-    o.vx *= -0.94;
+    o.vx *= -LAB.wallRest;
     hit = true;
   }
   if (o.y < r || o.y > H - r) {
     o.y = clamp(o.y, r, H - r);
-    o.vy *= -0.94;
+    o.vy *= -LAB.wallRest;
     hit = true;
   }
   if (hit) {
@@ -2071,7 +2075,7 @@ simulatePhysics = function (d) {
     }
     ball.x += ball.vx * step;
     ball.y += ball.vy * step;
-    const cueDrag = Math.pow(0.9915, step * 60);
+    const cueDrag = Math.pow(LAB.ballFriction, step * 60);
     ball.vx *= cueDrag;
     ball.vy *= cueDrag;
     tickGimmickCooldowns(ball, step);
@@ -2113,16 +2117,16 @@ simulatePhysics = function (d) {
           uy = incoming.y / speed,
           ballDrive = 495 + Math.min(450, impactSpeed * 0.63),
           unitDrive = 310 + Math.min(270, impactSpeed * 0.38),
-          ballDx = -nx * ballDrive + ux * 225,
-          ballDy = -ny * ballDrive + uy * 225,
-          unitDx = nx * unitDrive + ux * 135,
-          unitDy = ny * unitDrive + uy * 135;
+          ballDx = -nx * ballDrive + ux * LAB.ballSlide,
+          ballDy = -ny * ballDrive + uy * LAB.ballSlide,
+          unitDx = nx * unitDrive + ux * LAB.unitSlide,
+          unitDy = ny * unitDrive + uy * LAB.unitSlide;
         ball.vx += ballDx;
         ball.vy += ballDy;
         g.vx += unitDx;
         g.vy += unitDy;
-        guaranteeMomentum(ball, ballDx, ballDy, 915, 2220);
-        guaranteeMomentum(g, unitDx, unitDy, 410, 1080);
+        guaranteeMomentum(ball, ballDx, ballDy, LAB.ballFloor, LAB.ballCap);
+        guaranteeMomentum(g, unitDx, unitDy, LAB.unitFloor, LAB.unitCap);
         ball.power += 0.48;
         ball.bounces++;
         wakeUnit(g);
@@ -2344,3 +2348,177 @@ drawAimGuide = function () {
   x.restore();
 };
 registerRuntimeHook("afterDraw", drawCloneBalls);
+// --- Training physics lab (prototype, 2026-08-12) -------------------------
+// The infinite training table doubles as a tuning lab: keys 1/2/3 there swap
+// between the live numbers and two softer sets where weak shots stay weak,
+// and the meteor gains a two-charge steering boost (unused charges pay out as
+// constellation multiplier at settlement).  Normal battles always reset to
+// the live set, so the campaign is untouched until a set is promoted.
+const LAB_SETS = {
+  base: {
+    name: "기준(현행)",
+    launchBase: 750,
+    launchScale: 975,
+    ballFloor: 915,
+    ballCap: 2220,
+    unitFloor: 410,
+    unitCap: 1080,
+    ballSlide: 225,
+    unitSlide: 135,
+    wallRest: 0.94,
+    ballFriction: 0.9915,
+    boost: false,
+  },
+  A: {
+    name: "A안 · 보수",
+    launchBase: 620,
+    launchScale: 1180,
+    ballFloor: 700,
+    ballCap: 1900,
+    unitFloor: 320,
+    unitCap: 1080,
+    ballSlide: 150,
+    unitSlide: 95,
+    wallRest: 0.9,
+    ballFriction: 0.9901,
+    boost: true,
+  },
+  B: {
+    name: "B안 · 과감",
+    launchBase: 520,
+    launchScale: 1330,
+    ballFloor: 560,
+    ballCap: 1750,
+    unitFloor: 260,
+    unitCap: 1080,
+    ballSlide: 90,
+    unitSlide: 60,
+    wallRest: 0.86,
+    ballFriction: 0.9878,
+    boost: true,
+  },
+};
+let labSetId = "base";
+const LAB = { ...LAB_SETS.base };
+function applyLabSet(id, silent = false) {
+  if (!LAB_SETS[id]) return;
+  labSetId = id;
+  Object.assign(LAB, LAB_SETS[id]);
+  if (silent) return;
+  toast("실험 세트 · " + LAB.name);
+  sync();
+}
+// Steering, not thrust: the click blends the flight direction toward the
+// cursor and tops the speed up, so even a slow meteor answers the input.
+function labSteerBoost(px, py) {
+  if (!battle?.training || !LAB.boost || !ball?.moving) return false;
+  ball.labBoost ??= 2;
+  if (ball.labBoost <= 0) return false;
+  const speed = Math.hypot(ball.vx, ball.vy) || 1,
+    dx = px - ball.x,
+    dy = py - ball.y,
+    l = Math.hypot(dx, dy) || 1;
+  let nx = (ball.vx / speed) * 0.45 + (dx / l) * 0.55,
+    ny = (ball.vy / speed) * 0.45 + (dy / l) * 0.55;
+  const nl = Math.hypot(nx, ny) || 1,
+    boosted = Math.min(LAB.ballCap, speed + 320);
+  ball.vx = (nx / nl) * boosted;
+  ball.vy = (ny / nl) * boosted;
+  ball.labBoost--;
+  ball.runeBurst = 0.7;
+  impactStop = Math.max(impactStop, 0.07);
+  fieldFx.push({
+    type: "relay",
+    x: ball.x,
+    y: ball.y,
+    t: 0,
+    d: 0.4,
+    col: "#8af4ef",
+  });
+  addPopup(ball.x, ball.y - 30, "조타! 잔여 " + ball.labBoost, "#8af4ef", true);
+  combatSfx?.("launch", 0.55);
+  return true;
+}
+const labEndShot = endShot;
+endShot = function () {
+  // Award the thrift bonus before settlement so the awakening assists queue
+  // with the raised multiplier.
+  if (battle?.training && LAB.boost && ball?.moving) {
+    const remaining = ball.labBoost ?? 2;
+    if (remaining > 0)
+      earnBlaze(
+        0.4 * remaining,
+        "조타 절약 +" + (0.4 * remaining).toFixed(1),
+      );
+  }
+  labEndShot();
+};
+const labSetupBattle = setupBattle;
+setupBattle = function () {
+  labSetupBattle();
+  if (!battle?.training) applyLabSet("base", true);
+  else applyLabSet(labSetId, true);
+};
+function enterTrainingLab() {
+  const trainingIndex = stages.findIndex((stage) => stage.training);
+  if (trainingIndex < 0) return;
+  stageIndex = trainingIndex;
+  const owned =
+    typeof ownedHeroIds === "function" ? ownedHeroIds() : Object.keys(heroes);
+  deployed = deployed.filter((id) => owned.includes(id)).slice(0, 3);
+  for (const id of owned) {
+    if (deployed.length >= 3) break;
+    if (!deployed.includes(id)) deployed.push(id);
+  }
+  selected = [...deployed];
+  resetBuild();
+  primeCombatTextures();
+  setupBattle();
+  toast("훈련장 물리 실험 · 1/2/3 키로 세트 전환");
+}
+addEventListener("keydown", (e) => {
+  if (typeof paused !== "undefined" && paused) return;
+  if (
+    typeof isOnboardingSessionActive === "function" &&
+    isOnboardingSessionActive()
+  )
+    return;
+  if (battle?.training && run) {
+    if (e.key === "1") return applyLabSet("base");
+    if (e.key === "2") return applyLabSet("A");
+    if (e.key === "3") return applyLabSet("B");
+  } else if (
+    e.key.toLowerCase() === "t" &&
+    !run &&
+    (isRuntimeScene("meta") || isRuntimeScene("title") || isRuntimeScene("menu"))
+  ) {
+    enterTrainingLab();
+  }
+});
+registerRuntimeHook("afterSpecialDraw", function drawLabHud() {
+  if (!battle?.training) return;
+  x.save();
+  x.font = "bold 10px ui-monospace";
+  x.textAlign = "left";
+  x.fillStyle = "#9adfc9";
+  x.fillText(
+    "물리 실험 · " + LAB.name + " — [1]기준 [2]A안 [3]B안",
+    14,
+    20,
+  );
+  if (LAB.boost && ball?.moving) {
+    const charges = ball.labBoost ?? 2;
+    for (let i = 0; i < 2; i++) {
+      x.fillStyle = i < charges ? "#8af4ef" : "#27434b";
+      x.beginPath();
+      x.arc(ball.x - 8 + i * 16, ball.y + 26, 4, 0, Math.PI * 2);
+      x.fill();
+    }
+    if (charges > 0) {
+      x.fillStyle = "#8af4ef";
+      x.textAlign = "center";
+      x.fillText("클릭 · 조타", ball.x, ball.y + 42);
+    }
+  }
+  x.restore();
+});
