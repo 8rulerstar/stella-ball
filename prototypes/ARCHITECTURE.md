@@ -18,15 +18,17 @@ The browser build deliberately uses ordered classic scripts instead of a bundler
 
 The files under `js/` load in this exact order and share the browser global scope:
 
-1. `game-data.js` — canvas/DOM bindings, balance constants, heroes, stages, asset paths, upgrades, shared mutable state, and small shared helpers.
-2. `game-session.js` — base battle lifecycle, roster/deployment screens, initial screen flow, and the shared title/home presentation.
-3. `game-core-physics.js` — the base solver, collisions, moving entities, and shot settlement.
-4. `game-core-render.js` — base combat drawing, HUD updates, canvas effects, and shared rendering helpers.
-5. `game-meta.js` — settings, achievements, stage select, replay tutorial, and meta-screen enhancements.
-6. `game-combat.js` — billiards controls and prediction, constellation multiplier, hero abilities, and combat-specific extensions.
-7. `game-feedback.js` — impact pauses, particles, layered sample/procedural SFX, combo presentation, ability/finisher/victory effects, and the final animation loop.
-8. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions.
-9. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
+1. `game-platform.js` — dependency-free safe local persistence and active scene lifecycle.
+2. `game-data.js` — canvas/DOM bindings, balance constants, heroes, stages, asset paths, upgrades, shared mutable state, and small shared helpers.
+3. `game-ui.js` — reusable DOM presentation helpers: scene classes and pixel portrait setup.
+4. `game-session.js` — base battle lifecycle, roster/deployment screens, initial screen flow, and the shared title/home presentation.
+5. `game-core-physics.js` — the base solver, collisions, moving entities, and shot settlement.
+6. `game-core-render.js` — base combat drawing, HUD updates, canvas effects, and shared rendering helpers.
+7. `game-meta.js` — settings, achievements, stage select, replay tutorial, and meta-screen enhancements.
+8. `game-combat.js` — billiards controls and prediction, constellation multiplier, hero abilities, and combat-specific extensions.
+9. `game-feedback.js` — impact pauses, particles, layered sample/procedural SFX, combo presentation, ability/finisher/victory effects, and the final animation loop.
+10. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions.
+11. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
 
 ## Important maintenance rule
 
@@ -43,6 +45,8 @@ When adding code:
 - Keep `game-bootstrap.js` minimal; it should only start the runtime.
 
 `renderTitlePresentation()` in `game-session.js` is the single renderer for the main constellation screen. `game-onboarding.js` may override the CTA behavior for first-run/replay progression, but should not duplicate the title markup. Stage definitions live in `game-data.js`; `setupBattle()` maps the selected stage's `bumpers` into runtime objects. `1-2` intentionally contains only the resonance-bumper gimmick.
+
+`setScene()` is the only way to change a major screen. It updates the body class and `game-platform.js` scene lifecycle together. The animation loop therefore runs canvas simulation and drawing only while the game scene is active; title, map, roster and browser-hidden states keep only the minimal `requestAnimationFrame` wake-up.
 
 ## Verification
 

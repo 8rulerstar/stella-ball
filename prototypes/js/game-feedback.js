@@ -1180,6 +1180,22 @@ registerRuntimeHook("afterFeedbackUpdate", (d) => {
 function loop(t) {
   const d = Math.min(0.033, (t - last) / 1000 || 0);
   last = t;
+  // Title, map and roster screens are DOM-only. Skipping the canvas solver,
+  // texture draws and feedback scans there prevents an old battle state from
+  // consuming a full frame budget behind an overlay. The time delta stays
+  // capped, so returning from a hidden tab cannot advance combat abruptly.
+  if (document.hidden) {
+    requestAnimationFrame(loop);
+    return;
+  }
+  if (!isRuntimeScene("game")) {
+    // Let short-lived feedback expire after leaving combat, but do not keep
+    // physics or any canvas draw work alive behind DOM-only screens.
+    impactStop = 0;
+    updateFeedback(d);
+    requestAnimationFrame(loop);
+    return;
+  }
   if (impactStop > 0) impactStop -= d;
   else {
     // A continuous time scale reads as smooth slow motion.  Hit-stop remains

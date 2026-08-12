@@ -7,50 +7,28 @@ const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
 const PARTY_SLOT_STORAGE = "stella-ball.party-slots.v1";
 let constellationReveal = null;
 function markStoryIntroSeen() {
-  try {
-    localStorage.setItem(STORY_INTRO_STORAGE, "1");
-  } catch {}
+  appStorage.writeText(STORY_INTRO_STORAGE, "1");
 }
 function hasSeenStoryIntro() {
-  try {
-    return localStorage.getItem(STORY_INTRO_STORAGE) === "1";
-  } catch {
-    return false;
-  }
+  return appStorage.readText(STORY_INTRO_STORAGE) === "1";
 }
 function markOnboardingSeen() {
-  try {
-    localStorage.setItem(ONBOARDING_STORAGE, "1");
-  } catch {}
+  appStorage.writeText(ONBOARDING_STORAGE, "1");
 }
 function hasSeenOnboarding() {
-  try {
-    return localStorage.getItem(ONBOARDING_STORAGE) === "1";
-  } catch {
-    return false;
-  }
+  return appStorage.readText(ONBOARDING_STORAGE) === "1";
 }
 function hasOnboardingClear() {
-  try {
-    return localStorage.getItem(ONBOARDING_CLEAR_STORAGE) === "1";
-  } catch {
-    return false;
-  }
+  return appStorage.readText(ONBOARDING_CLEAR_STORAGE) === "1";
 }
 function hasThirdPartySlot() {
-  try {
-    return localStorage.getItem(PARTY_SLOT_STORAGE) === "3";
-  } catch {
-    return false;
-  }
+  return appStorage.readText(PARTY_SLOT_STORAGE) === "3";
 }
 function partySlotCount() {
   return hasThirdPartySlot() ? 3 : 2;
 }
 function unlockThirdPartySlot() {
-  try {
-    localStorage.setItem(PARTY_SLOT_STORAGE, "3");
-  } catch {}
+  appStorage.writeText(PARTY_SLOT_STORAGE, "3");
 }
 let onboarding = null;
 function isOnboardingInputLocked() {
@@ -360,7 +338,7 @@ function completeOnboarding() {
   unlockThirdPartySlot();
   if (firstClear) {
     try {
-      localStorage.setItem(ONBOARDING_CLEAR_STORAGE, "1");
+      appStorage.writeText(ONBOARDING_CLEAR_STORAGE, "1");
     } catch {}
     progress.clears++;
     saveProgress();
@@ -539,11 +517,11 @@ showMeta = function () {
     stage.id +
     '</small></div><div class="hub-battle-copy"><small>오늘의 메인 관측</small><h2>' +
     stage.name +
-    '</h2><p>' +
+    "</h2><p>" +
     stage.terrain +
     '</p><div class="hub-battle-tags"><span>유성 ' +
     RULES.shots +
-    '발</span><span>' +
+    "발</span><span>" +
     stageRule +
     '</span></div></div><button class="hub-stage-change" id="hubStageSelect">스테이지 변경</button><button class="hub-battle-play" id="hubStartBattle"><img src="' +
     metaArt.play +

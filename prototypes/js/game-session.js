@@ -97,35 +97,6 @@ function startShot() {
   chain = [];
   drag = null;
 }
-function setPortrait(el, h, size = 56) {
-  if (h.cuteSprite) {
-    el.style.backgroundImage = 'url("' + h.cuteSprite + '")';
-    el.style.backgroundSize = "100% 100%";
-    el.style.backgroundPosition = "0 0";
-    return;
-  }
-  el.style.backgroundImage = 'url("' + h.sprite + '")';
-  if (h.portraitScale) {
-    const portraitSize = size * h.portraitScale;
-    el.style.backgroundSize = portraitSize + "px " + portraitSize + "px";
-    el.style.backgroundPosition = "center";
-    return;
-  }
-  if (h.atlas) {
-    el.style.backgroundSize = size * 2 + "px " + size * 2 + "px";
-    el.style.backgroundPosition =
-      -h.atlas[0] * size + "px " + -h.atlas[1] * size + "px";
-  } else {
-    el.style.backgroundSize = h.frames * size + "px " + size + "px";
-    el.style.backgroundPosition = "0 0";
-  }
-}
-function setScene(scene) {
-  document.body.classList.toggle("title-mode", scene === "title");
-  document.body.classList.toggle("meta-mode", scene === "meta");
-  document.body.classList.toggle("menu-mode", scene === "menu");
-  document.body.classList.toggle("game-mode", scene === "game");
-}
 let titleSequence = 0;
 function renderTitlePresentation() {
   const sequence = ++titleSequence;
@@ -382,38 +353,38 @@ function showRoster() {
     Object.entries(heroes)
       .filter(([id]) => owned.includes(id))
       .forEach(([id, h]) => {
-      const on = selected.includes(id),
-        b = document.createElement("button");
-      b.className = "roster-unit" + (on ? " active" : "");
-      b.style.setProperty("--unit", h.col);
-      b.setAttribute("aria-pressed", on);
-      const icon = skillIcon(id);
-      b.innerHTML =
-        '<span class="portrait"></span><b>' +
-        h.s +
-        "</b>" +
-        (icon
-          ? '<img class="unit-skill" src="' + icon + '" alt="' + h.e + '">'
-          : "");
-      setPortrait(b.querySelector(".portrait"), h, 42);
-      b.onpointerenter = () => {
-        rosterFocus = id;
-        renderDetail();
-      };
-      b.onclick = () => {
-        if (on) selected = selected.filter((v) => v !== id);
-        else if (selected.length < slotCount) selected.push(id);
-        else {
-          toast("파티는 " + slotCount + "명까지 선택할 수 있습니다.");
+        const on = selected.includes(id),
+          b = document.createElement("button");
+        b.className = "roster-unit" + (on ? " active" : "");
+        b.style.setProperty("--unit", h.col);
+        b.setAttribute("aria-pressed", on);
+        const icon = skillIcon(id);
+        b.innerHTML =
+          '<span class="portrait"></span><b>' +
+          h.s +
+          "</b>" +
+          (icon
+            ? '<img class="unit-skill" src="' + icon + '" alt="' + h.e + '">'
+            : "");
+        setPortrait(b.querySelector(".portrait"), h, 42);
+        b.onpointerenter = () => {
           rosterFocus = id;
           renderDetail();
-          return;
-        }
-        rosterFocus = id;
-        renderParty();
-        renderRoster();
-        renderDetail();
-      };
+        };
+        b.onclick = () => {
+          if (on) selected = selected.filter((v) => v !== id);
+          else if (selected.length < slotCount) selected.push(id);
+          else {
+            toast("파티는 " + slotCount + "명까지 선택할 수 있습니다.");
+            rosterFocus = id;
+            renderDetail();
+            return;
+          }
+          rosterFocus = id;
+          renderParty();
+          renderRoster();
+          renderDetail();
+        };
         box.append(b);
       });
   };

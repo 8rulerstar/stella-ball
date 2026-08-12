@@ -18,7 +18,9 @@ const expectedStyles = [
 ];
 const expectedScripts = [
   "../hive/prism-hive-client.js",
+  "./js/game-platform.js",
   "./js/game-data.js",
+  "./js/game-ui.js",
   "./js/game-session.js",
   "./js/game-core-physics.js",
   "./js/game-core-render.js",

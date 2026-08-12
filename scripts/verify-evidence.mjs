@@ -8,7 +8,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const demoPath = resolve(root, "prototypes/prism-breakers.html");
 const source = readFileSync(demoPath, "utf8");
 const gameFiles = [
+  "prototypes/js/game-platform.js",
   "prototypes/js/game-data.js",
+  "prototypes/js/game-ui.js",
   "prototypes/js/game-session.js",
   "prototypes/js/game-core-physics.js",
   "prototypes/js/game-core-render.js",

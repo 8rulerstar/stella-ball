@@ -643,11 +643,18 @@ const runtimeHooks = {
 function registerRuntimeHook(name, callback) {
   const hooks = runtimeHooks[name];
   if (!hooks) throw new Error(`Unknown runtime hook: ${name}`);
+  if (hooks.includes(callback)) return () => {};
   hooks.push(callback);
+  return () => {
+    const index = hooks.indexOf(callback);
+    if (index >= 0) hooks.splice(index, 1);
+  };
 }
 
 function runRuntimeHooks(name, ...args) {
-  for (const callback of runtimeHooks[name]) callback(...args);
+  // Snapshot the list so a hook may unregister itself without skipping the
+  // next extension in the same frame.
+  for (const callback of [...runtimeHooks[name]]) callback(...args);
 }
 
 primeCombatTextures();

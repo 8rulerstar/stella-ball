@@ -11,7 +11,9 @@
 
 - `prototypes/prism-breakers.html` contains stable DOM and the ordered script list.
 - `prototypes/prism-breakers-*.css` are ordered presentation layers: foundation, interface, combat, story, then polish.
+- `prototypes/js/game-platform.js` owns safe local persistence and active scene lifecycle.
 - `prototypes/js/game-data.js` owns shared data and state.
+- `prototypes/js/game-ui.js` owns reusable DOM presentation helpers such as portrait setup and scene classes.
 - `prototypes/js/game-session.js` owns battle lifecycle and base screen flow.
 - `prototypes/js/game-core-physics.js` owns the base solver and moving entities.
 - `prototypes/js/game-core-render.js` owns base combat drawing and HUD feedback.
@@ -26,6 +28,7 @@ These are ordered classic scripts sharing one global scope. Do not reorder their
 ## Safe changes
 
 - Put roster, stage, asset-path, and balance changes in `game-data.js`.
+- Put new browser storage or scene lifecycle behavior in `game-platform.js`; put reusable DOM presentation behavior in `game-ui.js`.
 - Put gameplay-rule changes in `game-combat.js`.
 - Put tutorial changes in `game-onboarding.js`.
 - Register render or feedback work with `registerRuntimeHook()` instead of replacing `draw`, `drawArena`, `drawSpecial`, or `updateFeedback`.

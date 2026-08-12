@@ -115,29 +115,14 @@ const META_COPY = {
 };
 const SETTINGS_STORAGE = "prism-breakers.settings.v1",
   PROGRESS_STORAGE = "prism-breakers.progress.v1";
-function readStored(key, fallback) {
-  try {
-    const value = JSON.parse(localStorage.getItem(key));
-    return value && typeof value === "object"
-      ? { ...fallback, ...value }
-      : { ...fallback };
-  } catch {
-    return { ...fallback };
-  }
-}
-function writeStored(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
-}
-let settings = readStored(SETTINGS_STORAGE, {
+let settings = appStorage.readRecord(SETTINGS_STORAGE, {
   language: "ko",
   master: 0.7,
   bgm: 0.28,
   sfx: 0.65,
 });
 if (document.documentElement) document.documentElement.lang = settings.language;
-let progress = readStored(PROGRESS_STORAGE, {
+let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   clears: 0,
   gold: 0,
   ownedHeroes: [...STARTER_HERO_IDS],
@@ -148,13 +133,13 @@ let progress = readStored(PROGRESS_STORAGE, {
 const tr = (key) =>
   META_COPY[settings.language]?.[key] ?? META_COPY.ko[key] ?? key;
 function saveSettings() {
-  writeStored(SETTINGS_STORAGE, settings);
+  appStorage.writeRecord(SETTINGS_STORAGE, settings);
   if (document.documentElement)
     document.documentElement.lang = settings.language;
   syncAudio();
 }
 function saveProgress() {
-  writeStored(PROGRESS_STORAGE, progress);
+  appStorage.writeRecord(PROGRESS_STORAGE, progress);
 }
 function goldBalance() {
   return Math.max(0, Math.floor(Number(progress.gold) || 0));
