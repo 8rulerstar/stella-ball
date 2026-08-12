@@ -690,6 +690,174 @@ function showAchievements() {
       showAchievements();
     };
 }
+// Profile gathers identity, the record board and the mailbox in one tab.  The
+// board is local-only today; Hive would replace the source without changing
+// this surface, so nothing here claims a live connection.
+const MAILBOX_STORAGE = "stella-ball.mailbox.v1";
+function mailboxEntries() {
+  const stored = appStorage.readRecord(MAILBOX_STORAGE, { items: [] });
+  return Array.isArray(stored.items) ? stored.items : [];
+}
+function saveMailbox(items) {
+  appStorage.writeRecord(MAILBOX_STORAGE, { items });
+}
+function pushMail(title, body, gold = 0) {
+  const items = mailboxEntries();
+  items.unshift({
+    id: "mail-" + (items.length + 1) + "-" + title,
+    title,
+    body,
+    gold,
+    read: false,
+  });
+  saveMailbox(items.slice(0, 20));
+}
+function unreadMailCount() {
+  return mailboxEntries().filter((m) => !m.read).length;
+}
+function claimMail(id) {
+  const items = mailboxEntries(),
+    entry = items.find((m) => m.id === id);
+  if (!entry || entry.read) return null;
+  entry.read = true;
+  if (entry.gold > 0) {
+    progress.gold = goldBalance() + entry.gold;
+    saveProgress();
+  }
+  saveMailbox(items);
+  return entry;
+}
+function localLeaderboard() {
+  const rows = [
+    {
+      name: "PLAYER 01",
+      you: true,
+      clears: progress.clears || 0,
+      best: progress.bestTime || 0,
+      shots: progress.bestShots < 99 ? progress.bestShots : 0,
+    },
+  ];
+  return rows;
+}
+function showProfile() {
+  run = false;
+  drag = null;
+  setScene("menu");
+  const mail = mailboxEntries(),
+    unread = unreadMailCount(),
+    rows = localLeaderboard()
+      .map(
+        (r) =>
+          '<tr class="' +
+          (r.you ? "you" : "") +
+          '"><td>1</td><td>' +
+          r.name +
+          "</td><td>" +
+          r.clears +
+          "</td><td>" +
+          formatRunTime(r.best) +
+          "</td><td>" +
+          (r.shots ? r.shots + "발" : "—") +
+          "</td></tr>",
+      )
+      .join(""),
+    mailCards = mail.length
+      ? mail
+          .map(
+            (m) =>
+              '<article class="mail-item' +
+              (m.read ? " read" : "") +
+              '"><div><b>' +
+              m.title +
+              "</b><small>" +
+              m.body +
+              "</small></div>" +
+              (m.read
+                ? '<span class="mail-state">수령 완료</span>'
+                : '<button data-mail="' +
+                  m.id +
+                  '">' +
+                  (m.gold ? "수령 · " + m.gold + " 골드" : "확인") +
+                  "</button>") +
+              "</article>",
+          )
+          .join("")
+      : '<p class="mail-empty">받은 우편이 없습니다.</p>';
+  U.over.className = "overlay profile-scene";
+  U.over.innerHTML =
+    '<section class="profile-shell"><div class="profile-head"><button id="profileBack">뒤로</button><span><small>OBSERVATORY ID</small><b>PLAYER 01</b></span></div><div class="profile-grid"><section class="profile-panel"><div class="panel-title"><small>PROFILE</small><h2>관측자 기록</h2></div><div class="profile-stats"><div class="profile-stat"><small>되찾은 별</small><b>' +
+    (progress.clears || 0) +
+    '</b></div><div class="profile-stat"><small>최단 시간</small><b>' +
+    formatRunTime(progress.bestTime) +
+    '</b></div><div class="profile-stat"><small>최소 발사</small><b>' +
+    (progress.bestShots < 99 ? progress.bestShots + "발" : "—") +
+    '</b></div><div class="profile-stat"><small>보유 골드</small><b>' +
+    goldBalance() +
+    '</b></div><div class="profile-stat"><small>별지기</small><b>' +
+    ownedHeroIds().length +
+    " / " +
+    Object.keys(heroes).length +
+    '</b></div><div class="profile-stat"><small>도색</small><b>' +
+    ownedSkinIds().length +
+    " / " +
+    METEOR_SKINS.length +
+    '</b></div></div><button class="profile-exit" id="profileToTitle">타이틀 화면으로</button></section><section class="profile-panel"><div class="panel-title"><small>LEADERBOARD</small><h2>오늘의 밤하늘 순위</h2></div><table class="rank-table"><thead><tr><th>#</th><th>관측자</th><th>별</th><th>최단</th><th>최소</th></tr></thead><tbody>' +
+    rows +
+    '</tbody></table><p class="rank-note">현재는 이 브라우저에 저장된 <b>로컬 기록</b>입니다. Hive 리더보드 연동은 준비 중이며, 연동되면 같은 표에 다른 관측자의 기록이 함께 표시됩니다.</p></section><section class="profile-panel mail-panel"><div class="panel-title"><small>MAILBOX</small><h2>우편함' +
+    (unread ? ' <i class="claim-badge">' + unread + "</i>" : "") +
+    '</h2></div><div class="mail-list">' +
+    mailCards +
+    "</div></section></div></section>";
+  document.querySelector("#profileBack").onclick = () => {
+    playSfx();
+    showMeta();
+  };
+  document.querySelector("#profileToTitle").onclick = () => {
+    playSfx();
+    showConfirm({
+      kicker: "TITLE",
+      title: "타이틀 화면으로 나갈까요?",
+      body: "진행한 기록은 저장되어 있습니다. 타이틀에서 다시 이어서 관측할 수 있습니다.",
+      confirmLabel: "타이틀로 나가기",
+      onConfirm: () => showTitle(),
+      onCancel: () => showProfile(),
+    });
+  };
+  for (const button of document.querySelectorAll("[data-mail]"))
+    button.onclick = () => {
+      const entry = claimMail(button.dataset.mail);
+      if (!entry) return;
+      if (entry.gold > 0)
+        rewardToast("우편 수령", "+" + entry.gold + " 골드", entry.title);
+      else playSfx("confirm");
+      showProfile();
+    };
+}
+// The shopkeeper reacts to what the player can afford, so the tab has a voice
+// without needing a new screen or a dialogue system.
+const SHOP_KEEPER_LINES = {
+  broke: [
+    "골드가 모자라네. 별 하나 더 되찾아 오면 그때 얘기하지.",
+    "빈손으로는 색을 못 내. 보상함부터 비우고 오게.",
+  ],
+  ready: [
+    "유성은 결국 자네 손에서 끝나. 색 정도는 마음에 들어야지.",
+    "밤하늘에 그을 선인데, 아무 색이나 쓸 텐가?",
+  ],
+  collector: [
+    "제법 모았군. 남은 건 자네가 어떤 밤을 좋아하느냐뿐이야.",
+    "이 정도면 관측소에서 제일 화려한 유성일세.",
+  ],
+};
+function shopKeeperLine(ownedCount, gold) {
+  const pool =
+    ownedCount >= METEOR_SKINS.length
+      ? SHOP_KEEPER_LINES.collector
+      : gold < ECONOMY.skinCost
+        ? SHOP_KEEPER_LINES.broke
+        : SHOP_KEEPER_LINES.ready;
+  return pool[(progress.clears || 0) % pool.length];
+}
 function showShop() {
   run = false;
   drag = null;
@@ -746,7 +914,9 @@ function showShop() {
   U.over.innerHTML =
     '<section class="shop-shell"><div class="shop-head"><button id="shopBack">뒤로</button><span><small>관측소 상점</small><b>보유 골드 ' +
     gold +
-    '</b></span></div><div class="shop-intro"><small>METEOR SKINS</small><h2>유성 도색</h2><p>겉모습만 바뀝니다. 피해·속도·물리에는 영향이 없습니다.</p></div><div class="shop-grid">' +
+    '</b></span></div><div class="shop-keeper"><span class="shop-keeper-art" aria-hidden="true">☄</span><div><small>도색장 · 오르</small><p>' +
+    shopKeeperLine(owned.length, gold) +
+    '</p></div></div><div class="shop-intro"><small>METEOR SKINS</small><h2>유성 도색</h2><p>겉모습만 바뀝니다. 피해·속도·물리에는 영향이 없습니다.</p></div><div class="shop-grid">' +
     cards +
     "</div></section>";
   document.querySelector("#shopBack").onclick = () => {
@@ -1010,6 +1180,13 @@ showMeta = function () {
 };
 // One list drives both the full map screen and the hub's inline map, so a
 // stage unlock never has to be edited in two places.
+// A campaign node counts as cleared once the run total has reached its index.
+// 1-1 is the lesson, so it reads cleared from the onboarding flag instead.
+function isStageCleared(entry) {
+  if (entry.onboarding) return hasOnboardingClear();
+  if (entry.locked) return false;
+  return (progress.clears || 0) >= (entry.clearRank ?? 1) + 1;
+}
 function constellationMapStages() {
   return [
     {
@@ -1025,13 +1202,15 @@ function constellationMapStages() {
       note: "신규 기믹 · 공명 범퍼",
       mark: "✧",
       stage: 1,
+      clearRank: 1,
     },
     {
       id: "1-3",
       name: "침식의 계단",
-      note: "다음 관측 지점",
+      note: "신규 기믹 · 반사 벽 + 공허 잔재",
       mark: "★",
-      locked: true,
+      stage: 2,
+      clearRank: 2,
     },
     {
       id: "2-1",

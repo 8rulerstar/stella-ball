@@ -485,18 +485,26 @@ showMeta = function () {
   const clear = progress.clears || 0,
     gold = goldBalance(),
     best = formatRunTime(progress.bestTime),
-    bumperCount = stageData.bumpers?.length || 0,
+    gimmicks = stageData.gimmicks ?? {},
     stageRule = mapStage.onboarding
       ? "루나의 관측 수업"
-      : bumperCount
-        ? "공명 범퍼 × " + bumperCount
-        : "별자리 전술";
+      : [
+          stageData.bumpers?.length && "공명 범퍼 ×" + stageData.bumpers.length,
+          gimmicks.walls?.length && "반사 벽 ×" + gimmicks.walls.length,
+          gimmicks.boostPads?.length &&
+            "가속 발판 ×" + gimmicks.boostPads.length,
+          gimmicks.adds?.length && "공허 잔재 ×" + gimmicks.adds.length,
+        ]
+          .filter(Boolean)
+          .join(" · ") || "별자리 전술";
   const nodes = mapStages
-    .map(
-      (entry, index) =>
+    .map((entry, index) => {
+      const cleared = isStageCleared(entry);
+      return (
         '<button class="constellation-node s' +
         (index + 1) +
         (entry.locked ? " locked" : "") +
+        (cleared ? " cleared" : "") +
         (index === mapIndex ? " active" : "") +
         '" ' +
         (entry.locked ? "disabled" : 'data-map-index="' + index + '"') +
@@ -504,14 +512,23 @@ showMeta = function () {
         entry.mark +
         '</span><span class="stage-copy"><small>STAGE ' +
         entry.id +
-        "</small><b>" +
+        '</small><b class="marquee"><span>' +
         entry.name +
-        "</b><span>" +
+        '</span></b><span class="marquee"><span>' +
         entry.note +
-        '</span></span><em class="node-status">' +
-        (entry.locked ? "잠김" : index === mapIndex ? "선택됨" : "선택") +
-        "</em></button>",
-    )
+        '</span></span></span><em class="node-status">' +
+        (entry.locked
+          ? "잠김"
+          : cleared
+            ? "클리어"
+            : index === mapIndex
+              ? "선택됨"
+              : "선택") +
+        "</em>" +
+        (cleared ? '<em class="stage-cleared-mark">★</em>' : "") +
+        "</button>"
+      );
+    })
     .join("");
   U.over.className = "overlay meta-scene";
   U.over.innerHTML =
@@ -535,13 +552,14 @@ showMeta = function () {
     mapStage.id +
     " · " +
     stageRule +
-    "</small><b>" +
+    '</small><b class="marquee"><span>' +
     mapStage.name +
-    '</b><span class="hub-mission-hint">별지기는 관측 시작 후 고릅니다</span></div><button class="hub-battle-play" id="hubStartBattle"><img src="' +
+    '</span></b><span class="hub-mission-hint">별지기는 관측 시작 후 고릅니다</span></div><button class="hub-battle-play" id="hubStartBattle"><img src="' +
     metaArt.play +
     '" alt="">' +
     (mapStage.onboarding ? "수업 다시 보기" : "게임 시작!") +
-    '</button></section><nav class="hub-tabbar" aria-label="관측소 메뉴"><button class="hub-tab" id="hubTitle"><span aria-hidden="true">⌂</span><b>타이틀</b></button><button class="hub-tab" id="hubGacha"><span aria-hidden="true">☄</span><b>소환</b></button><button class="hub-tab center" id="hubBattleTab"><span aria-hidden="true">★</span><b>관측</b></button><button class="hub-tab" id="hubShop"><span aria-hidden="true">◈</span><b>상점</b></button><button class="hub-tab" id="hubSettings"><span aria-hidden="true">⚙</span><b>설정</b></button></nav></div>';
+    '</button></section><nav class="hub-tabbar" aria-label="관측소 메뉴"><button class="hub-tab" id="hubProfile"><span aria-hidden="true">◎</span><b>프로필</b></button><button class="hub-tab" id="hubGacha"><span aria-hidden="true">☄</span><b>소환</b></button><button class="hub-tab center" id="hubBattleTab"><span aria-hidden="true">★</span><b>관측</b></button><button class="hub-tab" id="hubShop"><span aria-hidden="true">◈</span><b>상점</b></button><button class="hub-tab" id="hubSettings"><span aria-hidden="true">⚙</span><b>설정</b></button></nav></div>';
+  applyMarquees(U.over);
   for (const node of document.querySelectorAll("[data-map-index]"))
     node.onclick = () => {
       hubMapSelection = Number(node.dataset.mapIndex);
@@ -557,9 +575,9 @@ showMeta = function () {
   };
   document.querySelector("#hubStartBattle").onclick = startObservation;
   document.querySelector("#hubBattleTab").onclick = startObservation;
-  document.querySelector("#hubTitle").onclick = () => {
+  document.querySelector("#hubProfile").onclick = () => {
     playSfx();
-    showTitle();
+    showProfile();
   };
   document.querySelector("#hubGacha").onclick = () => {
     playSfx();

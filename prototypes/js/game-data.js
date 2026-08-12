@@ -353,7 +353,7 @@ const stages = [
   {
     id: "1-3",
     name: "침식의 계단",
-    terrain: "좌우 공명 범퍼를 잇는 각도에서 강한 반사와 연계를 노리세요.",
+    terrain: "반사 벽으로 각을 만들고, 길을 막는 공허 잔재부터 걷어내세요.",
     slots: [
       [170, 446],
       [550, 358],
@@ -370,6 +370,18 @@ const stages = [
       [205, 338, 27],
       [515, 338, 27],
     ],
+    // 1-3 introduces exactly two new pieces: reflecting walls that shape the
+    // corridor, and void remnants that must be cleared out of the path.
+    gimmicks: {
+      walls: [
+        { x: 150, y: 262, w: 118, h: 18 },
+        { x: 570, y: 262, w: 118, h: 18 },
+      ],
+      adds: [
+        { x: 268, y: 214, r: 23, hp: 52 },
+        { x: 452, y: 214, r: 23, hp: 52 },
+      ],
+    },
   },
   {
     id: "2-1",
