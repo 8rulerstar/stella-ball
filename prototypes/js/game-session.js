@@ -137,7 +137,7 @@ function renderTitlePresentation() {
   const guardians = [
     ["biyeon", "left"],
     ["ria", "center"],
-    ["lumi", "right"],
+    ["gaon", "right"],
   ]
     .map(([id, position], i) => {
       const h = heroes[id];
@@ -290,8 +290,11 @@ function showRoster() {
   setScene("menu");
   U.over.className = "overlay roster-scene";
   const s = currentStage(),
-    slotCount = partySlotCount();
-  if (!heroes[rosterFocus]) rosterFocus = selected[0] || "gaon";
+    slotCount = partySlotCount(),
+    owned = ownedHeroIds();
+  selected = selected.filter((id) => owned.includes(id)).slice(0, slotCount);
+  if (!selected.length) selected = owned.slice(0, slotCount);
+  if (!owned.includes(rosterFocus)) rosterFocus = selected[0] || owned[0];
   U.over.innerHTML =
     '<div class="tag">별지기 편성</div><h2>함께할 별지기 ' +
     slotCount +
@@ -363,7 +366,9 @@ function showRoster() {
   };
   const renderRoster = () => {
     box.innerHTML = "";
-    Object.entries(heroes).forEach(([id, h]) => {
+    Object.entries(heroes)
+      .filter(([id]) => owned.includes(id))
+      .forEach(([id, h]) => {
       const on = selected.includes(id),
         b = document.createElement("button");
       b.className = "roster-unit" + (on ? " active" : "");
@@ -396,8 +401,8 @@ function showRoster() {
         renderRoster();
         renderDetail();
       };
-      box.append(b);
-    });
+        box.append(b);
+      });
   };
   renderParty();
   renderRoster();

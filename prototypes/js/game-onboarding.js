@@ -368,7 +368,7 @@ function completeOnboarding() {
   selected =
     onboarding?.replay && onboarding.returnParty?.length
       ? [...onboarding.returnParty]
-      : ["biyeon", "ria"];
+      : [...STARTER_HERO_IDS];
   deployed = [...selected];
   onboarding = null;
   run = false;
@@ -551,7 +551,7 @@ showMeta = function () {
     selected.length +
     ' / 3</b></span><button id="hubParty">편성</button></div><div class="hub-party-slots">' +
     party +
-    '</div></section><section class="hub-utility-grid"><button class="hub-utility" id="hubTutorial"><img src="' +
+    '</div></section><section class="hub-utility-grid"><button class="hub-utility" id="hubGacha"><span class="hub-gacha-mark" aria-hidden="true">✦</span><span><strong>별빛 소환</strong><small>새 별지기 만나기</small></span></button><button class="hub-utility" id="hubTutorial"><img src="' +
     metaArt.help +
     '" alt=""><span><strong>튜토리얼</strong><small>조작법 다시 보기</small></span></button><button class="hub-utility" id="hubAchievements"><img src="../assets/library/event/achievement-unlocked.png" alt=""><span><strong>업적</strong><small>관측 기록 확인</small></span></button><button class="hub-utility" id="hubSettings"><img src="../assets/library/system/icon-settings.png" alt=""><span><strong>설정</strong><small>언어 · 사운드</small></span></button></section></div>';
   document.querySelector("#hubStageSelect").onclick = () => {
@@ -565,6 +565,10 @@ showMeta = function () {
   document.querySelector("#hubParty").onclick = () => {
     playSfx();
     showRoster();
+  };
+  document.querySelector("#hubGacha").onclick = () => {
+    playSfx();
+    showGacha();
   };
   document.querySelector("#hubTutorial").onclick = () => {
     playSfx();

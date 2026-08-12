@@ -140,6 +140,7 @@ if (document.documentElement) document.documentElement.lang = settings.language;
 let progress = readStored(PROGRESS_STORAGE, {
   clears: 0,
   gold: 0,
+  ownedHeroes: [...STARTER_HERO_IDS],
   bestTime: 0,
   bestShots: 99,
   bestCombo: 0,
@@ -162,6 +163,27 @@ function grantGold(amount) {
   const reward = Math.max(0, Math.floor(Number(amount) || 0));
   progress.gold = goldBalance() + reward;
   return reward;
+}
+function ownedHeroIds() {
+  const stored = Array.isArray(progress.ownedHeroes)
+    ? progress.ownedHeroes
+    : [];
+  return [...new Set([...STARTER_HERO_IDS, ...stored])].filter((id) =>
+    Boolean(heroes[id]),
+  );
+}
+function ownsHero(id) {
+  return ownedHeroIds().includes(id);
+}
+function pullGachaHero() {
+  const pool = GACHA_HERO_IDS.filter((id) => !ownsHero(id));
+  if (!pool.length) return { reason: "complete" };
+  if (goldBalance() < ECONOMY.gachaCost) return { reason: "gold" };
+  const id = pool[Math.floor(Math.random() * pool.length)];
+  progress.gold = goldBalance() - ECONOMY.gachaCost;
+  progress.ownedHeroes = [...ownedHeroIds(), id];
+  saveProgress();
+  return { id, cost: ECONOMY.gachaCost };
 }
 let audioEngine = null;
 function ensureAudio() {
@@ -513,6 +535,86 @@ function showAchievements() {
   document.querySelector("#achievementBack").onclick = () => {
     playSfx();
     showMeta();
+  };
+}
+function showGacha() {
+  run = false;
+  drag = null;
+  setScene("menu");
+  const owned = ownedHeroIds(),
+    pool = GACHA_HERO_IDS.filter((id) => !owned.includes(id)),
+    canAfford = goldBalance() >= ECONOMY.gachaCost,
+    poolCards = GACHA_HERO_IDS.map((id) => {
+      const h = heroes[id],
+        unlocked = owned.includes(id);
+      return (
+        '<article class="gacha-pool-unit ' +
+        (unlocked ? "unlocked" : "") +
+        '"><span class="portrait" data-gacha-hero="' +
+        id +
+        '"></span><b>' +
+        h.s +
+        "</b><small>" +
+        (unlocked ? "해금 완료" : "별빛 속에서 대기") +
+        "</small></article>"
+      );
+    }).join("");
+  U.over.className = "overlay gacha-scene";
+  U.over.innerHTML =
+    '<section class="gacha-shell"><header class="gacha-header"><button id="gachaBack">뒤로</button><span><small>별빛 보관함</small><b>보유 골드 ' +
+    goldBalance() +
+    '</b></span></header><div class="gacha-ritual"><div class="gacha-orbit" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div><div class="gacha-reveal" id="gachaReveal"><span>✦</span><small>아직 만나지 못한 별지기를<br>관측하세요</small></div></div><div class="gacha-copy"><small>STARKEEPER CALL</small><h2>별빛 소환</h2><p>100 골드로 아직 만나지 못한 별지기 한 명을 확정으로 맞이합니다.</p></div><section class="gacha-pool"><div class="gacha-pool-heading"><span>소환 후보</span><b>' +
+    pool.length +
+    " / " +
+    GACHA_HERO_IDS.length +
+    '</b></div><div class="gacha-pool-grid">' +
+    poolCards +
+    '</div></section><button class="gacha-draw ' +
+    (!pool.length ? "complete" : !canAfford ? "insufficient" : "") +
+    '" id="gachaDraw"' +
+    (!pool.length ? " disabled" : "") +
+    ">" +
+    (!pool.length
+      ? "모든 별지기를 만났어요"
+      : canAfford
+        ? "별빛 소환 · " + ECONOMY.gachaCost + " 골드"
+        : "골드 부족 · " + ECONOMY.gachaCost + " 골드 필요") +
+    "</button></section>";
+  document.querySelectorAll("[data-gacha-hero]").forEach((portrait) => {
+    setPortrait(portrait, heroes[portrait.dataset.gachaHero], 46);
+  });
+  document.querySelector("#gachaBack").onclick = () => {
+    playSfx();
+    showMeta();
+  };
+  document.querySelector("#gachaDraw").onclick = () => {
+    const result = pullGachaHero();
+    if (result.reason === "gold") {
+      playSfx("fail");
+      toast("골드가 부족합니다. 스테이지를 클리어해 보세요.");
+      return;
+    }
+    if (result.reason === "complete") return;
+    playSfx("unlock");
+    const reveal = document.querySelector("#gachaReveal"),
+      drawButton = document.querySelector("#gachaDraw");
+    reveal.classList.add("rolling");
+    drawButton.disabled = true;
+    setTimeout(() => {
+      if (!document.body.contains(reveal)) return;
+      const h = heroes[result.id];
+      reveal.className = "gacha-reveal revealed";
+      reveal.innerHTML =
+        '<span class="portrait" id="gachaHeroReveal"></span><small>새 별지기 해금</small><b>' +
+        h.s +
+        " · " +
+        h.e +
+        "</b>";
+      setPortrait(document.querySelector("#gachaHeroReveal"), h, 96);
+      drawButton.textContent = "소환 목록으로 돌아가기";
+      drawButton.disabled = false;
+      drawButton.onclick = () => showGacha();
+    }, 920);
   };
 }
 const originalRegisterBossHit = registerBossHit;
