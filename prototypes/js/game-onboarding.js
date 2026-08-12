@@ -149,6 +149,19 @@ function continueOnboarding(action) {
   if (action === "practice") return beginOnboardingPractice();
   if (action === "complete") return completeOnboarding();
 }
+function staggerOnboardingCopy(text) {
+  return text
+    .split(" ")
+    .map(
+      (word, index) =>
+        '<span class="onboarding-word" style="--word:' +
+        index +
+        '">' +
+        word +
+        "</span>",
+    )
+    .join(" ");
+}
 function renderOnboarding() {
   document.querySelector(".onboarding-card")?.remove();
   document.body.classList.toggle("onboarding-active", Boolean(onboarding));
@@ -274,18 +287,22 @@ function renderOnboarding() {
     ],
   ];
   const copy = lessons[step][Math.min(dialogue, lessons[step].length - 1)];
+  const revealId = String((onboarding.revealId || 0) + 1);
+  onboarding.revealId = Number(revealId);
+  const revealDelay = Math.min(1900, 620 + copy.body.split(" ").length * 28);
   const card = document.createElement("section");
   card.setAttribute("role", "dialog");
   card.setAttribute("aria-modal", "true");
   card.setAttribute("aria-label", "관측 수업 안내");
   card.className =
-    "onboarding-card " +
+    "onboarding-card onboarding-enter " +
     (onboarding.launched ? "waiting " : "") +
     (step === 3 ? "complete" : "");
   const bars = Array.from(
     { length: 11 },
     (_, i) => '<i class="' + (i < copy.n ? "active" : "") + '"></i>',
   ).join("");
+  card.dataset.revealId = revealId;
   card.innerHTML =
     '<div class="onboarding-kicker"><span>관측 수업 · 1-1</span><b>' +
     copy.n +
@@ -293,19 +310,30 @@ function renderOnboarding() {
     metaArt.luna +
     '" alt=""><span><b>루나 · 관측 보조</b><small>LAST OBSERVATORY</small></span></div><h3>' +
     copy.title +
-    "</h3><p>" +
-    copy.body +
+    '</h3><p class="onboarding-copy">' +
+    staggerOnboardingCopy(copy.body) +
     '</p><div class="onboarding-progress">' +
     bars +
     "</div>" +
     (copy.button
-      ? '<button id="onboardingContinue">' + copy.button + "</button>"
+      ? '<button id="onboardingContinue" data-reveal-id="' +
+        revealId +
+        '" style="--reveal-delay:' +
+        revealDelay +
+        'ms" disabled>' +
+        copy.button +
+        "</button>"
       : "");
   (dock || stageEl).append(card);
   if (copy.button) {
     const continueButton = document.querySelector("#onboardingContinue");
     continueButton.onclick = () => continueOnboarding(copy.action);
-    continueButton.focus({ preventScroll: true });
+    setTimeout(() => {
+      const revealedButton = document.querySelector("#onboardingContinue");
+      if (revealedButton?.dataset.revealId !== revealId) return;
+      revealedButton.disabled = false;
+      revealedButton.focus({ preventScroll: true });
+    }, revealDelay);
   }
 }
 function showOnboardingTutorial(replay = false) {
@@ -672,11 +700,17 @@ function drawOnboardingGuide() {
     !battle ||
     !ball ||
     ball.moving ||
+    onboarding.panelVisible !== false ||
     (onboarding.dialogue ?? 0) === 0
   )
     return;
-  const phase = onboarding.phase,
-    target = phase === 0 ? boss : phase === 1 ? gates[0] : null;
+  const phase = onboarding.phase;
+  const target =
+    phase === 0
+      ? boss
+      : phase === 1
+        ? gates[0]
+        : gates.find((gate) => gate.id === "ria");
   x.save();
   x.lineWidth = 1.5;
   x.setLineDash([5, 5]);
@@ -698,10 +732,36 @@ function drawOnboardingGuide() {
     x.font = "bold 10px Galmuri11, ui-monospace";
     x.textAlign = "center";
     x.fillText(
-      phase === 0 ? "직격 목표" : target.s + "을 향해",
+      phase === 0
+        ? "직격 목표"
+        : phase === 2
+          ? "리아를 보스 쪽으로"
+          : target.s + "을 향해",
       target.x,
       target.y - 44,
     );
+    const distance = Math.hypot(target.x - ball.x, target.y - ball.y) || 1;
+    const pullX = -(target.x - ball.x) / distance;
+    const pullY = -(target.y - ball.y) / distance;
+    const pulse = 7 + Math.sin(performance.now() / 210) * 5;
+    const fingerX = ball.x + pullX * (62 + pulse);
+    const fingerY = ball.y + pullY * (62 + pulse);
+    x.strokeStyle = "#fff3c2";
+    x.lineWidth = 2;
+    x.beginPath();
+    x.moveTo(ball.x + pullX * 20, ball.y + pullY * 20);
+    x.lineTo(fingerX, fingerY);
+    x.stroke();
+    x.font = "24px sans-serif";
+    x.textAlign = "center";
+    x.lineWidth = 3;
+    x.strokeStyle = "#15131c";
+    x.strokeText("☝", fingerX, fingerY + 8);
+    x.fillStyle = "#fff4cc";
+    x.fillText("☝", fingerX, fingerY + 8);
+    x.font = "bold 9px Galmuri11, ui-monospace";
+    x.fillStyle = "#fff0bd";
+    x.fillText("여기서 아래로 당기기", fingerX, fingerY + 28);
   }
   if (phase === 2 && gates.length === 2) {
     const ria = gates.find((gate) => gate.id === "ria");
@@ -710,19 +770,10 @@ function drawOnboardingGuide() {
       return;
     }
     x.beginPath();
-    x.moveTo(ball.x, ball.y);
-    x.lineTo(ria.x, ria.y);
+    x.moveTo(ria.x, ria.y);
     x.lineTo(boss.x, boss.y);
     x.stroke();
     x.setLineDash([]);
-    x.fillStyle = "#fff0bd";
-    x.font = "bold 10px Galmuri11, ui-monospace";
-    x.textAlign = "center";
-    x.fillText("리아를 보스 방향으로 강하게", ria.x, ria.y + 51);
-    x.strokeStyle = ria.col;
-    x.beginPath();
-    x.arc(ria.x, ria.y, 39, 0, Math.PI * 2);
-    x.stroke();
   }
   x.restore();
 }
