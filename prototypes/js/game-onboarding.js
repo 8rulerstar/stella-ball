@@ -519,7 +519,7 @@ showMeta = function () {
     storySkyStars(clear) +
     '</div><div class="hub-topbar"><div class="hub-player"><span class="hub-avatar">' +
     avatar +
-    '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><button class="hub-resource hub-record-chip" id="hubRecordChip">되찾은 별<b>' +
+    '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><button class="hub-resource hub-record-chip" id="hubRecordChip">업적 · 되찾은 별<b>' +
     clear +
     '</b></button><span class="hub-resource hub-gold">골드<b>' +
     gold +
@@ -536,7 +536,7 @@ showMeta = function () {
     '</b><span class="hub-mission-hint">별지기는 관측 시작 후 고릅니다</span></div><button class="hub-battle-play" id="hubStartBattle"><img src="' +
     metaArt.play +
     '" alt="">' +
-    (mapStage.onboarding ? "수업 다시 보기" : "관측 시작") +
+    (mapStage.onboarding ? "수업 다시 보기" : "게임 시작!") +
     '</button></section><nav class="hub-tabbar" aria-label="관측소 메뉴"><button class="hub-tab" id="hubTitle"><span aria-hidden="true">⌂</span><b>타이틀</b></button><button class="hub-tab" id="hubGacha"><span aria-hidden="true">☄</span><b>소환</b></button><button class="hub-tab center" id="hubBattleTab"><span aria-hidden="true">★</span><b>관측</b></button><button class="hub-tab" id="hubShop"><span aria-hidden="true">◈</span><b>상점</b></button><button class="hub-tab" id="hubSettings"><span aria-hidden="true">⚙</span><b>설정</b></button></nav></div>';
   for (const node of document.querySelectorAll("[data-map-index]"))
     node.onclick = () => {

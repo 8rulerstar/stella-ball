@@ -156,7 +156,7 @@ function renderTitlePresentation() {
     metaArt.wordmark +
     '" alt="STELLA BALL"><small class="title-kicker">CONSTELLATION RESTORATION PROJECT</small><section class="title-mission"><small>오늘의 관측</small><b>1-2 · 균열 회랑</b><span>공명 범퍼로 반사각을 만들고 잠든 별지기를 깨우세요.</span></section><div class="title-play-loop" aria-label="게임 방법"><span><i>1</i><b>유성을 끌어<br>발사</b></span><span><i>2</i><b>별지기를<br>깨우기</b></span><span><i>3</i><b>별자리를<br>완성</b></span></div><button class="title-enter" id="enterHub"><img src="' +
     metaArt.play +
-    '" alt="">별자리 관측 시작</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button></div></section>';
+    '" alt="">게임 시작!</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button></div></section>';
   document.querySelectorAll(".title-guardian-art").forEach((art) => {
     setPortrait(art, heroes[art.dataset.hero], 116);
   });

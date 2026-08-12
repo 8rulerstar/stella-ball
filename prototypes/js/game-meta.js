@@ -620,7 +620,7 @@ function showShop() {
           '"' +
           (afford ? "" : " disabled") +
           ">" +
-          (afford ? ECONOMY.skinCost + " 골드" : "골드 부족") +
+          (afford ? "구매하기" : "골드 부족") +
           "</button>";
     return (
       '<article class="shop-card' +
@@ -637,7 +637,13 @@ function showShop() {
       skin.name +
       "</b><small>" +
       skin.note +
-      "</small></div>" +
+      '</small><span class="shop-price">' +
+      (skin.id === DEFAULT_METEOR_SKIN
+        ? "기본 지급"
+        : isOwned
+          ? "구매 완료 · " + ECONOMY.skinCost + " 골드"
+          : ECONOMY.skinCost + " 골드") +
+      "</span></div>" +
       action +
       "</article>"
     );
@@ -1009,7 +1015,9 @@ const baseRosterScreen = showRoster;
 showRoster = function () {
   baseRosterScreen();
   document.querySelector("#stageChoices")?.remove();
-  document.querySelector("#backMeta").onclick = showStageSelect;
+  // The hub now carries the constellation map, so backing out of the party
+  // step returns there instead of opening the standalone map screen.
+  document.querySelector("#backMeta").onclick = showMeta;
 };
 const tutorialSteps = [
   {

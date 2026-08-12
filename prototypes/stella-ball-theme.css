@@ -816,9 +816,23 @@ body.onboarding-locked .pause-button { display: none; }
 .shop-copy b { display: block; color: #efdcb2; font-size: 13px; }
 .shop-copy small { display: block; margin-top: 3px; color: var(--mist); font-size: 10px; }
 .shop-buy { width: 100%; padding: 9px 10px !important; font-size: 11px !important; }
+.shop-price {
+  display: block;
+  margin-top: 6px;
+  color: var(--star);
+  font: 700 11px ui-monospace, monospace;
+  letter-spacing: .04em;
+}
+.shop-card.active .shop-price { color: var(--gold); }
 .shop-buy.short { opacity: .5; cursor: not-allowed; }
 .shop-state { color: var(--gold); font: 700 10px ui-monospace, monospace; letter-spacing: .1em; }
-.hub-record-chip { cursor: pointer; font: inherit; text-align: inherit; }
+.hub-record-chip {
+  cursor: pointer;
+  font: inherit;
+  text-align: inherit;
+  transition: border-color .16s ease, color .16s ease;
+}
+.hub-record-chip:hover { border-color: #b08d55 !important; color: #efdcb2 !important; }
 .hub-mission-hint { display: block; margin-top: 3px; color: var(--mist); font-size: 10px; }
 
 /* ---------------------------------------------------------------------
@@ -855,20 +869,33 @@ body.onboarding-locked .pause-button { display: none; }
 .roster-shell {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas: "party detail" "grid detail";
   gap: 10px;
   width: 100%;
   max-width: none !important;
+  min-height: 0;
 }
 .roster-shell .party-strip { grid-area: party; }
+/* The picker owns the leftover height instead of collapsing to its rows, so
+   the screen no longer ends in a large void under the cards. */
 .roster-shell .roster-grid {
   grid-area: grid;
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important;
+  grid-auto-rows: minmax(64px, 1fr);
   gap: 8px;
-  align-content: start;
+  align-content: stretch;
+  min-height: 0;
 }
-.roster-shell .roster-detail { grid-area: detail; align-self: start; }
+.roster-shell .roster-detail {
+  grid-area: detail;
+  align-self: stretch;
+  align-content: start !important;
+  justify-content: start !important;
+  align-items: start !important;
+  overflow-y: auto;
+}
 .deploy-layout {
   display: flex;
   flex-direction: column;
