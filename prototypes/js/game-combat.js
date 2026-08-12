@@ -53,7 +53,10 @@ endShot = function () {
         "공허 거상이 버텼습니다. 유닛 연쇄와 반사 경로를 바꿔보세요.",
       );
   }
-  startShot(restingPoint);
+  // Position play is the point of billiards: the next meteor tees off from
+  // where this one came to rest.  Only Luna's lessons keep the fixed launch
+  // stone, because their copy points the player at the bottom of the board.
+  startShot(battle.tutorial ? null : restingPoint);
   msg = battle.training
     ? "무한 훈련 · 멈춘 자리에서 다음 유성을 이어 발사하세요."
     : "멈춘 자리에서 다음 샷. 궤적을 따라 별지기를 먼저 깨워보세요.";

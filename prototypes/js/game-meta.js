@@ -1299,8 +1299,11 @@ win = function () {
   originalWin();
 };
 const originalStartShot = startShot;
-startShot = function () {
-  originalStartShot();
+// Forward the resting point: dropping the argument here is what silently
+// pinned every shot back to the launch stone while the in-game copy kept
+// promising "다음 샷은 멈춘 자리에서".
+startShot = function (restingPoint = null) {
+  originalStartShot(restingPoint);
   for (const gate of gates) gate.r = 23;
 };
 // Bumpers are deliberately sparse: they build momentum and invoke the bumper
