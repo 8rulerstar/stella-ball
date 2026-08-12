@@ -1140,6 +1140,14 @@ header button,
   object-fit: contain;
   image-rendering: pixelated;
 }
+.party-chip .party-portrait {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 #06030d);
+}
 .party-chip small {
   display: block;
   color: #cbb9df;

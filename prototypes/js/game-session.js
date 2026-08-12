@@ -342,7 +342,11 @@ function showRoster() {
     partyStrip.innerHTML = Array.from({ length: slotCount }, (_, i) => {
       const h = heroes[selected[i]];
       return h
-        ? '<div class="party-chip"><img class="slot-marker" src="../assets/library/ui/rune-slot-marker.png" alt=""><span><small>선택 ' +
+        ? '<div class="party-chip" style="--unit:' +
+            h.col +
+            '"><span class="party-portrait" data-party-hero="' +
+            selected[i] +
+            '" aria-hidden="true"></span><span><small>선택 ' +
             (i + 1) +
             '</small><b style="color:' +
             h.col +
@@ -353,6 +357,9 @@ function showRoster() {
             (i + 1) +
             "</small><b>비어 있음</b></span></div>";
     }).join("");
+    partyStrip.querySelectorAll("[data-party-hero]").forEach((portrait) => {
+      setPortrait(portrait, heroes[portrait.dataset.partyHero], 34);
+    });
   };
   const renderDetail = () => {
     const h = heroes[rosterFocus];
