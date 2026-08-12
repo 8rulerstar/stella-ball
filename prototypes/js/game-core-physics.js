@@ -276,8 +276,8 @@ function hitGate(g) {
     toast("공허 도둑 · 처치 포털 준비");
   }
   if (g.fx === "rhythm") {
-    if (hitCombo >= 3) areaAttack("피아 리포스트 포격", 22, g.col);
-    else toast("리듬 포병 · RIPOSTE 때 포격");
+    if (hitCombo >= 3) areaAttack("피아 연타 포격", 22, g.col);
+    else toast("리듬 포병 · 3연타부터 포격");
   }
   if (g.fx === "flame") {
     ball.flame = 2.5;
@@ -673,7 +673,7 @@ function updateExpanded(d) {
 function update(d) {
   if (toastTimer > 0) {
     toastTimer -= d;
-    if (toastTimer <= 0) U.toast.classList.remove("show");
+    if (toastTimer <= 0) showNextToast();
   }
   flippers.left = Math.max(0, flippers.left - d * 7.5);
   flippers.right = Math.max(0, flippers.right - d * 7.5);

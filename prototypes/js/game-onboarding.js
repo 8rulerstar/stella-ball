@@ -538,8 +538,10 @@ showMeta = function () {
     storySkyStars(clear) +
     '</div><div class="hub-topbar"><div class="hub-player"><span class="hub-avatar">' +
     avatar +
-    '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><button class="hub-resource hub-record-chip" id="hubRecordChip">업적 · 되찾은 별<b>' +
-    clear +
+    '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><button class="hub-resource hub-record-chip" id="hubRecordChip">업적<b>' +
+    achievementList().filter((a) => a.done).length +
+    " / " +
+    achievementList().length +
     "</b>" +
     (claimCount()
       ? '<i class="claim-badge">수령 ' + claimCount() + "</i>"

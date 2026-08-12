@@ -218,12 +218,12 @@ function registerBossHit(weak) {
   const riposte = hitCombo >= 3;
   if (U.combo) {
     U.combo.textContent = riposte
-      ? "RIPOSTE · " + hitCombo + " HIT"
+      ? "연타 · " + hitCombo + " HIT"
       : "COMBO · " + hitCombo + " HIT";
     U.combo.classList.toggle("hot", riposte);
   }
   if (riposte)
-    setTimeout(() => toast("RIPOSTE! 연속 명중 " + hitCombo + "회"), 0);
+    setTimeout(() => toast("연타! 연속 명중 " + hitCombo + "회"), 0);
 }
 function impact(weak) {
   const force = Math.min(1.65, 1 + (hitCombo - 1) * 0.16);
@@ -1089,17 +1089,17 @@ function drawCombo() {
   x.textAlign = "center";
   x.font = (riposte ? "bold 22px" : "bold 15px") + " ui-monospace";
   x.fillStyle = "#071117";
-  x.fillText(riposte ? "RIPOSTE!" : "COMBO x" + hitCombo, 2, 2);
+  x.fillText(riposte ? "연타!" : "COMBO x" + hitCombo, 2, 2);
   x.fillStyle = riposte ? "#fff08f" : "#d1efe2";
   x.shadowBlur = riposte ? 18 : 8;
   x.shadowColor = x.fillStyle;
-  x.fillText(riposte ? "RIPOSTE!" : "COMBO x" + hitCombo, 0, 0);
+  x.fillText(riposte ? "연타!" : "COMBO x" + hitCombo, 0, 0);
   x.restore();
 }
 function modernUpdate(d) {
   if (toastTimer > 0) {
     toastTimer -= d;
-    if (toastTimer <= 0) U.toast.classList.remove("show");
+    if (toastTimer <= 0) showNextToast();
   }
   for (const key of ["left", "right"]) {
     const rising = (flippers[key + "Strike"] || 0) > 0;

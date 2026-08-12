@@ -494,7 +494,7 @@ impact = function (
     py,
     heavy ? "#fff0a3" : "#e6f7ef",
     force,
-    hitCombo >= 3 ? "RIPOSTE!" : weak ? "WEAK!" : "",
+    hitCombo >= 3 ? "연타!" : weak ? "WEAK!" : "",
   );
   combatSfx(kind, force);
   if (heavy && !contact) replayCssClass(stageEl, "impact-heavy");

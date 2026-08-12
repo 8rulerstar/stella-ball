@@ -154,7 +154,7 @@ function grantGold(amount) {
   progress.gold = goldBalance() + reward;
   return reward;
 }
-// Reward feedback follows the RIPOSTE pattern: an ordinary line is promoted to
+// Reward feedback follows the 연타 promotion pattern: an ordinary line becomes
 // a louder, self-dismissing card when something was actually earned, so gold
 // and unlocks read as a claim instead of a number quietly changing.
 let rewardToastTimer = 0;
@@ -373,7 +373,7 @@ function achievementList() {
     },
     {
       id: "riposte",
-      name: "RIPOSTE",
+      name: settings.language === "ko" ? "3연타" : "TRIPLE HIT",
       text:
         settings.language === "ko"
           ? "한 전투에서 3 HIT 콤보를 달성하세요."
@@ -1354,7 +1354,7 @@ function constellationMapStages() {
     {
       id: "1-3",
       name: "침식의 계단",
-      note: "신규 기믹 · 반사 벽 + 공허 잔재",
+      note: "신규 기믹 · 반사 벽",
       mark: "★",
       stage: 2,
       clearRank: 2,

@@ -1064,10 +1064,17 @@ function reportBladeWheelHit() {}
 function updateBladeWheel(g, speed, step) {
   const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
   if (fx !== "bladewheel") return;
-  g.bladeAngle = (g.bladeAngle || 0) + step * (7.4 + speed / 74);
+  // The wheel is Ria's whole read: it spins in proportion to how fast she is
+  // moving.  A smaller constant term makes that proportion visible instead of
+  // hiding it under a fast idle spin.
+  g.bladeAngle = (g.bladeAngle || 0) + step * (3.2 + speed / 62);
   g.bladeTick = Math.max(0, (g.bladeTick || 0) - step);
   g.bladePopupCooldown = Math.max(0, (g.bladePopupCooldown || 0) - step);
-  const targetStrength = speed > 82 ? Math.min(1, (speed - 82) / 720) : 0;
+  // It used to fade out at speed 82, so the wheel vanished while she was still
+  // clearly rolling.  It now stays lit until she is nearly still; damage still
+  // needs real speed (the 105 gate below), so this is readability only.
+  const targetStrength =
+    speed > 10 ? Math.min(1, 0.2 + (speed - 10) / 700) : 0;
   g.bladeStrength =
     (g.bladeStrength || 0) +
     (targetStrength - (g.bladeStrength || 0)) * Math.min(1, step * 15);

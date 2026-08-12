@@ -353,7 +353,7 @@ const stages = [
   {
     id: "1-3",
     name: "침식의 계단",
-    terrain: "반사 벽으로 각을 만들고, 길을 막는 공허 잔재부터 걷어내세요.",
+    terrain: "반사 벽 두 개로 각을 만들어 거상의 약점까지 길을 그리세요.",
     slots: [
       [170, 446],
       [550, 358],
@@ -366,20 +366,15 @@ const stages = [
     ],
     boss: { x: 360, y: 190 },
     labels: ["좌측 계단", "우측 계단", "하단 귀환점"],
-    bumpers: [
-      [205, 338, 27],
-      [515, 338, 27],
-    ],
-    // 1-3 introduces exactly two new pieces: reflecting walls that shape the
-    // corridor, and void remnants that must be cleared out of the path.
+    // A stage that introduces a gimmick shows that gimmick and nothing else.
+    // 1-3 used to stack resonance bumpers, walls and void remnants at once,
+    // which taught none of the three.  Walls only; void remnants wait for a
+    // stage of their own and stay available in the training table.
+    bumpers: [],
     gimmicks: {
       walls: [
         { x: 150, y: 262, w: 118, h: 18 },
         { x: 570, y: 262, w: 118, h: 18 },
-      ],
-      adds: [
-        { x: 268, y: 214, r: 23, hp: 52 },
-        { x: 452, y: 214, r: 23, hp: 52 },
       ],
     },
   },
@@ -738,6 +733,7 @@ let build,
   frameClock = 0,
   last = 0,
   toastTimer = 0,
+  currentToastText = "",
   impactStop = 0,
   screenShake = 0,
   screenFlash = 0,

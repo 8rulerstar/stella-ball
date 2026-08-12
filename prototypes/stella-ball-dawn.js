@@ -12,8 +12,9 @@
     ['.meta-launch, .hub-battle-play, .title-enter, .hub-start, .gacha-draw, .pause-primary, .confirm-yes, #startTeam', 'cta'],
     ['.hub-stage-change, .settings-actions button, .profile-exit, .shop-buy, .claim-banner button, .achievement-claim, .mail-item button, .pause-actions button, .confirm-actions button, header button, #shopBack, #gachaBack, #profileBack, #settingsBack, #settingsReset, #achievementBack, #backMeta, #profileIconClose', 'sub'],
     ['.meta-tab, .hub-tab', 'tab'],
-    ['.hub-battle-tags span, .hub-record-chip', 'chip'],
-    ['.pause-button', 'moon']
+    ['.hub-battle-tags span, .hub-record-chip', 'chip']
+    /* The pause button keeps the plain round CSS control.  A crescent
+       silhouette behind the ❚❚ glyph read as a shoe, not as pause. */
   ];
   function tag() {
     for (var i = 0; i < MAP.length; i++) {

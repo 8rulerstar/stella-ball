@@ -11,6 +11,7 @@ function resetBuild() {
 function setupBattle() {
   const s = currentStage();
   setScene("game");
+  clearToastQueue();
   battle = {
     id: ++battleSerial,
     shotMax: RULES.shots + build.extraShots,
@@ -660,10 +661,59 @@ function win() {
     '<br>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
   U.over.classList.remove("hide");
 }
+// One collision can fire several mechanics at once, and the banner used to be
+// a single element whose textContent the last one overwrote — so two of three
+// messages simply never appeared.  Messages now queue and play in order, each
+// held briefly while others wait so the whole chain stays readable.
+const TOAST_SOLO_TIME = 2.2;
+const TOAST_QUEUED_TIME = 0.9;
+const toastQueue = [];
 function toast(text) {
-  U.toast.textContent = text;
+  if (!text) return;
+  // The same line twice in a row is noise, not a second event.
+  const last = toastQueue.length
+    ? toastQueue[toastQueue.length - 1]
+    : toastTimer > 0
+      ? currentToastText
+      : null;
+  if (text === last) return;
+  toastQueue.push(text);
+  if (toastTimer <= 0) return showNextToast();
+  // Something arrived while a banner is still up.  Cut its hold short so the
+  // burst plays as a sequence instead of the first line eating two seconds.
+  toastTimer = Math.min(toastTimer, TOAST_QUEUED_TIME);
+  paintToastBadge();
+}
+function paintToastBadge() {
+  U.toast.querySelector(".toast-more")?.remove();
+  if (!toastQueue.length) {
+    U.toast.classList.remove("queued");
+    return;
+  }
+  const more = document.createElement("i");
+  more.className = "toast-more";
+  more.textContent = "+" + toastQueue.length;
+  U.toast.append(more);
+  U.toast.classList.add("queued");
+}
+function showNextToast() {
+  const next = toastQueue.shift();
+  if (next === undefined) {
+    currentToastText = "";
+    U.toast.classList.remove("show", "queued");
+    return;
+  }
+  currentToastText = next;
+  U.toast.textContent = next;
+  paintToastBadge();
   U.toast.classList.add("show");
-  toastTimer = 2.2;
+  toastTimer = toastQueue.length ? TOAST_QUEUED_TIME : TOAST_SOLO_TIME;
+}
+function clearToastQueue() {
+  toastQueue.length = 0;
+  currentToastText = "";
+  toastTimer = 0;
+  U.toast.classList.remove("show", "queued");
 }
 function damageAdd(a, amount, label, col) {
   if (a.down > 0) return;

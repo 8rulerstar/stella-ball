@@ -75,6 +75,20 @@ button:hover {
 .tip, .pinball-flipper-hint { border-color: #34494d !important; background: #0c1417dd !important; color: #cfdad7 !important; }
 .tip b { color: #ffd2a0 !important; }
 .toast { border-color: #ecac7c !important; background: #111b20f4 !important; color: #f0e3c5 !important; }
+/* A queued banner is deliberately short-lived, so it says how many are still
+   waiting instead of letting the player wonder what they missed. */
+.toast.queued { border-color: #f6c48e !important; }
+.toast .toast-more {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: #f0b078;
+  color: #241708;
+  font: 700 9px ui-monospace, monospace;
+  font-style: normal;
+  vertical-align: middle;
+}
 .combo-readout.hot { color: #ffe3c0 !important; text-shadow: 0 0 12px #dd9560, 0 0 26px #52707455 !important; }
 .blaze-card { border-color: #42585c !important; background: linear-gradient(135deg, #16262cf5, #1a2b30ee 68%, #223438f0) !important; color: #b2c5c2 !important; box-shadow: 0 3px 0 #04080abb, 0 0 22px #0a1114bb !important; }
 .blaze-score-label { color: #84a09d !important; }
@@ -465,6 +479,19 @@ button:hover {
 }
 body.game-mode .pause-button { display: grid; place-content: center; }
 body.onboarding-locked .pause-button { display: none; }
+/* A plain two-bar control. The dawn kit used to draw a crescent behind the
+   glyph, which read as a shoe rather than as pause. */
+.pause-button {
+  display: grid;
+  place-items: center;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-size: 14px !important;
+  letter-spacing: 1px;
+  line-height: 1;
+}
 .pause-button:hover { border-color: #c97a45; background: #15242af2; transform: translateY(-1px); }
 .pause-button:focus-visible { outline: 2px solid var(--star); outline-offset: 2px; }
 .overlay.pause-scene { background: #0a0f12c4 !important; backdrop-filter: blur(2px); }
@@ -744,7 +771,7 @@ body.onboarding-locked .pause-button { display: none; }
 }
 
 /* ---------------------------------------------------------------------
-   REWARD TOAST — the RIPOSTE promotion pattern applied to earnings: a
+   REWARD TOAST — the 연타 promotion pattern applied to earnings: a
    claim card that announces itself, then leaves.
    --------------------------------------------------------------------- */
 .reward-toast {
@@ -1570,3 +1597,66 @@ body.onboarding-locked .pause-button { display: none; }
   .achievement-card.claiming, .claim-banner.claiming { animation: none; }
   .claim-burst, .claim-spark { display: none; }
 }
+
+/* ---------------------------------------------------------------------
+   ONBOARDING — the lesson is the thing to read, so it sits in the middle
+   of the frame at a size you can actually read, not tucked into a corner
+   at 10px.  Once the player is shooting, the card leaves the table and
+   becomes a slim bar above it, so the arena is never explained over.
+   The base sheet still paints this card in the old navy; the dawn
+   palette lands here too.
+   --------------------------------------------------------------------- */
+.onboarding-dock {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+.onboarding-dock .onboarding-card {
+  width: min(444px, calc(100% - 34px)) !important;
+  max-height: none !important;
+  padding: 17px 19px 15px !important;
+  border: 1px solid #4f686c !important;
+  border-radius: 15px !important;
+  background: linear-gradient(150deg, #17262cf7, #0c1417f7) !important;
+  box-shadow: 0 22px 52px #030809cc, 0 0 0 1px #f6c48e2e !important;
+  overflow: visible !important;
+}
+.onboarding-dock .onboarding-card:before { display: none; }
+.onboarding-dock .onboarding-kicker { color: var(--gold) !important; font-size: 9px !important; }
+.onboarding-dock .onboarding-card h3 {
+  margin: 9px 0 7px !important;
+  color: #f3ede2 !important;
+  font-size: 17px !important;
+  line-height: 1.45 !important;
+  text-shadow: 0 2px 0 #04080a !important;
+}
+.onboarding-dock .onboarding-card p,
+.onboarding-dock .onboarding-card .onboarding-copy {
+  color: #bdd0cc !important;
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+.onboarding-dock .onboarding-card button {
+  width: 100%;
+  margin-top: 12px !important;
+  padding: 13px 16px !important;
+  font-size: 13px !important;
+}
+/* Practice steps: out of the play area entirely. */
+.onboarding-dock .onboarding-card.table-live {
+  position: fixed !important;
+  top: 14px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  align-self: auto !important;
+  width: min(600px, calc(100vw - 30px)) !important;
+  padding: 9px 15px !important;
+  border-radius: 11px !important;
+  opacity: 1 !important;
+  transform: translateX(-50%) !important;
+}
+.onboarding-dock .onboarding-card.table-live h3 { margin: 4px 0 3px !important; font-size: 13px !important; }
+.onboarding-dock .onboarding-card.table-live p,
+.onboarding-dock .onboarding-card.table-live .onboarding-copy { font-size: 11px !important; line-height: 1.5 !important; }
+.onboarding-dock .onboarding-card.table-live button { margin-top: 8px !important; padding: 9px 14px !important; font-size: 11px !important; }
