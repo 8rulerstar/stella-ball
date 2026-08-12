@@ -270,9 +270,12 @@ function updateFeedback(d) {
     }
   }
   const s = screenShake ? Math.sin(frameClock * 0.11) * screenShake : 0,
+    // At rest the transform must be cleared, not zeroed: any non-none
+    // transform turns .stage into the containing block for position:fixed,
+    // which boxed every full-window menu into the canvas column after battle.
     stageTransform = screenShake
       ? "translate(" + s.toFixed(1) + "px," + (-s * 0.45).toFixed(1) + "px)"
-      : "translate(0px,0px)",
+      : "",
     flashOpacity = screenFlash > 0.005 ? screenFlash.toFixed(2) : "0";
   if (stageTransform !== lastStageTransform) {
     stageEl.style.transform = stageTransform;
