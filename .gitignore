@@ -24,3 +24,6 @@ __pycache__/
 # Codex pet-generation workspaces are local tooling artifacts, not game files.
 nairong-pet/
 nairong-orange-pet/
+
+# 로컬 에이전트 설정은 저장소에 포함하지 않는다.
+CLAUDE.md
