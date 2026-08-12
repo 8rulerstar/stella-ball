@@ -105,6 +105,12 @@ function setPortrait(el, h, size = 56) {
     return;
   }
   el.style.backgroundImage = 'url("' + h.sprite + '")';
+  if (h.portraitScale) {
+    const portraitSize = size * h.portraitScale;
+    el.style.backgroundSize = portraitSize + "px " + portraitSize + "px";
+    el.style.backgroundPosition = "center";
+    return;
+  }
   if (h.atlas) {
     el.style.backgroundSize = size * 2 + "px " + size * 2 + "px";
     el.style.backgroundPosition =

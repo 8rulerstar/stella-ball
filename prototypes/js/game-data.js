@@ -139,9 +139,10 @@ const heroes = {
     fh: 256,
     frames: 1,
     // The generated source has more transparent padding than the legacy
-    // sheets, so the display scale is normalized here instead of baking a
-    // second lossy raster copy.
-    scale: 0.52,
+    // sheets. Keep the collision radius unchanged, but normalize both the
+    // arena and UI portrait scale to the other starkeepers.
+    scale: 0.64,
+    portraitScale: 1.34,
   },
   sera: {
     n: "궤도 사제 세라",
