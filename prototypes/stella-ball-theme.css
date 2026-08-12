@@ -457,6 +457,11 @@ button:hover {
    PAUSE — ESC or the arena button. The backdrop stays translucent so the
    frozen table is still readable behind the card.
    --------------------------------------------------------------------- */
+/* A plain two-bar control.  The dawn kit used to draw a crescent behind the
+   glyph, which read as a shoe rather than as pause.
+   `display` belongs to the scene rules below and to nothing else: the button
+   exists in the arena markup at all times, so anything that sets a display
+   value here unconditionally leaves it sitting on the hub and the menus. */
 .pause-button {
   /* Top-left: the toast owns the top-right corner of the stage. */
   position: absolute;
@@ -464,34 +469,22 @@ button:hover {
   left: 10px;
   z-index: 6;
   display: none;
-  width: 34px;
-  height: 34px;
+  place-items: center;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 1px solid #c97a4566;
-  border-radius: 9px;
+  border-radius: 50%;
   background: #0c1417d9;
   color: #f3ede2;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1;
-  letter-spacing: .1em;
+  letter-spacing: 1px;
   cursor: pointer;
   transition: border-color .16s ease, background .16s ease, transform .16s ease;
 }
-body.game-mode .pause-button { display: grid; place-content: center; }
+body.game-mode .pause-button { display: grid; }
 body.onboarding-locked .pause-button { display: none; }
-/* A plain two-bar control. The dawn kit used to draw a crescent behind the
-   glyph, which read as a shoe rather than as pause. */
-.pause-button {
-  display: grid;
-  place-items: center;
-  width: 36px !important;
-  height: 36px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  font-size: 14px !important;
-  letter-spacing: 1px;
-  line-height: 1;
-}
 .pause-button:hover { border-color: #c97a45; background: #15242af2; transform: translateY(-1px); }
 .pause-button:focus-visible { outline: 2px solid var(--star); outline-offset: 2px; }
 .overlay.pause-scene { background: #0a0f12c4 !important; backdrop-filter: blur(2px); }
@@ -569,7 +562,9 @@ body.onboarding-locked .pause-button { display: none; }
   letter-spacing: .04em;
 }
 @media (max-width: 760px) {
-  .pause-button { top: 8px; right: 8px; width: 40px; height: 40px; }
+  /* Left, not right: the button moved corners and this kept the old `right`,
+     which does nothing while `left` is set but reads as the wrong intent. */
+  .pause-button { top: 8px; left: 8px; width: 40px; height: 40px; }
   .pause-card { padding: 18px 15px 13px; }
   .pause-card h2 { font-size: 17px !important; }
   .pause-hint { display: none; }
