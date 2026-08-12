@@ -1,0 +1,48 @@
+/* Stella Ball — Dawn pass (2026-08-12)
+   stella-ball-theme.css 뒤에 로드. 픽셀 버튼 킷(data-pbtn) 지원과 배경 데코만 담당한다.
+   전투 물리·판정색에는 관여하지 않는다. 문서: ../UI_KIT_DAWN.md */
+
+main { position: relative; z-index: 1; }
+
+/* 픽셀 버튼: 테마의 !important 배경/테두리를 무력화하고 킷 캔버스(--pbtn-img)를 입힌다 */
+[data-pbtn],
+.hub-tab[data-pbtn],
+.hub-tab.center[data-pbtn] {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: var(--pbtn-img) !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 0 #04080a);
+}
+[data-pbtn]:hover,
+.hub-tab[data-pbtn]:hover,
+.hub-tab.center[data-pbtn]:hover {
+  border: 0 !important;
+  background: transparent !important;
+  background-image: var(--pbtn-img) !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+}
+[data-pbtn="cta"], [data-pbtn="tabActive"] {
+  color: #fff6e6 !important;
+  text-shadow: -1px 0 0 #6e3616, 1px 0 0 #6e3616, 0 -1px 0 #6e3616, 0 2px 0 #6e3616 !important;
+}
+[data-pbtn="sub"], [data-pbtn="tab"] { color: #eaf4f1 !important; text-shadow: 0 2px 0 #04080a !important; }
+[data-pbtn="chip"] { color: #b9cdc9 !important; }
+[data-pbtn="moon"] { color: #4a3a1a !important; }
+[data-pbtn="star"] { color: #4a2408 !important; text-shadow: 0 1px 0 #ffe9a8 !important; }
+[data-pbtn] img { filter: saturate(.9) drop-shadow(0 1px 0 #04080a) !important; }
+
+/* 배경 데코 — main 아래(z 0), 여백에서만 클릭을 받는다 */
+#dawn-sky { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+@keyframes dawnTwinkle { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+@keyframes dawnFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes dawnAurora { 0% { transform: translateX(-50px) skewX(-10deg); } 100% { transform: translateX(50px) skewX(-2deg); } }
+@keyframes dawnMeteor { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateX(70vw); opacity: 0; } }
+@keyframes dawnPop { 0% { transform: translate(-50%, -50%) scale(.4); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  #dawn-sky * { animation: none !important; }
+}

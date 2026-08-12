@@ -15,6 +15,7 @@ const expectedStyles = [
   "./prism-breakers-story.css",
   "./prism-breakers-polish.css",
   "./stella-ball-theme.css",
+  "./stella-ball-dawn.css",
 ];
 const expectedScripts = [
   "../hive/prism-hive-client.js",
@@ -29,6 +30,8 @@ const expectedScripts = [
   "./js/game-feedback.js",
   "./js/game-onboarding.js",
   "./js/game-bootstrap.js",
+  "./stella-ball-pixel-ui.js",
+  "./stella-ball-dawn.js",
 ];
 const actualScripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(
   (match) => match[1],

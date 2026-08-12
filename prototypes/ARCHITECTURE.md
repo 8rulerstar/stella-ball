@@ -11,7 +11,8 @@ The browser build deliberately uses ordered classic scripts instead of a bundler
 - `prism-breakers-combat.css`: combat dashboard and table layout.
 - `prism-breakers-story.css`: title, story, and observatory presentation.
 - `prism-breakers-polish.css`: campaign map, onboarding, and final visual refinements.
-- `stella-ball-theme.css`: final Ink & Brass visual pass. It must remain the final stylesheet so it can change presentation without touching gameplay code.
+- `stella-ball-theme.css`: Dawn Observatory palette pass. It carries the theme colors and must stay after every `prism-breakers-*.css` file.
+- `stella-ball-dawn.css`: pixel button kit and background decor styling. It must remain the final stylesheet; it overrides the theme's `!important` button surfaces, so nothing may load after it.
 - `../PLAY_WINDOWS.cmd`: Windows launcher for the repository entry point.
 
 ## JavaScript ownership
@@ -29,6 +30,11 @@ The files under `js/` load in this exact order and share the browser global scop
 9. `game-feedback.js` — impact pauses, particles, layered sample/procedural SFX, combo presentation, ability/finisher/victory effects, and the final animation loop.
 10. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions.
 11. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
+
+Two presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
+
+12. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
+13. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer.
 
 ## Important maintenance rule
 

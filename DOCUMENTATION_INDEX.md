@@ -10,6 +10,7 @@
 3. [PROGRESS_REPORT.md](PROGRESS_REPORT.md) — 지금 플레이 가능한 내용, 알려진 위험, 다음 세션 시작점
 4. [prototypes/ARCHITECTURE.md](prototypes/ARCHITECTURE.md) — 코드 소유 경계와 스크립트 로드 순서
 5. [prototypes/MAINTENANCE.md](prototypes/MAINTENANCE.md) — 기믹·성능·검증 변경 절차
+6. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙. [UI_REDESIGN_HANDOFF.md](UI_REDESIGN_HANDOFF.md)(Ink & Brass v2)를 대체했다.
 
 ## 제출과 이력 문서
 

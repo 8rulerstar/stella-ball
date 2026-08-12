@@ -14,6 +14,15 @@
 - 증거: 커밋, 파일, 스크린샷, 봇 결과 링크
 ```
 
+## 2026-08-12 — 새벽 관측소(Dawn Observatory) UI 킷 반입
+
+- 작업 내용: 외부에서 받은 `dawn-patch` 묶음(6파일)을 저장소에 반입하고, 검증 게이트와 문서 규칙을 새 로드 순서에 맞췄다.
+- 결과: `stella-ball-theme.css`가 v2 "Ink & Brass"(네이비·황동)에서 v3 "Dawn Observatory"(청록-잿빛 밤 + 살구빛 여명)로 바뀌었다. diff 1200줄은 전부 색 값과 헤더 주석 2줄이며 셀렉터·구조 변경은 없다. 신규 3파일이 붙었다 — `stella-ball-pixel-ui.js`(캔버스로 픽셀 실루엣·스프라이트를 dataURL 생성, `window.StellaPixelUI` 노출), `stella-ball-dawn.js`(MutationObserver로 게임이 그린 버튼에 `data-pbtn` 자동 부여 + `#dawn-sky` 배경 데코), `stella-ball-dawn.css`(`[data-pbtn]` 표면과 데코 키프레임). 테마 기준 문서는 `UI_KIT_DAWN.md`가 되고 `UI_REDESIGN_HANDOFF.md`는 대체 표기만 남겼다.
+- 막힌 점 / 우회: (1) `scripts/smoke-runtime.mjs`의 `expectedStyles`/`expectedScripts`가 정확한 순서 일치 검사라 파일만 넣으면 smoke가 즉시 실패했다. 새 스타일 1개와 스크립트 2개를 목록에 추가했다. (2) 검수 중 전투 캔버스가 완전히 검게 나와 반입 사고를 의심했으나, `git stash`로 되돌린 HEAD에서도 동일하게 검었고 `document.visibilityState === "hidden"`이었다. 헤드리스 브라우저 창이 페이지를 숨김으로 보고해 렌더 루프가 대기 상태로 있었을 뿐이다(`ARCHITECTURE.md`의 browser-hidden 규칙). `draw()`를 한 번 직접 호출하니 캔버스 표본의 100%가 채워졌고 보스·유성·회랑 타일이 정상이었다.
+- 사람이 직접 결정·수정한 점: 반입 자체와 push는 사용자의 지시다. 문서까지 같은 커밋에 넣는 범위도 사용자가 선택했다. 패치가 `stella-ball-theme.css` 뒤에 `stella-ball-dawn.css`를 놓기 때문에 "테마가 마지막 스타일시트"라는 기존 규칙과 충돌했고, 마지막 자리를 dawn으로 넘기는 쪽으로 규칙을 고쳤다.
+- 남은 것: 전투 캔버스 바닥 톤(`game-core-render.js`의 스테이지 아트 캐시 색)은 여전히 보라색으로, 주변 UI의 청록-살구와 어긋난다. 판정 가독성 검증 후 별도 패스로 둔다. 온보딩 루나 대화 카드도 구 네이비색이 남아 있다. `star` 실루엣은 킷에만 있고 자동 매핑에는 미사용이다.
+- 증거: `npm run verify` / `npm run smoke` 통과(스타일시트 7, 런타임 스크립트 14), 로컬 서버 브라우저 확인 — 타이틀·허브·상점 화면에서 `[data-pbtn]` 요소 전부가 픽셀 실루엣을 받고 태그 누락 버튼 0개, 콘솔 에러 0건, 에셋 요청 404 0건
+
 ## 2026-08-12 — 업적창 스크롤·수령 손맛·타이틀 잔상 제거
 
 - 작업 내용: 업적창에서 뒤로가기가 화면 밖으로 잘리고 스크롤도 없던 문제, 밋밋한 수령 반응, 타이틀 배경에 남아 있던 이전 브랜드 아트를 정리했다.
