@@ -850,8 +850,12 @@ function drawAbilityFx() {
   for (const burst of abilityBursts) {
     const p = Math.max(0, 1 - burst.t / burst.d),
       sheet = textures[abilityFxSheets?.[burst.kind]],
+      // A failed load reports 0x0, and 0 === 0 * 4 would pass the sheet
+      // check and crash drawImage — require a real width first.
       sheetReady =
-        sheet?.complete && sheet.naturalWidth === sheet.naturalHeight * 4;
+        sheet?.complete &&
+        sheet.naturalWidth > 0 &&
+        sheet.naturalWidth === sheet.naturalHeight * 4;
     drawAbilityAccent(burst, p);
     if (sheetReady) {
       // Signature burst: step through the 4-frame sheet across the lifetime
@@ -2434,10 +2438,7 @@ function labConditionMet(g) {
 }
 function labTurnCommand(px, py) {
   if (!labRulesActive() || !ball?.moving) return false;
-  if ((battle.labTurns || 0) <= 0) {
-    toast("전환 소진 · 이번 전투에는 더 없습니다");
-    return true;
-  }
+  if ((battle.labTurns || 0) <= 0) return true;
   const speed = Math.hypot(ball.vx, ball.vy) || 1,
     dx = px - ball.x,
     dy = py - ball.y,
@@ -2459,13 +2460,6 @@ function labTurnCommand(px, py) {
     112,
     0.44,
     Math.atan2(ball.vy, ball.vx),
-  );
-  addPopup(
-    ball.x,
-    ball.y - 30,
-    (clockwise ? "우" : "좌") + "회전! 잔여 " + battle.labTurns,
-    "#e5c7ff",
-    true,
   );
   combatSfx?.("launch", 0.5);
   sync();
@@ -2494,9 +2488,6 @@ queueUnitAssist = function (g, amount, name, options = {}) {
     if (full) {
       name = "완전 각성 · " + name;
       earnBlaze(0.3, g.s + " 완전 각성 +0.3");
-      addPopup(g.x, g.y - 48, "완전 각성!", g.col, true);
-    } else {
-      addPopup(g.x, g.y - 48, "조건 미달 · 약화 정산", "#8ba39f", false);
     }
   }
   labQueueUnitAssist(g, amount, name, options);
@@ -2506,6 +2497,29 @@ endShot = function () {
   labEndShot();
   for (const g of gates) g.labRelayed = false;
 };
+// The fill moment is the visible point: the instant a hero's condition turns
+// true mid-flight, its gem pops a gold ring and chimes once.
+registerRuntimeHook("afterFeedbackUpdate", function trackLabConditions(d) {
+  if (!labRulesActive() || !run) return;
+  for (const g of gates) {
+    if (!labConditionFor(g)) continue;
+    const met = labConditionMet(g);
+    if (met && !g.labCondMet) {
+      g.labCondFlash = 0.5;
+      areaBursts.push({
+        x: g.x,
+        y: g.y - 78,
+        r: 30,
+        col: "#ffe2a0",
+        t: 0,
+        d: 0.4,
+      });
+      combatSfx?.("unlock", 0.4);
+    }
+    g.labCondMet = met;
+    g.labCondFlash = Math.max(0, (g.labCondFlash || 0) - d);
+  }
+});
 const labSetupBattle = setupBattle;
 setupBattle = function () {
   labSetupBattle();
@@ -2587,20 +2601,39 @@ registerRuntimeHook("afterSpecialDraw", function drawLabHud() {
     34,
   );
   if (labRulesActive()) {
-    // Per-hero finisher condition, live: grey until met, gold once secured.
-    x.font = "bold 8px ui-monospace";
-    x.textAlign = "center";
+    // Per-hero awakening gem above the head: hollow and dim while the
+    // finisher condition is unmet, filled gold with a pulse once secured.
     for (const g of gates) {
-      const rule = labConditionFor(g);
-      if (g.fx === "bladewheel") {
-        x.fillStyle = "#6b7a90";
-        x.fillText("이동 피해 특화", g.x, g.y + 57);
-        continue;
+      if (!labConditionFor(g)) continue;
+      const met = Boolean(g.labCondMet),
+        flash = g.labCondFlash || 0,
+        pulse = met ? 1 + Math.sin(frameClock / 150) * 0.15 : 1,
+        s = (met ? 8 : 5.5) * pulse + flash * 8;
+      x.save();
+      x.translate(g.x, g.y - 78);
+      x.beginPath();
+      x.moveTo(0, -s);
+      x.lineTo(s * 0.72, 0);
+      x.lineTo(0, s);
+      x.lineTo(-s * 0.72, 0);
+      x.closePath();
+      if (met) {
+        x.shadowBlur = 14 + flash * 22;
+        x.shadowColor = "#ffe2a0";
+        x.fillStyle = "#ffe2a0";
+        x.fill();
+        x.shadowBlur = 0;
+        x.fillStyle = "#fff8e2";
+        x.beginPath();
+        x.arc(0, 0, Math.max(1.5, s * 0.28), 0, Math.PI * 2);
+        x.fill();
+      } else {
+        x.globalAlpha = 0.75;
+        x.strokeStyle = "#5d6b84";
+        x.lineWidth = 1.5;
+        x.stroke();
       }
-      if (!rule) continue;
-      const met = labConditionMet(g);
-      x.fillStyle = met ? "#ffe2a0" : "#6b7a90";
-      x.fillText((met ? "✓ " : "· ") + rule.text, g.x, g.y + 57);
+      x.restore();
     }
     if (ball?.moving && (battle.labTurns || 0) > 0) {
       x.font = "bold 10px ui-monospace";
