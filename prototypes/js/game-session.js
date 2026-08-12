@@ -740,10 +740,10 @@ function damageAdd(a, amount, label, col) {
 }
 function areaAttack(name, amount, col) {
   if (!boss || boss.hp <= 0 || battleComplete) return;
-  boss.hp = Math.max(0, boss.hp - amount);
+  const dealt = applyBossHit(amount);
   registerBossHit(false);
   impact(true);
-  addPopup(boss.x, boss.y - 80, name + " " + amount, col, true);
+  if (dealt > 0) addPopup(boss.x, boss.y - 80, name + " " + dealt, col, true);
   areaBursts.push({ x: boss.x, y: boss.y, r: 112, col, t: 0, d: 0.42 });
   for (const a of adds) damageAdd(a, amount, name, col);
   toast(name + " · 전 적 광역 피해");

@@ -57,7 +57,12 @@ const RULES = {
   // immortal there.  Half the campaign pool keeps it a two or three shot win.
   tutorialCoreHp: 120,
 };
-const ECONOMY = { clearGold: 100, gachaCost: 100, skinCost: 500 };
+const ECONOMY = {
+  clearGold: 100,
+  gachaCost: 100,
+  skinCost: 500,
+  heroSkinCost: 320,
+};
 // Meteor skins are cosmetic only: they repaint the existing prism orb with a
 // hue rotation and swap the trail/glow palette, so no new art is shipped and
 // no skin can change damage, speed or any physics value.
@@ -104,6 +109,18 @@ const METEOR_SKINS = [
   },
 ];
 const DEFAULT_METEOR_SKIN = METEOR_SKINS[0].id;
+// Starkeeper skins repaint the sprite with a hue rotation at draw time, the
+// same trick the meteor skins use, so no new sheet is shipped.  `heroes[].col`
+// is untouched: the ring, the name and every readability colour stay put, and
+// a skin can never change a physics or damage value.
+const HERO_SKINS = [
+  { id: "origin", name: "본래 색", note: "관측소 지급", hue: 0, sat: 1 },
+  { id: "azure", name: "청군", note: "새벽 전 가장 짙은 파랑", hue: 168, sat: 1.05 },
+  { id: "crimson", name: "홍옥", note: "식지 않은 화로의 색", hue: 312, sat: 1.1 },
+  { id: "violet", name: "자수정", note: "공허를 오래 본 자의 색", hue: 254, sat: 1 },
+  { id: "verdigris", name: "청동", note: "오래 걸린 관측기의 녹", hue: 96, sat: 0.92 },
+];
+const DEFAULT_HERO_SKIN = HERO_SKINS[0].id;
 // Pinball is simulated in small, fixed slices.  Keeping all contacts on the
 // same solver makes a flipper, bumper and wall feel like parts of one table.
 const PHYSICS = {
@@ -308,10 +325,49 @@ for (const id of Object.keys(heroAnimArt))
       attack: "../assets/characters/anim/" + id + "-attack.png",
     },
   });
+// A constellation is a world and each of its stars is a stage, so stage names
+// come from the sky instead of being invented.  `shape` is the real figure in
+// percentages of the map box, in play order, which is also the order the nodes
+// connect on the hub map.
+const WORLDS = [
+  {
+    id: "ursa",
+    name: "북두칠성",
+    bayer: "URSA MAJOR",
+    lore: "일곱 별이 국자를 이루는, 밤하늘에서 가장 먼저 배우는 별자리.",
+    shape: [
+      [86, 30],
+      [84, 58],
+      [66, 66],
+      [64, 42],
+      [48, 36],
+      [31, 30],
+      [13, 20],
+    ],
+  },
+  {
+    id: "cass",
+    name: "카시오페이아",
+    bayer: "CASSIOPEIA",
+    lore: "다섯 별이 W를 그리는, 북극성을 찾는 두 번째 이정표.",
+    shape: [
+      [12, 34],
+      [30, 64],
+      [50, 30],
+      [70, 64],
+      [88, 34],
+    ],
+  },
+];
+// The table is 720x900, and `preview` is the same slot in percent so the
+// squad minimap and the real table agree.  Every stage that introduces a
+// gimmick carries that gimmick alone; only later stages combine two.
 const stages = [
   {
     id: "1-1",
-    name: "별빛의 첫 충돌",
+    world: "ursa",
+    star: { name: "두베", bayer: "α UMa" },
+    name: "두베 · 첫 관측",
     terrain:
       "루나의 안내를 따라 직격, 근접 각성, 별자리 배율을 차례로 관측하세요.",
     slots: [
@@ -320,9 +376,9 @@ const stages = [
       [360, 470],
     ],
     preview: [
-      [25, 65],
-      [75, 65],
-      [50, 56],
+      [25.3, 60.2],
+      [74.7, 60.2],
+      [50, 52.2],
     ],
     boss: { x: 360, y: 190 },
     labels: ["왼쪽 별지기", "오른쪽 별지기", "첫 관측점"],
@@ -331,7 +387,9 @@ const stages = [
   },
   {
     id: "1-2",
-    name: "균열 회랑",
+    world: "ursa",
+    star: { name: "메라크", bayer: "β UMa" },
+    name: "메라크 · 공명의 문",
     terrain: "두 공명 범퍼를 오가며 속도를 만들고, 범퍼 충돌 연계를 익히세요.",
     slots: [
       [160, 518],
@@ -339,20 +397,22 @@ const stages = [
       [360, 438],
     ],
     preview: [
-      [22, 63],
-      [78, 63],
-      [50, 53],
+      [22.2, 57.6],
+      [77.8, 57.6],
+      [50, 48.7],
     ],
     boss: { x: 360, y: 192 },
     labels: ["좌측 중계점", "우측 중계점", "중앙 귀환점"],
     bumpers: [
-      [246, 322, 27],
-      [474, 322, 27],
+      [240, 330, 27],
+      [480, 330, 27],
     ],
   },
   {
     id: "1-3",
-    name: "침식의 계단",
+    world: "ursa",
+    star: { name: "페크다", bayer: "γ UMa" },
+    name: "페크다 · 반사의 계단",
     terrain: "반사 벽 두 개로 각을 만들어 거상의 약점까지 길을 그리세요.",
     slots: [
       [170, 446],
@@ -360,16 +420,12 @@ const stages = [
       [360, 550],
     ],
     preview: [
-      [24, 53],
-      [76, 43],
-      [50, 67],
+      [23.6, 49.6],
+      [76.4, 39.8],
+      [50, 61.1],
     ],
     boss: { x: 360, y: 190 },
     labels: ["좌측 계단", "우측 계단", "하단 귀환점"],
-    // A stage that introduces a gimmick shows that gimmick and nothing else.
-    // 1-3 used to stack resonance bumpers, walls and void remnants at once,
-    // which taught none of the three.  Walls only; void remnants wait for a
-    // stage of their own and stay available in the training table.
     bumpers: [],
     gimmicks: {
       walls: [
@@ -379,26 +435,230 @@ const stages = [
     },
   },
   {
-    id: "2-1",
-    name: "원심 정원",
-    terrain: "세 공명 범퍼가 보스 주변에 작은 고리 길을 만듭니다.",
+    id: "1-4",
+    world: "ursa",
+    star: { name: "메그레즈", bayer: "δ UMa" },
+    name: "메그레즈 · 잔재의 길목",
+    terrain: "길을 막고 선 공허 잔재 두 기를 먼저 걷어내야 약점이 열립니다.",
     slots: [
-      [180, 390],
-      [540, 390],
-      [360, 538],
+      [186, 520],
+      [534, 520],
+      [360, 604],
     ],
     preview: [
-      [26, 46],
-      [74, 46],
-      [50, 65],
+      [25.8, 57.8],
+      [74.2, 57.8],
+      [50, 67.1],
+    ],
+    boss: { x: 360, y: 196 },
+    labels: ["좌측 길목", "우측 길목", "하단 대기점"],
+    bumpers: [],
+    gimmicks: {
+      adds: [
+        { x: 268, y: 300, r: 23, hp: 52 },
+        { x: 452, y: 300, r: 23, hp: 52 },
+      ],
+    },
+  },
+  {
+    id: "1-5",
+    world: "ursa",
+    star: { name: "알리오트", bayer: "ε UMa" },
+    name: "알리오트 · 굳은 껍질",
+    terrain:
+      "거상이 껍질을 세 겹 둘렀습니다. 약한 타격 세 번은 통째로 튕겨 나갑니다.",
+    slots: [
+      [172, 500],
+      [548, 500],
+      [360, 404],
+    ],
+    preview: [
+      [23.9, 55.6],
+      [76.1, 55.6],
+      [50, 44.9],
+    ],
+    boss: { x: 360, y: 200 },
+    labels: ["좌측 파쇄점", "우측 파쇄점", "중앙 파쇄점"],
+    bumpers: [],
+    gimmicks: {
+      shield: { hits: 3 },
+    },
+  },
+  {
+    id: "1-6",
+    world: "ursa",
+    star: { name: "미자르", bayer: "ζ UMa" },
+    name: "미자르 · 흐려지는 자리",
+    terrain: "흐린 발판을 밟고 지나가면 쌓아 둔 별자리 배율이 깎여 나갑니다.",
+    slots: [
+      [176, 556],
+      [544, 556],
+      [360, 452],
+    ],
+    preview: [
+      [24.4, 61.8],
+      [75.6, 61.8],
+      [50, 50.2],
+    ],
+    boss: { x: 360, y: 192 },
+    labels: ["좌측 흐린 자리", "우측 흐린 자리", "중앙 관측점"],
+    bumpers: [],
+    gimmicks: {
+      dragPads: [
+        { x: 216, y: 664, w: 168, h: 42, drop: 0.5 },
+        { x: 504, y: 664, w: 168, h: 42, drop: 0.5 },
+      ],
+    },
+  },
+  {
+    id: "1-7",
+    world: "ursa",
+    star: { name: "알카이드", bayer: "η UMa" },
+    name: "알카이드 · 도는 방벽",
+    terrain: "체력을 가진 방벽 두 개가 거상 주위를 돕니다. 틈을 노리세요.",
+    slots: [
+      [166, 540],
+      [554, 540],
+      [360, 620],
+    ],
+    preview: [
+      [23.1, 60],
+      [76.9, 60],
+      [50, 68.9],
+    ],
+    boss: { x: 360, y: 214 },
+    labels: ["좌측 틈", "우측 틈", "하단 대기점"],
+    bumpers: [],
+    gimmicks: {
+      orbits: [
+        { r: 136, hp: 70, speed: 0.9, phase: 0 },
+        { r: 136, hp: 70, speed: 0.9, phase: 3.14159 },
+      ],
+    },
+  },
+  {
+    id: "2-1",
+    world: "cass",
+    star: { name: "카프", bayer: "β Cas" },
+    name: "카프 · 밀려나는 밤",
+    terrain:
+      "거상의 체력이 꺾일 때마다 별지기 셋과 유성이 네 모서리로 밀려납니다.",
+    slots: [
+      [180, 498],
+      [540, 498],
+      [360, 420],
+    ],
+    preview: [
+      [25, 55.3],
+      [75, 55.3],
+      [50, 46.7],
+    ],
+    boss: { x: 360, y: 198 },
+    labels: ["좌측 고정점", "우측 고정점", "중앙 고정점"],
+    bumpers: [],
+    gimmicks: {
+      phases: { at: [0.66, 0.33], effect: "push" },
+    },
+  },
+  {
+    id: "2-2",
+    world: "cass",
+    star: { name: "셰다르", bayer: "α Cas" },
+    name: "셰다르 · 다시 잠드는 별",
+    terrain:
+      "거상의 체력이 꺾일 때마다 별지기가 다시 잠듭니다. 두 번 부딪혀야 깨어납니다.",
+    slots: [
+      [190, 520],
+      [530, 520],
+      [360, 596],
+    ],
+    preview: [
+      [26.4, 57.8],
+      [73.6, 57.8],
+      [50, 66.2],
+    ],
+    boss: { x: 360, y: 194 },
+    labels: ["좌측 잠자리", "우측 잠자리", "하단 잠자리"],
+    bumpers: [],
+    gimmicks: {
+      phases: { at: [0.66, 0.33], effect: "sleep", wakeNeed: 2 },
+    },
+  },
+  {
+    id: "2-3",
+    world: "cass",
+    star: { name: "감마 카스", bayer: "γ Cas" },
+    name: "감마 카스 · 가속의 등뼈",
+    terrain: "중앙 가속 발판이 유성의 운동량을 밀어 올립니다.",
+    slots: [
+      [168, 560],
+      [552, 560],
+      [360, 466],
+    ],
+    preview: [
+      [23.3, 62.2],
+      [76.7, 62.2],
+      [50, 51.8],
+    ],
+    boss: { x: 360, y: 190 },
+    labels: ["좌측 등뼈", "우측 등뼈", "중앙 등뼈"],
+    bumpers: [],
+    gimmicks: {
+      boostPads: [{ x: 360, y: 690, w: 190, h: 40, boost: 300 }],
+    },
+  },
+  {
+    id: "2-4",
+    world: "cass",
+    star: { name: "루크바", bayer: "δ Cas" },
+    name: "루크바 · 겹친 궤도",
+    terrain: "도는 방벽 하나와 반사 벽 두 개가 함께 길을 좁힙니다.",
+    slots: [
+      [174, 534],
+      [546, 534],
+      [360, 616],
+    ],
+    preview: [
+      [24.2, 59.3],
+      [75.8, 59.3],
+      [50, 68.4],
+    ],
+    boss: { x: 360, y: 210 },
+    labels: ["좌측 궤도", "우측 궤도", "하단 궤도"],
+    bumpers: [],
+    gimmicks: {
+      orbits: [{ r: 128, hp: 82, speed: 1.05, phase: 0 }],
+      walls: [
+        { x: 132, y: 400, w: 108, h: 18 },
+        { x: 588, y: 400, w: 108, h: 18 },
+      ],
+    },
+  },
+  {
+    id: "2-5",
+    world: "cass",
+    star: { name: "세긴", bayer: "ε Cas" },
+    name: "세긴 · 마지막 꼭짓점",
+    terrain: "껍질 두 겹과 공명 범퍼 둘. 배율을 쌓아 한 번에 뚫으세요.",
+    slots: [
+      [162, 546],
+      [558, 546],
+      [360, 456],
+    ],
+    preview: [
+      [22.5, 60.7],
+      [77.5, 60.7],
+      [50, 50.7],
     ],
     boss: { x: 360, y: 202 },
-    labels: ["좌측 고리", "우측 고리", "하단 고리"],
+    labels: ["좌측 꼭짓점", "우측 꼭짓점", "중앙 꼭짓점"],
     bumpers: [
-      [258, 302, 25],
-      [462, 302, 25],
-      [360, 372, 27],
+      [252, 348, 26],
+      [468, 348, 26],
     ],
+    gimmicks: {
+      shield: { hits: 2 },
+    },
   },
   {
     id: "T",
@@ -411,9 +671,9 @@ const stages = [
       [360, 348],
     ],
     preview: [
-      [21, 64],
-      [79, 64],
-      [50, 40],
+      [21.4, 58.4],
+      [78.6, 58.4],
+      [50, 38.7],
     ],
     boss: { x: 360, y: 194 },
     labels: ["좌측 훈련 별지기", "우측 훈련 별지기", "중앙 훈련 별지기"],
@@ -422,19 +682,52 @@ const stages = [
       [496, 320, 27],
       [360, 420, 25],
     ],
-    // The training table is the only place where the next-stage gimmick
-    // modules are enabled before a campaign stage is designed around one.
+    // The training table is the only place where every gimmick module runs at
+    // once, so a new one can be exercised before a stage is designed for it.
     gimmicks: {
       walls: [
         { x: 156, y: 398, w: 104, h: 18 },
         { x: 564, y: 398, w: 104, h: 18 },
       ],
       boostPads: [{ x: 360, y: 504, w: 156, h: 38, boost: 300 }],
+      dragPads: [{ x: 360, y: 672, w: 150, h: 38, drop: 0.4 }],
       adds: [{ x: 360, y: 306, r: 23, hp: 56 }],
+      orbits: [{ r: 124, hp: 64, speed: 1, phase: 0 }],
     },
     training: true,
   },
 ];
+// Campaign order is the flat stage order minus the training table, and one
+// clear opens the next star.  `progress.clears` is the only save field this
+// needs, so no migration is required for players already part way in.
+const campaignStages = stages.filter((stage) => !stage.training);
+function worldOf(stage) {
+  return WORLDS.find((world) => world.id === stage?.world) ?? null;
+}
+function campaignIndexOf(stage) {
+  return campaignStages.indexOf(stage);
+}
+function worldStages(worldId) {
+  return campaignStages.filter((stage) => stage.world === worldId);
+}
+// One place names a stage's gimmicks, so the hub map, the mission bar and the
+// library never drift apart on what a stage actually contains.
+function stageGimmickLabels(stage) {
+  const g = stage?.gimmicks ?? {};
+  return [
+    stage?.bumpers?.length && "공명 범퍼 ×" + stage.bumpers.length,
+    g.walls?.length && "반사 벽 ×" + g.walls.length,
+    g.boostPads?.length && "가속 발판 ×" + g.boostPads.length,
+    g.dragPads?.length && "흐린 발판 ×" + g.dragPads.length,
+    g.adds?.length && "공허 잔재 ×" + g.adds.length,
+    g.orbits?.length && "도는 방벽 ×" + g.orbits.length,
+    g.shield && "굳은 껍질 " + g.shield.hits + "겹",
+    g.phases &&
+      (g.phases.effect === "push"
+        ? "페이즈 · 모서리 밀어내기"
+        : "페이즈 · 재수면 " + (g.phases.wakeNeed ?? 2) + "회"),
+  ].filter(Boolean);
+}
 
 function setupStageGimmicks(stage) {
   const gimmicks = stage.gimmicks ?? {};
@@ -471,6 +764,47 @@ function setupStageGimmicks(stage) {
       hitCooldown: 0,
     };
   });
+  // Fading pads are the mirror of boost pads: same rectangle test, but they
+  // take constellation multiplier away instead of adding speed.
+  dragPads = (gimmicks.dragPads ?? []).map((pad, index) => ({
+    id: pad.id ?? "drag-" + index,
+    x: pad.x,
+    y: pad.y,
+    w: pad.w ?? 150,
+    h: pad.h ?? 38,
+    drop: pad.drop ?? 0.5,
+    on: 0,
+  }));
+  // Barriers with health that circle the colossus.  `a` is the live angle;
+  // `phase` only seeds it so two barriers can start opposite each other.
+  orbitals = (gimmicks.orbits ?? []).map((orbit, index) => {
+    const hp = orbit.hp ?? 70;
+    return {
+      id: orbit.id ?? "orbit-" + index,
+      radius: orbit.r ?? 130,
+      speed: orbit.speed ?? 1,
+      a: orbit.phase ?? 0,
+      r: orbit.size ?? 26,
+      x: stage.boss.x,
+      y: stage.boss.y,
+      hp,
+      maxHp: hp,
+      down: 0,
+      hitCooldown: 0,
+    };
+  });
+  bossShield = gimmicks.shield
+    ? { hits: gimmicks.shield.hits ?? 3, max: gimmicks.shield.hits ?? 3, flash: 0 }
+    : null;
+  // Phase rules fire once each time the colossus drops past a health ratio.
+  stagePhases = gimmicks.phases
+    ? {
+        at: [...(gimmicks.phases.at ?? [])],
+        effect: gimmicks.phases.effect ?? "push",
+        wakeNeed: gimmicks.phases.wakeNeed ?? 2,
+        fired: 0,
+      }
+    : null;
 }
 const bossArt = {
   sprite: "../assets/library/boss2/void-colossus.png",
@@ -503,6 +837,15 @@ const feedbackArt = {
   corebreak: "../assets/library/fx/core-break-signature-512.png",
   critStar: "../assets/library/restyle/fx/crit-star.png",
 };
+// The art table is smaller than the stage list on purpose: stages share
+// terrain sets rather than each shipping its own.  A stage can name a set with
+// `art`; otherwise it falls back instead of throwing when the campaign grows.
+function stageArtFor(index = stageIndex) {
+  const table = libraryArt.stages,
+    named = stages[index]?.art;
+  if (named != null && table[named]) return table[named];
+  return table[index] ?? table[index % table.length] ?? table[0];
+}
 const libraryArt = {
   stages: [
     {
@@ -641,7 +984,7 @@ function primeCombatTextures() {
     loadTexture(path);
   for (const path of Object.values(abilityFx)) loadTexture(path);
   for (const path of Object.values(abilityFxSheets)) loadTexture(path);
-  const stageArt = libraryArt.stages[stageIndex];
+  const stageArt = stageArtFor();
   for (const path of [
     stageArt.tile,
     ...stageArt.frame,
@@ -729,6 +1072,10 @@ let build,
   assistShots = [],
   fieldFx = [],
   barriers = [],
+  dragPads = [],
+  orbitals = [],
+  bossShield = null,
+  stagePhases = null,
   seeds = [],
   frameClock = 0,
   last = 0,

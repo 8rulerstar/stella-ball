@@ -82,18 +82,20 @@ function resolveAssist(a) {
     gate.animState = "hit";
     gate.on = Math.max(gate.on, 0.32);
   }
-  const amount = Math.round(a.amount * (a.blaze || 1));
-  boss.hp = Math.max(0, boss.hp - amount);
+  const amount = Math.round(a.amount * (a.blaze || 1)),
+    dealt = applyBossHit(amount);
   registerBossHit(false);
   impact(false, boss.x, boss.y, a.finisher ? "finisher" : "default");
-  addPopup(
-    boss.x,
-    boss.y - 78,
-    a.name + " 지원 -" + amount,
-    a.col,
-    hitCombo >= 3,
-  );
-  toast(a.name + " 지원 명중 " + amount);
+  if (dealt > 0) {
+    addPopup(
+      boss.x,
+      boss.y - 78,
+      a.name + " 지원 -" + dealt,
+      a.col,
+      hitCombo >= 3,
+    );
+    toast(a.name + " 지원 명중 " + dealt);
+  }
   if (boss.hp <= 0) scheduleWin();
   syncBossHealth();
 }
@@ -543,7 +545,7 @@ function buildStageFloorLayer(key, im, base) {
   return layer;
 }
 function drawStageFloor() {
-  const tile = libraryArt.stages[stageIndex].tile,
+  const tile = stageArtFor().tile,
     im = textures[tile],
     base = ["#111633", "#151837", "#101b3b"][stageIndex] || "#0e1430";
   const layer = buildStageFloorLayer(stageIndex + ":" + tile, im, base);
@@ -555,12 +557,12 @@ function drawStageFloor() {
   x.fillRect(0, 0, W, H);
 }
 function drawStageProps() {
-  const props = libraryArt.stages[stageIndex].props || [];
+  const props = stageArtFor().props || [];
   for (const [path, px, py, size] of props)
     drawLibraryAsset(path, px, py, size, size, "none", 0.58);
 }
 function drawArenaFrame() {
-  const [hPath, vPath, cPath] = libraryArt.stages[stageIndex].frame,
+  const [hPath, vPath, cPath] = stageArtFor().frame,
     h = textures[hPath],
     v = textures[vPath],
     corner = textures[cPath];
@@ -595,7 +597,7 @@ function drawArenaFrame() {
   x.restore();
 }
 function buildStageArenaLayer() {
-  const stageArt = libraryArt.stages[stageIndex],
+  const stageArt = stageArtFor(),
     tile = textures[stageArt.tile],
     props = stageArt.props || [],
     [hPath, vPath, cPath] = stageArt.frame,
@@ -760,7 +762,19 @@ function drawProjectileOverlay() {
       "hue-rotate(145deg) saturate(.72)",
     );
 }
-function drawFrame(
+// A bought starkeeper skin is a hue rotation over the same sheet, applied
+// once here so every state (idle, roll, attack) picks it up for free.
+function drawFrame(spec, cx, cy, frame, scale, state) {
+  const tint =
+    typeof heroSkinFilter === "function" ? heroSkinFilter(spec.id) : "none";
+  if (tint === "none") return drawFrameRaw(spec, cx, cy, frame, scale, state);
+  x.save();
+  x.filter = tint;
+  const drawn = drawFrameRaw(spec, cx, cy, frame, scale, state);
+  x.restore();
+  return drawn;
+}
+function drawFrameRaw(
   spec,
   cx,
   cy,

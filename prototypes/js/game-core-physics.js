@@ -557,11 +557,12 @@ function hitBumper(b) {
   ball.vy *= boosted / speed;
   ball.power += 0.14;
   ball.runeBurst = 0.5;
-  const amount = 4 + Math.min(5, Math.floor(ball.bounces / 3));
-  boss.hp = Math.max(0, boss.hp - amount);
+  const amount = 4 + Math.min(5, Math.floor(ball.bounces / 3)),
+    dealt = applyBossHit(amount);
   registerBossHit(false);
   impact(false);
-  addPopup(b.x, b.y - 26, "룬 범퍼 -" + amount, "#80e8df", false);
+  if (dealt > 0)
+    addPopup(b.x, b.y - 26, "룬 범퍼 -" + dealt, "#80e8df", false);
   fieldFx.push({
     type: "bumper",
     x: b.x,

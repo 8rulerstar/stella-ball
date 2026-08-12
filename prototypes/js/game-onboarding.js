@@ -469,6 +469,17 @@ showMeta = function () {
   const mapStages = constellationMapStages(),
     mapIndex = hubSelectedMapIndex(mapStages),
     mapStage = mapStages[mapIndex],
+    world = activeWorld(),
+    // Paging is only offered toward a world whose first star is already open,
+    // so the arrows never lead to a dead map.
+    worldNav = (() => {
+      const at = WORLDS.indexOf(world);
+      const step = (delta) => {
+        const next = WORLDS[at + delta];
+        return next && isWorldUnlocked(next) ? next.id : null;
+      };
+      return { prev: step(-1), next: step(1) };
+    })(),
     stageData = mapStage.onboarding ? stages[0] : stages[mapStage.stage],
     // The player picks this in the profile tab; the lead starkeeper's rune
     // stone is only the fallback for a build without the pixel kit.
@@ -490,32 +501,27 @@ showMeta = function () {
     gimmicks = stageData.gimmicks ?? {},
     stageRule = mapStage.onboarding
       ? "루나의 관측 수업"
-      : [
-          stageData.bumpers?.length && "공명 범퍼 ×" + stageData.bumpers.length,
-          gimmicks.walls?.length && "반사 벽 ×" + gimmicks.walls.length,
-          gimmicks.boostPads?.length &&
-            "가속 발판 ×" + gimmicks.boostPads.length,
-          gimmicks.adds?.length && "공허 잔재 ×" + gimmicks.adds.length,
-        ]
-          .filter(Boolean)
-          .join(" · ") || "별자리 전술";
+      : stageGimmickLabels(stageData).join(" · ") || "별자리 전술";
   const nodes = mapStages
     .map((entry, index) => {
       const cleared = isStageCleared(entry);
       return (
-        '<button class="constellation-node s' +
-        (index + 1) +
+        '<button class="constellation-node' +
         (entry.locked ? " locked" : "") +
         (cleared ? " cleared" : "") +
         (index === mapIndex ? " active" : "") +
-        '" ' +
+        '" style="left:' +
+        entry.x +
+        "%;top:" +
+        entry.y +
+        '%" ' +
         (entry.locked ? "disabled" : 'data-map-index="' + index + '"') +
         '><span class="stage-star">' +
         entry.mark +
-        '</span><span class="stage-copy"><small>STAGE ' +
-        entry.id +
+        '</span><span class="stage-copy"><small>' +
+        (entry.star ? entry.star.bayer : "STAGE " + entry.id) +
         '</small><b class="marquee"><span>' +
-        entry.name +
+        (entry.star ? entry.star.name : entry.name) +
         '</span></b><span class="marquee"><span>' +
         entry.note +
         '</span></span></span><em class="node-status">' +
@@ -550,11 +556,22 @@ showMeta = function () {
     gold +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
-    '</b></span></div></div><section class="hub-map" aria-label="별자리 스테이지 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M20 75 L36 53 L57 31 L76 48"/><path class="future" d="M76 48 L70 75"/></svg>' +
+    '</b></span></div></div><div class="world-bar"><button class="world-step" id="worldPrev" aria-label="이전 별자리"' +
+    (worldNav.prev ? "" : " disabled") +
+    '>◀</button><div class="world-name"><small>' +
+    world.bayer +
+    "</small><b>" +
+    world.name +
+    "</b><span>" +
+    world.lore +
+    '</span></div><button class="world-step" id="worldNext" aria-label="다음 별자리"' +
+    (worldNav.next ? "" : " disabled") +
+    '>▶</button></div><section class="hub-map" aria-label="별자리 스테이지 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+    constellationRoute(mapStages) +
+    "</svg>" +
     nodes +
-    '</section><section class="hub-mission-bar"><div class="hub-mission-info"><small>STAGE ' +
-    mapStage.id +
-    " · " +
+    '</section><section class="hub-mission-bar"><div class="hub-mission-info"><small>' +
+    (mapStage.star ? mapStage.star.bayer + " · " : "STAGE " + mapStage.id + " · ") +
     stageRule +
     '</small><b class="marquee"><span>' +
     mapStage.name +
@@ -570,6 +587,16 @@ showMeta = function () {
       playSfx();
       showMeta();
     };
+  for (const [id, target] of [
+    ["#worldPrev", worldNav.prev],
+    ["#worldNext", worldNav.next],
+  ])
+    if (target)
+      document.querySelector(id).onclick = () => {
+        setHubWorld(target);
+        playSfx();
+        showMeta();
+      };
   const startObservation = () => {
     playSfx();
     if (mapStage.onboarding) return showOnboardingTutorial(true);

@@ -203,7 +203,11 @@ function claimableAchievements() {
   return achievementList().filter((a) => a.done && !isAchievementClaimed(a.id));
 }
 function claimCount() {
-  return claimableAchievements().length + (pendingGold() > 0 ? 1 : 0);
+  return (
+    claimableAchievements().length +
+    (pendingGold() > 0 ? 1 : 0) +
+    (typeof attendanceReady === "function" && attendanceReady() ? 1 : 0)
+  );
 }
 function claimAchievement(id) {
   const entry = claimableAchievements().find((a) => a.id === id);
@@ -642,7 +646,7 @@ function showAchievements() {
   U.over.innerHTML =
     '<div class="meta-hub">' +
     metaHeader("ARCHIVE") +
-    '<section class="system-panel"><h2>' +
+    '<section class="system-panel"><div class="archive-tabs"><button class="archive-tab" id="tabLibrary">도서관</button><button class="archive-tab on" id="tabAchievements">업적</button></div><h2>' +
     tr("achTitle") +
     "</h2><p>" +
     tr("achNote") +
@@ -674,6 +678,10 @@ function showAchievements() {
   document.querySelector("#achievementBack").onclick = () => {
     playSfx();
     showMeta();
+  };
+  document.querySelector("#tabLibrary").onclick = () => {
+    playSfx();
+    showLibrary();
   };
   document.querySelector("#claimPending").onclick = (event) => {
     const amount = claimPendingGold();
@@ -919,7 +927,21 @@ function showProfile() {
   U.over.innerHTML =
     '<section class="profile-shell"><div class="profile-head"><button id="profileBack">뒤로</button><div class="profile-identity"><span><small>OBSERVATORY ID</small><b>PLAYER 01</b></span><button id="profileIconPick" class="profile-avatar" aria-label="프로필 아이콘 바꾸기">' +
     profileIconMarkup() +
-    '<i class="profile-avatar-edit" aria-hidden="true">✎</i></button></div></div><div class="profile-grid"><section class="profile-panel"><div class="panel-title"><small>PROFILE</small><h2>관측자 기록</h2></div><div class="profile-stats"><div class="profile-stat"><small>되찾은 별</small><b>' +
+    '<i class="profile-avatar-edit" aria-hidden="true">✎</i></button></div></div><section class="claim-banner attendance' +
+    (attendanceReady() ? " ready" : "") +
+    '"><div><small>오늘의 관측 출석</small><b>' +
+    (attendanceReady()
+      ? attendanceStreak() + "일째 · " + attendanceReward() + " 골드"
+      : attendanceStreak() + "일째 · 오늘은 받았습니다") +
+    "</b><span>" +
+    (attendanceReady()
+      ? "하루 한 번 받을 수 있습니다. 하루를 건너뛰면 연속이 처음부터 시작합니다."
+      : "내일 다시 오면 연속 " +
+        (attendanceStreak() + 1) +
+        "일째 보상을 받습니다.") +
+    '</span></div><button id="claimAttendance"' +
+    (attendanceReady() ? "" : " disabled") +
+    '>출석 보상 받기</button></section><div class="profile-grid"><section class="profile-panel"><div class="panel-title"><small>PROFILE</small><h2>관측자 기록</h2></div><div class="profile-stats"><div class="profile-stat"><small>되찾은 별</small><b>' +
     (progress.clears || 0) +
     '</b></div><div class="profile-stat"><small>최단 시간</small><b>' +
     formatRunTime(progress.bestTime) +
@@ -949,6 +971,14 @@ function showProfile() {
   document.querySelector("#profileIconPick").onclick = () => {
     playSfx();
     showProfileIconPicker();
+  };
+  document.querySelector("#claimAttendance").onclick = (event) => {
+    const gold = claimAttendance();
+    if (!gold) return;
+    playClaimBurst(event.currentTarget.closest(".claim-banner"), gold, () => {
+      rewardToast("출석 보상", "+" + gold + " 골드", "보유 " + goldBalance());
+      showProfile();
+    });
   };
   document.querySelector("#profileToTitle").onclick = () => {
     playSfx();
@@ -1055,6 +1085,53 @@ function showShop() {
       "</article>"
     );
   }).join("");
+  // Every owned starkeeper gets a row of colours.  The swatch is the hero's
+  // own portrait under the same hue rotation the arena will use, so what the
+  // player buys is exactly what they see here.
+  const heroSkinRows = ownedHeroIds()
+    .map((id) => {
+      const h = heroes[id],
+        chips = HERO_SKINS.map((skin) => {
+          const has = ownsHeroSkin(id, skin.id),
+            on = equippedHeroSkinId(id) === skin.id;
+          return (
+            '<button class="hero-skin-chip' +
+            (on ? " on" : "") +
+            (has ? "" : " buy") +
+            '" data-hero-skin="' +
+            id +
+            ":" +
+            skin.id +
+            '" title="' +
+            skin.note +
+            '"><span class="hero-skin-swatch" data-skin-portrait="' +
+            id +
+            '" style="filter:' +
+            heroSkinPreviewFilter(skin) +
+            '"></span><b>' +
+            skin.name +
+            "</b><small>" +
+            (on
+              ? "장착 중"
+              : has
+                ? "장착하기"
+                : ECONOMY.heroSkinCost + " 골드") +
+            "</small></button>"
+          );
+        }).join("");
+      return (
+        '<article class="hero-skin-row" style="--unit:' +
+        h.col +
+        '"><div class="hero-skin-name"><b>' +
+        h.s +
+        "</b><small>" +
+        h.e +
+        '</small></div><div class="hero-skin-chips">' +
+        chips +
+        "</div></article>"
+      );
+    })
+    .join("");
   U.over.className = "overlay shop-scene";
   U.over.innerHTML =
     '<section class="shop-shell"><div class="shop-head"><button id="shopBack">뒤로</button><span><small>관측소 상점</small><b>보유 골드 ' +
@@ -1065,7 +1142,33 @@ function showShop() {
     shopKeeperLine(owned.length, gold) +
     '</p></div></div><div class="shop-intro"><small>METEOR SKINS</small><h2>유성 도색</h2><p>겉모습만 바뀝니다. 피해·속도·물리에는 영향이 없습니다.</p></div><div class="shop-grid">' +
     cards +
+    '</div><div class="shop-intro"><small>STARKEEPER SKINS</small><h2>별지기 도색</h2><p>보유한 별지기의 색만 바뀝니다. 전장 판정색과 이름표는 그대로입니다.</p></div><div class="hero-skin-list">' +
+    heroSkinRows +
     "</div></section>";
+  for (const slot of document.querySelectorAll("[data-skin-portrait]"))
+    setPortrait(slot, heroes[slot.dataset.skinPortrait], 44);
+  for (const button of document.querySelectorAll("[data-hero-skin]"))
+    button.onclick = () => {
+      const [heroId, skinId] = button.dataset.heroSkin.split(":");
+      if (ownsHeroSkin(heroId, skinId)) {
+        equipHeroSkin(heroId, skinId);
+        playSfx("confirm");
+        return showShop();
+      }
+      const result = buyHeroSkin(heroId, skinId);
+      if (result.reason === "gold") {
+        playSfx("fail");
+        toast("골드가 부족합니다. 스테이지를 클리어해 보세요.");
+        return;
+      }
+      playSfx("unlock");
+      rewardToast(
+        "별지기 도색",
+        heroes[heroId].s + " · " + HERO_SKINS.find((s) => s.id === skinId).name,
+        "보유 " + goldBalance(),
+      );
+      showShop();
+    };
   document.querySelector("#shopBack").onclick = () => {
     playSfx();
     showMeta();
@@ -1329,51 +1432,75 @@ showMeta = function () {
 // stage unlock never has to be edited in two places.
 // A campaign node counts as cleared once the run total has reached its index.
 // 1-1 is the lesson, so it reads cleared from the onboarding flag instead.
+// Progression is still one counter: clearing the campaign stage at index i
+// opens index i+1.  Nothing new has to be saved for players already part way
+// through, which is why the world rewrite needs no migration.
 function isStageCleared(entry) {
   if (entry.onboarding) return hasOnboardingClear();
   if (entry.locked) return false;
-  return (progress.clears || 0) >= (entry.clearRank ?? 1) + 1;
+  return (progress.clears || 0) > (entry.campaignIndex ?? 1);
 }
-function constellationMapStages() {
-  return [
-    {
-      id: "1-1",
-      name: "별빛의 첫 충돌",
-      note: "온보딩 튜토리얼",
-      mark: "✦",
-      onboarding: true,
-    },
-    {
-      id: "1-2",
-      name: "균열 회랑",
-      note: "신규 기믹 · 공명 범퍼",
-      mark: "✧",
-      stage: 1,
-      clearRank: 1,
-    },
-    {
-      id: "1-3",
-      name: "침식의 계단",
-      note: "신규 기믹 · 반사 벽",
-      mark: "★",
-      stage: 2,
-      clearRank: 2,
-    },
-    {
-      id: "2-1",
-      name: "원심 정원",
-      note: "다음 별자리",
-      mark: "◇",
-      locked: true,
-    },
-    {
-      id: "2-2",
-      name: "잠든 항구",
-      note: "관측 기록 수집 중",
-      mark: "✦",
-      locked: true,
-    },
-  ];
+// Which constellation the hub map is showing.  It follows the selected stage
+// until the player pages to another world by hand.
+let hubWorldId = null;
+function activeWorld() {
+  const chosen = WORLDS.find((world) => world.id === hubWorldId);
+  if (chosen) return chosen;
+  return worldOf(currentStage()) ?? WORLDS[0];
+}
+function setHubWorld(id) {
+  hubWorldId = id;
+  hubMapSelection = null;
+}
+function isWorldUnlocked(world) {
+  const first = worldStages(world.id)[0];
+  return !first || (progress.clears || 0) >= campaignIndexOf(first);
+}
+// A world's stars are its stages, positioned by the real constellation figure.
+function constellationMapStages(worldId = activeWorld().id) {
+  const world = WORLDS.find((entry) => entry.id === worldId) ?? WORLDS[0];
+  return worldStages(world.id).map((stage, index) => {
+    const campaignIndex = campaignIndexOf(stage),
+      position = world.shape[index] ?? [50, 50];
+    return {
+      id: stage.id,
+      name: stage.name,
+      star: stage.star,
+      note: stage.tutorial
+        ? "온보딩 튜토리얼"
+        : stageGimmickLabels(stage).join(" · ") || "별자리 전술",
+      mark: stage.tutorial ? "✦" : "★",
+      stage: stages.indexOf(stage),
+      campaignIndex,
+      onboarding: Boolean(stage.tutorial),
+      locked: (progress.clears || 0) < campaignIndex,
+      worldId: world.id,
+      x: position[0],
+      y: position[1],
+    };
+  });
+}
+// The figure drawn behind the nodes: solid up to the furthest star the player
+// has opened, dashed beyond it.
+function constellationRoute(entries) {
+  const open = entries.filter((entry) => !entry.locked).length;
+  const path = (from, to) =>
+    entries
+      .slice(from, to)
+      .map(
+        (entry, index) =>
+          (index === 0 ? "M" : "L") +
+          entry.x.toFixed(1) +
+          " " +
+          entry.y.toFixed(1),
+      )
+      .join(" ");
+  const solid = open > 1 ? '<path d="' + path(0, open) + '"/>' : "";
+  const future =
+    open < entries.length
+      ? '<path class="future" d="' + path(Math.max(0, open - 1)) + '"/>'
+      : "";
+  return solid + future;
 }
 function showStageSelect() {
   run = false;
@@ -1383,11 +1510,14 @@ function showStageSelect() {
   const nodes = mapStages
     .map(
       (stage, index) =>
-        '<button class="constellation-node s' +
-        (index + 1) +
+        '<button class="constellation-node' +
         (stage.locked ? " locked" : "") +
         (stage.onboarding ? " active" : "") +
-        '" ' +
+        '" style="left:' +
+        stage.x +
+        "%;top:" +
+        stage.y +
+        '%" ' +
         (stage.locked
           ? "disabled"
           : stage.onboarding
@@ -1395,8 +1525,8 @@ function showStageSelect() {
             : 'data-stage="' + stage.stage + '"') +
         '><span class="stage-star">' +
         stage.mark +
-        '</span><span class="stage-copy"><small>STAGE ' +
-        stage.id +
+        '</span><span class="stage-copy"><small>' +
+        (stage.star ? stage.star.bayer : "STAGE " + stage.id) +
         "</small><b>" +
         stage.name +
         "</b><span>" +
@@ -1408,7 +1538,15 @@ function showStageSelect() {
     .join("");
   U.over.className = "overlay constellation-map-scene";
   U.over.innerHTML =
-    '<div class="constellation-map-shell"><div class="constellation-map-head"><div><div class="tag">TODAY\'S NIGHT SKY</div><h2>별자리 관측도</h2></div><p>1-2 균열 회랑의 관측 기록이 열렸습니다.<br>공명 범퍼로 반사각을 만들어 보세요.</p></div><section class="constellation-map" aria-label="스테이지 별자리 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M16 75 L34 53 L57 31 L78 48"/><path class="future" d="M78 48 L72 75"/></svg>' +
+    '<div class="constellation-map-shell"><div class="constellation-map-head"><div><div class="tag">' +
+    activeWorld().bayer +
+    "</div><h2>" +
+    activeWorld().name +
+    "</h2></div><p>" +
+    activeWorld().lore +
+    '</p></div><section class="constellation-map" aria-label="스테이지 별자리 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+    constellationRoute(mapStages) +
+    "</svg>" +
     nodes +
     '</section><footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><span>현재 플레이 가능: 1-1 · 1-2</span><button id="stageSelectBack">뒤로</button></footer></div>';
   for (const button of document.querySelectorAll("[data-stage]"))
@@ -1529,7 +1667,7 @@ showMeta = function () {
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
     '</b></span></div></div><section class="hub-mission" style="--stage-art:url(\'' +
-    libraryArt.stages[stageIndex].tile +
+    stageArtFor().tile +
     '\')"><div class="hub-mission-copy"><small>오늘의 메인 스테이지 · STAGE ' +
     stage.id +
     "</small><h2>" +
@@ -1587,3 +1725,189 @@ drawCombatControls = function () {
   x.fillText("하단을 아래로 드래그한 뒤 놓기", W / 2, H - 110);
   x.restore();
 };
+
+/* Starkeeper skins ---------------------------------------------------------
+   Cosmetic only, and deliberately per hero: buying a colour for 가온 does not
+   give it to 비연.  Ownership is a flat "hero:skin" list so the save stays a
+   plain array. */
+function ownedHeroSkinKeys() {
+  const stored = Array.isArray(progress.heroSkins) ? progress.heroSkins : [];
+  return stored.filter((key) => typeof key === "string");
+}
+function heroSkinKey(heroId, skinId) {
+  return heroId + ":" + skinId;
+}
+function ownsHeroSkin(heroId, skinId) {
+  return (
+    skinId === DEFAULT_HERO_SKIN ||
+    ownedHeroSkinKeys().includes(heroSkinKey(heroId, skinId))
+  );
+}
+function equippedHeroSkinId(heroId) {
+  const worn = progress.wornHeroSkins?.[heroId];
+  return worn && ownsHeroSkin(heroId, worn) ? worn : DEFAULT_HERO_SKIN;
+}
+function equippedHeroSkin(heroId) {
+  return (
+    HERO_SKINS.find((skin) => skin.id === equippedHeroSkinId(heroId)) ??
+    HERO_SKINS[0]
+  );
+}
+function heroSkinPreviewFilter(skin) {
+  return skin?.hue
+    ? "hue-rotate(" + skin.hue + "deg) saturate(" + (skin.sat ?? 1) + ")"
+    : "none";
+}
+function heroSkinFilter(heroId) {
+  const skin = heroId ? equippedHeroSkin(heroId) : null;
+  if (!skin || !skin.hue) return "none";
+  return "hue-rotate(" + skin.hue + "deg) saturate(" + (skin.sat ?? 1) + ")";
+}
+function buyHeroSkin(heroId, skinId) {
+  if (!heroes[heroId] || !HERO_SKINS.some((skin) => skin.id === skinId))
+    return { reason: "missing" };
+  if (ownsHeroSkin(heroId, skinId)) return { reason: "owned" };
+  if (goldBalance() < ECONOMY.heroSkinCost) return { reason: "gold" };
+  progress.gold = goldBalance() - ECONOMY.heroSkinCost;
+  progress.heroSkins = [...ownedHeroSkinKeys(), heroSkinKey(heroId, skinId)];
+  progress.wornHeroSkins = {
+    ...(progress.wornHeroSkins ?? {}),
+    [heroId]: skinId,
+  };
+  saveProgress();
+  return { heroId, skinId, cost: ECONOMY.heroSkinCost };
+}
+function equipHeroSkin(heroId, skinId) {
+  if (!ownsHeroSkin(heroId, skinId)) return false;
+  progress.wornHeroSkins = {
+    ...(progress.wornHeroSkins ?? {}),
+    [heroId]: skinId,
+  };
+  saveProgress();
+  return true;
+}
+
+/* Attendance ---------------------------------------------------------------
+   One claim per local calendar day.  The streak resets when a day is missed,
+   which is the only reason the previous day's key is stored at all. */
+const ATTENDANCE_STORAGE = "stella-ball.attendance";
+const ATTENDANCE_GOLD = [60, 70, 80, 90, 110, 140, 220];
+function dayKey(date = new Date()) {
+  return (
+    date.getFullYear() +
+    "-" +
+    String(date.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(date.getDate()).padStart(2, "0")
+  );
+}
+function attendanceState() {
+  return appStorage.readRecord(ATTENDANCE_STORAGE, {
+    last: "",
+    prev: "",
+    streak: 0,
+  });
+}
+function attendanceReady() {
+  return attendanceState().last !== dayKey();
+}
+function attendanceStreak() {
+  const state = attendanceState();
+  if (!attendanceReady()) return state.streak || 1;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return state.last === dayKey(yesterday) ? (state.streak || 0) + 1 : 1;
+}
+function attendanceReward(streak = attendanceStreak()) {
+  return ATTENDANCE_GOLD[Math.min(ATTENDANCE_GOLD.length, streak) - 1];
+}
+function claimAttendance() {
+  if (!attendanceReady()) return 0;
+  const streak = attendanceStreak(),
+    gold = attendanceReward(streak),
+    state = attendanceState();
+  appStorage.writeRecord(ATTENDANCE_STORAGE, {
+    last: dayKey(),
+    prev: state.last,
+    streak,
+  });
+  progress.gold = goldBalance() + gold;
+  saveProgress();
+  return gold;
+}
+
+/* Library ------------------------------------------------------------------
+   The record shelf: which starkeepers the observatory holds, and the exact
+   conditions that move the constellation multiplier.  The multiplier table is
+   built from the same numbers the combat code uses, not retyped, so it cannot
+   quietly go stale. */
+const BLAZE_RULES = [
+  { label: "유성이 보스를 직격", gain: "+1.0" },
+  { label: "별지기가 보스를 직격", gain: "+0.5" },
+  { label: "유성이 반사 벽에 튕김", gain: "+0.2" },
+  { label: "파티 전원이 깨어남", gain: "+3.0" },
+  { label: "흐린 발판을 지나감", gain: "−0.5", down: true },
+];
+function showLibrary() {
+  run = false;
+  drag = null;
+  setScene("menu");
+  const owned = ownedHeroIds(),
+    cards = Object.entries(heroes)
+      .map(([id, h]) => {
+        const has = owned.includes(id),
+          skin = equippedHeroSkin(id);
+        return (
+          '<article class="codex-card' +
+          (has ? "" : " locked") +
+          '" style="--unit:' +
+          h.col +
+          '"><span class="codex-portrait" data-codex="' +
+          id +
+          '"></span><div class="codex-copy"><small>' +
+          (has ? h.e : "미보유") +
+          "</small><b>" +
+          h.n +
+          "</b><p>" +
+          h.d +
+          '</p><em class="codex-lore">「' +
+          h.lore +
+          "」</em></div><span class=\"codex-skin\">" +
+          (has ? skin.name : "—") +
+          "</span></article>"
+        );
+      })
+      .join("");
+  const blazeRows = BLAZE_RULES.map(
+    (rule) =>
+      '<tr class="' +
+      (rule.down ? "down" : "") +
+      '"><td>' +
+      rule.label +
+      "</td><td>" +
+      rule.gain +
+      "</td></tr>",
+  ).join("");
+  U.over.className = "overlay archive-scene library-scene";
+  U.over.innerHTML =
+    '<div class="meta-hub">' +
+    metaHeader("LIBRARY") +
+    '<section class="system-panel"><div class="archive-tabs"><button class="archive-tab on" id="tabLibrary">도서관</button><button class="archive-tab" id="tabAchievements">업적</button></div><h2>관측 도서관</h2><p>관측소가 확보한 별지기와, 점수 배율이 움직이는 조건입니다.</p><div class="codex-split"><div class="codex-list">' +
+    cards +
+    '</div><aside class="codex-side"><div class="panel-title"><small>CONSTELLATION</small><h3>점수 배율 조건</h3></div><table class="codex-table"><thead><tr><th>조건</th><th>배율</th></tr></thead><tbody>' +
+    blazeRows +
+    '</tbody></table><p class="codex-note">배율은 한 발사 안에서만 쌓이고, 최대 ×9.9까지 오릅니다. 1.0 아래로는 내려가지 않습니다.</p></aside></div><div class="settings-actions"><span></span><button id="libraryBack">' +
+    tr("back") +
+    "</button></div></section></div>";
+  for (const slot of document.querySelectorAll("[data-codex]"))
+    setPortrait(slot, heroes[slot.dataset.codex], 56);
+  document.querySelector("#libraryBack").onclick = () => {
+    playSfx();
+    showMeta();
+  };
+  document.querySelector("#tabAchievements").onclick = () => {
+    playSfx();
+    showAchievements();
+  };
+  window.StellaPixelUI?.apply(U.over);
+}

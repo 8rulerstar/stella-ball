@@ -241,14 +241,15 @@ damage = function (weak = false) {
   if (crit) amount *= 1.6;
   amount = Math.max(1, Math.round(amount));
   const label = weak ? (crit ? "치명 약점" : "약점") : "몸체";
-  boss.hp = Math.max(0, boss.hp - amount);
-  addPopup(
-    ball.x,
-    ball.y - 28,
-    label + " -" + amount,
-    weak ? "#ffe59a" : "#e6f7ef",
-    crit,
-  );
+  const dealt = applyBossHit(amount);
+  if (dealt > 0)
+    addPopup(
+      ball.x,
+      ball.y - 28,
+      label + " -" + dealt,
+      weak ? "#ffe59a" : "#e6f7ef",
+      crit,
+    );
   triggerZone("boss");
   if (marked)
     areaAttack(
@@ -345,10 +346,63 @@ drawPinballTable = function () {
     x.strokeRect(wall.x - wall.w / 2, wall.y - wall.h / 2, wall.w, wall.h);
     x.restore();
   }
+  // Fading pads read as the opposite of boost pads: grey, no arrows, and a
+  // dashed edge that says "this takes something away".
+  for (const pad of dragPads) {
+    x.save();
+    x.fillStyle = pad.on > 0 ? "#4a6663" : "#2b4340";
+    x.strokeStyle = pad.on > 0 ? "#cfdad7" : "#5f7a77";
+    x.lineWidth = 3;
+    x.setLineDash([11, 8]);
+    x.fillRect(pad.x - pad.w / 2, pad.y - pad.h / 2, pad.w, pad.h);
+    x.strokeRect(pad.x - pad.w / 2, pad.y - pad.h / 2, pad.w, pad.h);
+    x.setLineDash([]);
+    x.fillStyle = pad.on > 0 ? "#cfdad7" : "#6f8b87";
+    x.textAlign = "center";
+    x.font = "bold 13px ui-monospace";
+    x.fillText("배율 ↓", pad.x, pad.y + 5);
+    x.restore();
+  }
   for (const b of bumpers) {
     circle(b.x, b.y, b.r + 7, "#10222c", b.on ? 25 : 8);
     circle(b.x, b.y, b.r, b.on ? "#e4f5d5" : "#4db8b3", b.on ? 28 : 12);
     circle(b.x, b.y, Math.max(7, b.r - 9), "#e8cf77", b.on ? 14 : 4);
+  }
+  for (const orbit of orbitals) {
+    if (orbit.down > 0) continue;
+    const life = orbit.hp / orbit.maxHp;
+    x.save();
+    x.translate(orbit.x, orbit.y);
+    x.rotate(orbit.a * 1.6);
+    x.fillStyle = "#12242a";
+    x.strokeStyle = orbit.hitCooldown > 0 ? "#ffe3c0" : "#7cc6bb";
+    x.lineWidth = 4;
+    x.shadowBlur = orbit.hitCooldown > 0 ? 22 : 10;
+    x.shadowColor = "#7cc6bb";
+    x.beginPath();
+    x.rect(-orbit.r, -orbit.r * 0.62, orbit.r * 2, orbit.r * 1.24);
+    x.fill();
+    x.stroke();
+    x.shadowBlur = 0;
+    x.fillStyle = "#9adfc9";
+    x.fillRect(-orbit.r + 4, -3, (orbit.r * 2 - 8) * life, 6);
+    x.restore();
+  }
+  // The shell is the reason a good hit did nothing, so it is drawn on the
+  // colossus itself, one ring per remaining layer.
+  if (bossShield && bossShield.hits > 0 && boss) {
+    x.save();
+    x.strokeStyle = bossShield.flash > 0 ? "#ffe3c0" : "#7cc6bb";
+    x.shadowBlur = bossShield.flash > 0 ? 26 : 12;
+    x.shadowColor = "#9adfc9";
+    for (let i = 0; i < bossShield.hits; i++) {
+      x.lineWidth = 3;
+      x.globalAlpha = 0.42 + 0.16 * i;
+      x.beginPath();
+      x.arc(boss.x, boss.y, 76 + i * 11, 0, Math.PI * 2);
+      x.stroke();
+    }
+    x.restore();
   }
 };
 drawCombatControls = function () {
@@ -603,6 +657,23 @@ function earnBlaze(amount, detail) {
     d: 0.4,
     col: "#a9b8ff",
   });
+  renderBlaze(true);
+}
+// Multiplier can be taken back, but never below the base 1.0: a bad line
+// should cost the bonus, not put the shot underwater.
+function loseBlaze(amount, detail) {
+  const b = ball?.blaze;
+  if (!b || b.mult <= 1) return;
+  b.mult = Math.max(1, Math.round((b.mult - amount) * 10) / 10);
+  b.detail = detail;
+  addPopup(
+    ball.x,
+    ball.y - 40,
+    "CONSTELLATION ×" + b.mult.toFixed(1),
+    "#8ba39f",
+    false,
+  );
+  toast(detail + " · 배율 ×" + b.mult.toFixed(1));
   renderBlaze(true);
 }
 function trackBlazeUnit(g) {
@@ -968,9 +1039,10 @@ function detonateShockwave(g, name = "태오 충돌 충격파", options = {}) {
   for (const target of targets) {
     if (Math.hypot(target.x - g.x, target.y - g.y) > radius) continue;
     if (target === boss) {
-      boss.hp = Math.max(0, boss.hp - amount);
+      const dealt = applyBossHit(amount);
       registerBossHit(false);
-      addPopup(boss.x, boss.y - 70, name + " -" + amount, g.col, hits >= 4);
+      if (dealt > 0)
+        addPopup(boss.x, boss.y - 70, name + " -" + dealt, g.col, hits >= 4);
       if (boss.hp <= 0) scheduleWin();
     } else damageAdd(target, amount, name, g.col);
   }
@@ -983,9 +1055,10 @@ function resolveShockwaveAssist(a) {
     if (Math.hypot(target.x - a.fromX, target.y - a.fromY) > a.areaRadius)
       continue;
     if (target === boss) {
-      boss.hp = Math.max(0, boss.hp - a.amount);
+      const dealt = applyBossHit(a.amount);
       registerBossHit(false);
-      addPopup(boss.x, boss.y - 70, a.name + " -" + a.amount, a.col, true);
+      if (dealt > 0)
+        addPopup(boss.x, boss.y - 70, a.name + " -" + dealt, a.col, true);
       if (boss.hp <= 0) scheduleWin();
     } else damageAdd(target, a.amount, a.name, a.col);
   }
@@ -1084,9 +1157,9 @@ function updateBladeWheel(g, speed, step) {
     amount = 3 + Math.min(13, Math.floor(speed / 105));
   let hit = false;
   if (boss?.hp > 0 && Math.hypot(g.x - boss.x, g.y - boss.y) <= radius + 58) {
-    boss.hp = Math.max(0, boss.hp - amount);
-    g.bladeDamageBank = (g.bladeDamageBank || 0) + amount;
-    reportBladeWheelHit(g, boss, amount);
+    const dealt = applyBossHit(amount);
+    g.bladeDamageBank = (g.bladeDamageBank || 0) + dealt;
+    reportBladeWheelHit(g, boss, dealt);
     hit = true;
     if (boss.hp <= 0) scheduleWin();
   }
@@ -1237,16 +1310,17 @@ function cloneDamage(o, weak = false) {
     10,
     Math.round((18 + (o.power || 0) * 7) * (weak ? 1.55 : 1)),
   );
-  boss.hp = Math.max(0, boss.hp - amount);
+  const dealt = applyBossHit(amount);
   registerBossHit(weak);
   impact(weak);
-  addPopup(
-    o.x,
-    o.y - 24,
-    (weak ? "분열 약점" : "분열체") + " -" + amount,
-    "#8df5ef",
-    weak,
-  );
+  if (dealt > 0)
+    addPopup(
+      o.x,
+      o.y - 24,
+      (weak ? "분열 약점" : "분열체") + " -" + dealt,
+      "#8df5ef",
+      weak,
+    );
   fieldFx.push({
     type: "mirror",
     x: o.x,
@@ -1436,6 +1510,21 @@ startShot = function (restingPoint = null) {
   }
 };
 function wakeUnit(g) {
+  // A phase rule can put a starkeeper back to sleep under a guard: the first
+  // collisions only shake it, and it wakes on the one that clears the guard.
+  if (g.sleepGuard > 0) {
+    g.sleepGuard -= 1;
+    // The collision that clears the guard is the one that wakes it, so a
+    // guard of 2 means exactly two collisions, not three.
+    if (g.sleepGuard > 0) {
+      g.on = Math.max(g.on, 0.4);
+      g.animState = "move";
+      g.animClock = 0;
+      addPopup(g.x, g.y - 40, g.s + " 아직 잠듦 " + g.sleepGuard, "#8ba39f", false);
+      combatSfx?.("hit", 0.4);
+      return;
+    }
+  }
   if (g.animState !== "move") g.animClock = 0;
   // The first wake of a shot is the moment the player needs to read, so it
   // gets a ring, a label and a lasting halo instead of only a glow bump.
@@ -1626,7 +1715,143 @@ function applyBoostPad(o, pad, unit = null) {
   }
   return true;
 }
+// Every path that hurts the colossus routes through here, so a stage shield
+// has one place to eat a hit and a phase rule has one place to notice the
+// drop.  Returns the damage actually dealt; a blocked hit returns 0 and the
+// caller skips its own popup.
+function applyBossHit(amount) {
+  if (!(amount > 0) || !boss) return 0;
+  if (bossShield && bossShield.hits > 0) {
+    bossShield.hits -= 1;
+    bossShield.flash = 0.45;
+    addPopup(boss.x, boss.y - 66, "껍질이 막았다", "#9adfc9", true);
+    toast(
+      bossShield.hits > 0
+        ? "굳은 껍질 · 남은 " + bossShield.hits + "겹"
+        : "껍질이 모두 깨졌습니다",
+    );
+    combatSfx?.("fail", 0.5);
+    return 0;
+  }
+  const before = boss.hp;
+  boss.hp = Math.max(0, boss.hp - amount);
+  checkStagePhases();
+  return before - boss.hp;
+}
+// Phase rules fire once each time the colossus drops past a health ratio.
+function checkStagePhases() {
+  if (!stagePhases || !boss?.maxHp || boss.immortal) return;
+  const ratio = boss.hp / boss.maxHp;
+  while (
+    stagePhases.fired < stagePhases.at.length &&
+    ratio <= stagePhases.at[stagePhases.fired]
+  ) {
+    stagePhases.fired += 1;
+    runStagePhase(stagePhases.effect);
+  }
+}
+function runStagePhase(effect) {
+  if (effect === "push") {
+    // The table is reset, not damaged: everything alive is thrown to the
+    // corner nearest it, so a carefully built lane has to be rebuilt.
+    const corners = [
+      [96, 176],
+      [W - 96, 176],
+      [96, H - 176],
+      [W - 96, H - 176],
+    ];
+    const throwTo = (o) => {
+      let best = corners[0],
+        bestD = Infinity;
+      for (const corner of corners) {
+        const d = Math.hypot(corner[0] - o.x, corner[1] - o.y);
+        if (d < bestD) {
+          bestD = d;
+          best = corner;
+        }
+      }
+      o.x = best[0];
+      o.y = best[1];
+      o.vx = 0;
+      o.vy = 0;
+      areaBursts.push({
+        x: o.x,
+        y: o.y,
+        r: 52,
+        col: "#f6c48e",
+        t: 0,
+        d: 0.5,
+      });
+    };
+    for (const g of gates) throwTo(g);
+    if (ball) throwTo(ball);
+    for (const s of seeds ?? []) throwTo(s);
+    screenShake = Math.max(screenShake, 16);
+    toast("거상의 파동 · 모두 모서리로 밀려났습니다");
+  } else if (effect === "sleep") {
+    for (const g of gates) {
+      g.awake = false;
+      g.moved = false;
+      g.on = 0;
+      g.sleepGuard = stagePhases.wakeNeed;
+      areaBursts.push({ x: g.x, y: g.y, r: g.r + 26, col: "#8ba39f", t: 0, d: 0.44 });
+    }
+    toast("별지기가 다시 잠들었습니다 · " + stagePhases.wakeNeed + "회 충돌 필요");
+  }
+  combatSfx?.("unlock", 0.7);
+}
+// A fading pad is the boost pad's opposite: it costs constellation multiplier
+// instead of adding speed, so a fast lane can still be the wrong lane.
+function applyDragPad(o, pad, unit = null) {
+  if (o !== ball) return false;
+  const inside =
+    Math.abs(o.x - pad.x) <= pad.w / 2 + o.r &&
+    Math.abs(o.y - pad.y) <= pad.h / 2 + o.r;
+  if (!inside) return false;
+  const key = "drag:" + pad.id;
+  o.gimmickCooldowns ??= {};
+  if (o.gimmickCooldowns[key] > 0) return false;
+  o.gimmickCooldowns[key] = 0.5;
+  pad.on = 0.26;
+  loseBlaze(pad.drop, "흐린 발판 통과");
+  fieldFx.push({
+    type: "drag",
+    x: pad.x,
+    y: pad.y,
+    t: 0,
+    d: 0.34,
+    col: "#8ba39f",
+  });
+  return true;
+}
 function applyStageGimmicks(o, unit = null) {
+  for (const pad of dragPads) applyDragPad(o, pad, unit);
+  for (const orbit of orbitals) {
+    if (orbit.down > 0) continue;
+    mobileStatic(o, orbit, o.r + orbit.r, 1.02, () => {
+      if (orbit.hitCooldown > 0) return;
+      orbit.hitCooldown = 0.22;
+      const amount = Math.max(
+        6,
+        Math.round(Math.hypot(o.vx, o.vy) / 46) + (unit ? 8 : 0),
+      );
+      orbit.hp = Math.max(0, orbit.hp - amount);
+      addPopup(orbit.x, orbit.y - 26, "방벽 -" + amount, "#9adfc9", amount >= 18);
+      if (orbit.hp <= 0) {
+        orbit.down = 1.4;
+        areaBursts.push({
+          x: orbit.x,
+          y: orbit.y,
+          r: 46,
+          col: "#9adfc9",
+          t: 0,
+          d: 0.42,
+        });
+        toast("도는 방벽 하나를 부쉈습니다");
+      }
+      if (unit) wakeUnit(unit);
+    });
+  }
   for (const wall of stageWalls)
     mobileRect(o, o.r, wall, wall.restitution, () => {
       wall.on = 0.18;
@@ -1704,10 +1929,11 @@ function unitImpactDamage(g, target) {
   if (!isBoss)
     fieldFx.push({ type: "assist", x: g.x, y: g.y, t: 0, d: 0.34, col: g.col });
   if (isBoss) {
-    boss.hp = Math.max(0, boss.hp - amount);
+    const dealt = applyBossHit(amount);
     registerBossHit(false);
     impact(false, g.x, g.y, "contact");
-    addPopup(boss.x, boss.y - 76, label + " -" + amount, g.col, amount >= 36);
+    if (dealt > 0)
+      addPopup(boss.x, boss.y - 76, label + " -" + dealt, g.col, dealt >= 36);
     if (boss.hp <= 0) scheduleWin();
   } else damageAdd(target, amount, label, g.col);
   return true;
@@ -1815,6 +2041,20 @@ simulatePhysics = function (d) {
   updateExpanded(d);
   for (const wall of stageWalls) wall.on = Math.max(0, wall.on - d);
   for (const pad of boostPads) pad.on = Math.max(0, pad.on - d);
+  for (const pad of dragPads) pad.on = Math.max(0, pad.on - d);
+  if (bossShield) bossShield.flash = Math.max(0, bossShield.flash - d);
+  // Barriers keep circling the colossus even while it is being hit, so the
+  // player is always timing a moving gap rather than a static wall.
+  for (const orbit of orbitals) {
+    orbit.hitCooldown = Math.max(0, orbit.hitCooldown - d);
+    if (orbit.down > 0) {
+      orbit.down = Math.max(0, orbit.down - d);
+      continue;
+    }
+    orbit.a += orbit.speed * d;
+    orbit.x = boss.x + Math.cos(orbit.a) * orbit.radius;
+    orbit.y = boss.y + Math.sin(orbit.a) * orbit.radius;
+  }
   for (let i = 0; i < slices && ball?.moving; i++) {
     if (ball.pulse > 0) {
       ball.pulse -= step;
