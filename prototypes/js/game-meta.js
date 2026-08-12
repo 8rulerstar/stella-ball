@@ -129,6 +129,8 @@ let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   ownedSkins: [DEFAULT_METEOR_SKIN],
   skin: DEFAULT_METEOR_SKIN,
   freeSummons: 0,
+  claimedAchievements: [],
+  pendingGold: 0,
   bestTime: 0,
   bestShots: 99,
   bestCombo: 0,
@@ -177,6 +179,47 @@ function rewardToast(kicker, title, detail = "") {
     setTimeout(() => card.remove(), 320);
   }, 2600);
   playSfx?.("unlock");
+}
+// Gold is earned but not auto-credited: clears accrue into a pending pool and
+// achievements hold one-time rewards.  Both are collected in the 업적 tab, so
+// the player always performs the claim.
+function pendingGold() {
+  return Math.max(0, Math.floor(Number(progress.pendingGold) || 0));
+}
+function accrueGold(amount) {
+  const earned = Math.max(0, Math.floor(Number(amount) || 0));
+  progress.pendingGold = pendingGold() + earned;
+  return earned;
+}
+function claimedAchievementIds() {
+  return Array.isArray(progress.claimedAchievements)
+    ? progress.claimedAchievements
+    : [];
+}
+function isAchievementClaimed(id) {
+  return claimedAchievementIds().includes(id);
+}
+function claimableAchievements() {
+  return achievementList().filter((a) => a.done && !isAchievementClaimed(a.id));
+}
+function claimCount() {
+  return claimableAchievements().length + (pendingGold() > 0 ? 1 : 0);
+}
+function claimAchievement(id) {
+  const entry = claimableAchievements().find((a) => a.id === id);
+  if (!entry) return null;
+  progress.claimedAchievements = [...claimedAchievementIds(), id];
+  progress.gold = goldBalance() + entry.gold;
+  saveProgress();
+  return entry;
+}
+function claimPendingGold() {
+  const amount = pendingGold();
+  if (!amount) return 0;
+  progress.pendingGold = 0;
+  progress.gold = goldBalance() + amount;
+  saveProgress();
+  return amount;
 }
 function ownedSkinIds() {
   const stored = Array.isArray(progress.ownedSkins) ? progress.ownedSkins : [];
@@ -314,6 +357,7 @@ function achievementList() {
           ? "1-1 관측 수업을 마치고 파티 슬롯을 하나 해금하세요."
           : "Complete 1-1 observation training and unlock a party slot.",
       done: hasThirdPartySlot(),
+      gold: 150,
       ratio: hasThirdPartySlot() ? "1/1 · 파티 슬롯 +1" : "0/1 · 파티 슬롯 +1",
     },
     {
@@ -324,6 +368,7 @@ function achievementList() {
           ? "보스를 한 번 처치하세요."
           : "Defeat a boss once.",
       done: progress.clears >= 1,
+      gold: 100,
       ratio: Math.min(progress.clears, 1) + "/1",
     },
     {
@@ -334,6 +379,7 @@ function achievementList() {
           ? "한 전투에서 3 HIT 콤보를 달성하세요."
           : "Reach a 3 HIT combo in one battle.",
       done: progress.bestCombo >= 3,
+      gold: 200,
       ratio: Math.min(progress.bestCombo, 3) + "/3",
     },
     {
@@ -344,6 +390,7 @@ function achievementList() {
           ? "유성 한 개만 사용해 클리어하세요."
           : "Clear using a single meteor.",
       done: progress.bestShots <= 1,
+      gold: 400,
       ratio: progress.bestShots <= 1 ? "1/1" : "0/1",
     },
     {
@@ -354,6 +401,7 @@ function achievementList() {
           ? "세 번의 전투를 클리어하세요."
           : "Clear three battles.",
       done: progress.clears >= 3,
+      gold: 300,
       ratio: Math.min(progress.clears, 3) + "/3",
     },
   ];
@@ -544,10 +592,13 @@ function showAchievements() {
   const list = achievementList(),
     unlocked = list.filter((v) => v.done).length,
     cards = list
-      .map(
-        (a) =>
+      .map((a) => {
+        const claimed = isAchievementClaimed(a.id),
+          ready = a.done && !claimed;
+        return (
           '<article class="achievement-card ' +
           (a.done ? "" : "locked") +
+          (ready ? " claimable" : "") +
           '"><img src="../assets/library/event/achievement-' +
           (a.done ? "unlocked" : "locked") +
           '.png" alt=""><b>' +
@@ -558,9 +609,33 @@ function showAchievements() {
           a.ratio +
           " · " +
           tr(a.done ? "unlocked" : "locked") +
-          "</em></article>",
-      )
+          '</em><span class="achievement-reward">보상 ' +
+          a.gold +
+          " 골드</span>" +
+          (ready
+            ? '<button class="achievement-claim" data-claim="' +
+              a.id +
+              '">수령하기</button>'
+            : '<span class="achievement-claim-state">' +
+              (claimed ? "수령 완료" : "조건 미달") +
+              "</span>") +
+          "</article>"
+        );
+      })
       .join("");
+  const pending = pendingGold(),
+    pendingCard =
+      '<section class="claim-banner' +
+      (pending > 0 ? " ready" : "") +
+      '"><div><small>관측 보상함</small><b>' +
+      (pending > 0 ? pending + " 골드" : "쌓인 보상 없음") +
+      "</b><span>" +
+      (pending > 0
+        ? "클리어 보상이 여기에 모입니다. 수령해야 사용할 수 있습니다."
+        : "스테이지를 클리어하면 보상이 여기에 쌓입니다.") +
+      '</span></div><button id="claimPending"' +
+      (pending > 0 ? "" : " disabled") +
+      ">모두 수령</button></section>";
   U.over.innerHTML =
     '<div class="meta-hub">' +
     metaHeader("ARCHIVE") +
@@ -580,7 +655,9 @@ function showAchievements() {
     tr("bestCombo") +
     "</small><b>" +
     progress.bestCombo +
-    ' HIT</b></div></div><div class="meta-section-title"><span>' +
+    " HIT</b></div></div>" +
+    pendingCard +
+    '<div class="meta-section-title"><span>' +
     tr("records") +
     "</span><span>" +
     unlocked +
@@ -595,6 +672,23 @@ function showAchievements() {
     playSfx();
     showMeta();
   };
+  document.querySelector("#claimPending").onclick = () => {
+    const amount = claimPendingGold();
+    if (!amount) return;
+    rewardToast("관측 보상함", "+" + amount + " 골드", "보유 " + goldBalance());
+    showAchievements();
+  };
+  for (const button of document.querySelectorAll("[data-claim]"))
+    button.onclick = () => {
+      const entry = claimAchievement(button.dataset.claim);
+      if (!entry) return;
+      rewardToast(
+        "업적 보상 · " + entry.name,
+        "+" + entry.gold + " 골드",
+        "보유 " + goldBalance(),
+      );
+      showAchievements();
+    };
 }
 function showShop() {
   run = false;

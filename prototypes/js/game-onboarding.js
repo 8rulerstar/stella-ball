@@ -521,7 +521,11 @@ showMeta = function () {
     avatar +
     '</span><span>OBSERVATORY ID<b>PLAYER 01</b><small>오늘의 밤하늘 관측 중</small></span></div><div class="hub-resources"><button class="hub-resource hub-record-chip" id="hubRecordChip">업적 · 되찾은 별<b>' +
     clear +
-    '</b></button><span class="hub-resource hub-gold">골드<b>' +
+    "</b>" +
+    (claimCount()
+      ? '<i class="claim-badge">수령 ' + claimCount() + "</i>"
+      : "") +
+    '</button><span class="hub-resource hub-gold">골드<b>' +
     gold +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
@@ -831,7 +835,7 @@ win = function () {
     elapsedMs = battle?.victory?.elapsedMs ?? 0,
     goldEarned =
       shouldRecord && !battle?.training && !battle?.tutorial
-        ? grantGold(ECONOMY.clearGold)
+        ? accrueGold(ECONOMY.clearGold)
         : 0;
   if (shouldRecord) {
     battle.storyRecorded = true;
@@ -845,9 +849,9 @@ win = function () {
   baseStoryWin();
   if (goldEarned > 0)
     rewardToast(
-      "관측 보상 수령",
+      "관측 보상함에 적립",
       "+" + goldEarned + " 골드",
-      "상점·소환에 사용",
+      "업적 탭에서 수령하세요",
     );
   if (shouldRecord) {
     U.over.className = "overlay";

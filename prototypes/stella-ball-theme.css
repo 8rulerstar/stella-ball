@@ -957,3 +957,46 @@ body.onboarding-locked .pause-button { display: none; }
   .deploy-body { flex-direction: column; }
   .deploy-tray { flex-direction: row; }
 }
+
+/* ---------------------------------------------------------------------
+   CLAIMS — earned gold waits in the 업적 tab until the player collects it,
+   so the hub badge and the claim buttons are the only "free money" surface.
+   --------------------------------------------------------------------- */
+.claim-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d9b269, #b08d55);
+  color: #191320;
+  font: 700 8px ui-monospace, monospace;
+  font-style: normal;
+  letter-spacing: .04em;
+  vertical-align: middle;
+}
+.hub-record-chip.has-claim { border-color: #b08d55 !important; }
+.claim-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0;
+  padding: 12px 14px;
+  border: 1px solid #494c63;
+  border-radius: 12px;
+  background: linear-gradient(115deg, #16161ff2, #0e0e15f7);
+  text-align: left;
+}
+.claim-banner.ready {
+  border-color: #b08d55;
+  box-shadow: 0 0 0 1px #b08d5533, 0 8px 20px #04040688;
+}
+.claim-banner small { display: block; color: var(--gold); font: 700 8px ui-monospace, monospace; letter-spacing: .2em; }
+.claim-banner b { display: block; margin: 4px 0 3px; color: #efdcb2; font-size: 21px; text-shadow: 0 2px 0 #050508; }
+.claim-banner span { display: block; color: var(--mist); font-size: 10px; }
+.claim-banner button { flex: 0 0 auto; padding: 10px 14px !important; font-size: 11px !important; }
+.claim-banner button[disabled] { opacity: .4; cursor: not-allowed; }
+.achievement-card.claimable { border-color: #b08d55 !important; box-shadow: 0 0 0 1px #b08d5533, 0 8px 18px #04040688 !important; }
+.achievement-reward { display: block; margin-top: 6px; color: var(--star); font: 700 10px ui-monospace, monospace; }
+.achievement-claim { width: 100%; margin-top: 7px; padding: 8px 10px !important; font-size: 10px !important; }
+.achievement-claim-state { display: block; margin-top: 7px; color: #6e7488; font: 700 9px ui-monospace, monospace; letter-spacing: .06em; }
