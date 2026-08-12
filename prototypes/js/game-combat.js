@@ -526,7 +526,7 @@ function billiardPointerDown(e) {
     msg = "세라 · 전환 명령으로 운동량을 크게 얻었습니다.";
     return;
   }
-  if (e.button === 0 && labSteerBoost(p.x, p.y)) {
+  if (e.button === 0 && labTurnCommand(p.x, p.y)) {
     e.preventDefault();
     return;
   }
@@ -2367,7 +2367,6 @@ const LAB_SETS = {
     unitSlide: 135,
     wallRest: 0.94,
     ballFriction: 0.9915,
-    boost: false,
   },
   A: {
     name: "A안 · 보수",
@@ -2381,7 +2380,6 @@ const LAB_SETS = {
     unitSlide: 95,
     wallRest: 0.9,
     ballFriction: 0.9901,
-    boost: true,
   },
   B: {
     name: "B안 · 과감",
@@ -2395,7 +2393,6 @@ const LAB_SETS = {
     unitSlide: 60,
     wallRest: 0.86,
     ballFriction: 0.9878,
-    boost: true,
   },
 };
 let labSetId = "base";
@@ -2408,56 +2405,117 @@ function applyLabSet(id, silent = false) {
   toast("실험 세트 · " + LAB.name);
   sync();
 }
-// Steering, not thrust: the click blends the flight direction toward the
-// cursor and tops the speed up, so even a slow meteor answers the input.
-function labSteerBoost(px, py) {
-  if (!battle?.training || !LAB.boost || !ball?.moving) return false;
-  ball.labBoost ??= 2;
-  if (ball.labBoost <= 0) return false;
+// --- Rule experiment: shared turn command + conditional finishers ----------
+// Sera's click-turn moves out of her kit and becomes a stage budget: two
+// 90-degree turns per training battle (three with Sera deployed), bending
+// toward whichever side of the flight line the cursor sits on.  Every
+// finisher hero still fires a weakened base awakening, and meeting a
+// per-hero condition upgrades it to a full awakening.  Key 4 toggles this
+// layer; the campaign never sees it.
+let labRules = true;
+function labRulesActive() {
+  return Boolean(battle?.training && labRules);
+}
+const LAB_CONDITIONS = {
+  slash: { text: "보스 몸통 충돌", check: (g) => Boolean(g.bossHit) },
+  longshot: { text: "벽 반사 1회+", check: (g) => (g.wallHits || 0) >= 1 },
+  shockwave: { text: "충돌 3회+", check: (g) => (g.collisions || 0) >= 3 },
+  split: { text: "유성 분열", check: () => Boolean(ball?.splitUsed) },
+  seek: { text: "중계 발동", check: (g) => Boolean(g.labRelayed) },
+  turn: { text: "전환 사용", check: () => Boolean(ball?.labTurnUsed) },
+  copycat: { text: "모사 성공", check: (g) => Boolean(g.copiedFx) },
+};
+function labConditionFor(g) {
+  return LAB_CONDITIONS[g.fx === "copycat" ? "copycat" : g.fx] || null;
+}
+function labConditionMet(g) {
+  const rule = labConditionFor(g);
+  return rule ? Boolean(rule.check(g)) : true;
+}
+function labTurnCommand(px, py) {
+  if (!labRulesActive() || !ball?.moving) return false;
+  if ((battle.labTurns || 0) <= 0) {
+    toast("전환 소진 · 이번 전투에는 더 없습니다");
+    return true;
+  }
   const speed = Math.hypot(ball.vx, ball.vy) || 1,
     dx = px - ball.x,
     dy = py - ball.y,
-    l = Math.hypot(dx, dy) || 1;
-  let nx = (ball.vx / speed) * 0.45 + (dx / l) * 0.55,
-    ny = (ball.vy / speed) * 0.45 + (dy / l) * 0.55;
-  const nl = Math.hypot(nx, ny) || 1,
-    boosted = Math.min(LAB.ballCap, speed + 320);
-  ball.vx = (nx / nl) * boosted;
-  ball.vy = (ny / nl) * boosted;
-  ball.labBoost--;
+    clockwise = ball.vx * dy - ball.vy * dx > 0,
+    nvx = clockwise ? -ball.vy : ball.vy,
+    nvy = clockwise ? ball.vx : -ball.vx,
+    scale = Math.min(LAB.ballCap, speed + 240) / speed;
+  ball.vx = nvx * scale;
+  ball.vy = nvy * scale;
+  battle.labTurns--;
+  ball.labTurnUsed = true;
+  ball.power += 0.6;
   ball.runeBurst = 0.7;
-  impactStop = Math.max(impactStop, 0.07);
-  fieldFx.push({
-    type: "relay",
-    x: ball.x,
-    y: ball.y,
-    t: 0,
-    d: 0.4,
-    col: "#8af4ef",
-  });
-  addPopup(ball.x, ball.y - 30, "조타! 잔여 " + ball.labBoost, "#8af4ef", true);
-  combatSfx?.("launch", 0.55);
+  impactStop = Math.max(impactStop, 0.06);
+  emitAbilityFx(
+    { id: "sera", col: "#bca7ff", fx: "turn" },
+    ball.x,
+    ball.y,
+    112,
+    0.44,
+    Math.atan2(ball.vy, ball.vx),
+  );
+  addPopup(
+    ball.x,
+    ball.y - 30,
+    (clockwise ? "우" : "좌") + "회전! 잔여 " + battle.labTurns,
+    "#e5c7ff",
+    true,
+  );
+  combatSfx?.("launch", 0.5);
+  sync();
   return true;
 }
+// Sera stops arming her personal turn in the experiment; her value moves to
+// the +1 stage charge granted at battle start.
+const labArmTurnCommand = armTurnCommand;
+armTurnCommand = function (g) {
+  if (labRulesActive()) return;
+  labArmTurnCommand(g);
+};
+const labRedirectToNearestUnit = redirectToNearestUnit;
+redirectToNearestUnit = function (g) {
+  g.labRelayed = true;
+  labRedirectToNearestUnit(g);
+};
+// Finisher tiering: weakened base awakening always fires, the met condition
+// upgrades it.  Damage flows through queueUnitAssist for every finisher, so
+// one wrapper covers slash, longshot, shockwave and the generic awakening.
+const labQueueUnitAssist = queueUnitAssist;
+queueUnitAssist = function (g, amount, name, options = {}) {
+  if (labRulesActive() && options.finisher) {
+    const full = labConditionMet(g);
+    amount = Math.max(1, Math.round(amount * (full ? 1.8 : 0.55)));
+    if (full) {
+      name = "완전 각성 · " + name;
+      earnBlaze(0.3, g.s + " 완전 각성 +0.3");
+      addPopup(g.x, g.y - 48, "완전 각성!", g.col, true);
+    } else {
+      addPopup(g.x, g.y - 48, "조건 미달 · 약화 정산", "#8ba39f", false);
+    }
+  }
+  labQueueUnitAssist(g, amount, name, options);
+};
 const labEndShot = endShot;
 endShot = function () {
-  // Award the thrift bonus before settlement so the awakening assists queue
-  // with the raised multiplier.
-  if (battle?.training && LAB.boost && ball?.moving) {
-    const remaining = ball.labBoost ?? 2;
-    if (remaining > 0)
-      earnBlaze(
-        0.4 * remaining,
-        "조타 절약 +" + (0.4 * remaining).toFixed(1),
-      );
-  }
   labEndShot();
+  for (const g of gates) g.labRelayed = false;
 };
 const labSetupBattle = setupBattle;
 setupBattle = function () {
   labSetupBattle();
   if (!battle?.training) applyLabSet("base", true);
-  else applyLabSet(labSetId, true);
+  else {
+    applyLabSet(labSetId, true);
+    // Stage budget for the shared turn command; Sera's redesigned value is
+    // one extra charge instead of her personal click-turn.
+    battle.labTurns = 2 + (deployed.includes("sera") ? 1 : 0);
+  }
 };
 function enterTrainingLab() {
   const trainingIndex = stages.findIndex((stage) => stage.training);
@@ -2487,6 +2545,18 @@ addEventListener("keydown", (e) => {
     if (e.key === "1") return applyLabSet("base");
     if (e.key === "2") return applyLabSet("A");
     if (e.key === "3") return applyLabSet("B");
+    if (e.key === "4") {
+      labRules = !labRules;
+      if (labRules && battle.labTurns === undefined)
+        battle.labTurns = 2 + (deployed.includes("sera") ? 1 : 0);
+      toast(
+        labRules
+          ? "규칙 실험 켜짐 · 전환 " + battle.labTurns + "회 + 조건 정산"
+          : "규칙 실험 꺼짐 · 현행 규칙",
+      );
+      sync();
+      return;
+    }
   } else if (
     e.key.toLowerCase() === "t" &&
     !run &&
@@ -2506,18 +2576,41 @@ registerRuntimeHook("afterSpecialDraw", function drawLabHud() {
     14,
     20,
   );
-  if (LAB.boost && ball?.moving) {
-    const charges = ball.labBoost ?? 2;
-    for (let i = 0; i < 2; i++) {
-      x.fillStyle = i < charges ? "#8af4ef" : "#27434b";
-      x.beginPath();
-      x.arc(ball.x - 8 + i * 16, ball.y + 26, 4, 0, Math.PI * 2);
-      x.fill();
+  x.fillStyle = labRules ? "#e5c7ff" : "#5d6b84";
+  x.fillText(
+    labRules
+      ? "규칙 실험 켜짐 · 전환 " +
+          (battle.labTurns ?? 0) +
+          "회 · 조건 정산 — [4]끄기"
+      : "규칙 실험 꺼짐 — [4]켜기",
+    14,
+    34,
+  );
+  if (labRulesActive()) {
+    // Per-hero finisher condition, live: grey until met, gold once secured.
+    x.font = "bold 8px ui-monospace";
+    x.textAlign = "center";
+    for (const g of gates) {
+      const rule = labConditionFor(g);
+      if (g.fx === "bladewheel") {
+        x.fillStyle = "#6b7a90";
+        x.fillText("이동 피해 특화", g.x, g.y + 57);
+        continue;
+      }
+      if (!rule) continue;
+      const met = labConditionMet(g);
+      x.fillStyle = met ? "#ffe2a0" : "#6b7a90";
+      x.fillText((met ? "✓ " : "· ") + rule.text, g.x, g.y + 57);
     }
-    if (charges > 0) {
-      x.fillStyle = "#8af4ef";
-      x.textAlign = "center";
-      x.fillText("클릭 · 조타", ball.x, ball.y + 42);
+    if (ball?.moving && (battle.labTurns || 0) > 0) {
+      x.font = "bold 10px ui-monospace";
+      x.fillStyle = "#e5c7ff";
+      x.fillText("클릭 · 90° 전환", ball.x, ball.y + 42);
+      for (let i = 0; i < battle.labTurns; i++) {
+        x.beginPath();
+        x.arc(ball.x - 8 + i * 16, ball.y + 26, 4, 0, Math.PI * 2);
+        x.fill();
+      }
     }
   }
   x.restore();
