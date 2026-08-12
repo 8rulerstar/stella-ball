@@ -17,6 +17,7 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 
 - [게임 전략](GAME_DIRECTION.md)
 - [아트 에셋 계획](ASSET_PLAN.md)
+- [디자인·에셋 제작 백로그](ASSET_BACKLOG.md)
 - [에셋 매니페스트](assets/ASSET_MANIFEST.json)
 - [에셋 출처](assets/ATTRIBUTION.md)
 - [지속 인수인계 메모](PROJECT_CONTEXT.md)

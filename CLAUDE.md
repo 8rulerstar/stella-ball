@@ -2,6 +2,12 @@
 
 Read `AGENTS.md` first; it is the authoritative runtime and verification guide.
 
+## Deferred art intake
+
+- `ASSET_BACKLOG.md` is the single source of truth for visual asset, animation, icon, and SFX needs found during feature work.
+- Do not create or import a new visual asset during ordinary implementation. Add a scoped backlog entry, use an existing asset or temporary code/CSS representation, and wait for a batch-art instruction.
+- When a batch is approved, promote only `제작 준비` entries and update `ASSET_PLAN.md` plus `assets/ASSET_MANIFEST.json` when assets are actually added.
+
 ## Ink & Brass UI theme
 
 - The active theme is `prototypes/stella-ball-theme.css`.

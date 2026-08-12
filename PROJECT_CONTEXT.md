@@ -63,7 +63,7 @@ maxSingleHit, partyIds, upgradeIds, gameVersion
 
 ## 아트 에셋 기준
 
-현재 아트 기준은 **Tiny Swords 계열 픽셀 캐릭터 + 어두운 유적 배경 + 고대비 프리즘 이펙트**다. 실제 반입 목록과 프레임 규격은 `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, 향후 사용 후보는 `assets/ASSET_LIBRARY.md`, 출처는 `assets/ATTRIBUTION.md`에서 관리한다.
+현재 아트 기준은 **Tiny Swords 계열 픽셀 캐릭터 + 어두운 유적 배경 + 고대비 프리즘 이펙트**다. 기능 작업 중 발견한 새 디자인·에셋·애니메이션·SFX 필요사항은 먼저 `ASSET_BACKLOG.md`에 후보로 기록하고, 사람의 일괄 아트 작업 승인 뒤에만 실제 파일을 만든다. 실제 반입 목록과 프레임 규격은 `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, 향후 사용 후보는 `assets/ASSET_LIBRARY.md`, 출처는 `assets/ATTRIBUTION.md`에서 관리한다.
 
 재사용 가능한 프리즘 에셋 패키지(원본 11개 + 4프레임 애니메이션 시트)는 `/Users/8rulerstar/Assets/Prism-Breakers-Pixel-Asset-Pack/`에 별도 보관한다.
 

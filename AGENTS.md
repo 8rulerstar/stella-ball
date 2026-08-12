@@ -3,8 +3,9 @@
 ## Start here
 
 1. Read `prototypes/ARCHITECTURE.md` for runtime ownership and script order.
-2. Run `npm run verify` before handing work over.
-3. Start the game with `PLAY_WINDOWS.cmd` on Windows, or `npm run serve` and open `http://127.0.0.1:4173/`.
+2. Read `ASSET_BACKLOG.md` before proposing or adding visual assets, animations, icons, or SFX.
+3. Run `npm run verify` before handing work over.
+4. Start the game with `PLAY_WINDOWS.cmd` on Windows, or `npm run serve` and open `http://127.0.0.1:4173/`.
 
 ## Runtime boundaries
 
@@ -37,3 +38,10 @@ These are ordered classic scripts sharing one global scope. Do not reorder their
 - `npm run format:check` checks formatting; use `npm run format` to apply it.
 - Do not edit generated `artifacts/` output or user-owned `.claude/` files.
 - Preserve unrelated changes in a dirty worktree. Do not amend, rebase, or force-push `main`.
+
+## Design and asset intake
+
+- During feature work, do **not** create or import new raster assets, animation sheets, icons, or SFX just because they would improve the screen. Record the need in `ASSET_BACKLOG.md` first.
+- Use existing project assets or a simple temporary code/CSS representation until the user approves a dedicated batch art pass. A temporary representation must not change gameplay rules.
+- Every backlog entry needs a screen/trigger, player-facing purpose, asset type, existing reuse candidate, and code connection point. Mark unknown specifications as `미정`; do not invent them.
+- When a batch is approved, process only items marked `제작 준비`, then document source, license, path, and runtime use in `ASSET_PLAN.md` and `assets/ASSET_MANIFEST.json` before marking the backlog item `반입 완료`.
