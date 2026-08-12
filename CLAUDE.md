@@ -2,6 +2,13 @@
 
 Read `AGENTS.md` first; it is the authoritative runtime and verification guide.
 
+## Documentation order
+
+- Read `DOCUMENTATION_INDEX.md` before editing project records.
+- `PROJECT_CONTEXT.md` is the current gameplay/status source of truth; `PROGRESS_REPORT.md` is the concise handoff.
+- Update `CODEX_COLLABORATION.md` only for facts that are actually implemented and verified. Keep Hive Console and the current-physics bot marked unfinished until their real gates pass.
+- Keep historical wording in `DEVLOG.md`; record new work as a dated entry instead of rewriting old decisions.
+
 ## Deferred art intake
 
 - `ASSET_BACKLOG.md` is the single source of truth for visual asset, animation, icon, and SFX needs found during feature work.
