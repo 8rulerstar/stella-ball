@@ -14,6 +14,7 @@ const expectedStyles = [
   "./prism-breakers-combat.css",
   "./prism-breakers-story.css",
   "./prism-breakers-polish.css",
+  "./stella-ball-theme.css",
 ];
 const expectedScripts = [
   "../hive/prism-hive-client.js",

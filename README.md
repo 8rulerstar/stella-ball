@@ -22,6 +22,7 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 - [지속 인수인계 메모](PROJECT_CONTEXT.md)
 - [최신 진행 보고 / 다음 세션 인수인계](PROGRESS_REPORT.md)
 - [런타임 구조와 파일별 수정 위치](prototypes/ARCHITECTURE.md)
+- [Ink & Brass UI 테마 인수인계](UI_REDESIGN_HANDOFF.md)
 - [Codex 협업 기록 / 제출 원본](CODEX_COLLABORATION.md)
 - [일일 개발 로그](DEVLOG.md)
 - [개발 이력 및 검증 운영 규칙](EVIDENCE_PROTOCOL.md)

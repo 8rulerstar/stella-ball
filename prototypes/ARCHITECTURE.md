@@ -11,6 +11,7 @@ The browser build deliberately uses ordered classic scripts instead of a bundler
 - `prism-breakers-combat.css`: combat dashboard and table layout.
 - `prism-breakers-story.css`: title, story, and observatory presentation.
 - `prism-breakers-polish.css`: campaign map, onboarding, and final visual refinements.
+- `stella-ball-theme.css`: final Ink & Brass visual pass. It must remain the final stylesheet so it can change presentation without touching gameplay code.
 - `../PLAY_WINDOWS.cmd`: Windows launcher for the repository entry point.
 
 ## JavaScript ownership

@@ -1,0 +1,152 @@
+/* =====================================================================
+   STELLA BALL — UI THEME v2 "Ink & Brass" (2026-08-12)
+   Loaded last so it is a visual-only cascade pass. Combat logic remains
+   unchanged. See ../UI_REDESIGN_HANDOFF.md for the rationale and rules.
+   ===================================================================== */
+
+:root {
+  --night-0: #0a0a11;
+  --night-1: #14141f;
+  --night-2: #1e1e2c;
+  --void: #2c2740;
+  --moon: #c3c9d6;
+  --star: #e6c684;
+  --gold: #b08d55;
+  --mist: #9298ac;
+  --line: #494c63;
+  --sb-gaon: #d9b269;
+  --sb-biyeon: #cf7183;
+  --sb-lumi: #74bfc0;
+  --sb-haru: #9cc878;
+  --sb-sera: #a99bd6;
+  --sb-taeo: #d99a66;
+  --sb-nyx: #8f7fd0;
+  --sb-ria: #bca6d8;
+}
+
+body {
+  color: var(--moon);
+  background: radial-gradient(ellipse at 50% -15%, #232338 0%, #14141f 43%, #0a0a11 82%) !important;
+}
+body::before { opacity: .3 !important; }
+header {
+  border-color: #3c3e57 !important;
+  background: linear-gradient(100deg, #0e0e15ef, #15151fef) !important;
+  box-shadow: 0 8px 24px #04040699, 0 0 0 1px #b08d5522 !important;
+}
+header .tag, .hud-label span, .status-line span, .boss-name span, .blaze-score-label { color: #9aa0b5 !important; }
+header h1, .boss-name b { color: #efdcb2 !important; text-shadow: 0 0 14px #b08d5544 !important; }
+header p, .status-line { color: #adb3c6 !important; }
+
+button {
+  border-color: #5a5e78 !important;
+  background: linear-gradient(180deg, #1c1d2c, #14141f) !important;
+  color: #dfe3ea !important;
+  box-shadow: 0 3px 0 #060609 !important;
+}
+button:hover {
+  border-color: #d9bc82 !important;
+  background: linear-gradient(180deg, #26273a, #1c1d2c) !important;
+  box-shadow: 0 0 0 1px #d9bc8233, 0 5px 14px #04040699 !important;
+}
+.hub-start, .title-enter, .meta-launch, .onboarding-card button,
+.outcome-cut.win button {
+  border-color: #d9bc82 !important;
+  background: linear-gradient(#d3b072, #8f6537) !important;
+  color: #241d10 !important;
+  box-shadow: 0 4px 0 #3f2f1c, 0 0 0 3px #d6c08a1a !important;
+}
+.outcome-cut.fail button { border-color: #9aa1b8 !important; background: linear-gradient(#3a4058, #272b3d) !important; }
+
+.stage {
+  border-color: #5a5e78 !important;
+  background: #0d0d15 !important;
+  box-shadow: 0 0 0 1px #b08d5522, 0 18px 42px #040406bb !important;
+}
+.game-mode .hud-card, .game-mode .boss-panel, .game-mode .boss-banner, .hud-card, .boss-panel {
+  border-color: #4f5269 !important;
+  background: linear-gradient(145deg, #15151ff4, #10101af4) !important;
+  box-shadow: 0 3px 0 #050508bb, 0 0 20px #0009 !important;
+}
+.hud-label b, .status-line b { color: #eddab0 !important; }
+.meter { border-color: #26273a !important; background: #0d0d13 !important; }
+.meter i, .meter.hp i { background: linear-gradient(90deg, #a87f47, #e6cf9a 56%, #f3e8cf) !important; box-shadow: 0 0 9px #d6b67866 !important; }
+.shot-dots { color: #cba969 !important; text-shadow: 0 0 9px #bd9b5f66 !important; }
+.tip, .pinball-flipper-hint { border-color: #494c63 !important; background: #0e0e15dd !important; color: #c3c9d6 !important; }
+.tip b { color: #e6c684 !important; }
+.toast { border-color: #cfb27a !important; background: #15151ff4 !important; color: #f0e3c5 !important; }
+.combo-readout.hot { color: #eddab0 !important; text-shadow: 0 0 12px #c9a566, 0 0 26px #6f759055 !important; }
+.blaze-card { border-color: #5a5e78 !important; background: linear-gradient(135deg, #1d1c2bf5, #232033ee 68%, #2c2740f0) !important; color: #c9cedb !important; box-shadow: 0 3px 0 #050508bb, 0 0 22px #0b0b12bb !important; }
+.blaze-score-label { color: #a2a8bd !important; }
+.blaze-card b { color: #f0debb !important; text-shadow: 2px 2px 0 #0e0e14, 0 0 11px #bd9b5f66 !important; }
+.blaze-card small { border-color: #5a5e7855 !important; color: #adb3c6 !important; }
+.blaze-card[data-heat="1"], .blaze-card[data-heat="2"], .blaze-card[data-heat="3"] { border-color: #cfae6f !important; background: linear-gradient(135deg, #1d1c2bf5, #322b47f0 68%, #463c5fec) !important; }
+.blaze-card[data-heat="1"] b, .blaze-card[data-heat="2"] b, .blaze-card[data-heat="3"] b { text-shadow: 2px 2px 0 #181624, 0 0 15px #d1ac6d, 0 0 31px #7a7fa855 !important; }
+.boss-banner.impact-heavy { border-color: #f0debb !important; background: #322b47f0 !important; box-shadow: 0 0 0 1px #f0debb, 0 0 24px #bd9b5f88 !important; }
+.impact-flash { background: radial-gradient(circle at 55% 44%, #e8d9a8aa 0%, #d98bc455 24%, transparent 58%) !important; }
+
+.overlay, .meta-scene, .stage-map-scene, .stage-select-scene, .tutorial-scene, .constellation-map-scene, .story-intro-scene { background: #0a0a11f2 !important; }
+.survivor-hub, .meta-hub, .world-map, .stage-select, .tutorial-shell, .constellation-map-shell { background: linear-gradient(155deg, #15151fe8, #0e0e15e8) !important; }
+.overlay h2 { color: #efdcb2 !important; text-shadow: 0 2px 0 #191521 !important; }
+.overlay p { color: #c3c9d6 !important; }
+.hub-topbar { border-color: #4f5269 !important; }
+.hub-avatar, .hub-resource, .hub-party-row, .hub-quick { border-color: #3c3e57 !important; background: #14141f !important; }
+.hub-avatar { border-color: #b49554 !important; color: #e6cf9a !important; box-shadow: 0 3px 0 #060609, 0 0 14px #b08d5533 !important; }
+.hub-resource b { color: #e6c684 !important; }
+.hub-mission { border-color: #b08d55 !important; background-color: #1e1a29 !important; background-image: linear-gradient(90deg, #0b0b12ec, #15151fd9 52%, #2c274070), var(--stage-art) !important; box-shadow: 0 9px 24px #040406bb, 0 0 0 1px #d6c08a1a !important; }
+.hub-player b, .hub-mission h2, .stage-select-card b, .map-node b { color: #efdcb2 !important; }
+.hub-record { border-left-color: #b08d55 !important; background: #0e0e15 !important; }
+.map-node, .stage-select-card, .constellation-node { border-color: #5a5e78 !important; background-color: #171622 !important; background-image: linear-gradient(90deg, #0b0b12ed, #15151fdb 54%, #2c27406b), var(--stage-art) !important; }
+.map-node:hover, .map-node.active, .stage-select-card:hover, .stage-select-card.active, .constellation-node:hover { border-color: #d9bc82 !important; box-shadow: 0 10px 22px #000b, 0 0 0 2px #d9bc8244 !important; }
+.constellation-route path { stroke: #6f7590 !important; filter: drop-shadow(0 0 5px #7f86a566) !important; }
+.stage-map-board { border-color: #5a5e78 !important; background: radial-gradient(circle at 78% 8%, #46396355, transparent 28%), linear-gradient(145deg, #1e1e2c, #0e0e15 78%) !important; }
+
+.roster-shell, .roster-detail, .deployment-map, .draft-scene .choice-card, .tutorial-card, .help-panel { border-color: #4f5269 !important; background: linear-gradient(145deg, #171622, #10101a) !important; box-shadow: 0 9px 24px #040406bb !important; }
+.roster-unit, .party-chip, .deploy-unit { border-color: #3c3e57 !important; background: #14141f !important; }
+.roster-unit { opacity: .68; filter: saturate(.5) brightness(.85); }
+.roster-unit:hover { opacity: .9; filter: saturate(.75) !important; border-color: #6b6f8b !important; background-color: #1c1d2c !important; }
+.roster-unit.active { opacity: 1; filter: none !important; border-color: #d9bc82 !important; background: linear-gradient(145deg, #322b1d 0%, #1e1e2c 52%, #14141f 100%) !important; box-shadow: 0 0 0 1px #d9bc8244, 0 0 14px #b08d5526, inset 0 0 17px #d6c08a1a !important; color: #f3e8cf !important; }
+.roster-unit.active .portrait { filter: saturate(.85) drop-shadow(0 3px 0 #050508) drop-shadow(0 0 8px #d6c08a) !important; }
+.party-chip { border-left: 3px solid var(--unit, #494c63) !important; }
+.party-chip small { color: #5a5f76 !important; }
+.roster-detail { border-left: 2px solid #bd9b5f !important; }
+.hero-lore { color: #c2b284 !important; border-left-color: #b99a5866 !important; }
+.slot-card { border-color: var(--unit) !important; background: #14141fde !important; box-shadow: 0 0 0 5px #0a0a11, 0 0 16px color-mix(in srgb, var(--unit) 30%, transparent) !important; }
+.deploy-unit { box-shadow: 0 4px 0 #050508aa, 0 0 0 3px #0a0a11 !important; }
+.choice-card:hover, .draft-scene .choice-card:hover { border-color: #d9bc82 !important; background: #1e1e2c !important; }
+
+.outcome-cut { border-color: #6b6f8b !important; background-color: #14141ff2 !important; box-shadow: 0 18px 44px #040406bb, 0 0 0 1px #cfae6f22 !important; }
+.outcome-constellation { color: #e2c68a !important; text-shadow: 0 0 12px #c9a566 !important; }
+.outcome-cut h2 { color: #eddab0 !important; text-shadow: 0 0 19px #bd9b5f66 !important; }
+.result-card { border-color: #5f637e !important; background: linear-gradient(145deg, #1e1e2c, #14141f) !important; box-shadow: inset 0 0 0 1px #eddab00c !important; }
+.result-metric { color: #a2a8bd !important; }
+.result-metric b { color: #e6c684 !important; }
+.achievement-card, .system-panel, .settings-group { border-color: #3c3e57 !important; background: #14141f !important; }
+.setting-row input[type="range"] { accent-color: #b08d55 !important; }
+.language-choice button.active { border-color: #cba969 !important; background: #322b1d !important; color: #efdcb2 !important; }
+
+.meta-tab img, .meta-rune img, .meta-rune-art, .meta-daily > img, .result-medal, .result-metric img,
+.draft-card .upgrade-icon, .unit-skill, .deploy-skill, .detail-skill-icon, .stage-emblem,
+.shot-dots .shot-icon, .picked-mark, .party-chip .slot-marker, .map-node img, .title-party img,
+.help-control img, .hub-quick img, .meta-actions button img, .title-content button img, .meta-launch img,
+.title-enter img, .hub-avatar img, .tutorial-visual img {
+  filter: saturate(.72) hue-rotate(-6deg) brightness(1.04) drop-shadow(0 2px 0 #050508) !important;
+}
+.title-wordmark, .meta-brand img { filter: saturate(.8) brightness(1.06) drop-shadow(0 3px 0 #191521) !important; }
+.title-boss { filter: saturate(.8) brightness(1.02) drop-shadow(0 0 20px #5f678899) !important; }
+.achievement-card.locked img { filter: grayscale(.75) brightness(.62) !important; }
+
+.title-sequence { background: radial-gradient(ellipse at 50% 31%, #2c274088 0%, #14141fd9 42%, #0a0a11ef 88%) !important; }
+.title-sequence::before { filter: saturate(.5) brightness(.9) !important; opacity: .4 !important; }
+.title-stars i { background: #e8d9a8 !important; box-shadow: 0 0 10px #d6b678 !important; }
+.title-rift { border-color: #7c88a866 !important; box-shadow: inset 0 0 42px #6f759045, 0 0 52px #494c6344 !important; filter: none !important; }
+.title-rift::before { border-color: #bfa26788 !important; }
+.title-rift::after { border-color: #8f7fd0aa !important; }
+.title-orb { filter: drop-shadow(0 0 12px #e8d9a8) drop-shadow(0 0 28px #6f7590) !important; }
+.title-kicker { color: #dfe3ea !important; border-color: #c3c9d688 !important; text-shadow: 0 0 10px #c3c9d6 !important; }
+.title-copy p { color: #c3c9d6 !important; text-shadow: 0 2px 0 #14141f !important; }
+.title-copy::before { background: linear-gradient(90deg, transparent, #e8d9a8, #d8dde6, #e8d9a8, transparent) !important; box-shadow: 0 0 14px #d6c08aaa !important; }
+.title-party { border-color: #494c6366 !important; background: #1e1e2c55 !important; }
+.title-skip { color: #9298ac !important; }
+.hub-night-sky i { background: #dcc084 !important; box-shadow: 0 0 7px #b99a58, 0 0 15px #dcc08466 !important; }
+.constellation-readout { color: #eddab0 !important; text-shadow: 0 2px 0 #0a0a11, 0 0 12px #b08d55 !important; }
