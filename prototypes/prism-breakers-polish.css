@@ -107,17 +107,6 @@
 .title-sequence:after {
   opacity: 0.5;
 }
-.title-rift {
-  width: min(78vw, 590px) !important;
-  filter: drop-shadow(0 0 28px #8998ff77);
-}
-.title-rift:before {
-  box-shadow: 0 0 18px #f6cf7a44;
-}
-.title-boss {
-  filter: saturate(0.82) contrast(1.06) brightness(0.98)
-    drop-shadow(0 0 26px #7777d2aa) !important;
-}
 .title-orb {
   width: 66px !important;
   height: 66px !important;
@@ -167,19 +156,6 @@
   margin-left: 8px;
   color: #fff7d5;
   text-shadow: 0 0 8px #fff;
-}
-.title-party {
-  padding: 4px 9px;
-  border: 1px solid #cbd8ff24;
-  border-radius: 999px;
-  background: #070a1b55;
-}
-.title-party img {
-  width: 39px !important;
-  height: 39px !important;
-}
-.title-skip {
-  letter-spacing: 0.16em !important;
 }
 .survivor-hub {
   background:
@@ -263,13 +239,6 @@
 .party-chip.active,
 .deploy-unit.selected {
   transform: translateY(-2px);
-}
-.roster-detail {
-  border-left: 2px solid #e1b966 !important;
-}
-.hero-lore {
-  padding-left: 7px;
-  border-left: 1px solid #e0ba6266;
 }
 .outcome-cut {
   position: relative;
@@ -404,15 +373,8 @@
   .title-wordmark {
     width: min(420px, 94%) !important;
   }
-  .title-rift {
-    width: 92vw !important;
-  }
   .title-copy:before {
     margin-bottom: 8px;
-  }
-  .title-party img {
-    width: 34px !important;
-    height: 34px !important;
   }
   .outcome-cut {
     padding: 38px 17px 23px !important;
@@ -1675,10 +1637,6 @@ body.onboarding-locked canvas {
 .title-enter {
   animation-delay: 1.48s;
   overflow: hidden;
-}
-.title-skip {
-  color: #aeb9df;
-  animation-delay: 1.66s;
 }
 @keyframes titleConstellationDraw {
   to {

@@ -54,61 +54,6 @@
   animation: titleStar 2.4s ease-in-out infinite;
   animation-delay: var(--d);
 }
-.title-rift {
-  position: absolute;
-  top: 12%;
-  left: 50%;
-  width: min(74vw, 550px);
-  aspect-ratio: 1;
-  transform: translateX(-50%);
-  border: 2px solid #84e5d066;
-  border-radius: 48% 52% 55% 45%;
-  box-shadow:
-    inset 0 0 42px #41d4cb55,
-    0 0 52px #2e9f9f44;
-  animation: titleRift 1.1s cubic-bezier(0.14, 0.86, 0.22, 1) both;
-}
-.title-rift:before,
-.title-rift:after {
-  content: "";
-  position: absolute;
-  inset: 11%;
-  border: 1px solid #e5c36c88;
-  border-radius: 44% 56% 42% 58%;
-  animation: titleRiftSpin 8s linear infinite;
-}
-.title-rift:after {
-  inset: 24%;
-  border-color: #9b8ce8aa;
-  animation-direction: reverse;
-  animation-duration: 5s;
-}
-.title-boss {
-  position: absolute;
-  z-index: 1;
-  top: 9%;
-  left: 50%;
-  width: min(49vw, 322px);
-  image-rendering: pixelated;
-  filter: hue-rotate(147deg) saturate(0.72) brightness(1.03)
-    drop-shadow(0 0 20px #6cd9ce99);
-  transform: translateX(-50%);
-  animation:
-    titleBoss 0.72s cubic-bezier(0.13, 0.9, 0.22, 1.18) 0.18s both,
-    titleFloat 3.6s ease-in-out 1s infinite;
-}
-.title-impact {
-  position: absolute;
-  z-index: 2;
-  top: 29%;
-  left: 50%;
-  width: min(50vw, 310px);
-  transform: translate(-50%, -50%);
-  image-rendering: pixelated;
-  mix-blend-mode: screen;
-  opacity: 0;
-  animation: titleImpact 0.52s steps(3) 0.54s both;
-}
 .title-orb {
   position: absolute;
   z-index: 3;
@@ -165,20 +110,6 @@
   transform: translateY(8px);
   animation: titleFadeUp 0.42s ease 0.98s forwards;
 }
-.title-party {
-  display: flex;
-  gap: 7px;
-  margin-bottom: 15px;
-  opacity: 0;
-  animation: titleFadeUp 0.36s ease 1.06s forwards;
-}
-.title-party img {
-  width: 35px;
-  height: 35px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: hue-rotate(145deg) saturate(0.7) drop-shadow(0 2px 0 #061015);
-}
 .title-enter {
   position: relative;
   min-width: 244px !important;
@@ -208,16 +139,6 @@
 .title-enter:hover {
   filter: brightness(1.12);
   transform: translateY(-2px);
-}
-.title-skip {
-  margin-top: 10px;
-  color: #8eaaa4;
-  font:
-    700 9px ui-monospace,
-    monospace;
-  letter-spacing: 0.08em;
-  opacity: 0;
-  animation: titleFade 0.3s ease 1.28s forwards;
 }
 @keyframes titleBackdrop {
   50% {
@@ -410,14 +331,6 @@
     monospace;
   letter-spacing: 0.08em;
 }
-.hero-lore {
-  display: block;
-  margin-top: 5px;
-  color: #d9c886 !important;
-  font-size: 10px !important;
-  font-style: italic;
-  line-height: 1.45;
-}
 .survivor-hub {
   position: relative;
   overflow: hidden;
@@ -449,28 +362,6 @@
 .survivor-hub > *:not(.hub-night-sky) {
   position: relative;
   z-index: 1;
-}
-.constellation-readout {
-  position: absolute;
-  z-index: 7;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  color: #fff1b4;
-  font:
-    700 12px "Galmuri11",
-    ui-monospace,
-    monospace;
-  letter-spacing: 0.07em;
-  text-shadow:
-    0 2px 0 #071116,
-    0 0 12px #dca94d;
-}
-.constellation-readout small {
-  display: block;
-  margin-top: 3px;
-  color: #e5ca79;
-  font-size: 8px;
-  letter-spacing: 0.11em;
 }
 @keyframes hubStarPulse {
   50% {
@@ -792,23 +683,6 @@ button:hover {
   border-left-color: #e0b45f !important;
   background: #090e24 !important;
 }
-.stage-map-board {
-  border-color: #6578ab !important;
-  background:
-    radial-gradient(circle at 78% 8%, #5b63a855, transparent 28%),
-    linear-gradient(145deg, #18204b, #080c20 78%) !important;
-}
-.stage-map-board:before {
-  filter: hue-rotate(25deg) saturate(0.7) !important;
-}
-.map-node,
-.stage-select-card {
-  border-color: #5f72a5 !important;
-  background-color: #10183a !important;
-  background-image:
-    linear-gradient(90deg, #080c20ed, #111a3bdb 54%, #27245c6b),
-    var(--stage-art) !important;
-}
 .map-node:hover,
 .map-node.active,
 .stage-select-card:hover,
@@ -817,14 +691,6 @@ button:hover {
   box-shadow:
     0 10px 22px #000b,
     0 0 0 2px #ffe2a044 !important;
-}
-.map-node span,
-.stage-select-card span {
-  color: #c6d0e9 !important;
-}
-.map-node em,
-.stage-select-card em {
-  color: #ffe0a0 !important;
 }
 .roster-shell,
 .roster-detail,
@@ -836,12 +702,6 @@ button:hover {
   background: linear-gradient(145deg, #10183a, #090e23) !important;
   box-shadow: 0 9px 24px #02030dbb !important;
 }
-.roster-unit,
-.party-chip,
-.deploy-unit {
-  border-color: #506292 !important;
-  background: #0c1330 !important;
-}
 .roster-unit.selected,
 .party-chip.active,
 .deploy-unit.selected {
@@ -850,9 +710,6 @@ button:hover {
   box-shadow:
     0 0 0 1px #ffe0a044,
     0 0 15px #e7bd6555 !important;
-}
-.hero-lore {
-  color: #f0d99a !important;
 }
 .tutorial-visual {
   border-color: #5e70a3 !important;
@@ -890,21 +747,6 @@ button:hover {
   background: #fff2be !important;
   box-shadow: 0 0 10px #ffe4a4 !important;
 }
-.title-rift {
-  border-color: #aab9ff77 !important;
-  box-shadow:
-    inset 0 0 42px #7d7eea66,
-    0 0 52px #5d5fbd55 !important;
-}
-.title-rift:before {
-  border-color: #f1cd7f99 !important;
-}
-.title-rift:after {
-  border-color: #abb9ffbb !important;
-}
-.title-boss {
-  filter: saturate(0.72) brightness(0.95) drop-shadow(0 0 22px #7777d299) !important;
-}
 .title-orb {
   filter: drop-shadow(0 0 11px #fff1a9) drop-shadow(0 0 24px #8998ff) !important;
 }
@@ -918,12 +760,6 @@ button:hover {
 .title-copy p {
   color: #e0e7ff !important;
   text-shadow: 0 2px 0 #060716 !important;
-}
-.title-party img {
-  filter: drop-shadow(0 2px 0 #080a1b) drop-shadow(0 0 7px #f4cf7a66) !important;
-}
-.title-skip {
-  color: #a9b7db !important;
 }
 .story-intro-scene {
   background: #040512f3 !important;

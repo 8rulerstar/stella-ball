@@ -112,20 +112,11 @@ button:hover {
 .map-node, .stage-select-card, .constellation-node { border-color: #42585c !important; background-color: #131e23 !important; background-image: linear-gradient(90deg, #0a1114ed, #111b20db 54%, #2234386b), var(--stage-art) !important; }
 .map-node:hover, .map-node.active, .stage-select-card:hover, .stage-select-card.active, .constellation-node:hover { border-color: #f6c48e !important; box-shadow: 0 10px 22px #000b, 0 0 0 2px #f6c48e44 !important; }
 .constellation-route path { stroke: #527074 !important; filter: drop-shadow(0 0 5px #628c9066) !important; }
-.stage-map-board { border-color: #42585c !important; background: radial-gradient(circle at 78% 8%, #2c565c55, transparent 28%), linear-gradient(145deg, #16242a, #0c1417 78%) !important; }
 
 .roster-shell, .roster-detail, .deployment-map, .draft-scene .choice-card, .tutorial-card, .help-panel { border-color: #3a5054 !important; background: linear-gradient(145deg, #131e23, #0d1619) !important; box-shadow: 0 9px 24px #030809bb !important; }
-.roster-unit, .party-chip, .deploy-unit { border-color: #2c3f43 !important; background: #101a1e !important; }
-.roster-unit { opacity: .68; filter: saturate(.5) brightness(.85); }
-.roster-unit:hover { opacity: .9; filter: saturate(.75) !important; border-color: #4f686c !important; background-color: #16262c !important; }
 .roster-unit.active { opacity: 1; filter: none !important; border-color: #f6c48e !important; background: linear-gradient(145deg, #2e2418 0%, #16242a 52%, #101a1e 100%) !important; box-shadow: 0 0 0 1px #f6c48e44, 0 0 14px #c97a4526, inset 0 0 17px #f2b9881a !important; color: #fff3e2 !important; }
 .roster-unit.active .portrait { filter: saturate(.85) drop-shadow(0 3px 0 #04080a) drop-shadow(0 0 8px #f2b988) !important; }
-.party-chip { border-left: 3px solid var(--unit, #34494d) !important; }
-.party-chip small { color: #435a5e !important; }
-.roster-detail { border-left: 2px solid #d18a52 !important; }
-.hero-lore { color: #d8b28e !important; border-left-color: #cd7f4a66 !important; }
 .slot-card { border-color: var(--unit) !important; background: #101a1ede !important; box-shadow: 0 0 0 5px #0a0f12, 0 0 16px color-mix(in srgb, var(--unit) 30%, transparent) !important; }
-.deploy-unit { box-shadow: 0 4px 0 #04080aaa, 0 0 0 3px #0a0f12 !important; }
 .choice-card:hover, .draft-scene .choice-card:hover { border-color: #f6c48e !important; background: #16242a !important; }
 
 .outcome-cut { border-color: #4f686c !important; background-color: #101a1ef2 !important; box-shadow: 0 18px 44px #030809bb, 0 0 0 1px #e8a67022 !important; }
@@ -146,23 +137,16 @@ button:hover {
   filter: saturate(.72) hue-rotate(-6deg) brightness(1.04) drop-shadow(0 2px 0 #04080a) !important;
 }
 .title-wordmark, .meta-brand img { filter: saturate(.8) brightness(1.06) drop-shadow(0 3px 0 #131e23) !important; }
-.title-boss { filter: saturate(.8) brightness(1.02) drop-shadow(0 0 20px #4a6e7299) !important; }
 .achievement-card.locked img { filter: grayscale(.75) brightness(.62) !important; }
 
 .title-sequence { background: radial-gradient(ellipse at 50% 31%, #22343888 0%, #101a1ed9 42%, #0a0f12ef 88%) !important; }
 .title-sequence::before { filter: saturate(.5) brightness(.9) !important; opacity: .4 !important; }
 .title-stars i { background: #ffe3b8 !important; box-shadow: 0 0 10px #eea56f !important; }
-.title-rift { border-color: #5f8a8e66 !important; box-shadow: inset 0 0 42px #52707445, 0 0 52px #34494d44 !important; filter: none !important; }
-.title-rift::before { border-color: #bfa26788 !important; }
-.title-rift::after { border-color: #7cc6bbaa !important; }
 .title-orb { filter: drop-shadow(0 0 12px #ffe3b8) drop-shadow(0 0 28px #527074) !important; }
 .title-kicker { color: #c8d8d5 !important; border-color: #cfdad788 !important; text-shadow: 0 0 10px #cfdad7 !important; }
 .title-copy p { color: #cfdad7 !important; text-shadow: 0 2px 0 #101a1e !important; }
 .title-copy::before { background: linear-gradient(90deg, transparent, #ffe3b8, #c2d2cf, #ffe3b8, transparent) !important; box-shadow: 0 0 14px #f2b988aa !important; }
-.title-party { border-color: #34494d66 !important; background: #16242a55 !important; }
-.title-skip { color: #8ba39f !important; }
 .hub-night-sky i { background: #f8ca96 !important; box-shadow: 0 0 7px #cd7f4a, 0 0 15px #f8ca9666 !important; }
-.constellation-readout { color: #ffe3c0 !important; text-shadow: 0 2px 0 #0a0f12, 0 0 12px #c97a45 !important; }
 
 /* Meta hub: one clear battle destination with compact supporting choices. */
 .survivor-hub {
@@ -173,72 +157,6 @@ button:hover {
   padding: 14px 16px 16px !important;
 }
 .hub-topbar { flex: 0 0 auto; padding: 0 0 10px !important; }
-.hub-battle-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: 74px minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  min-height: 176px;
-  padding: 17px;
-  overflow: hidden;
-  border: 1px solid #c97a45;
-  background-color: #131e23;
-  background-image: linear-gradient(90deg, #0a1114f2 0%, #111b20df 55%, #22343878 100%), var(--stage-art);
-  background-position: center;
-  background-size: cover;
-  box-shadow: 0 9px 24px #030809bb, 0 0 0 1px #f2b9881a;
-}
-.hub-battle-card::before {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(110deg, transparent 35%, #f3ede212 49%, transparent 62%);
-  content: "";
-  pointer-events: none;
-  transform: translateX(-100%);
-  animation: missionSweep 7s ease-in-out infinite;
-}
-.hub-battle-card > * { position: relative; z-index: 1; }
-.hub-battle-crest {
-  display: grid;
-  width: 72px;
-  height: 92px;
-  place-items: center;
-  align-content: center;
-  border: 1px solid #c97a4599;
-  background: #0a1114d9;
-  box-shadow: inset 0 0 0 3px #04080a, 0 3px 0 #04080a;
-}
-.hub-battle-crest img {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: saturate(.72) hue-rotate(-6deg) brightness(1.04) drop-shadow(0 2px 0 #04080a);
-}
-.hub-battle-crest small, .hub-battle-copy > small, .hub-party-heading small {
-  color: #8aa6a3;
-  font: 700 8px ui-monospace, monospace;
-  letter-spacing: .12em;
-}
-.hub-battle-copy { min-width: 0; }
-.hub-battle-copy h2 {
-  margin: 5px 0 4px;
-  color: #f3ede2;
-  font-size: 24px;
-  text-shadow: 0 2px 0 #04080a;
-}
-.hub-battle-copy p {
-  display: -webkit-box;
-  max-width: 330px;
-  margin: 0;
-  overflow: hidden;
-  color: #cfdad7;
-  font-size: 10px;
-  line-height: 1.45;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
 .hub-battle-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 11px; }
 .hub-battle-tags span {
   padding: 4px 6px;
@@ -327,55 +245,9 @@ button:hover {
   margin-right: 1px;
 }
 .result-gold b { color: #ffce9a; font-size: 12px; }
-.hub-party-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px 14px;
-  align-items: center;
-  padding: 10px 11px;
-  border: 1px solid #2c3f43;
-  background: #101a1e;
-  box-shadow: 0 3px 0 #04080a;
-}
-.hub-party-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.hub-party-heading b { display: block; margin-top: 2px; color: #ffd2a0; font-size: 12px; }
-.hub-party-heading button { padding: 6px 9px !important; font-size: 9px !important; }
 .hub-party-slots { grid-column: 1 / -1; display: flex; gap: 8px; }
 .hub-party-slot { width: 42px; height: 42px; border-color: #42585c; background: #0c1417; box-shadow: inset 0 0 0 3px #04080a; }
 .hub-party-slot img { width: 36px; height: 36px; }
-.hub-utility-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.hub-utility {
-  display: flex;
-  min-height: 54px;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 8px !important;
-  border-color: #2c3f43 !important;
-  background: #101a1e !important;
-  text-align: left;
-}
-.hub-utility:hover { background: #16242a !important; }
-.hub-utility img {
-  width: 27px;
-  height: 27px;
-  flex: 0 0 auto;
-  image-rendering: pixelated;
-  filter: saturate(.72) hue-rotate(-6deg) brightness(1.04);
-}
-.hub-utility strong { display: block; color: #c8d8d5; font-size: 10px; }
-.hub-utility small { display: block; margin-top: 3px; color: #8ba39f; font-size: 8px; }
-.hub-gacha-mark {
-  display: grid;
-  width: 27px;
-  height: 27px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid #c97a45;
-  background: radial-gradient(circle, #ffe6be 0 14%, #7e4a26 17% 39%, #12191c 42%);
-  color: #fff1d8;
-  font-size: 14px;
-  text-shadow: 0 0 7px #ffce9a;
-}
 .gacha-scene {
   align-items: center !important;
   padding: 18px !important;
@@ -440,20 +312,9 @@ button:hover {
 @keyframes gachaReveal { from { opacity: 0; transform: scale(.55); filter: brightness(2.4); } to { opacity: 1; transform: scale(1); filter: brightness(1); } }
 @media (max-width: 680px) {
   .survivor-hub { gap: 7px; padding: 10px !important; }
-  .hub-battle-card { grid-template-columns: 58px minmax(0, 1fr); min-height: 165px; gap: 9px; padding: 12px; }
-  .hub-battle-crest { width: 56px; height: 74px; }
-  .hub-battle-crest img { width: 40px; height: 40px; }
-  .hub-battle-copy h2 { font-size: 19px; }
   .hub-battle-play { grid-column: 1 / -1; width: 100%; min-width: 0; padding: 10px !important; }
-  .hub-party-panel { padding: 8px; }
   .hub-party-slot { width: 38px; height: 38px; }
   .hub-party-slot img { width: 33px; height: 33px; }
-  .hub-utility-grid { grid-template-columns: repeat(2, 1fr); gap: 5px; }
-  .hub-utility { min-height: 47px; gap: 5px; padding: 6px !important; }
-  .hub-utility img { width: 22px; height: 22px; }
-  .hub-gacha-mark { width: 22px; height: 22px; font-size: 12px; }
-  .hub-utility strong { font-size: 9px; }
-  .hub-utility small { display: none; }
   .gacha-scene { padding: 10px !important; }
   .gacha-shell { padding: 11px; }
   .gacha-ritual { min-height: 145px; margin: 10px 0; }
