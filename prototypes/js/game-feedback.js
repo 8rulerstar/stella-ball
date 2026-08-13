@@ -573,7 +573,12 @@ settleParty = function () {
       const fx = gate.fx === "copycat" ? gate.copiedFx : gate.fx;
       return fx !== "bladewheel";
     });
-  if (awakened.length) {
+  // The figure prototype mutes the training-table settle, but it does so a
+  // layer below this one, so the banner and its slow-motion kept playing over
+  // the figure they were supposed to leave alone.  The `typeof` guard keeps
+  // this line harmless if the prototype is ever removed.
+  const figureOwnsSettle = typeof figureActive === "function" && figureActive();
+  if (awakened.length && !figureOwnsSettle) {
     settlementBeat = {
       t: 0,
       d: 0.92,

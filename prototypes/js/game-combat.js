@@ -2370,11 +2370,12 @@ const FIGURE = {
   reject: 0.13,
   perfect: 0.04,
   bonusPerPoint: 14, // damage per enclosed target, per figure vertex
-  // Long enough to actually be looked at.  At 0.55/0.9/0.45 the figure was
-  // gone before the settle slow-motion finished, so it read as "nothing drew".
-  drawTime: 0.8,
-  holdTime: 3.2,
-  fadeTime: 0.8,
+  // Five seconds end to end, with the trace itself slow enough to watch being
+  // drawn.  At 0.55/0.9/0.45 the whole thing was over before the settle
+  // slow-motion finished, so it read as "nothing drew".
+  drawTime: 1.4,
+  holdTime: 2.6,
+  fadeTime: 1,
 };
 let figureFx = null;
 function figureActive() {
@@ -2656,4 +2657,11 @@ setupBattle = function () {
     hint: ZONE_RULES[0].hint,
   });
   loadSpec?.(heroes[spare]);
+  // startShot is what puts the per-shot fields (unitTrail, travel, moved, the
+  // blade counters) on a gate, and setupBattle already called it before this
+  // seat existed.  Without a second pass the fourth starkeeper reaches the
+  // solver bare and the first frame of the first shot throws on unitTrail,
+  // killing the frame loop.  Re-running it from the meteor's own spot primes
+  // all four and leaves the ball exactly where it already was.
+  startShot({ x: ball.x, y: ball.y });
 };

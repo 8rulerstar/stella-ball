@@ -683,7 +683,11 @@ endShot = function () {
 const baseStorySettleParty = settleParty;
 settleParty = function () {
   baseStorySettleParty();
-  if (gates.length === 3) {
+  // The dashed "별자리 완성" triangle is the old three-gate reveal.  Where the
+  // figure prototype is running it draws its own constellation over the same
+  // points, so the two would trace competing shapes on the same beat.
+  const figureOwnsSettle = typeof figureActive === "function" && figureActive();
+  if (gates.length === 3 && !figureOwnsSettle) {
     constellationReveal = {
       points: gates.map((g) => ({ x: g.x, y: g.y })),
       endsAt: performance.now() + 800,

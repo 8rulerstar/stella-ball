@@ -669,12 +669,12 @@ const stages = [
     name: "무한 훈련장",
     terrain:
       "불멸의 거상과 자동 보충 유성으로 충돌·분열·배율을 제한 없이 시험합니다.",
-    // Prototype layout (2026-08-13): the colossus sits near the middle of the
-    // table instead of at the top, so a figure drawn by the party can actually
-    // enclose it.  At y=194 a starkeeper cannot pass the boss (its exclusion
-    // radius is g.r + 66 = 100), so surrounding it needed a vertex threaded
-    // into a 60px band above it — one forced play, every shot.  Only the
-    // training table moves; all twelve campaign stages keep their geometry.
+    // Prototype layout (2026-08-13): the colossus sits at the dead centre of
+    // the 720x900 table instead of at the top, so a figure drawn by the party
+    // can actually enclose it.  At y=194 a starkeeper cannot pass the boss (its
+    // exclusion radius is g.r + 66 = 100), so surrounding it needed a vertex
+    // threaded into a 60px band above it — one forced play, every shot.  Only
+    // the training table moves; all twelve campaign stages keep their geometry.
     slots: [
       [170, 300],
       [550, 300],
@@ -685,7 +685,7 @@ const stages = [
       [76.4, 33.3],
       [23.6, 66.7],
     ],
-    boss: { x: 360, y: 396 },
+    boss: { x: 360, y: 450 },
     labels: ["좌상 훈련 별지기", "우상 훈련 별지기", "좌하 훈련 별지기"],
     // The middle bumper and the void remnant used to sit where the colossus
     // now stands, so both moved clear of its 100px exclusion.
