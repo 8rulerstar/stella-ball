@@ -361,6 +361,76 @@ const FIGURE_SHAPES = {
       art: null,
     },
   ],
+  // Six and seven are the top of the ladder.  Nothing below five was free to
+  // take: normalising rotation and scale leaves a 3-point cloud defined by two
+  // angles, so the shape space there is nearly full at two entries, and four
+  // is worse — square, kite, trapezoid and rhombus all match each other under
+  // 0.19.  Going up instead of sideways is the only room left.
+  6: [
+    {
+      id: "orion",
+      name: "오리온자리",
+      // Unreachable on the current table, where a shot averages under one
+      // parryable contact.  Measure the share once the chain can actually
+      // reach six; until then the number would be a guess.
+      share: null,
+      // Betelgeuse and Bellatrix for the shoulders, the three belt stars, and
+      // Rigel for the near foot.  Saiph is dropped to land on six: the far
+      // foot is the one star the silhouette can lose and still read as Orion.
+      points: [
+        [-0.539, -0.717],
+        [0.225, -0.61],
+        [-0.173, 0.233],
+        [-0.057, 0.158],
+        [0.05, 0.066],
+        [0.494, 0.87],
+      ],
+      // Shoulders, then the belt as its own short run, then a leg down to
+      // Rigel.  The torso is deliberately open — closing it would draw a box
+      // and lose the hourglass.
+      edges: [
+        [0, 1],
+        [1, 4],
+        [4, 3],
+        [3, 2],
+        [2, 0],
+        [2, 5],
+      ],
+      // Silhouette not delivered yet — see FIGURE_ART_SPEC_6_7.md.  Left null
+      // rather than pointing at the future path, because a missing file logs a
+      // 404 on every load and console noise is how real errors get ignored.
+      art: null, // ../assets/library/constellations/orion.png
+    },
+  ],
+  7: [
+    {
+      id: "bigdipper",
+      name: "북두칠성",
+      share: null,
+      // Dubhe, Merak, Phecda, Megrez, Alioth, Mizar, Alkaid.
+      points: [
+        [0.778, -0.445],
+        [0.797, -0.058],
+        [0.267, 0.136],
+        [0.047, -0.105],
+        [-0.346, -0.027],
+        [-0.651, 0.047],
+        [-0.892, 0.452],
+      ],
+      // Bowl closed, handle open: the ladle everyone already knows.
+      edges: [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 0],
+        [3, 4],
+        [4, 5],
+        [5, 6],
+      ],
+      // Silhouette not delivered yet — see FIGURE_ART_SPEC_6_7.md.
+      art: null, // ../assets/library/constellations/bigdipper.png
+    },
+  ],
 };
 for (const tier of Object.values(FIGURE_SHAPES))
   for (const shape of tier) {
