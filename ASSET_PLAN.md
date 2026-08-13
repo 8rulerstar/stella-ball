@@ -25,19 +25,20 @@
 | 유성·별지기·약점     | `assets/original/*.svg`, `assets/library/boss2/void-colossus-weakgem.png` | Stella Ball 오리지널                        | 게임 고유 식별자. 유성/별지기는 SVG, 공허 거상 약점은 픽셀 젬                                                                                                                                                                   |
 | 별지기 액션 시트     | `assets/characters/anim/*-roll.png`, `*-attack.png`                       | 프로젝트 오너 제작 (2026-08-13)             | 구르기 4프레임 + 각성 공격 4프레임, 768×192. `scripts/generate_unit_action_sheets.py`는 교체 전 시트를 다시 만드니 실행 금지                                                                                                    |
 | 능력 버스트 시트     | `assets/library/anim/fx/fx-*-burst.png`                                   | Stella Ball 오리지널 절차 생성              | 능력 종류별 4프레임 버스트. 재생성: `scripts/generate_ability_bursts.py`                                                                                                                                                        |
-| 별자리 실루엣 5종    | `assets/library/constellations/*.png`                                     | 프로젝트 오너 발주 · 절차 생성 (2026-08-13) | 무한 훈련장의 성공 패링 접점 별빛 노드가 완성한 별자리 뒤에 희미하게 겹치는 그림. 양자리·화살자리·까마귀자리·카시오페이아(왕좌)·백조자리. 오망성은 기존 전용 연출을 쓰므로 실루엣 없음. 규격은 아래 「별자리 실루엣 규약」 참조 |
+| 별자리 실루엣 7종    | `assets/library/constellations/*.png`                                     | 프로젝트 오너 발주 · 절차 생성 (2026-08-13) | 무한 훈련장의 성공 패링 접점 별빛 노드가 완성한 별자리 뒤에 희미하게 겹치는 그림. 양자리·화살자리·까마귀자리·카시오페이아(왕좌)·백조자리, 6점 오리온자리(사냥꾼 전신·사이프 암시), 7점 북두칠성(국자). 오망성은 기존 전용 연출을 쓰므로 실루엣 없음. 규격은 아래 「별자리 실루엣 규약」 참조 |
 
 별자리 실루엣의 출처는 프로젝트 오너 발주 절차 생성이고, 라이선스는 **프로젝트 오너 원본 에셋(제3자 재배포 조건 미정)**으로 기록한다. 경로는 `assets/library/constellations/`, 런타임 연결점은 `prototypes/js/game-figure.js`의 `FIGURE_SHAPES[].art`와 `drawFigure`다.
 
 ## 별자리 실루엣 규약
 
-이 5장은 **좌표계가 코드와 묶여 있다.** 규격을 바꾸면 그림이 별자리에서 어긋난다.
+이 7장은 **좌표계가 코드와 묶여 있다.** 규격을 바꾸면 그림이 별자리에서 어긋난다.
 
 - 384 × 384, 배경 투명, 픽셀 아트(확대 금지 · 축소만)
 - 128 그리드에 그린 뒤 ×3 확대. **스켈레톤 원점이 이미지 정중앙**, 스켈레톤 1단위 = 138px
 - 이 두 값은 `game-figure.js`의 `FIGURE_ART_SIZE`(384) · `FIGURE_ART_UNIT`(138)과 **반드시 일치**해야 한다
 - 각 그림의 뼈대는 `FIGURE_SHAPES[n][].points`와 같은 좌표계다. 뼈대 좌표를 고치면 그림도 다시 그려야 한다
-- 사양서: [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md)
+- 사양서: [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md), 6·7점은 [FIGURE_ART_SPEC_6_7.md](FIGURE_ART_SPEC_6_7.md)
+- 재생성: `scripts/generate_constellation_art_6_7.mjs` (6·7점 두 장만. 나머지 5종은 건드리지 않는다)
 
 ## 유닛 전용 이펙트
 

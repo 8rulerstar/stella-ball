@@ -334,7 +334,9 @@
       "sagitta": "library/constellations/sagitta.png",
       "corvus": "library/constellations/corvus.png",
       "cassiopeia": "library/constellations/cassiopeia.png",
-      "cygnus": "library/constellations/cygnus.png"
+      "cygnus": "library/constellations/cygnus.png",
+      "orion": "library/constellations/orion.png",
+      "bigdipper": "library/constellations/bigdipper.png"
     }
   }
 }

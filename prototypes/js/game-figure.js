@@ -477,7 +477,7 @@ const FIGURE_SHAPES = {
       // Silhouette not delivered yet — see FIGURE_ART_SPEC_6_7.md.  Left null
       // rather than pointing at the future path, because a missing file logs a
       // 404 on every load and console noise is how real errors get ignored.
-      art: null, // ../assets/library/constellations/orion.png
+      art: "../assets/library/constellations/orion.png",
     },
   ],
   7: [
@@ -506,7 +506,7 @@ const FIGURE_SHAPES = {
         [5, 6],
       ],
       // Silhouette not delivered yet — see FIGURE_ART_SPEC_6_7.md.
-      art: null, // ../assets/library/constellations/bigdipper.png
+      art: "../assets/library/constellations/bigdipper.png",
     },
   ],
 };

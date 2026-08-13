@@ -60,7 +60,7 @@ The infinite training table is the current reference configuration for all three
 
 - Keep the file immediately after `game-combat.js`. It wraps `settleParty`; use the predecessor-capture rule above if that wrapper changes.
 - `FIGURE_SHAPES` owns recognition templates, draw edges, and the optional silhouette texture path. `FIGURE_ABILITIES` owns the outcome. The six current entries deliberately share `encloseDamage`; do not describe them as distinct abilities until that table changes.
-- The five 384×384 silhouette files are coordinate-bound to `FIGURE_SHAPES`. Update `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, and `FIGURE_ART_SPEC.md` in the same change if their points, size, or paths change.
+- The seven 384×384 silhouette files are coordinate-bound to `FIGURE_SHAPES`. Update `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, and `FIGURE_ART_SPEC.md` in the same change if their points, size, or paths change. The 6- and 7-point pair regenerates from `scripts/generate_constellation_art_6_7.mjs`.
 - Figure damage must continue through `applyBossHit()` and `damageAdd()` so shields and phase rules cannot be bypassed.
 
 ## Performance guardrails

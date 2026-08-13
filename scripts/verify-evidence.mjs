@@ -102,6 +102,8 @@ const requiredAssetReferences = [
   "../assets/library/constellations/corvus.png",
   "../assets/library/constellations/cassiopeia.png",
   "../assets/library/constellations/cygnus.png",
+  "../assets/library/constellations/orion.png",
+  "../assets/library/constellations/bigdipper.png",
 ];
 const missingAssetReferences = requiredAssetReferences.filter(
   (asset) => !combinedSource.includes(asset),
