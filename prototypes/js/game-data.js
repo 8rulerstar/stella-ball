@@ -145,15 +145,38 @@ const HERO_SKINS = [
   },
 ];
 const DEFAULT_HERO_SKIN = HERO_SKINS[0].id;
-const ZONE_RULES = [
-  { id: "route", name: "경유 별지기", hint: "유성 충돌 시 직접 공격" },
-  { id: "bumper", name: "공명 별지기", hint: "범퍼 충돌 시 연계 발동" },
-  { id: "boss", name: "마무리 별지기", hint: "보스 명중 시 연계 발동" },
-  // Only the training table seats a fourth, so this role never reaches the
-  // campaign.  It exists because the roster, the HUD summary and startShot all
-  // index this list by slot and would read undefined at index three.
-  { id: "free", name: "자유 별지기", hint: "역할 조건 없이 자유 배치" },
+// Slots used to be named after a trigger — "범퍼 충돌 시 연계 발동" and so on —
+// but `triggerZone` was deleted when a starkeeper started waking from real
+// movement alone, and nothing has read a slot's `zone` since.  The roster kept
+// printing those conditions anyway, promising rules the build no longer has.
+//
+// What genuinely differs between slots is how far they begin from the colossus,
+// and that is worth planning around: 샛별's cut is short-ranged, 미리내's shot
+// pays for distance.  So the role is measured off the stage instead of invented.
+const SLOT_BANDS = [
+  {
+    id: "near",
+    name: "근접 자리",
+    hint: "거상과 가깝게 시작 · 짧은 사거리에 유리",
+    within: 300,
+  },
+  {
+    id: "mid",
+    name: "중거리 자리",
+    hint: "거상과 중간 거리에서 시작",
+    within: 390,
+  },
+  { id: "far", name: "원거리 자리", hint: "거상과 멀게 시작 · 저격에 유리" },
 ];
+// Campaign slots measure 204-417 from their colossus, so the two thresholds
+// split the real spread rather than a guessed one.
+function slotRole(index, stage = currentStage()) {
+  const seat = stage?.slots?.[index];
+  if (!seat || !stage?.boss) return SLOT_BANDS[SLOT_BANDS.length - 1];
+  const away = Math.hypot(seat[0] - stage.boss.x, seat[1] - stage.boss.y);
+  return SLOT_BANDS.find((band) => band.within && away <= band.within)
+    ?? SLOT_BANDS[SLOT_BANDS.length - 1];
+}
 const heroes = {
   gaon: {
     n: "여명의 검사 샛별",

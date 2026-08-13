@@ -98,9 +98,9 @@ function startShot() {
     y: s.slots[i][1],
     r: 31,
     on: 0,
-    zone: ZONE_RULES[i].id,
-    slot: ZONE_RULES[i].name,
-    hint: ZONE_RULES[i].hint,
+    zone: slotRole(i, s).id,
+    slot: slotRole(i, s).name,
+    hint: slotRole(i, s).hint,
   }));
   for (const bumper of bumpers) bumper.on = 0;
   chain = [];
@@ -357,7 +357,7 @@ function showRoster() {
       return;
     }
     const at = deployed.indexOf(rosterFocus),
-      zone = at >= 0 ? ZONE_RULES[at] : null;
+      zone = at >= 0 ? slotRole(at, s) : null;
     detail.innerHTML =
       '<span class="squad-detail-portrait" style="--unit:' +
       h.col +
@@ -381,7 +381,7 @@ function showRoster() {
     for (let i = 0; i < slotCount; i++) {
       const id = deployed[i],
         h = heroes[id],
-        zone = ZONE_RULES[i] || ZONE_RULES[ZONE_RULES.length - 1],
+        zone = slotRole(i, s),
         slot = document.createElement("div");
       slot.className = "slot-card" + (h ? "" : " empty");
       slot.style.left = s.preview[i][0] + "%";
@@ -830,7 +830,7 @@ function sync() {
     U.summary.innerHTML = deployed
       .map((id, i) => {
         const h = heroes[id],
-          zone = ZONE_RULES[i];
+          zone = slotRole(i);
         return (
           "<div><b>" +
           zone.name +

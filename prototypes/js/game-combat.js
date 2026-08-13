@@ -519,6 +519,16 @@ function renderBlaze(pulse = false) {
     replayCssClass(U.blazeCard, "hot");
   }
 }
+// The aim hint is drawn at `ball.y - 28`, so the old `- 40` put the multiplier
+// twelve pixels above it and the two strings sat on top of each other whenever
+// the meteor came to rest.  Clear the hint by a readable margin, and stop short
+// of the HUD when the meteor is already high on the board.
+function blazePopupY() {
+  // Above the hint where there is room.  A meteor can rest as high as y=31, and
+  // clamping to the top edge there would push the multiplier back onto the hint,
+  // so in that band it goes below the meteor instead.
+  return ball.y - 76 >= 52 ? ball.y - 76 : ball.y + 52;
+}
 function earnBlaze(amount, detail) {
   const b = ball?.blaze;
   if (!b) return;
@@ -526,7 +536,7 @@ function earnBlaze(amount, detail) {
   b.detail = detail;
   addPopup(
     ball.x,
-    ball.y - 40,
+    blazePopupY(),
     "CONSTELLATION ×" + b.mult.toFixed(1),
     "#ffe09a",
     true,
@@ -550,7 +560,7 @@ function loseBlaze(amount, detail) {
   b.detail = detail;
   addPopup(
     ball.x,
-    ball.y - 40,
+    blazePopupY(),
     "CONSTELLATION ×" + b.mult.toFixed(1),
     "#8ba39f",
     false,
