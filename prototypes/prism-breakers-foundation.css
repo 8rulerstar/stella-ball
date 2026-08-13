@@ -1108,26 +1108,6 @@ header button,
   image-rendering: pixelated;
   filter: drop-shadow(0 3px 0 #0d0819);
 }
-.draft-card {
-  display: grid;
-  grid-template-columns: 45px 1fr;
-  column-gap: 9px;
-  align-content: start;
-}
-.draft-card .upgrade-icon {
-  grid-row: span 3;
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 3px 0 #120b20);
-}
-.draft-card .accent {
-  grid-column: 1 / -1;
-}
-.draft-card em {
-  margin-top: 8px;
-}
 @media (max-width: 680px) {
   .roster-detail .portrait {
     width: 46px;

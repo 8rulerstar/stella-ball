@@ -5,7 +5,6 @@ function resetBuild() {
     extraShots: 0,
     bounceStep: 0,
     markMultiplier: 1.7,
-    names: [],
   };
 }
 function setupBattle() {
@@ -403,54 +402,15 @@ function showRoster() {
       return toast(slotCount + "명을 모두 자리에 세워주세요.");
     selected = [...deployed];
     resetBuild();
-    showDraft("강화 선택", "게임 시작 전 강화 하나를 고르세요.", setupBattle);
+    setupBattle();
   };
   U.over.classList.remove("hide");
   sync();
 }
 // The placement step now lives inside showRoster().  Keep the old entry point
-// so the draft screen's back button and any saved flow still land on a screen.
+// for any saved flow that still targets the former deployment screen.
 function showDeployment() {
   showRoster();
-}
-function pickUpgrades() {
-  return [...upgrades].sort(() => Math.random() - 0.5).slice(0, 3);
-}
-function showDraft(title, sub, next) {
-  run = false;
-  const picks = pickUpgrades();
-  U.over.className = "overlay draft-scene";
-  U.over.innerHTML =
-    '<div class="tag">강화 선택</div><h2>' +
-    title +
-    "</h2><p>" +
-    sub +
-    '</p><div id="draft" class="choice-grid"></div><div class="overlay-actions"><button id="backDeployment">뒤로</button></div>';
-  const box = document.querySelector("#draft");
-  for (const up of picks) {
-    const b = document.createElement("button");
-    b.className = "choice-card draft-card";
-    b.style.setProperty("--accent", up.accent);
-    b.innerHTML =
-      '<span class="accent"></span><img class="upgrade-icon" src="' +
-      up.icon +
-      '" alt=""><strong>' +
-      up.title +
-      "</strong><small>" +
-      up.text +
-      "</small><em>" +
-      up.tag +
-      " 강화</em>";
-    b.onclick = () => {
-      up.apply(build);
-      build.names.push(up.title);
-      toast(up.title + " 획득");
-      next();
-    };
-    box.append(b);
-  }
-  document.querySelector("#backDeployment").onclick = showDeployment;
-  U.over.classList.remove("hide");
 }
 // Superseded wholesale by the game-combat.js definition, which never calls back
 // here.  The empty body keeps the binding explicit for that reassignment.
@@ -531,9 +491,7 @@ function win() {
   U.over.innerHTML =
     '<div class="outcome-cut win"><div class="tag">코어 파괴</div><h2>공허 거상을 무너뜨렸습니다.</h2>' +
     resultCard(shotsUsed, elapsedMs) +
-    "<p>선택한 강화: " +
-    (build.names.join(" · ") || "없음") +
-    '<br>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
+    '<p>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
   U.over.classList.remove("hide");
 }
 // One collision can fire several mechanics at once, and the banner used to be
