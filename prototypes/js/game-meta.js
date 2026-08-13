@@ -1182,31 +1182,21 @@ drawFrameRaw = function (
         ? "move"
         : "idle",
 ) {
-  // Cute tokens keep the resting table readable; any action state swaps in
-  // the full-size animation sheet so the awakening reads as a power-up.
+  // The resting table used to swap in a small "cute" token and only reach for
+  // the full sheet on an action state.  The unified roster sheets doubled as
+  // that token, `cuteUnitArt` emptied, and nothing has set `cuteSprite` since,
+  // so the branch is gone and the action sheet is always the one asked for.
   const unit = Boolean(spec.id),
-    cute = unit && spec.cuteSprite && state === "idle",
-    wanted = cute ? null : spec.animations?.[state];
+    wanted = spec.animations?.[state];
   // Lazy-load action sheets (mid-battle deployments skip the battle prime)
   // and fall back to the still sprite until the sheet is actually ready.
   if (wanted && !textures[wanted]) loadTexture(wanted);
   const animTex = wanted ? textures[wanted] : null,
     animated = animTex?.complete && animTex.naturalWidth ? wanted : null,
-    path = cute ? spec.cuteSprite : (animated ?? spec.sprite),
+    path = animated ?? spec.sprite,
     im = textures[path];
   if (!im?.complete || !im.naturalWidth) return false;
   const unitSize = spec.combatSize;
-  if (cute) {
-    const size = unitSize || 96;
-    x.drawImage(
-      im,
-      Math.round(cx - size / 2),
-      Math.round(cy - size * 0.61),
-      Math.round(size),
-      Math.round(size),
-    );
-    return true;
-  }
   const unitScale = unit ? 1.55 : 1,
     anchor = unit ? 0.62 : 0.64,
     safeFrame = animated ? frame : unit ? 0 : frame;
@@ -1240,10 +1230,8 @@ drawFrameRaw = function (
   }
   const dw = unitSize || spec.fw * scale * unitScale,
     dh = unitSize || spec.fh * scale * unitScale,
-    sx = spec.atlas
-      ? spec.atlas[0] * spec.fw
-      : (safeFrame % spec.frames) * spec.fw,
-    sy = spec.atlas ? spec.atlas[1] * spec.fh : 0;
+    sx = (safeFrame % spec.frames) * spec.fw,
+    sy = 0;
   x.drawImage(
     im,
     sx,

@@ -332,23 +332,10 @@ const combatUnitSize = {
 };
 for (const [id, size] of Object.entries(combatUnitSize))
   heroes[id].combatSize = size;
-const cuteUnitArt = {}; // 신규 로스터: idle 시트가 토큰을 겸한다
-for (const [id, art] of Object.entries(cuteUnitArt))
-  Object.assign(heroes[id], { cuteSprite: art.sprite });
 // Action sheets recoloured from the same source frames as each hero: the
 // tumbling roll plays while a starkeeper is knocked around, the attack sheet
 // replaces the cute token for the wake-up strike itself.
-const heroAnimArt = {
-  gaon: "gaon",
-  biyeon: "biyeon",
-  lumi: "lumi",
-  haru: "haru",
-  ria: "ria",
-  sera: "sera",
-  taeo: "taeo",
-  nyx: "nyx",
-};
-for (const id of Object.keys(heroAnimArt))
+for (const id of Object.keys(heroes))
   Object.assign(heroes[id], {
     sheetFrame: heroes[id].fw,
     animations: {
@@ -1015,7 +1002,6 @@ function loadTexture(path) {
 }
 function loadSpec(spec) {
   loadTexture(spec.sprite);
-  loadTexture(spec.cuteSprite);
   for (const path of Object.values(spec.animations ?? {})) loadTexture(path);
 }
 function primeCombatTextures() {

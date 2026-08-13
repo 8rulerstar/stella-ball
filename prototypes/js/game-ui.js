@@ -1,24 +1,8 @@
 /* Shared DOM presentation helpers. Gameplay code should never need these. */
+// Every roster sheet is a uniform 192x192 six-frame strip now, so the old
+// per-hero portraitScale and atlas escapes have no callers left.
 function setPortrait(el, h, size = 56) {
-  if (h.cuteSprite) {
-    el.style.backgroundImage = 'url("' + h.cuteSprite + '")';
-    el.style.backgroundSize = "100% 100%";
-    el.style.backgroundPosition = "0 0";
-    return;
-  }
   el.style.backgroundImage = 'url("' + h.sprite + '")';
-  if (h.portraitScale) {
-    const portraitSize = size * h.portraitScale;
-    el.style.backgroundSize = portraitSize + "px " + portraitSize + "px";
-    el.style.backgroundPosition = "center";
-    return;
-  }
-  if (h.atlas) {
-    el.style.backgroundSize = size * 2 + "px " + size * 2 + "px";
-    el.style.backgroundPosition =
-      -h.atlas[0] * size + "px " + -h.atlas[1] * size + "px";
-    return;
-  }
   el.style.backgroundSize = h.frames * size + "px " + size + "px";
   el.style.backgroundPosition = "0 0";
 }

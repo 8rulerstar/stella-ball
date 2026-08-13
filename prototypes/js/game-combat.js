@@ -2060,8 +2060,11 @@ billiardPredict = function (dx, dy) {
     vx = aim.x,
     vy = aim.y,
     first = null;
-  const candidates = gates.map((g) => ({ ...g, type: "unit" }));
-  for (const t of candidates) {
+  // This used to shallow-clone every gate to tag it `type: "unit"`, sixty times
+  // a second, for the five fields the sweep and the guide actually read
+  // (x, y, r, col, s) — and the tag was never read off the clone anyway; the
+  // hit record below sets its own.  Walk the live gates instead.
+  for (const t of gates) {
     const ox = t.x - px,
       oy = t.y - py,
       along = ox * vx + oy * vy,
