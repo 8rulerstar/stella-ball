@@ -2253,10 +2253,14 @@ registerRuntimeHook("afterDraw", drawCloneBalls);
 // bidirectional minimum, and score spread across a reject..perfect band.
 const FIGURE = {
   // Re-measured for 5-point clouds; RuneCast's 0.13/0.035 were tuned for
-  // 32-point stroke clouds.  20000 synthetic trials each: a regular pentagon
-  // passes 100% at score 1.00, ±8% jitter 100% at 0.91, ±18% 88.8% at 0.46,
-  // a 0.55-squashed pentagon 0%, and random scatter 0.0%.
-  reject: 0.13,
+  // 32-point stroke clouds.  0.19 is the loose read the training bench wants:
+  // over 20000 synthetic trials each it takes ±18% jitter from 89% to 100% and
+  // "대충 그린" ±30% from 35% to 82%, while the two shapes that must never pay
+  // out hold — the free opening layout (four seats on a rectangle plus the
+  // meteor) passes 11% instead of 0%, and random scatter 0.2%.  A 0.55-squashed
+  // pentagon still reads 0%, because a flattened ring is not a pentagram.
+  // A campaign version of this will want a stricter number than a bench does.
+  reject: 0.19,
   perfect: 0.04,
   bonusPerPoint: 14, // damage per enclosed target, per figure vertex
   // Five seconds end to end, with the trace itself slow enough to watch being
@@ -2470,6 +2474,17 @@ settleParty = function () {
 registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
   if (!figureFx) return;
   figureFx.t += d;
+  // The pentagram pays off on the frame the last edge lands, not at the settle
+  // that queued it: the trace has to arrive before the burst means anything.
+  if (figureFx.star && !figureFx.burst && figureFx.t >= FIGURE.drawTime) {
+    figureFx.burst = true;
+    const c = figureCentroid(figureFx.star);
+    areaBursts.push({ x: c.x, y: c.y, r: 210, col: "#ffe6b0", t: 0, d: 0.62 });
+    areaBursts.push({ x: c.x, y: c.y, r: 128, col: "#fff6e0", t: 0, d: 0.44 });
+    screenFlash = Math.max(screenFlash, 0.42);
+    screenShake = Math.max(screenShake, 14);
+    combatSfx?.("unlock", 1);
+  }
   if (figureFx.t > FIGURE.drawTime + FIGURE.holdTime + FIGURE.fadeTime)
     figureFx = null;
 });
@@ -2516,30 +2531,82 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.stroke();
     x.restore();
   };
-  stroke(13, 0.3, tint, 26);
-  stroke(3, 0.95, "#fff6e6", 10);
-  for (const p of path) {
+  // A recognised pentagram is drawn as the star itself — `figureStarOrder`
+  // already reorders the same five points — and gets the whole flourish, so
+  // completing one never looks like an ordinary polygon in a warmer colour.
+  const rune = Boolean(figureFx.star),
+    centre = figureCentroid(path),
+    // Settles to 1 over the trace, then breathes.  One clock drives the wash,
+    // the rays and the vertex haloes so the sign pulses as a single object.
+    pulse = rune
+      ? 0.72 + 0.28 * Math.sin(figureFx.t * 3.1) * Math.min(1, grow)
+      : 1;
+  if (rune && grow > 0.05) {
+    // The star's own outline, filled: nonzero winding lights the five spikes
+    // and the pentagon they enclose, which is the shape people picture.
     x.save();
-    x.globalAlpha = fade;
-    x.fillStyle = p.col || tint;
-    x.shadowBlur = 14;
-    x.shadowColor = p.col || tint;
+    x.globalAlpha = 0.13 * fade * pulse * grow;
+    x.fillStyle = "#ffcf8a";
     x.beginPath();
-    x.arc(p.x, p.y, 5, 0, Math.PI * 2);
+    x.moveTo(path[0].x, path[0].y);
+    for (let i = 1; i < path.length; i++) x.lineTo(path[i].x, path[i].y);
+    x.closePath();
     x.fill();
     x.restore();
   }
-  if (figureFx.score > 0 && grow >= 1) {
-    const c = figureCentroid(path);
+  if (rune && grow >= 1) {
+    // Rays only after the last edge lands, so the trace stays readable while
+    // it is still being drawn.
+    x.save();
+    x.globalAlpha = 0.5 * fade * pulse;
+    x.strokeStyle = "#ffe6b0";
+    x.lineWidth = 2;
+    x.shadowBlur = 12;
+    x.shadowColor = "#ffcf8a";
+    for (let i = 0; i < 12; i++) {
+      const a = figureFx.t * 0.5 + (i * Math.PI) / 6,
+        inner = 26 + pulse * 8,
+        outer = inner + 20 + (i % 2 ? 12 : 0);
+      x.beginPath();
+      x.moveTo(centre.x + Math.cos(a) * inner, centre.y + Math.sin(a) * inner);
+      x.lineTo(centre.x + Math.cos(a) * outer, centre.y + Math.sin(a) * outer);
+      x.stroke();
+    }
+    x.restore();
+  }
+  stroke(rune ? 17 : 13, rune ? 0.38 : 0.3, tint, rune ? 32 : 26);
+  stroke(rune ? 4 : 3, 0.95, "#fff6e6", rune ? 14 : 10);
+  // Each vertex blooms as the trace reaches it, so the five stars light in the
+  // order the line visits them instead of all at once.
+  const drawn = total * grow;
+  path.forEach((p, i) => {
+    const bloom = rune ? Math.max(0, Math.min(1, (drawn - i) / 0.7)) : 1;
+    if (bloom <= 0) return;
     x.save();
     x.globalAlpha = fade;
-    x.fillStyle = "#ffe3c0";
-    x.font = "bold 15px ui-monospace";
+    x.fillStyle = p.col || tint;
+    x.shadowBlur = 14 + (rune ? bloom * 16 * pulse : 0);
+    x.shadowColor = p.col || tint;
+    x.beginPath();
+    x.arc(p.x, p.y, 5 + (rune ? bloom * 3 * pulse : 0), 0, Math.PI * 2);
+    x.fill();
+    x.restore();
+  });
+  if (rune && grow >= 1) {
+    x.save();
+    x.globalAlpha = fade;
     x.textAlign = "center";
+    x.shadowBlur = 12;
+    x.shadowColor = "#c97a45";
+    x.fillStyle = "#fff3d6";
+    x.font = "bold 22px ui-monospace";
+    x.fillText("오망성", centre.x, centre.y - 4);
+    x.fillStyle = "#ffd2a0";
+    x.font = "bold 12px ui-monospace";
     x.fillText(
-      "오망성 " + Math.round(figureFx.score * 100) + "%",
-      c.x,
-      c.y + 5,
+      "정확도 " + Math.round(figureFx.score * 100) + "%",
+      centre.x,
+      centre.y + 14,
     );
     x.restore();
   }
