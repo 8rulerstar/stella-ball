@@ -1,15 +1,14 @@
-// --- Constellation figure prototype ---------------------------------------
-// Training-table experiment, kept in its own file so it can be adopted or
-// deleted in one move.  Loads after game-combat.js because it wraps
+// --- Constellation figure system ------------------------------------------
+// Shared combat system, kept in its own file because it wraps
 // `settleParty` and reads `applyBossHit`, `figureCentroid`'s neighbours and
 // the runtime hook registry, all of which that file establishes first.
 //
-// --- Constellation figure prototype (training table only, 2026-08-13) ------
+// --- Constellation figure system (all combat tables, 2026-08-13) -----------
 // A successful Space parry on a meteor-to-starkeeper collision leaves one
 // fixed starlight node at that contact.  The meteor and starkeeper keep their
 // normal physics; the nodes, not their eventual resting positions, become the
-// constellation vertices. Three or four nodes wait briefly for another parry;
-// five resolve immediately. Campaign battles never see any of this.
+// constellation vertices. Nodes last for one shot, then resolve together when
+// the table settles. Every combat table uses this same parry rule.
 //
 // The recogniser is ported from RuneCast's gesture pipeline
 // (~/Projects/RuneCast, 설계 문서 4.3-4.5): centroid-to-origin plus uniform
@@ -23,7 +22,7 @@ const FIGURE = {
   // out hold — the free opening layout (four seats on a rectangle plus the
   // meteor) passes 11% instead of 0%, and random scatter 0.2%.  A 0.55-squashed
   // pentagon still reads 0%, because a flattened ring is not a pentagram.
-  // A campaign version of this will want a stricter number than a bench does.
+  // All combat now shares this loose first-pass read; revisit after live data.
   reject: 0.19,
   perfect: 0.04,
   bonusPerPoint: 14, // damage per enclosed target, per figure vertex
@@ -52,89 +51,94 @@ const FIGURE = {
   // PROGRESS_REPORT.md already lists that purple as an open item.
   silhouetteAlpha: 0.3,
 };
-const FIGURE_CHAIN = {
+const FIGURE_PARRY = {
   parryWindow: 0.32,
-  chainWindow: 1.25,
   missCooldown: 0.72,
   minNodes: 3,
-  maxNodes: 5,
+  maxNodes: 7,
 };
 let figureFx = null;
-let figureChainBattle = null;
-let figureChain = null;
+let figureShotBattle = null;
+let figureShot = null;
 function figureActive() {
-  return Boolean(battle?.training && run && !battleComplete);
+  return Boolean(battle && run && !battleComplete);
 }
-function currentFigureChain() {
-  if (figureChainBattle !== battle) {
-    figureChainBattle = battle;
-    figureChain = { nodes: [], parry: 0, chain: 0, cooldown: 0, flash: 0 };
+function currentFigureShot() {
+  if (figureShotBattle !== battle) {
+    figureShotBattle = battle;
+    figureShot = { nodes: [], parry: 0, cooldown: 0, flash: 0 };
   }
-  return figureChain;
+  return figureShot;
 }
-function clearFigureChain() {
-  const state = currentFigureChain();
+function clearFigureShot() {
+  const state = currentFigureShot();
   state.nodes = [];
   state.parry = 0;
-  state.chain = 0;
 }
 // Called by the combat collision pass. `mobilePair` has already left the
 // ordinary bounce in place; this consumes only the additional powered contact.
 function consumeTrainingParry(g) {
   if (!figureActive()) return false;
-  const state = currentFigureChain();
+  const state = currentFigureShot();
   if (state.parry <= 0 || state.cooldown > 0) return false;
   state.parry = 0;
   state.flash = 0.44;
-  state.nodes.push({
-    x: (ball.x + g.x) / 2,
-    y: (ball.y + g.y) / 2,
-    col: g.col,
-    label: g.s,
-  });
-  state.chain = FIGURE_CHAIN.chainWindow;
   ball.runeBurst = Math.max(ball.runeBurst || 0, 0.92);
   fieldFx.push({ type: "relay", x: g.x, y: g.y, t: 0, d: 0.48, col: g.col });
-  addPopup(g.x, g.y - 52, "별빛 " + state.nodes.length + "/5", g.col, true);
-  if (state.nodes.length >= FIGURE_CHAIN.maxNodes) {
-    const nodes = state.nodes;
-    clearFigureChain();
-    resolveFigure(nodes);
+  if (state.nodes.length < FIGURE_PARRY.maxNodes) {
+    state.nodes.push({
+      x: (ball.x + g.x) / 2,
+      y: (ball.y + g.y) / 2,
+      col: g.col,
+      label: g.s,
+    });
+    addPopup(
+      g.x,
+      g.y - 52,
+      "별빛 " + state.nodes.length + "/" + FIGURE_PARRY.maxNodes,
+      g.col,
+      true,
+    );
   }
   return true;
 }
 function requestTrainingParry() {
   if (!figureActive() || !ball?.moving) return false;
-  const state = currentFigureChain();
+  const state = currentFigureShot();
   if (state.cooldown > 0 || state.parry > 0) return false;
-  state.parry = FIGURE_CHAIN.parryWindow;
+  state.parry = FIGURE_PARRY.parryWindow;
   ball.runeBurst = Math.max(ball.runeBurst || 0, 0.54);
   return true;
 }
-function finishFigureChain({ missed = false } = {}) {
-  const state = currentFigureChain();
+function finishFigureShot({ missed = false } = {}) {
+  const state = currentFigureShot();
+  if (missed) {
+    const lostNodes = state.nodes.length;
+    clearFigureShot();
+    if (lostNodes) toast("패링 실패 · 모은 별빛이 흩어졌습니다");
+    return Boolean(lostNodes);
+  }
   if (!state.nodes.length) return;
   const nodes = state.nodes;
-  clearFigureChain();
-  if (nodes.length >= FIGURE_CHAIN.minNodes) resolveFigure(nodes);
-  else if (missed) toast("패링 실패 · 모은 별빛이 흩어졌습니다");
+  clearFigureShot();
+  if (nodes.length >= FIGURE_PARRY.minNodes) {
+    resolveFigure(nodes);
+    return true;
+  }
+  return false;
 }
-function advanceFigureChain(d) {
+function advanceFigureShot(d) {
   if (!figureActive()) return;
-  const state = currentFigureChain();
+  const state = currentFigureShot();
   state.cooldown = Math.max(0, state.cooldown - d);
   state.flash = Math.max(0, state.flash - d);
   if (state.parry > 0) {
     state.parry = Math.max(0, state.parry - d);
     if (state.parry === 0) {
-      finishFigureChain({ missed: true });
-      state.cooldown = FIGURE_CHAIN.missCooldown;
-      toast("패링 실패 · 관측 공명 재정비");
+      const lostNodes = finishFigureShot({ missed: true });
+      state.cooldown = FIGURE_PARRY.missCooldown;
+      if (!lostNodes) toast("패링 실패 · 관측 공명 재정비");
     }
-  }
-  if (state.nodes.length && state.chain > 0) {
-    state.chain = Math.max(0, state.chain - d);
-    if (state.chain === 0) finishFigureChain();
   }
 }
 addEventListener("keydown", (e) => {
@@ -448,9 +452,8 @@ const FIGURE_SHAPES = {
     {
       id: "orion",
       name: "오리온자리",
-      // Unreachable on the current table, where a shot averages under one
-      // parryable contact.  Measure the share once the chain can actually
-      // reach six; until then the number would be a guess.
+      // The seven-node cap makes this tier reachable. Its share remains unset
+      // until live training data establishes a distribution worth documenting.
       share: null,
       // Betelgeuse and Bellatrix for the shoulders, the three belt stars, and
       // Rigel for the near foot.  Saiph is dropped to land on six: the far
@@ -716,6 +719,8 @@ const FIGURE_ABILITIES = {
   cassiopeia: encloseDamage, // 5점 · 8%
   cygnus: encloseDamage, // 5점 · 5% — 버프 예정
   pentagram: encloseDamage, // 5점 · 2% — 최상급 예정
+  orion: encloseDamage, // 6점 · 출현 비율 측정 전
+  bigdipper: encloseDamage, // 7점 · 출현 비율 측정 전
 };
 /* --- settlement --------------------------------------------------------- */
 // Nothing stops the player launching again while a figure is still revealing,
@@ -729,7 +734,7 @@ function flushPendingFigure() {
 }
 function resolveFigure(points) {
   if (!figureActive() || battleComplete) return;
-  if (!points || points.length < FIGURE_CHAIN.minNodes) return;
+  if (!points || points.length < FIGURE_PARRY.minNodes) return;
   flushPendingFigure();
   const ring = figureRing(points),
     segment = ring.length === 2,
@@ -792,10 +797,10 @@ function resolveFigure(points) {
 }
 const figureSettleParty = settleParty;
 settleParty = function () {
-  // Training resolves the current starlight chain instead of judging where
-  // the moving bodies happened to rest. Its normal settle awakenings stay
-  // muted so they cannot hide the constellation reveal. Campaign is untouched.
-  if (figureActive()) finishFigureChain();
+  // Every combat resolves this shot's starlight nodes instead of judging where
+  // the moving bodies happened to rest. Normal settle awakenings stay muted so
+  // they cannot hide the constellation reveal.
+  if (figureActive()) finishFigureShot();
   else figureSettleParty();
 };
 /* --- the beats after the trace ------------------------------------------ */
@@ -814,12 +819,12 @@ function figureCorrection(t) {
     Math.max(0, Math.min(1, (t - FIGURE_CORRECT_AT) / FIGURE.correctTime)),
   );
 }
-// The chain preview is intentionally raw: its stars stay at the contact
-// positions while the player decides whether to risk the next parry. Only the
-// resolved constellation is corrected into the chosen sky skeleton.
-registerRuntimeHook("afterDraw", function drawFigureChain() {
+// The shot preview is intentionally raw: its stars stay at the contact
+// positions until the table settles. Only the resolved constellation is
+// corrected into the chosen sky skeleton.
+registerRuntimeHook("afterDraw", function drawFigureShot() {
   if (!figureActive()) return;
-  const state = currentFigureChain(),
+  const state = currentFigureShot(),
     nodes = state.nodes;
   if (state.parry > 0 || state.flash > 0) {
     const pulse = state.parry > 0 ? 1 : state.flash / 0.44;
@@ -836,7 +841,7 @@ registerRuntimeHook("afterDraw", function drawFigureChain() {
   }
   if (!nodes.length) return;
   const match =
-      nodes.length >= FIGURE_CHAIN.minNodes ? classifyFigure(nodes) : null,
+      nodes.length >= FIGURE_PARRY.minNodes ? classifyFigure(nodes) : null,
     fit = match ? figureFit(nodes, match.shape) : null,
     edges = match
       ? match.shape.edges.map(([a, b]) => [
@@ -871,14 +876,15 @@ registerRuntimeHook("afterDraw", function drawFigureChain() {
   const label =
     "별빛 " +
     nodes.length +
-    "/5" +
+    "/" +
+    FIGURE_PARRY.maxNodes +
     (match ? " · " + match.shape.name : " · 3점부터 발동");
   x.fillText(label, ball.x, ball.y - ball.r - 25);
   x.restore();
 });
 /* --- drawing (RuneCast RuneTracer: wide faint glow + thin bright core) --- */
 registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
-  advanceFigureChain(d);
+  advanceFigureShot(d);
   if (!figureFx) return;
   figureFx.t += d;
   // The pentagram pays off once the corrected star is standing, not at the
@@ -1094,6 +1100,6 @@ registerRuntimeHook("afterDraw", function drawFigure() {
 /* --- the training table seats four, so the meteor makes a fifth point ------
  * The fourth seat is a real party slot now: the stage carries four `slots` and
  * `partySlotCount()` opens the roster to four there, so startShot builds and
- * primes all four the same way it does the campaign's three.  This block used
+ * primes all four the same way it does the other stages' three. This block used
  * to push a spare starkeeper on after setupBattle had already run, which left
  * it without unitTrail and threw on the first frame of the first shot. */

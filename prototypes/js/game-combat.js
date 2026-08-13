@@ -33,10 +33,9 @@ endShot = function () {
   // where this one came to rest.  Only Luna's lessons keep the fixed launch
   // stone, because their copy points the player at the bottom of the board.
   startShot(battle.tutorial ? null : restingPoint);
-  msg = battle.training
-    ? "무한 훈련 · 멈춘 자리에서 다음 유성을 이어 발사하세요."
-    : "멈춘 자리에서 다음 샷. 궤적을 따라 별지기를 먼저 깨워보세요.";
-  if (!battle.training) toast("다음 샷 · 현재 위치에서 재개");
+  msg =
+    "다음 샷 · 멈춘 자리에서 이어 발사하고 Space 패링으로 별지기를 깨우세요.";
+  toast("다음 샷 · 현재 위치에서 재개");
   sync();
 };
 function billiardAim(dx, dy) {
@@ -702,32 +701,23 @@ function queueUnitAssist(g, amount, name, options = {}) {
   if (!options.finisher)
     fieldFx.push({ type: "assist", x: g.x, y: g.y, t: 0, d: 0.5, col: g.col });
 }
-// Gaon only strikes inside this radius, so the arena draws the same number as
-// a faint ring.  Both readings must come from one constant.
-const SLASH_RANGE = 205;
-function resolveSlash(g, name = "샛별 근접 베기", options = {}) {
-  const range = SLASH_RANGE,
-    distance = Math.hypot(g.x - boss.x, g.y - boss.y);
-  if (distance <= range) {
-    if (!options.finisher)
-      emitAbilityFx(
-        g,
-        g.x,
-        g.y,
-        118,
-        0.38,
-        Math.atan2(boss.y - g.y, boss.x - g.x),
-      );
-    queueUnitAssist(
+// Gaon's sword wave always reaches the colossus. This range only defines the
+// distance band that converts a close parry into the stronger hit.
+const GAON_CLOSE_RANGE = 205;
+function resolveSlash(g, name = "샛별 검기", options = {}) {
+  const distance = Math.hypot(g.x - boss.x, g.y - boss.y),
+    closeness = Math.max(0, 1 - distance / GAON_CLOSE_RANGE),
+    amount = 18 + Math.round(closeness * closeness * 68);
+  if (!options.finisher)
+    emitAbilityFx(
       g,
-      62 + Math.round((range - distance) * 0.12),
-      name,
-      options,
+      g.x,
+      g.y,
+      options.parry ? 76 : 104,
+      options.parry ? 0.26 : 0.38,
+      Math.atan2(boss.y - g.y, boss.x - g.x),
     );
-  } else {
-    addPopup(g.x, g.y - 30, "사거리 밖", g.col, false);
-    toast(g.s + " · 근접 베기 사거리 밖");
-  }
+  queueUnitAssist(g, amount, name, options);
 }
 function resolveLongshot(g, name = "미리내 거리 저격", options = {}) {
   const distance = Math.hypot(g.x - boss.x, g.y - boss.y),
@@ -750,15 +740,22 @@ function detonateShockwave(g, name = "모루 충돌 충격파", options = {}) {
   const hits = Math.max(1, g.collisions || 0),
     radius = 94 + hits * 15,
     amount = Math.round((8 + hits * 7) * (ball.blaze?.mult || 1)),
-    targets = [...adds.filter((a) => a.down <= 0), boss];
+    targets = [...adds.filter((a) => a.down <= 0), boss],
+    parry = options.parry === true;
   if (!options.finisher) {
-    emitAbilityFx(g, g.x, g.y, Math.min(184, 88 + hits * 10), 0.58);
+    emitAbilityFx(
+      g,
+      g.x,
+      g.y,
+      Math.min(parry ? 124 : 184, (parry ? 64 : 88) + hits * 10),
+      parry ? 0.34 : 0.58,
+    );
     fieldFx.push({
       type: "shockwave",
       x: g.x,
       y: g.y,
       t: 0,
-      d: 0.62,
+      d: parry ? 0.38 : 0.62,
       col: g.col,
     });
   }
@@ -766,7 +763,14 @@ function detonateShockwave(g, name = "모루 충돌 충격파", options = {}) {
     queueUnitAssist(g, amount, name, { ...options, areaRadius: radius });
     return;
   }
-  areaBursts.push({ x: g.x, y: g.y, r: radius, col: g.col, t: 0, d: 0.52 });
+  areaBursts.push({
+    x: g.x,
+    y: g.y,
+    r: radius,
+    col: g.col,
+    t: 0,
+    d: parry ? 0.34 : 0.52,
+  });
   for (const target of targets) {
     if (Math.hypot(target.x - g.x, target.y - g.y) > radius) continue;
     if (target === boss) {
@@ -855,6 +859,12 @@ function redirectToNearestUnit(g) {
   msg = g.s + " · 가장 가까운 " + target.s + "에게 유성을 재발사합니다.";
 }
 function reportBladeWheelHit() {}
+function isBladeWheelPhasing(g) {
+  const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
+  // The phase is the payoff for the successful meteor parry that armed the
+  // wheel, on every combat table.
+  return fx === "bladewheel" && g.bladeAwake;
+}
 function updateBladeWheel(g, speed, step) {
   const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
   if (fx !== "bladewheel") return;
@@ -871,10 +881,9 @@ function updateBladeWheel(g, speed, step) {
   g.bladeStrength =
     (g.bladeStrength || 0) +
     (targetStrength - (g.bladeStrength || 0)) * Math.min(1, step * 15);
-  // The training-table parry owns the first awakening. A unit can still roll
-  // after an ordinary elastic hit, but its sustained effect stays dormant
-  // until a successful meteor parry wakes it.
-  if (battle?.training && !g.awake) return;
+  // A unit can still roll after an ordinary elastic hit, but its sustained
+  // effect stays dormant until a successful meteor parry wakes it.
+  if (!g.bladeAwake) return;
   if (speed < 105 || g.bladeTick > 0 || battleComplete) return;
   g.bladeTick = 0.14;
   const radius = 58 + Math.min(38, speed * 0.038),
@@ -926,6 +935,31 @@ function applyContactAbility(g, incoming) {
   }
   if (fx === "seek") {
     redirectToNearestUnit(g);
+    return true;
+  }
+  const copied = g.fx === "copycat";
+  // Former settlement attacks now pay out directly at every successful
+  // Space-parry contact. Collision-native abilities below use the same gate.
+  if (fx === "slash") {
+    resolveSlash(g, copied ? "그믐 · " + g.copiedName + " 검기" : "샛별 검기", {
+      parry: true,
+    });
+    return true;
+  }
+  if (fx === "longshot") {
+    resolveLongshot(
+      g,
+      copied ? "그믐 · " + g.copiedName + " 거리 저격" : "미리내 거리 저격",
+      { parry: true },
+    );
+    return true;
+  }
+  if (fx === "shockwave") {
+    detonateShockwave(
+      g,
+      copied ? "그믐 · " + g.copiedName + " 충격파" : "모루 충돌 충격파",
+      { parry: true },
+    );
     return true;
   }
   if (fx === "bladewheel") {
@@ -1218,7 +1252,7 @@ startShot = function (restingPoint = null) {
     g.bossPhaseVy = -1;
   }
 };
-function wakeUnit(g) {
+function wakeUnit(g, { subtle = false } = {}) {
   // A phase rule can put a starkeeper back to sleep under a guard: the first
   // collisions only shake it, and it wakes on the one that clears the guard.
   if (g.sleepGuard > 0) {
@@ -1248,13 +1282,26 @@ function wakeUnit(g) {
   // attack itself, so the two readings never collide on screen.
   if (!g.awake) {
     g.awake = true;
-    g.wakeFlash = 0.62;
-    areaBursts.push({ x: g.x, y: g.y, r: g.r + 34, col: g.col, t: 0, d: 0.44 });
-    addPopup(g.x, g.y - 40, g.s + " 깨어남!", g.col, true);
-    combatSfx?.("awaken", 0.78);
+    g.wakeFlash = subtle ? 0.34 : 0.62;
+    areaBursts.push({
+      x: g.x,
+      y: g.y,
+      r: g.r + (subtle ? 17 : 34),
+      col: g.col,
+      t: 0,
+      d: subtle ? 0.26 : 0.44,
+    });
+    addPopup(
+      g.x,
+      g.y - 40,
+      g.s + (subtle ? " 공명 각성" : " 깨어남!"),
+      g.col,
+      true,
+    );
+    combatSfx?.("awaken", subtle ? 0.48 : 0.78);
   }
   g.moved = true;
-  g.on = Math.max(g.on, 0.72);
+  g.on = Math.max(g.on, subtle ? 0.52 : 0.72);
   // Rolling is only for decisive movement.  Slow residual slides should settle
   // into the resting token instead of continuously tumbling in place.
   g.animState = "move";
@@ -1264,20 +1311,6 @@ function wakeUnit(g) {
 // introduced.
 registerRuntimeHook("afterDraw", function drawAwakeMarkers() {
   if (!run && !battle) return;
-  // Gaon's reach is a placement decision, so it stays on screen all the time
-  // rather than only reporting "사거리 밖" after the shot has already settled.
-  for (const g of gates) {
-    if (g.id !== "gaon") continue;
-    x.save();
-    x.strokeStyle = g.col;
-    x.globalAlpha = 0.16;
-    x.lineWidth = 1.5;
-    x.setLineDash([3, 6]);
-    x.beginPath();
-    x.arc(g.x, g.y, SLASH_RANGE, 0, Math.PI * 2);
-    x.stroke();
-    x.restore();
-  }
   for (const g of gates) {
     if (!g.awake) continue;
     const flash = g.wakeFlash > 0 ? g.wakeFlash / 0.62 : 0;
@@ -1313,15 +1346,8 @@ function mobileWall(o, r, unit = null) {
     hit = true;
   }
   if (hit) {
-    if (unit) {
-      // The training board still reflects a unit off its rails, but rails do
-      // not count as a parry-awakening event.
-      if (!battle?.training) {
-        unit.wallHits++;
-        unit.collisions = (unit.collisions || 0) + 1;
-        wakeUnit(unit);
-      }
-    } else tableWall();
+    // Rails keep their physical bounce but never count as a parry awakening.
+    if (!unit) tableWall();
   }
   return hit;
 }
@@ -1583,7 +1609,7 @@ function applyStageGimmicks(o, unit = null) {
         });
         toast("도는 방벽 하나를 부쉈습니다");
       }
-      if (unit) wakeUnit(unit);
+      // Orbitals remain physical for rolling units but cannot awaken them.
     });
   }
   for (const wall of stageWalls)
@@ -1597,13 +1623,7 @@ function applyStageGimmicks(o, unit = null) {
         d: 0.28,
         col: "#c3f3ff",
       });
-      if (unit) {
-        if (!battle?.training) {
-          unit.wallHits = (unit.wallHits || 0) + 1;
-          unit.collisions = (unit.collisions || 0) + 1;
-          wakeUnit(unit);
-        }
-      } else if (o === ball) tableWall();
+      if (!unit && o === ball) tableWall();
       else o.bounces = (o.bounces || 0) + 1;
     });
   for (const pad of boostPads) applyBoostPad(o, pad, unit);
@@ -1810,10 +1830,6 @@ simulatePhysics = function (d) {
       const speed = Math.hypot(g.vx, g.vy);
       if (speed > 82) {
         g.travel += speed * step;
-        // Training uses the meteor parry as the only wake trigger. Keeping
-        // travel still lets the physics settle normally without creating an
-        // accidental awakening from a wall or another unit.
-        if (!battle.training) wakeUnit(g);
       }
       updateBladeWheel(g, speed, step);
       // Units should roll through a contact, then settle.  They are lighter
@@ -1839,12 +1855,10 @@ simulatePhysics = function (d) {
     for (const g of gates)
       mobilePair(ball, ball.r, g, g.r, (nx, ny, impactSpeed, incoming) => {
         // `mobilePair` has already performed the ordinary elastic response.
-        // On the training table, only an armed Space parry turns that contact
-        // into the old high-energy resonance and records a starlight node.
+        // Only an armed Space parry turns an ordinary elastic contact into a
+        // high-energy resonance, ability activation, and starlight node.
         const parried =
-          !battle.training ||
-          (typeof consumeTrainingParry === "function" &&
-            consumeTrainingParry(g));
+          typeof consumeTrainingParry === "function" && consumeTrainingParry(g);
         if (!parried) return;
         const speed = Math.hypot(incoming.x, incoming.y) || 1,
           ux = incoming.x / speed,
@@ -1863,7 +1877,7 @@ simulatePhysics = function (d) {
         guaranteeMomentum(g, unitDx, unitDy, 410, 1080);
         ball.power += 0.48;
         ball.bounces++;
-        wakeUnit(g);
+        wakeUnit(g, { subtle: true });
         g.collisions++;
         trackBlazeUnit(g);
         const special = applyContactAbility(g, incoming);
@@ -1883,18 +1897,17 @@ simulatePhysics = function (d) {
         }
       });
     for (let a = 0; a < gates.length; a++)
-      for (let b = a + 1; b < gates.length; b++)
+      for (let b = a + 1; b < gates.length; b++) {
+        // An armed wheel cuts through the moving formation instead
+        // of becoming another billiard contact. Before its parry it remains a
+        // normal physical unit.
+        if (isBladeWheelPhasing(gates[a]) || isBladeWheelPhasing(gates[b]))
+          continue;
         mobilePair(gates[a], gates[a].r, gates[b], gates[b].r, () => {
-          // Unit-to-unit contacts remain physical on the training table, but
-          // cannot create a wake or copy chain without the meteor parry.
-          if (battle.training) return;
-          wakeUnit(gates[a]);
-          wakeUnit(gates[b]);
-          gates[a].collisions++;
-          gates[b].collisions++;
-          copyLastUnitAbility(gates[a], gates[b]);
-          copyLastUnitAbility(gates[b], gates[a]);
+          // Unit-to-unit contacts remain physical only. A meteor parry is the
+          // sole source of awakenings and contact abilities.
         });
+      }
     for (const b of bumpers) {
       mobileStatic(ball, b, ball.r + b.r, 1.08, () => {
         ball.bounces++;
@@ -1902,8 +1915,6 @@ simulatePhysics = function (d) {
       });
       for (const g of gates)
         mobileStatic(g, b, g.r + b.r, 1.06, () => {
-          g.collisions++;
-          wakeUnit(g);
           const speed = Math.hypot(g.vx, g.vy) || 1,
             boost = Math.min(980, speed + 76);
           g.vx *= boost / speed;
@@ -1926,12 +1937,13 @@ simulatePhysics = function (d) {
           damageAdd(a, 14 + Math.round(ball.power * 6), "직격", "#d8c3ff");
         }
       });
-      for (const g of gates)
+      for (const g of gates) {
+        if (isBladeWheelPhasing(g)) continue;
         mobileStatic(g, a, g.r + a.r, 0.88, () => {
-          wakeUnit(g);
-          g.collisions++;
-          unitImpactDamage(g, a);
+          // Enemy contacts are physical only; an armed wheel deals its own
+          // travelling damage from updateBladeWheel().
         });
+      }
     }
     const wx = boss.x + Math.cos(boss.a) * 84,
       wy = boss.y + Math.sin(boss.a) * 84;
@@ -1949,8 +1961,7 @@ simulatePhysics = function (d) {
         }
       });
     for (const g of gates) {
-      const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
-      if (fx === "bladewheel") {
+      if (isBladeWheelPhasing(g)) {
         const speed = Math.hypot(g.vx, g.vy),
           reach = g.r + 66,
           insideBoss =
@@ -1973,11 +1984,8 @@ simulatePhysics = function (d) {
         }
       }
       mobileStatic(g, boss, g.r + 66, 0.88, () => {
-        wakeUnit(g);
-        g.bossHit = true;
-        g.collisions++;
-        trackBlazeBossUnit(g);
-        unitImpactDamage(g, boss);
+        // A normal boss collision is physical only. An armed wheel reaches
+        // the boss through its own travelling damage path above.
       });
     }
     updateCloneBalls(step);

@@ -174,15 +174,17 @@ function slotRole(index, stage = currentStage()) {
   const seat = stage?.slots?.[index];
   if (!seat || !stage?.boss) return SLOT_BANDS[SLOT_BANDS.length - 1];
   const away = Math.hypot(seat[0] - stage.boss.x, seat[1] - stage.boss.y);
-  return SLOT_BANDS.find((band) => band.within && away <= band.within)
-    ?? SLOT_BANDS[SLOT_BANDS.length - 1];
+  return (
+    SLOT_BANDS.find((band) => band.within && away <= band.within) ??
+    SLOT_BANDS[SLOT_BANDS.length - 1]
+  );
 }
 const heroes = {
   gaon: {
     n: "여명의 검사 샛별",
     s: "샛별",
-    e: "근접 베기",
-    d: "멈춘 자리에서 가까운 보스를 강하게 베어냅니다. 사거리는 짧습니다.",
+    e: "공명 검기",
+    d: "패링 공명 때 보스까지 검기를 보냅니다. 가까울수록 피해가 강합니다.",
     lore: "밤의 끝에서 가장 먼저 떠올라 새벽을 여는, 첫 별.",
     fx: "slash",
     col: "#f2c56b",
@@ -196,7 +198,7 @@ const heroes = {
     n: "은하수 사수 미리내",
     s: "미리내",
     e: "거리 저격",
-    d: "멈춘 자리에서 보스에게 화살을 쏩니다. 멀수록 피해가 커집니다.",
+    d: "패링 공명 때 보스에게 화살을 쏩니다. 멀수록 피해가 커집니다.",
     lore: "잊힌 별들의 강을 홀로 건너며 화살을 줍는, 은하수의 별.",
     fx: "longshot",
     col: "#ef718d",
@@ -238,7 +240,7 @@ const heroes = {
     n: "빛무리 무희 윤슬",
     s: "윤슬",
     e: "질풍 칼날",
-    d: "정산 공격이 없습니다. 이동 중 보스를 관통하며, 속도에 비례해 회전 칼날로 주변 적을 벱니다.",
+    d: "패링 공명 뒤에만 보스·별지기를 관통하며 회전 칼날을 켭니다.",
     lore: "물 위에 부서진 별빛처럼, 멈추면 사라지는 반짝임의 별.",
     fx: "bladewheel",
     col: "#5fe0cf",
@@ -266,7 +268,7 @@ const heroes = {
     n: "별불 대장장이 모루",
     s: "모루",
     e: "충돌 충격파",
-    d: "모든 충돌 수에 비례해 멈춘 자리 주변에 강한 충격파를 일으킵니다.",
+    d: "패링 공명 때 이번 샷의 충돌 수에 비례한 충격파를 일으킵니다.",
     lore: "떨어진 별을 두드려 다시 하늘로 벼려 올리는, 대장간의 별.",
     fx: "shockwave",
     col: "#ffac67",
