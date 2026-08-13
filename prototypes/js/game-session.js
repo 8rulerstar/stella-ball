@@ -180,23 +180,6 @@ function showTitle() {}
 // Superseded wholesale by the game-onboarding.js definition, which never calls back
 // here.  The empty body keeps the binding explicit for that reassignment.
 function showMeta() {}
-function showMetaHelp() {
-  run = false;
-  drag = null;
-  setScene("meta");
-  U.over.className = "overlay meta-scene";
-  U.over.innerHTML =
-    '<div class="meta-hub"><div class="meta-brand"><img src="' +
-    metaArt.wordmark +
-    '" alt="Prism Breakers"><span class="meta-profile">COMBAT GUIDE<b>INPUT</b></span></div><section class="help-panel"><h2>전투 조작</h2><p>유성을 반대 방향으로 끌어 별지기를 굴리세요. 움직인 별지기는 모든 공이 멈춘 뒤, 현재 위치에서 보스를 공격합니다.</p><div class="help-controls"><article class="help-control"><img src="' +
-    metaArt.mouse +
-    '" alt="마우스 드래그"><b>전략 샷</b><small>유성을 끌어 당겼다가 놓으면 반대 방향으로 발사됩니다.</small></article><article class="help-control"><img src="' +
-    metaArt.touch +
-    '" alt="터치 드래그"><b>굴림 예측</b><small>첫 별지기의 이동선까지 보고, 다음 샷의 배치를 설계하세요.</small></article><article class="help-control"><img src="' +
-    metaArt.keyR +
-    '" alt="R 키"><b>즉시 편성</b><small>R 키로 별지기·스테이지 편성으로 돌아갑니다.</small></article></div></section><button id="backMetaHelp">뒤로</button></div>';
-  document.querySelector("#backMetaHelp").onclick = showMeta;
-}
 let rosterFocus = "gaon";
 // One screen owns the whole squad decision.  The field map carries a marker
 // per board slot, every owned starkeeper sits in a tray underneath, and the

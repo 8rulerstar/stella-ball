@@ -94,11 +94,6 @@ function saveProgress() {
 function goldBalance() {
   return Math.max(0, Math.floor(Number(progress.gold) || 0));
 }
-function grantGold(amount) {
-  const reward = Math.max(0, Math.floor(Number(amount) || 0));
-  progress.gold = goldBalance() + reward;
-  return reward;
-}
 // Reward feedback follows the 연타 promotion pattern: an ordinary line becomes
 // a louder, self-dismissing card when something was actually earned, so gold
 // and unlocks read as a claim instead of a number quietly changing.
@@ -1464,7 +1459,6 @@ function showTutorial(step = 0) {
     index === tutorialSteps.length - 1 ? showMeta() : showTutorial(index + 1);
   };
 }
-showMetaHelp = showTutorial;
 // During battle, rules are taught in deployment. Keep the table readable:
 // only the launch instruction remains until the first ball is fired.
 drawZoneRules = function () {};

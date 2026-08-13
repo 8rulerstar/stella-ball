@@ -1156,15 +1156,6 @@ function advanceTimed(items, delta) {
   }
   items.length = write;
 }
-function tickTimed(items, delta) {
-  let write = 0;
-  for (let index = 0; index < items.length; index++) {
-    const item = items[index];
-    item.t -= delta;
-    if (item.t > 0) items[write++] = item;
-  }
-  items.length = write;
-}
 
 primeCombatTextures();
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));

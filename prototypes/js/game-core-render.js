@@ -3,7 +3,6 @@
 function damage(weak = false) {}
 // Superseded wholesale by the game-combat.js definition, which never calls back
 // here.  The empty body keeps the binding explicit for that reassignment.
-function triggerAssist(g) {}
 function resolveAssist(a) {
   if (!boss || battleComplete) return;
   if (a.areaRadius) {

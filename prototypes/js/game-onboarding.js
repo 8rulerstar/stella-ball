@@ -116,13 +116,6 @@ function setOnboardingPhase(phase, first = false) {
   sync();
   renderOnboarding();
 }
-function setOnboardingDialogue(dialogue) {
-  if (!onboarding) return;
-  onboarding.dialogue = dialogue;
-  onboarding.launched = false;
-  onboarding.panelVisible = true;
-  renderOnboarding();
-}
 function beginOnboardingPractice() {
   if (!onboarding) return;
   onboarding.panelVisible = false;

@@ -116,23 +116,6 @@ damage = function (weak = false) {
   chain = [];
   sync();
 };
-triggerAssist = function (g) {
-  const amount = 15 + Math.min(22, chain.length * 6);
-  assistShots.push({
-    x: g.x,
-    y: g.y,
-    fromX: g.x,
-    fromY: g.y,
-    t: 0,
-    dur: 0.2,
-    amount,
-    name: g.s,
-    col: g.col,
-    sourceId: g.id,
-  });
-  fieldFx.push({ type: "assist", x: g.x, y: g.y, t: 0, d: 0.38, col: g.col });
-  toast(g.s + " · 보스 직접 공격!");
-};
 hitBumper = function (b) {
   if (b.on > 0 || battleComplete) return;
   b.on = 0.22;
