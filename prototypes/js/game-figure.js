@@ -5,12 +5,11 @@
 // the runtime hook registry, all of which that file establishes first.
 //
 // --- Constellation figure prototype (training table only, 2026-08-13) ------
-// When the table settles, the meteor and every awakened starkeeper become the
-// vertices of a figure.  Two points draw a segment, three or more a polygon,
-// and whatever the figure encloses (or the segment crosses) takes bonus
-// damage.  A five-point figure is additionally run through a point-cloud
-// recogniser against one pentagram template; a close match plays the
-// completion draw.  Campaign battles never see any of this.
+// A successful Space parry on a meteor-to-starkeeper collision leaves one
+// fixed starlight node at that contact.  The meteor and starkeeper keep their
+// normal physics; the nodes, not their eventual resting positions, become the
+// constellation vertices. Three or four nodes wait briefly for another parry;
+// five resolve immediately. Campaign battles never see any of this.
 //
 // The recogniser is ported from RuneCast's gesture pipeline
 // (~/Projects/RuneCast, 설계 문서 4.3-4.5): centroid-to-origin plus uniform
@@ -53,20 +52,96 @@ const FIGURE = {
   // PROGRESS_REPORT.md already lists that purple as an open item.
   silhouetteAlpha: 0.3,
 };
+const FIGURE_CHAIN = {
+  parryWindow: 0.32,
+  chainWindow: 1.25,
+  missCooldown: 0.72,
+  minNodes: 3,
+  maxNodes: 5,
+};
 let figureFx = null;
+let figureChainBattle = null;
+let figureChain = null;
 function figureActive() {
-  return Boolean(battle?.training);
+  return Boolean(battle?.training && run && !battleComplete);
 }
-// Vertices are the meteor plus the starkeepers that actually rolled, which is
-// the same "awakened" test the settle attacks use.
-function figureVertices() {
-  const points = gates
-    .filter((g) => g.moved && g.travel > 10)
-    .map((g) => ({ x: g.x, y: g.y, col: g.col, label: g.s }));
-  if (ball)
-    points.push({ x: ball.x, y: ball.y, col: "#ffd2a0", label: "유성" });
-  return points;
+function currentFigureChain() {
+  if (figureChainBattle !== battle) {
+    figureChainBattle = battle;
+    figureChain = { nodes: [], parry: 0, chain: 0, cooldown: 0, flash: 0 };
+  }
+  return figureChain;
 }
+function clearFigureChain() {
+  const state = currentFigureChain();
+  state.nodes = [];
+  state.parry = 0;
+  state.chain = 0;
+}
+// Called by the combat collision pass. `mobilePair` has already left the
+// ordinary bounce in place; this consumes only the additional powered contact.
+function consumeTrainingParry(g) {
+  if (!figureActive()) return false;
+  const state = currentFigureChain();
+  if (state.parry <= 0 || state.cooldown > 0) return false;
+  state.parry = 0;
+  state.flash = 0.44;
+  state.nodes.push({
+    x: (ball.x + g.x) / 2,
+    y: (ball.y + g.y) / 2,
+    col: g.col,
+    label: g.s,
+  });
+  state.chain = FIGURE_CHAIN.chainWindow;
+  ball.runeBurst = Math.max(ball.runeBurst || 0, 0.92);
+  fieldFx.push({ type: "relay", x: g.x, y: g.y, t: 0, d: 0.48, col: g.col });
+  addPopup(g.x, g.y - 52, "별빛 " + state.nodes.length + "/5", g.col, true);
+  if (state.nodes.length >= FIGURE_CHAIN.maxNodes) {
+    const nodes = state.nodes;
+    clearFigureChain();
+    resolveFigure(nodes);
+  }
+  return true;
+}
+function requestTrainingParry() {
+  if (!figureActive() || !ball?.moving) return false;
+  const state = currentFigureChain();
+  if (state.cooldown > 0 || state.parry > 0) return false;
+  state.parry = FIGURE_CHAIN.parryWindow;
+  ball.runeBurst = Math.max(ball.runeBurst || 0, 0.54);
+  return true;
+}
+function finishFigureChain({ missed = false } = {}) {
+  const state = currentFigureChain();
+  if (!state.nodes.length) return;
+  const nodes = state.nodes;
+  clearFigureChain();
+  if (nodes.length >= FIGURE_CHAIN.minNodes) resolveFigure(nodes);
+  else if (missed) toast("패링 실패 · 모은 별빛이 흩어졌습니다");
+}
+function advanceFigureChain(d) {
+  if (!figureActive()) return;
+  const state = currentFigureChain();
+  state.cooldown = Math.max(0, state.cooldown - d);
+  state.flash = Math.max(0, state.flash - d);
+  if (state.parry > 0) {
+    state.parry = Math.max(0, state.parry - d);
+    if (state.parry === 0) {
+      finishFigureChain({ missed: true });
+      state.cooldown = FIGURE_CHAIN.missCooldown;
+      toast("패링 실패 · 관측 공명 재정비");
+    }
+  }
+  if (state.nodes.length && state.chain > 0) {
+    state.chain = Math.max(0, state.chain - d);
+    if (state.chain === 0) finishFigureChain();
+  }
+}
+addEventListener("keydown", (e) => {
+  if (e.code !== "Space" || e.repeat || !figureActive()) return;
+  if (paused || isCombatInputLocked()) return;
+  if (requestTrainingParry()) e.preventDefault();
+});
 function figureCentroid(points) {
   let cx = 0,
     cy = 0;
@@ -513,10 +588,9 @@ function flushPendingFigure() {
   figureFx.cast = null;
   pending();
 }
-function resolveFigure() {
+function resolveFigure(points) {
   if (!figureActive() || battleComplete) return;
-  const points = figureVertices();
-  if (points.length < 2) return;
+  if (!points || points.length < FIGURE_CHAIN.minNodes) return;
   flushPendingFigure();
   const ring = figureRing(points),
     segment = ring.length === 2,
@@ -575,12 +649,11 @@ function resolveFigure() {
 }
 const figureSettleParty = settleParty;
 settleParty = function () {
-  // Prototype: the training table judges the figure on its own, so the settle
-  // awakenings are muted there.  Their damage, slow-motion and flash were
-  // burying the figure that shares the same beat, which is why it read as
-  // never being drawn.  Campaign settles are untouched.
-  if (!figureActive()) figureSettleParty();
-  resolveFigure();
+  // Training resolves the current starlight chain instead of judging where
+  // the moving bodies happened to rest. Its normal settle awakenings stay
+  // muted so they cannot hide the constellation reveal. Campaign is untouched.
+  if (figureActive()) finishFigureChain();
+  else figureSettleParty();
 };
 /* --- the beats after the trace ------------------------------------------ */
 // One clock, read the same way by the update hook and the draw hook.
@@ -598,8 +671,71 @@ function figureCorrection(t) {
     Math.max(0, Math.min(1, (t - FIGURE_CORRECT_AT) / FIGURE.correctTime)),
   );
 }
+// The chain preview is intentionally raw: its stars stay at the contact
+// positions while the player decides whether to risk the next parry. Only the
+// resolved constellation is corrected into the chosen sky skeleton.
+registerRuntimeHook("afterDraw", function drawFigureChain() {
+  if (!figureActive()) return;
+  const state = currentFigureChain(),
+    nodes = state.nodes;
+  if (state.parry > 0 || state.flash > 0) {
+    const pulse = state.parry > 0 ? 1 : state.flash / 0.44;
+    x.save();
+    x.globalAlpha = 0.38 + pulse * 0.45;
+    x.strokeStyle = "#fff1bd";
+    x.lineWidth = 2.5;
+    x.shadowBlur = 18;
+    x.shadowColor = "#ffd27f";
+    x.beginPath();
+    x.arc(ball.x, ball.y, ball.r + 13 + pulse * 5, 0, Math.PI * 2);
+    x.stroke();
+    x.restore();
+  }
+  if (!nodes.length) return;
+  const match =
+      nodes.length >= FIGURE_CHAIN.minNodes ? classifyFigure(nodes) : null,
+    fit = match ? figureFit(nodes, match.shape) : null,
+    edges = match
+      ? match.shape.edges.map(([a, b]) => [
+          nodes[fit.order[a]],
+          nodes[fit.order[b]],
+        ])
+      : nodes.slice(1).map((node, i) => [nodes[i], node]);
+  x.save();
+  x.globalAlpha = 0.4;
+  x.strokeStyle = "#9adfc9";
+  x.lineWidth = 2;
+  x.setLineDash([5, 6]);
+  x.shadowBlur = 13;
+  x.shadowColor = "#9adfc9";
+  for (const [from, to] of edges) {
+    x.beginPath();
+    x.moveTo(from.x, from.y);
+    x.lineTo(to.x, to.y);
+    x.stroke();
+  }
+  x.setLineDash([]);
+  for (const node of nodes) {
+    x.fillStyle = node.col || "#dff3ea";
+    x.beginPath();
+    x.arc(node.x, node.y, 5, 0, Math.PI * 2);
+    x.fill();
+  }
+  x.globalAlpha = 0.9;
+  x.fillStyle = "#fff3d6";
+  x.textAlign = "center";
+  x.font = "bold 12px ui-monospace";
+  const label =
+    "별빛 " +
+    nodes.length +
+    "/5" +
+    (match ? " · " + match.shape.name : " · 3점부터 발동");
+  x.fillText(label, ball.x, ball.y - ball.r - 25);
+  x.restore();
+});
 /* --- drawing (RuneCast RuneTracer: wide faint glow + thin bright core) --- */
 registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
+  advanceFigureChain(d);
   if (!figureFx) return;
   figureFx.t += d;
   // The pentagram pays off once the corrected star is standing, not at the

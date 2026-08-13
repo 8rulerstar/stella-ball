@@ -871,6 +871,10 @@ function updateBladeWheel(g, speed, step) {
   g.bladeStrength =
     (g.bladeStrength || 0) +
     (targetStrength - (g.bladeStrength || 0)) * Math.min(1, step * 15);
+  // The training-table parry owns the first awakening. A unit can still roll
+  // after an ordinary elastic hit, but its sustained effect stays dormant
+  // until a successful meteor parry wakes it.
+  if (battle?.training && !g.awake) return;
   if (speed < 105 || g.bladeTick > 0 || battleComplete) return;
   g.bladeTick = 0.14;
   const radius = 58 + Math.min(38, speed * 0.038),
@@ -1310,9 +1314,13 @@ function mobileWall(o, r, unit = null) {
   }
   if (hit) {
     if (unit) {
-      unit.wallHits++;
-      unit.collisions = (unit.collisions || 0) + 1;
-      wakeUnit(unit);
+      // The training board still reflects a unit off its rails, but rails do
+      // not count as a parry-awakening event.
+      if (!battle?.training) {
+        unit.wallHits++;
+        unit.collisions = (unit.collisions || 0) + 1;
+        wakeUnit(unit);
+      }
     } else tableWall();
   }
   return hit;
@@ -1590,9 +1598,11 @@ function applyStageGimmicks(o, unit = null) {
         col: "#c3f3ff",
       });
       if (unit) {
-        unit.wallHits = (unit.wallHits || 0) + 1;
-        unit.collisions = (unit.collisions || 0) + 1;
-        wakeUnit(unit);
+        if (!battle?.training) {
+          unit.wallHits = (unit.wallHits || 0) + 1;
+          unit.collisions = (unit.collisions || 0) + 1;
+          wakeUnit(unit);
+        }
       } else if (o === ball) tableWall();
       else o.bounces = (o.bounces || 0) + 1;
     });
@@ -1784,18 +1794,11 @@ simulatePhysics = function (d) {
   for (let i = 0; i < slices && ball?.moving; i++) {
     ball.x += ball.vx * step;
     ball.y += ball.vy * step;
-    // Drag depends on speed, and that split is the whole point.  A flat 0.9915
-    // left the meteor coasting for hundreds of frames: a shot averaged 7.2s and
-    // the worst ran 15s, nearly all of it watching a ball that had already
-    // stopped mattering.  Simply raising the drag fixes the clock and wrecks the
-    // game — at a flat 0.986 the ball also dies during the part of the shot that
-    // still had work to do, and five-point figures fell from 12% of shots to 1%.
-    // So the energetic phase keeps its original coast and only the dead tail is
-    // cut: same 3s average as the flat value, but 40% of shots still draw a
-    // figure instead of 27%, and 8% still reach five points.  Measured 120 shots
-    // per setting.
-    const cueSpeed = Math.hypot(ball.vx, ball.vy),
-      cueDrag = Math.pow(cueSpeed > 500 ? 0.9915 : 0.972, step * 60);
+    // Keep the original even coast through the low-speed tail. The temporary
+    // cut at 0.972 made a contact that had visibly bounced read as if it lost
+    // all momentum immediately; the training parry now supplies the skill gate
+    // instead of this passive decay.
+    const cueDrag = Math.pow(0.9915, step * 60);
     ball.vx *= cueDrag;
     ball.vy *= cueDrag;
     tickGimmickCooldowns(ball, step);
@@ -1807,7 +1810,10 @@ simulatePhysics = function (d) {
       const speed = Math.hypot(g.vx, g.vy);
       if (speed > 82) {
         g.travel += speed * step;
-        wakeUnit(g);
+        // Training uses the meteor parry as the only wake trigger. Keeping
+        // travel still lets the physics settle normally without creating an
+        // accidental awakening from a wall or another unit.
+        if (!battle.training) wakeUnit(g);
       }
       updateBladeWheel(g, speed, step);
       // Units should roll through a contact, then settle.  They are lighter
@@ -1832,6 +1838,14 @@ simulatePhysics = function (d) {
     }
     for (const g of gates)
       mobilePair(ball, ball.r, g, g.r, (nx, ny, impactSpeed, incoming) => {
+        // `mobilePair` has already performed the ordinary elastic response.
+        // On the training table, only an armed Space parry turns that contact
+        // into the old high-energy resonance and records a starlight node.
+        const parried =
+          !battle.training ||
+          (typeof consumeTrainingParry === "function" &&
+            consumeTrainingParry(g));
+        if (!parried) return;
         const speed = Math.hypot(incoming.x, incoming.y) || 1,
           ux = incoming.x / speed,
           uy = incoming.y / speed,
@@ -1871,6 +1885,9 @@ simulatePhysics = function (d) {
     for (let a = 0; a < gates.length; a++)
       for (let b = a + 1; b < gates.length; b++)
         mobilePair(gates[a], gates[a].r, gates[b], gates[b].r, () => {
+          // Unit-to-unit contacts remain physical on the training table, but
+          // cannot create a wake or copy chain without the meteor parry.
+          if (battle.training) return;
           wakeUnit(gates[a]);
           wakeUnit(gates[b]);
           gates[a].collisions++;
@@ -1972,14 +1989,10 @@ simulatePhysics = function (d) {
       if (ball.trail.length > 24) ball.trail.shift();
     }
   }
-  // Call the table settled while everything is still creeping.  Below these
-  // speeds nothing reaches another object before friction stops it, so the
-  // remaining drift only costs the player time — cutting it removes more than
-  // a second and a half from the average shot.  Raise them together: stopping
-  // the meteor while a starkeeper is still rolling would end the shot before
-  // the figure's vertices have settled.
-  const partyStillRolling = gates.some((g) => Math.hypot(g.vx, g.vy) > 110);
-  if (ball?.moving && Math.hypot(ball.vx, ball.vy) < 150 && !partyStillRolling)
+  // Use the original settle thresholds. The raised 150/110 cut-off ended a
+  // still-readable rebound before it could carry into the next contact.
+  const partyStillRolling = gates.some((g) => Math.hypot(g.vx, g.vy) > 55);
+  if (ball?.moving && Math.hypot(ball.vx, ball.vy) < 68 && !partyStillRolling)
     endShot();
 };
 billiardPredict = function (dx, dy) {
