@@ -255,9 +255,7 @@ function isVfxOverBudget() {
     18
   );
 }
-const baseFieldFx = drawFieldFx;
-drawFieldFx = function () {
-  baseFieldFx();
+registerRuntimeHook("afterFieldFxDraw", function drawFeedbackFieldFx() {
   const start = isVfxOverBudget() ? Math.max(0, fieldFx.length - 6) : 0;
   for (let index = start; index < fieldFx.length; index++) {
     const f = fieldFx[index];
@@ -296,7 +294,7 @@ drawFieldFx = function () {
     else if (f.type === "blaze" || f.type === "assist")
       paintFeedbackAsset(feedbackArt.impact, f.x, f.y, size, p * 0.4, f.t * 2);
   }
-};
+});
 function drawFeedbackBeats() {
   const start = isVfxOverBudget() ? Math.max(0, feedbackBeats.length - 6) : 0;
   for (let index = start; index < feedbackBeats.length; index++) {
@@ -437,9 +435,7 @@ function drawFeedbackBeats() {
     x.restore();
   }
 }
-const baseDrawAssists = drawAssists;
-drawAssists = function () {
-  baseDrawAssists();
+registerRuntimeHook("afterAssistsDraw", function drawFeedbackAssists() {
   for (const shot of assistShots) {
     if (shot.delay > 0) {
       if (shot.finisher && shot !== finisherFocus) continue;
@@ -486,8 +482,8 @@ drawAssists = function () {
         angle,
       );
   }
-};
-impact = function (
+});
+function impact(
   weak = false,
   px = ball?.x ?? boss?.x,
   py = boss?.y ?? ball?.y,
@@ -520,37 +516,27 @@ impact = function (
   if (heavy && !contact && banner) replayCssClass(banner, "impact-heavy");
   if (navigator.vibrate)
     navigator.vibrate(contact ? 5 : heavy ? [10, 16, 12] : 7);
-};
-const baseRegisterBossHit = registerBossHit;
-registerBossHit = function (weak) {
-  baseRegisterBossHit(weak);
+}
+registerRuntimeHook("afterBossHitRegistered", () => {
   if (hitCombo >= 3) {
     comboTimer = Math.max(comboTimer, 1.45);
     comboPulse = 1.45;
   }
-};
-const baseTableWall = tableWall;
-tableWall = function () {
-  baseTableWall();
+});
+registerRuntimeHook("afterTableWall", () => {
   if (!ball) return;
   feedbackBeat("wall", ball.x, ball.y, "#8ae9e0", 0.62);
   combatSfx("wall", 0.7);
-};
-const baseMobilePair = mobilePair;
-mobilePair = function (a, ar, b, br, onHit) {
-  return baseMobilePair(a, ar, b, br, (...args) => {
-    onHit?.(...args);
-    const hero = gates.includes(a) ? a : gates.includes(b) ? b : null;
-    if (hero && feedbackCooldown <= 0) {
-      feedbackCooldown = 0.12;
-      feedbackBeat("unit", hero.x, hero.y, hero.col, 1.05, "공명!");
-      combatSfx("unit", 1);
-    }
-  });
-};
-const baseEarnBlaze = earnBlaze;
-earnBlaze = function (amount, detail) {
-  baseEarnBlaze(amount, detail);
+});
+registerRuntimeHook("afterMobilePairCollision", ({ a, b }) => {
+  const hero = gates.includes(a) ? a : gates.includes(b) ? b : null;
+  if (hero && feedbackCooldown <= 0) {
+    feedbackCooldown = 0.12;
+    feedbackBeat("unit", hero.x, hero.y, hero.col, 1.05, "공명!");
+    combatSfx("unit", 1);
+  }
+});
+registerRuntimeHook("afterBlazeEarned", ({ amount }) => {
   feedbackBeat(
     "awaken",
     ball?.x ?? W / 2,
@@ -561,51 +547,44 @@ earnBlaze = function (amount, detail) {
   );
   combatSfx("mult", 1);
   replayCssClass(U.blazeCard, "impact-heavy");
-};
-const baseQueueUnitAssist = queueUnitAssist;
-queueUnitAssist = function (g, amount, name, options = {}) {
-  const queued = assistShots.length;
-  baseQueueUnitAssist(g, amount, name, options);
-  const shot = assistShots.at(-1);
-  if (shot) {
-    if (shot.finisher) {
-      // One hero owns a complete ultimate beat before the next takes focus.
-      // Future shots keep counting down but stay visually hidden.
-      shot.delay = 0.52 + shot.finisherOrder * 1.62;
-      shot.dur = 1.08;
-      shot.focusT = 0;
-    } else {
-      shot.delay = Math.min(0.32, queued * 0.085);
-      shot.dur = Math.max(
-        options.parry ? 0.22 : 0.3,
-        shot.dur + (options.parry ? 0.02 : 0.1),
-      );
+});
+registerRuntimeHook(
+  "afterUnitAssistQueued",
+  ({ gate: g, shot, queued, options }) => {
+    if (shot) {
+      if (shot.finisher) {
+        // One hero owns a complete ultimate beat before the next takes focus.
+        // Future shots keep counting down but stay visually hidden.
+        shot.delay = 0.52 + shot.finisherOrder * 1.62;
+        shot.dur = 1.08;
+        shot.focusT = 0;
+      } else {
+        shot.delay = Math.min(0.32, queued * 0.085);
+        shot.dur = Math.max(
+          options.parry ? 0.22 : 0.3,
+          shot.dur + (options.parry ? 0.02 : 0.1),
+        );
+      }
     }
-  }
-  if (!shot?.finisher) {
-    feedbackBeat(
-      "awaken",
-      g.x,
-      g.y,
-      g.col,
-      options.parry ? 0.54 : 1.08,
-      g.s + (options.parry ? " 공명" : " 각성"),
-    );
-    combatSfx("awaken", options.parry ? 0.52 : 0.9);
-  }
-};
-const baseFeedbackSettleParty = settleParty;
-settleParty = function () {
-  const awakened = gates.filter((gate) => gate.moved && gate.travel > 10),
-    finishers = awakened.filter((gate) => {
-      const fx = gate.fx === "copycat" ? gate.copiedFx : gate.fx;
-      return fx !== "bladewheel";
-    });
-  // The figure system owns every active combat's settle, but it does so a layer
-  // below this one, so the banner and its slow-motion must stay muted. The
-  // `typeof` guard keeps this line harmless if the system is ever removed.
-  const figureOwnsSettle = typeof figureActive === "function" && figureActive();
-  if (awakened.length && !figureOwnsSettle) {
+    if (!shot?.finisher) {
+      feedbackBeat(
+        "awaken",
+        g.x,
+        g.y,
+        g.col,
+        options.parry ? 0.54 : 1.08,
+        g.s + (options.parry ? " 공명" : " 각성"),
+      );
+      combatSfx("awaken", options.parry ? 0.52 : 0.9);
+    }
+  },
+);
+registerRuntimeHook("afterPartySettle", ({ awakened, figureActive }) => {
+  const finishers = awakened.filter((gate) => {
+    const fx = gate.fx === "copycat" ? gate.copiedFx : gate.fx;
+    return fx !== "bladewheel";
+  });
+  if (awakened.length && !figureActive) {
     settlementBeat = {
       t: 0,
       d: 0.92,
@@ -615,9 +594,8 @@ settleParty = function () {
     };
     combatSfx("settlement", 0.92);
   }
-  return baseFeedbackSettleParty();
-};
-updateAssists = function (d) {
+});
+function updateAssists(d) {
   let writeImpact = 0;
   for (let index = 0; index < finisherImpacts.length; index++) {
     const impact = finisherImpacts[index];
@@ -691,7 +669,7 @@ updateAssists = function (d) {
     finisherFocus.focusT += d;
     battle.slow = Math.max(battle.slow || 0, 0.08);
   }
-};
+}
 function drawFinisherMotif(gate, heroX, heroY, release, alpha) {
   const fx = gate.fx === "copycat" ? gate.copiedFx || "copycat" : gate.fx,
     phase = finisherFocus.focusT,
@@ -1208,6 +1186,19 @@ registerRuntimeHook("afterFeedbackUpdate", (d) => {
   advanceTimed(feedbackBeats, d);
   feedbackCooldown = Math.max(0, feedbackCooldown - d);
 });
+function resetInactiveCanvasFeedback() {
+  impactStop = 0;
+  screenShake = 0;
+  screenFlash = 0;
+  if (lastStageTransform) {
+    stageEl.style.transform = "";
+    lastStageTransform = "";
+  }
+  if (U.flash && lastFlashOpacity !== "0") {
+    U.flash.style.opacity = "0";
+    lastFlashOpacity = "0";
+  }
+}
 function loop(t) {
   const d = Math.min(0.033, (t - last) / 1000 || 0);
   last = t;
@@ -1221,10 +1212,17 @@ function loop(t) {
     return;
   }
   if (!isRuntimeScene("game")) {
-    // Let short-lived feedback expire after leaving combat, but do not keep
-    // physics or any canvas draw work alive behind DOM-only screens.
-    impactStop = 0;
-    updateFeedback(d);
+    // Feedback updates include delayed assists and constellation casts, so
+    // advancing them here would keep combat alive behind a DOM-only screen.
+    // Freeze that state for a paused return and only clear DOM transforms.
+    resetInactiveCanvasFeedback();
+    requestAnimationFrame(loop);
+    return;
+  }
+  if (paused) {
+    // Pausing promises a frozen table. In particular, delayed assists must not
+    // damage the boss and timed figure effects must not cast under the dialog.
+    resetInactiveCanvasFeedback();
     requestAnimationFrame(loop);
     return;
   }

@@ -11,7 +11,9 @@
 3. [PROGRESS_REPORT.md](PROGRESS_REPORT.md) — 지금 플레이 가능한 내용, 알려진 위험, 다음 세션 시작점
 4. [prototypes/ARCHITECTURE.md](prototypes/ARCHITECTURE.md) — 코드 소유 경계와 스크립트 로드 순서
 5. [prototypes/MAINTENANCE.md](prototypes/MAINTENANCE.md) — 기믹·성능·검증 변경 절차
-6. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙. [UI_REDESIGN_HANDOFF.md](UI_REDESIGN_HANDOFF.md)(Ink & Brass v2)를 대체했다.
+6. [prototypes/TECH_DEBT.md](prototypes/TECH_DEBT.md) — 영향·위험·공수로 정렬한 유지보수 부채와 단계별 해소 계획
+7. [prototypes/ADR-001-RUNTIME-MODULES.md](prototypes/ADR-001-RUNTIME-MODULES.md), [ADR-002-STABLE-SUBOWNERS.md](prototypes/ADR-002-STABLE-SUBOWNERS.md) — 런타임 훅·모듈 계약과 대형 파일 분리의 결정 근거
+8. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙. [UI_REDESIGN_HANDOFF.md](UI_REDESIGN_HANDOFF.md)(Ink & Brass v2)를 대체했다.
 
 ## 제출과 이력 문서
 
@@ -34,7 +36,7 @@
 - 캠페인은 별자리 월드 구조다. `북두칠성` 7 스테이지와 `카시오페이아` 5 스테이지가 있고, 각 스테이지 이름은 실제 별 이름이다. **새 기믹을 소개하는 스테이지에는 그 기믹만 두고, 그 외에도 최대 두 종류까지만 둔다.** 무한 훈련장은 기믹을 하나도 두지 않은 빈 판이다.
 - 로스터는 8명이며 시작 보유는 샛별·미리내·윤슬 3명이다. 기본 전투는 유성 5개, 일반 보스 체력 260, 단일 체력 전투다. 캠페인 파티는 3명, 무한 훈련장만 4명이다.
 - 별지기 스프라이트는 8종 모두 같은 규격이다. idle 192×192 6프레임, 구르기·각성 공격 각 4프레임. 출처는 프로젝트 오너 제작이다.
-- 무한 훈련장에서만 유성과 실제로 움직인 별지기를 별자리 꼭짓점으로 쓴다. 2점은 선, 3점 이상은 양자리·화살자리·까마귀자리·카시오페이아·백조자리·오망성 중 하나로 분류된다. 실루엣 5종은 반입됐지만, 6개 별자리의 능력은 아직 같은 포위 피해라 고유 능력으로 표현하면 안 된다.
+- 모든 전투에서 성공한 `Space` 패링 접점을 별빛 노드로 쓴다. 한 샷의 3~7점은 양자리·화살자리·까마귀자리·카시오페이아·백조자리·오망성·오리온자리·북두칠성 중 하나로 분류된다. 실루엣 7종은 반입됐고 오망성은 코드 전용 연출을 쓰며, 화살자리를 제외한 능력은 아직 같은 포위 피해라 서로 다른 고유 능력으로 표현하면 안 된다.
 - 실제 Hive Console 로그인·데이터 저장·리더보드 왕복과 현재 당구 물리용 헤드리스 봇 리포트는 아직 완료되지 않았다. 이전 봇 결과는 탐색 이력일 뿐 제출용 밸런스 수치가 아니다.
 
 ## 문서 갱신 규칙

@@ -1,10 +1,9 @@
+/* Combat input, scoring, hero abilities, clone meteors, and awakening feedback. */
 // Billiards pass: the ball has no gravity and never drains through the bottom.
 // A run begins at the fixed launch stone, then every following shot starts from
 // the exact place where the previous ball came to rest.  The readable puzzle is
 // now the route through deployed heroes, not a precision punishment.
-const billiardStartShot = startShot;
-startShot = function (restingPoint = null) {
-  billiardStartShot();
+registerRuntimeHook("afterShotStart", ({ restingPoint }) => {
   for (const gate of gates) gate.r = 34;
   if (restingPoint) {
     ball.x = clamp(restingPoint.x, ball.r + 18, W - ball.r - 18);
@@ -12,9 +11,26 @@ startShot = function (restingPoint = null) {
   }
   ball.billiards = true;
   ball.aimAssist = false;
-};
-endShot = function () {
+});
+function finalizeBilliardShot() {
   const restingPoint = { x: ball.x, y: ball.y };
+  const continueBattle = () => {
+    if (battleComplete || boss.hp <= 0) return;
+    if (battle.shots <= 0) {
+      run = false;
+      return fail(
+        "공허 거상이 버텼습니다. 유닛 연쇄와 반사 경로를 바꿔보세요.",
+      );
+    }
+    // Position play is the point of billiards: the next meteor tees off from
+    // where this one came to rest. Only Luna's lessons keep the fixed launch
+    // stone, because their copy points the player at the bottom of the board.
+    startShot(battle.tutorial ? null : restingPoint);
+    msg =
+      "다음 샷 · 멈춘 자리에서 이어 발사하고 Space 패링으로 별지기를 깨우세요.";
+    toast("다음 샷 · 현재 위치에서 재개");
+    sync();
+  };
   ball.moving = false;
   ball.vx = ball.vy = 0;
   ball.trail = [];
@@ -23,22 +39,15 @@ endShot = function () {
     toast("훈련 유성 자동 보충");
   }
   if (battle.shots <= 0) {
-    run = false;
-    if (boss.hp > 0)
-      return fail(
-        "공허 거상이 버텼습니다. 유닛 연쇄와 반사 경로를 바꿔보세요.",
-      );
+    // A resolved constellation deliberately casts after its reveal. Defer the
+    // last-shot verdict so the ability can kill the boss or refund a meteor.
+    if (runtimeHookHandled("beforeShotResolution", { continueBattle })) return;
   }
-  // Position play is the point of billiards: the next meteor tees off from
-  // where this one came to rest.  Only Luna's lessons keep the fixed launch
-  // stone, because their copy points the player at the bottom of the board.
-  startShot(battle.tutorial ? null : restingPoint);
-  msg =
-    "다음 샷 · 멈춘 자리에서 이어 발사하고 Space 패링으로 별지기를 깨우세요.";
-  toast("다음 샷 · 현재 위치에서 재개");
-  sync();
-};
+  continueBattle();
+}
 function billiardAim(dx, dy) {
+  const override = queryRuntimeHook("resolveBilliardAim", { dx, dy });
+  if (override) return override;
   const len = Math.hypot(dx, dy) || 1,
     base = Math.atan2(dy, dx);
   let best = null;
@@ -69,13 +78,10 @@ function billiardAim(dx, dy) {
     target: best.target,
   };
 }
-// Superseded wholesale by the 같은 파일 아래쪽 definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function billiardPredict(dx, dy) {}
 // The first billiards solver landed here and was replaced further down this
 // same file (see the live `simulatePhysics` next to the gimmick handling),
 // so this copy never ran. It has been removed along with the pinball layer.
-damage = function (weak = false) {
+function damage(weak = false) {
   if (battleComplete) return;
   trackBlazeDirect();
   let amount = RULES.baseDamage + build.weakFlat;
@@ -126,8 +132,9 @@ damage = function (weak = false) {
   if (weak) ball.mark = false;
   chain = [];
   sync();
-};
-hitBumper = function (b) {
+  runRuntimeHooks("afterBossDamage", { weak, amount, dealt, marked, crit });
+}
+function hitBumper(b) {
   if (b.on > 0 || battleComplete) return;
   b.on = 0.22;
   const speed = Math.hypot(ball.vx, ball.vy) || 1,
@@ -149,8 +156,8 @@ hitBumper = function (b) {
   combatSfx?.("bumper", 0.9);
   toast("공명 범퍼 · 속도 상승");
   sync();
-};
-drawPinballTable = function () {
+}
+function drawPinballTable() {
   for (const pad of boostPads) {
     x.save();
     x.fillStyle = pad.on > 0 ? "#d7ffb4" : "#5c9d73";
@@ -231,27 +238,7 @@ drawPinballTable = function () {
     }
     x.restore();
   }
-};
-drawCombatControls = function () {
-  if (!run || battle?.victory || ball?.moving) return;
-  x.save();
-  x.fillStyle = "#07131be8";
-  x.strokeStyle = "#5e9290";
-  x.lineWidth = 1;
-  x.beginPath();
-  x.roundRect(W / 2 - 156, H - 118, 312, 26, 6);
-  x.fill();
-  x.stroke();
-  x.fillStyle = "#e8dfbd";
-  x.font = "bold 10px ui-monospace";
-  x.textAlign = "center";
-  x.fillText(
-    "유성을 반대 방향으로 끌어 당긴 뒤 놓기 · 2회 반사 예측",
-    W / 2,
-    H - 101,
-  );
-  x.restore();
-};
+}
 function steerMeteor(side) {
   if (!ball?.moving || ball.steerUsed || battleComplete) return false;
   const speed = Math.hypot(ball.vx, ball.vy);
@@ -291,10 +278,11 @@ function steerMeteor(side) {
     true,
   );
   toast(side < 0 ? "좌측으로 유성 전환" : "우측으로 유성 전환");
+  runRuntimeHooks("afterMeteorSteer", { side, ball });
   return true;
 }
 function billiardPointerDown(e) {
-  if (!run) return;
+  if (!run || paused || isCombatInputLocked()) return;
   if (!ball?.moving) {
     if (e.button !== 0) return;
     const p = pointer(e);
@@ -331,10 +319,9 @@ function billiardPointerMove(e) {
 function billiardPointerUp(e) {
   if (!drag || ball?.moving) return;
   e.stopImmediatePropagation();
-  // Launching is blocked only while a lesson card is on screen.  Every
-  // practice step (dialogue 0 included) hides the card first, so the panel
-  // flag is the one source of truth here.
-  if (onboarding && onboarding.panelVisible !== false) {
+  // Lesson cards and the short constellation-result beat both lock launch.
+  // Every practice step hides the card before returning control to the table.
+  if (isCombatInputLocked()) {
     drag = null;
     toast("루나의 설명을 읽고 아래 버튼을 눌러 주세요.");
     return;
@@ -371,10 +358,7 @@ function billiardPointerUp(e) {
       ? "항로 보정 · 연쇄 진입"
       : "유성 발사 · 위력 " + Math.round(force * 100) + "%",
   );
-  if (onboarding && onboarding.phase < 3) {
-    onboarding.launched = true;
-    renderOnboarding();
-  }
+  runRuntimeHooks("afterMeteorLaunch", { aim, force, ball });
   sync();
 }
 c.addEventListener("pointerdown", billiardPointerDown, true);
@@ -446,6 +430,7 @@ function earnBlaze(amount, detail) {
     col: "#a9b8ff",
   });
   renderBlaze(true);
+  runRuntimeHooks("afterBlazeEarned", { amount, detail, blaze: b });
 }
 // Multiplier can be taken back, but never below the base 1.0: a bad line
 // should cost the bonus, not put the shot underwater.
@@ -486,14 +471,12 @@ function trackBlazeDirect() {
   b.directBoss = true;
   earnBlaze(1, "유성 보스 직격 +1.0");
 }
-const baseBlazeWall = tableWall;
-tableWall = function () {
-  baseBlazeWall();
+registerRuntimeHook("afterTableWall", () => {
   const b = ball?.blaze;
   if (!b || b.wallHits >= 2) return;
   b.wallHits++;
   earnBlaze(0.2, "벽 반사 +0.2");
-};
+});
 let cloneBalls = [];
 // Each hero keeps a distinct, readable pixel signature.  These bursts are
 // separate from the older field feedback so they can finish fading even while
@@ -821,6 +804,12 @@ function detonateShockwave(g, name = "모루 충돌 충격파", options = {}) {
       d: parry ? 0.38 : 0.62,
       col: g.col,
     });
+    runRuntimeHooks("afterUnitAssistQueued", {
+      gate: g,
+      shot: assistShots.at(-1),
+      queued: assistShots.length - 1,
+      options,
+    });
   }
   if (options.finisher) {
     queueUnitAssist(g, amount, name, { ...options, areaRadius: radius });
@@ -1110,6 +1099,7 @@ function activateCloneUnit(o, g, incoming) {
   );
   fieldFx.push({ type: "relay", x: g.x, y: g.y, t: 0, d: 0.42, col: g.col });
 }
+const bossWeakPoint = { x: 0, y: 0 };
 function cloneDamage(o, weak = false) {
   if (o.hitCooldown > 0 || battleComplete) return;
   o.hitCooldown = 0.28;
@@ -1140,7 +1130,11 @@ function cloneDamage(o, weak = false) {
   sync();
 }
 function updateCloneBalls(step) {
-  for (const o of cloneBalls) {
+  bossWeakPoint.x = boss.x + Math.cos(boss.a) * 84;
+  bossWeakPoint.y = boss.y + Math.sin(boss.a) * 84;
+  let writeClone = 0;
+  for (let index = 0; index < cloneBalls.length; index++) {
+    const o = cloneBalls[index];
     o.t -= step;
     o.hitCooldown = Math.max(0, o.hitCooldown - step);
     o.contactCooldown = Math.max(0, (o.contactCooldown || 0) - step);
@@ -1203,11 +1197,9 @@ function updateCloneBalls(step) {
           );
       });
     }
-    const wx = boss.x + Math.cos(boss.a) * 84,
-      wy = boss.y + Math.sin(boss.a) * 84,
-      weak = mobileStatic(o, { x: wx, y: wy }, o.r + 25, 1.01, () =>
-        cloneDamage(o, true),
-      );
+    const weak = mobileStatic(o, bossWeakPoint, o.r + 25, 1.01, () =>
+      cloneDamage(o, true),
+    );
     if (!weak)
       mobileStatic(o, boss, o.r + 66, 0.9, () => cloneDamage(o, false));
     o.trailSample = (o.trailSample || 0) + step;
@@ -1216,8 +1208,10 @@ function updateCloneBalls(step) {
       o.trail.push({ x: o.x, y: o.y });
       if (o.trail.length > 14) o.trail.shift();
     }
+    if (o.t > 0 && o.vx * o.vx + o.vy * o.vy > 45 * 45)
+      cloneBalls[writeClone++] = o;
   }
-  cloneBalls = cloneBalls.filter((o) => o.t > 0 && Math.hypot(o.vx, o.vy) > 45);
+  cloneBalls.length = writeClone;
 }
 function drawCloneBalls() {
   for (const o of cloneBalls) {
@@ -1234,9 +1228,10 @@ function drawCloneBalls() {
     circle(o.x - 2, o.y - 2, 3, "#8af4ef", 2);
   }
 }
-const prepareMobileBilliards = startShot;
-startShot = function (restingPoint = null) {
+registerRuntimeHook("beforeShotStart", (context) => {
+  const { restingPoint } = context;
   if (restingPoint && gates.length) {
+    context.handled = true;
     cloneBalls = [];
     ball = {
       x: clamp(restingPoint.x, 31, W - 31),
@@ -1290,8 +1285,10 @@ startShot = function (restingPoint = null) {
     renderBlaze();
     return;
   }
+});
+registerRuntimeHook("afterShotStart", ({ restingPoint }) => {
+  if (restingPoint) return;
   cloneBalls = [];
-  prepareMobileBilliards();
   ball.blaze = createBlaze();
   ball.steerUsed = false;
   ball.steerFlash = 0;
@@ -1324,7 +1321,7 @@ startShot = function (restingPoint = null) {
     g.bossPhaseVx = 0;
     g.bossPhaseVy = -1;
   }
-};
+});
 function wakeUnit(g, { subtle = false } = {}) {
   // A phase rule can put a starkeeper back to sleep under a guard: the first
   // collisions only shake it, and it wakes on the one that clears the guard.
@@ -1379,7 +1376,8 @@ function wakeUnit(g, { subtle = false } = {}) {
   // into the resting token instead of continuously tumbling in place.
   g.animState = "move";
 }
-// Drawn after the base pass so the halo sits on top of the unit token.  It
+
+// Drawn after the base pass so the halo sits on top of the unit token. It
 // reads state that already exists on each gate, so no new particle array is
 // introduced.
 registerRuntimeHook("afterDraw", function drawAwakeMarkers() {
@@ -1406,845 +1404,3 @@ function playUnitAttack(g) {
   g.animState = "attack";
   g.animClock = 0;
 }
-function mobileWall(o, r, unit = null) {
-  let hit = false;
-  if (o.x < r || o.x > W - r) {
-    o.x = clamp(o.x, r, W - r);
-    o.vx *= -0.94;
-    hit = true;
-  }
-  if (o.y < r || o.y > H - r) {
-    o.y = clamp(o.y, r, H - r);
-    o.vy *= -0.94;
-    hit = true;
-  }
-  if (hit) {
-    if (!unit && o === ball) ball.firstImpact ??= "rail";
-    // Rails keep their physical bounce but never count as a parry awakening.
-    if (!unit) tableWall();
-  }
-  return hit;
-}
-function mobileStatic(o, target, radius, restitution, onHit) {
-  let dx = o.x - target.x,
-    dy = o.y - target.y,
-    d = Math.hypot(dx, dy) || 1,
-    reach = radius;
-  if (d >= reach) return false;
-  let nx = dx / d,
-    ny = dy / d;
-  const overlap = reach - d;
-  o.x += nx * (overlap + 0.2);
-  o.y += ny * (overlap + 0.2);
-  const dot = o.vx * nx + o.vy * ny;
-  if (dot < 0) {
-    o.vx -= (1 + restitution) * dot * nx;
-    o.vy -= (1 + restitution) * dot * ny;
-    onHit?.(nx, ny);
-  }
-  return true;
-}
-function mobileRect(o, r, rect, restitution, onHit) {
-  const left = rect.x - rect.w / 2,
-    right = rect.x + rect.w / 2,
-    top = rect.y - rect.h / 2,
-    bottom = rect.y + rect.h / 2,
-    nearestX = clamp(o.x, left, right),
-    nearestY = clamp(o.y, top, bottom);
-  let dx = o.x - nearestX,
-    dy = o.y - nearestY,
-    distance = Math.hypot(dx, dy);
-  if (distance >= r) return false;
-  let nx = dx / (distance || 1),
-    ny = dy / (distance || 1),
-    overlap = r - distance;
-  if (distance < 0.001) {
-    let edgeDistance = Math.abs(o.x - left);
-    nx = -1;
-    ny = 0;
-    const rightDistance = Math.abs(right - o.x),
-      topDistance = Math.abs(o.y - top),
-      bottomDistance = Math.abs(bottom - o.y);
-    if (rightDistance < edgeDistance) {
-      edgeDistance = rightDistance;
-      nx = 1;
-      ny = 0;
-    }
-    if (topDistance < edgeDistance) {
-      edgeDistance = topDistance;
-      nx = 0;
-      ny = -1;
-    }
-    if (bottomDistance < edgeDistance) {
-      edgeDistance = bottomDistance;
-      nx = 0;
-      ny = 1;
-    }
-    overlap = r + edgeDistance;
-  }
-  o.x += nx * (overlap + 0.2);
-  o.y += ny * (overlap + 0.2);
-  const dot = o.vx * nx + o.vy * ny;
-  if (dot < 0) {
-    o.vx -= (1 + restitution) * dot * nx;
-    o.vy -= (1 + restitution) * dot * ny;
-    onHit?.(nx, ny);
-  }
-  return true;
-}
-function tickGimmickCooldowns(o, step) {
-  if (!o.gimmickCooldowns) return;
-  for (const key of Object.keys(o.gimmickCooldowns)) {
-    o.gimmickCooldowns[key] -= step;
-    if (o.gimmickCooldowns[key] <= 0) delete o.gimmickCooldowns[key];
-  }
-}
-function applyBoostPad(o, pad, unit = null) {
-  const inside =
-    Math.abs(o.x - pad.x) <= pad.w / 2 + o.r &&
-    Math.abs(o.y - pad.y) <= pad.h / 2 + o.r;
-  if (!inside) return false;
-  const key = "boost:" + pad.id;
-  o.gimmickCooldowns ??= {};
-  if (o.gimmickCooldowns[key] > 0) return false;
-  const speed = Math.hypot(o.vx, o.vy);
-  if (speed < 50) return false;
-  const boosted = Math.min(pad.maxSpeed, speed + pad.boost);
-  o.vx *= boosted / speed;
-  o.vy *= boosted / speed;
-  o.gimmickCooldowns[key] = 0.32;
-  pad.on = 0.22;
-  fieldFx.push({
-    type: "booster",
-    x: pad.x,
-    y: pad.y,
-    t: 0,
-    d: 0.34,
-    col: "#b9ef86",
-  });
-  if (unit) {
-    unit.collisions = (unit.collisions || 0) + 1;
-    wakeUnit(unit);
-    addPopup(unit.x, unit.y - 32, "가속!", "#caff9a", false);
-  } else if (o === ball) {
-    ball.power += 0.2;
-    ball.bounces++;
-    addPopup(pad.x, pad.y - 28, "운동량 상승!", "#caff9a", true);
-    toast("가속 발판 · 유성 운동량 상승");
-  }
-  return true;
-}
-// Every path that hurts the colossus routes through here, so a stage shield
-// has one place to eat a hit and a phase rule has one place to notice the
-// drop.  Returns the damage actually dealt; a blocked hit returns 0 and the
-// caller skips its own popup.
-function applyBossHit(amount) {
-  if (!(amount > 0) || !boss) return 0;
-  if (bossShield && bossShield.hits > 0) {
-    bossShield.hits -= 1;
-    bossShield.flash = 0.45;
-    addPopup(boss.x, boss.y - 66, "껍질이 막았다", "#9adfc9", true);
-    toast(
-      bossShield.hits > 0
-        ? "굳은 껍질 · 남은 " + bossShield.hits + "겹"
-        : "껍질이 모두 깨졌습니다",
-    );
-    combatSfx?.("fail", 0.5);
-    return 0;
-  }
-  const before = boss.hp;
-  boss.hp = Math.max(0, boss.hp - amount);
-  checkStagePhases();
-  return before - boss.hp;
-}
-// Phase rules fire once each time the colossus drops past a health ratio.
-function checkStagePhases() {
-  if (!stagePhases || !boss?.maxHp || boss.immortal) return;
-  const ratio = boss.hp / boss.maxHp;
-  while (
-    stagePhases.fired < stagePhases.at.length &&
-    ratio <= stagePhases.at[stagePhases.fired]
-  ) {
-    stagePhases.fired += 1;
-    runStagePhase(stagePhases.effect);
-  }
-}
-function runStagePhase(effect) {
-  if (effect === "push") {
-    // The table is reset, not damaged: everything alive is thrown to the
-    // corner nearest it, so a carefully built lane has to be rebuilt.
-    const corners = [
-      [96, 176],
-      [W - 96, 176],
-      [96, H - 176],
-      [W - 96, H - 176],
-    ];
-    const throwTo = (o) => {
-      let best = corners[0],
-        bestD = Infinity;
-      for (const corner of corners) {
-        const d = Math.hypot(corner[0] - o.x, corner[1] - o.y);
-        if (d < bestD) {
-          bestD = d;
-          best = corner;
-        }
-      }
-      o.x = best[0];
-      o.y = best[1];
-      o.vx = 0;
-      o.vy = 0;
-      areaBursts.push({
-        x: o.x,
-        y: o.y,
-        r: 52,
-        col: "#f6c48e",
-        t: 0,
-        d: 0.5,
-      });
-    };
-    for (const g of gates) throwTo(g);
-    if (ball) throwTo(ball);
-    for (const s of seeds ?? []) throwTo(s);
-    screenShake = Math.max(screenShake, 16);
-    toast("거상의 파동 · 모두 모서리로 밀려났습니다");
-  } else if (effect === "sleep") {
-    for (const g of gates) {
-      g.awake = false;
-      g.moved = false;
-      g.on = 0;
-      g.sleepGuard = stagePhases.wakeNeed;
-      areaBursts.push({
-        x: g.x,
-        y: g.y,
-        r: g.r + 26,
-        col: "#8ba39f",
-        t: 0,
-        d: 0.44,
-      });
-    }
-    toast(
-      "별지기가 다시 잠들었습니다 · " + stagePhases.wakeNeed + "회 충돌 필요",
-    );
-  }
-  combatSfx?.("unlock", 0.7);
-}
-// A fading pad is the boost pad's opposite: it costs constellation multiplier
-// instead of adding speed, so a fast lane can still be the wrong lane.
-function applyDragPad(o, pad, unit = null) {
-  if (o !== ball) return false;
-  const inside =
-    Math.abs(o.x - pad.x) <= pad.w / 2 + o.r &&
-    Math.abs(o.y - pad.y) <= pad.h / 2 + o.r;
-  if (!inside) return false;
-  const key = "drag:" + pad.id;
-  o.gimmickCooldowns ??= {};
-  if (o.gimmickCooldowns[key] > 0) return false;
-  o.gimmickCooldowns[key] = 0.5;
-  pad.on = 0.26;
-  loseBlaze(pad.drop, "흐린 발판 통과");
-  fieldFx.push({
-    type: "drag",
-    x: pad.x,
-    y: pad.y,
-    t: 0,
-    d: 0.34,
-    col: "#8ba39f",
-  });
-  return true;
-}
-function applyStageGimmicks(o, unit = null) {
-  for (const pad of dragPads) applyDragPad(o, pad, unit);
-  for (const orbit of orbitals) {
-    if (orbit.down > 0) continue;
-    mobileStatic(o, orbit, o.r + orbit.r, 1.02, () => {
-      if (!unit && o === ball) ball.firstImpact ??= "orbital";
-      if (orbit.hitCooldown > 0) return;
-      orbit.hitCooldown = 0.22;
-      const amount = Math.max(
-        6,
-        Math.round(Math.hypot(o.vx, o.vy) / 46) + (unit ? 8 : 0),
-      );
-      orbit.hp = Math.max(0, orbit.hp - amount);
-      addPopup(
-        orbit.x,
-        orbit.y - 26,
-        "방벽 -" + amount,
-        "#9adfc9",
-        amount >= 18,
-      );
-      if (orbit.hp <= 0) {
-        orbit.down = 1.4;
-        areaBursts.push({
-          x: orbit.x,
-          y: orbit.y,
-          r: 46,
-          col: "#9adfc9",
-          t: 0,
-          d: 0.42,
-        });
-        toast("도는 방벽 하나를 부쉈습니다");
-      }
-      // Orbitals remain physical for rolling units but cannot awaken them.
-    });
-  }
-  for (const wall of stageWalls)
-    mobileRect(o, o.r, wall, wall.restitution, () => {
-      if (!unit && o === ball) ball.firstImpact ??= "stage-wall";
-      wall.on = 0.18;
-      fieldFx.push({
-        type: "wall",
-        x: o.x,
-        y: o.y,
-        t: 0,
-        d: 0.28,
-        col: "#c3f3ff",
-      });
-      if (!unit && o === ball) tableWall();
-      else o.bounces = (o.bounces || 0) + 1;
-    });
-  for (const pad of boostPads) applyBoostPad(o, pad, unit);
-}
-function mobilePair(a, ar, b, br, onHit) {
-  let dx = b.x - a.x,
-    dy = b.y - a.y,
-    d = Math.hypot(dx, dy) || 1,
-    reach = ar + br;
-  if (d >= reach) return false;
-  let nx = dx / d,
-    ny = dy / d,
-    overlap = reach - d;
-  a.x -= nx * (overlap * 0.5 + 0.12);
-  a.y -= ny * (overlap * 0.5 + 0.12);
-  b.x += nx * (overlap * 0.5 + 0.12);
-  b.y += ny * (overlap * 0.5 + 0.12);
-  const along = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
-  if (along <= 0) return true;
-  const incoming = { x: a.vx, y: a.vy },
-    impulse = along * 0.98;
-  a.vx -= impulse * nx;
-  a.vy -= impulse * ny;
-  b.vx += impulse * nx;
-  b.vy += impulse * ny;
-  onHit?.(nx, ny, along, incoming);
-  return true;
-}
-function guaranteeMomentum(o, dx, dy, minSpeed, maxSpeed) {
-  const speed = Math.hypot(o.vx, o.vy);
-  if (speed < minSpeed) {
-    const length = Math.hypot(dx, dy) || 1;
-    o.vx = (dx / length) * minSpeed;
-    o.vy = (dy / length) * minSpeed;
-  } else if (speed > maxSpeed) {
-    o.vx *= maxSpeed / speed;
-    o.vy *= maxSpeed / speed;
-  }
-}
-function unitImpactDamage(g, target) {
-  if (g.enemyHitCooldown > 0 || battleComplete) return false;
-  g.enemyHitCooldown = 0.34;
-  const speed = Math.hypot(g.vx, g.vy),
-    isBoss = target === boss;
-  const amount =
-    (isBoss ? 18 : 12) +
-    Math.min(isBoss ? 28 : 20, Math.round(speed / (isBoss ? 72 : 88)));
-  const label = g.s + " 충돌";
-  g.on = Math.max(g.on, 0.62);
-  g.animState = "hit";
-  areaBursts.push({
-    x: g.x,
-    y: g.y,
-    r: isBoss ? 52 : 38,
-    col: g.col,
-    t: 0,
-    d: 0.3,
-  });
-  if (!isBoss)
-    fieldFx.push({ type: "assist", x: g.x, y: g.y, t: 0, d: 0.34, col: g.col });
-  if (isBoss) {
-    const dealt = applyBossHit(amount);
-    registerBossHit(false);
-    impact(false, g.x, g.y, "contact");
-    if (dealt > 0)
-      addPopup(boss.x, boss.y - 76, label + " -" + dealt, g.col, dealt >= 36);
-    if (boss.hp <= 0) scheduleWin();
-  } else damageAdd(target, amount, label, g.col);
-  return true;
-}
-function settleParty() {
-  const awakened = gates.filter((g) => g.moved && g.travel > 10);
-  if (awakened.length) {
-    battle.finisherSerial = 0;
-    const finishers = awakened.filter((g) => {
-      const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
-      return fx !== "bladewheel";
-    });
-    for (const g of awakened) {
-      const base =
-          14 +
-          Math.min(22, Math.round(g.travel / 28)) +
-          g.collisions * 3 +
-          g.wallHits * 4 +
-          (g.bossHit ? 11 : 0),
-        copied = g.copiedFx;
-      if ((g.fx === "copycat" ? copied : g.fx) === "bladewheel") {
-        g.animState = "idle";
-        g.bladeStrength = 0;
-        continue;
-      }
-      if (g.fx === "slash" || (g.fx === "copycat" && copied === "slash")) {
-        resolveSlash(
-          g,
-          g.fx === "copycat"
-            ? "그믐 · " + g.copiedName + " 근접 베기"
-            : "샛별 근접 베기",
-          { finisher: true },
-        );
-        continue;
-      }
-      if (
-        g.fx === "longshot" ||
-        (g.fx === "copycat" && copied === "longshot")
-      ) {
-        resolveLongshot(
-          g,
-          g.fx === "copycat"
-            ? "그믐 · " + g.copiedName + " 거리 저격"
-            : "미리내 거리 저격",
-          { finisher: true },
-        );
-        continue;
-      }
-      if (
-        g.fx === "shockwave" ||
-        (g.fx === "copycat" && copied === "shockwave")
-      ) {
-        detonateShockwave(
-          g,
-          g.fx === "copycat"
-            ? "그믐 · " + g.copiedName + " 충격파"
-            : "모루 충돌 충격파",
-          { finisher: true },
-        );
-        continue;
-      }
-      if (g.fx === "copycat" && !copied) {
-        addPopup(g.x, g.y - 30, "모사 대상 없음", g.col, false);
-        toast("그믐 · 아직 모사한 아군이 없습니다.");
-      }
-      queueUnitAssist(g, base, g.s + " 각성", { finisher: true });
-    }
-    msg = finishers.length
-      ? finishers.map((g) => g.s).join(" · ") +
-        " 각성! 멈춘 자리에서 보스 공격을 시작합니다."
-      : awakened.map((g) => g.s).join(" · ") +
-        "의 이동 공격이 끝났습니다. 정산 공격은 없습니다.";
-    toast(
-      finishers.length
-        ? finishers.length + "명 각성 · 다음 샷은 현재 배치에서"
-        : "질풍 칼날 종료 · 정산 공격 없음",
-    );
-  } else {
-    msg =
-      "아무 별지기도 깨우지 못했습니다. 다음 샷은 현재 위치에서 다시 설계하세요.";
-    toast("별지기 미각성 · 다음 샷 준비");
-  }
-}
-const mobileEndShot = endShot;
-endShot = function () {
-  if (!ball?.moving) return;
-  settleParty();
-  mobileEndShot();
-};
-hitGate = function (g) {
-  wakeUnit(g);
-  g.collisions = (g.collisions || 0) + 1;
-  msg = g.s + "이(가) 굴러가기 시작했습니다. 멈추면 고유 공격을 시행합니다.";
-  sync();
-};
-// Zone labels belonged to the former static-board version, where hitting a
-// labelled tile fired the hero standing on it.  A hero now wakes only by real
-// movement, so the whole `triggerZone` concept and its call sites are gone.
-function resolveMeteorParryContact(g, contact) {
-  const { nx, ny, impactSpeed, incoming } = contact,
-    speed = Math.hypot(incoming.x, incoming.y) || 1,
-    ux = incoming.x / speed,
-    uy = incoming.y / speed,
-    ballDrive = 495 + Math.min(450, impactSpeed * 0.63),
-    unitDrive = 310 + Math.min(270, impactSpeed * 0.38),
-    ballDx = -nx * ballDrive + ux * 225,
-    ballDy = -ny * ballDrive + uy * 225,
-    unitDx = nx * unitDrive + ux * 135,
-    unitDy = ny * unitDrive + uy * 135;
-  ball.vx += ballDx;
-  ball.vy += ballDy;
-  g.vx += unitDx;
-  g.vy += unitDy;
-  // A successful parry should release into a readable next line, not push an
-  // already fast meteor straight back to the maximum chain speed.
-  guaranteeMomentum(ball, ballDx, ballDy, 760, 1720);
-  guaranteeMomentum(g, unitDx, unitDy, 410, 1080);
-  ball.power += 0.48;
-  ball.bounces++;
-  wakeUnit(g, { subtle: true });
-  g.collisions++;
-  trackBlazeUnit(g);
-  const special = applyContactAbility(g, incoming);
-  ball.runeBurst = 0.92;
-  impact?.(false, contact.x ?? g.x, contact.y ?? g.y, "contact");
-  if (g.feedbackContactCooldown <= 0) {
-    g.feedbackContactCooldown = 0.12;
-    fieldFx.push({
-      type: "relay",
-      x: contact.x ?? g.x,
-      y: contact.y ?? g.y,
-      t: 0,
-      d: 0.48,
-      col: g.col,
-    });
-    addPopup(g.x, g.y - 34, "공명 충돌!", g.col, true);
-    if (!special) toast(g.s + " 충돌 · 유성과 별지기 동시 가속!");
-  }
-}
-simulatePhysics = function (d) {
-  const slices = Math.min(3, Math.max(1, Math.ceil(d / (1 / 90)))),
-    step = d / slices;
-  // Persistent timers and effect arrays only need one update per rendered
-  // frame. Running this in every collision slice caused avoidable filtering
-  // and allocation during the busiest contacts.
-  updateExpanded(d);
-  for (const wall of stageWalls) wall.on = Math.max(0, wall.on - d);
-  for (const pad of boostPads) pad.on = Math.max(0, pad.on - d);
-  for (const pad of dragPads) pad.on = Math.max(0, pad.on - d);
-  if (bossShield) bossShield.flash = Math.max(0, bossShield.flash - d);
-  // Barriers keep circling the colossus even while it is being hit, so the
-  // player is always timing a moving gap rather than a static wall.
-  for (const orbit of orbitals) {
-    orbit.hitCooldown = Math.max(0, orbit.hitCooldown - d);
-    if (orbit.down > 0) {
-      orbit.down = Math.max(0, orbit.down - d);
-      continue;
-    }
-    orbit.a += orbit.speed * d;
-    orbit.x = boss.x + Math.cos(orbit.a) * orbit.radius;
-    orbit.y = boss.y + Math.sin(orbit.a) * orbit.radius;
-  }
-  for (let i = 0; i < slices && ball?.moving; i++) {
-    ball.x += ball.vx * step;
-    ball.y += ball.vy * step;
-    // Keep the original even coast through the low-speed tail. The temporary
-    // cut at 0.972 made a contact that had visibly bounced read as if it lost
-    // all momentum immediately; the training parry now supplies the skill gate
-    // instead of this passive decay.
-    // Cygnus' flight scales the loss, not the speed: at 0.35 the meteor sheds a
-    // third of the friction it normally would, so the shot coasts much further
-    // without ever starting faster or becoming frictionless.
-    const baseDrag = Math.pow(0.9915, step * 60),
-      cueDrag = ball.glide ? 1 - (1 - baseDrag) * ball.glide : baseDrag;
-    ball.vx *= cueDrag;
-    ball.vy *= cueDrag;
-    tickGimmickCooldowns(ball, step);
-    mobileWall(ball, ball.r);
-    applyStageGimmicks(ball);
-    for (const g of gates) {
-      g.x += g.vx * step;
-      g.y += g.vy * step;
-      const speed = Math.hypot(g.vx, g.vy);
-      if (speed > 82) {
-        g.travel += speed * step;
-      }
-      updateBladeWheel(g, speed, step);
-      // Units should roll through a contact, then settle.  They are lighter
-      // than the meteor, so use visibly stronger table friction for them.
-      g.vx *= Math.pow(0.974, step * 60);
-      g.vy *= Math.pow(0.974, step * 60);
-      tickGimmickCooldowns(g, step);
-      g.contactCooldown = Math.max(0, (g.contactCooldown || 0) - step);
-      g.enemyHitCooldown = Math.max(0, (g.enemyHitCooldown || 0) - step);
-      g.feedbackContactCooldown = Math.max(
-        0,
-        (g.feedbackContactCooldown || 0) - step,
-      );
-      mobileWall(g, g.r, g);
-      applyStageGimmicks(g, g);
-      g.trailSample = (g.trailSample || 0) + step;
-      if (g.trailSample >= 1 / 60) {
-        g.trailSample = 0;
-        g.unitTrail.push({ x: g.x, y: g.y });
-        if (g.unitTrail.length > 10) g.unitTrail.shift();
-      }
-    }
-    for (const g of gates)
-      mobilePair(ball, ball.r, g, g.r, (nx, ny, impactSpeed, incoming) => {
-        ball.firstImpact ??= "starkeeper";
-        ball.starkeeperTouched = true;
-        // `mobilePair` has already performed the ordinary elastic response.
-        // An armed Space parry turns this contact into a high-energy resonance.
-        // Otherwise retain it briefly, so a player can answer what they saw
-        // just after the billiards bounce without rewinding the table.
-        const contact = {
-          nx,
-          ny,
-          impactSpeed,
-          incoming,
-          x: (ball.x + g.x) / 2,
-          y: (ball.y + g.y) / 2,
-        };
-        const parried =
-          typeof consumeTrainingParry === "function" &&
-          consumeTrainingParry(g, contact);
-        if (!parried) {
-          rememberTrainingParryContact?.(g, contact);
-          return;
-        }
-        resolveMeteorParryContact(g, contact);
-      });
-    for (let a = 0; a < gates.length; a++)
-      for (let b = a + 1; b < gates.length; b++) {
-        // An armed wheel cuts through the moving formation instead
-        // of becoming another billiard contact. Before its parry it remains a
-        // normal physical unit.
-        if (isBladeWheelPhasing(gates[a]) || isBladeWheelPhasing(gates[b]))
-          continue;
-        mobilePair(gates[a], gates[a].r, gates[b], gates[b].r, () => {
-          // Unit-to-unit contacts remain physical only. A meteor parry is the
-          // sole source of awakenings and contact abilities.
-        });
-      }
-    for (const b of bumpers) {
-      mobileStatic(ball, b, ball.r + b.r, 1.08, () => {
-        ball.firstImpact ??= "bumper";
-        ball.bounces++;
-        hitBumper(b);
-      });
-      for (const g of gates)
-        mobileStatic(g, b, g.r + b.r, 1.06, () => {
-          const speed = Math.hypot(g.vx, g.vy) || 1,
-            boost = Math.min(980, speed + 76);
-          g.vx *= boost / speed;
-          g.vy *= boost / speed;
-          fieldFx.push({
-            type: "bumper",
-            x: b.x,
-            y: b.y,
-            t: 0,
-            d: 0.32,
-            col: "#80e8df",
-          });
-        });
-    }
-    for (const a of adds) {
-      if (a.down > 0) continue;
-      mobileStatic(ball, a, ball.r + a.r, 0.92, () => {
-        ball.firstImpact ??= "remnant";
-        if (a.hitCooldown <= 0) {
-          a.hitCooldown = 0.18;
-          damageAdd(a, 14 + Math.round(ball.power * 6), "직격", "#d8c3ff");
-        }
-      });
-      for (const g of gates) {
-        if (isBladeWheelPhasing(g)) continue;
-        mobileStatic(g, a, g.r + a.r, 0.88, () => {
-          // Enemy contacts are physical only; an armed wheel deals its own
-          // travelling damage from updateBladeWheel().
-        });
-      }
-    }
-    const wx = boss.x + Math.cos(boss.a) * 84,
-      wy = boss.y + Math.sin(boss.a) * 84;
-    const directBossHit = (weak) => {
-      ball.openingBossContact = ball.firstImpact === null;
-      ball.firstImpact ??= "boss";
-      damage(weak);
-    };
-    const weak = mobileStatic(ball, { x: wx, y: wy }, ball.r + 25, 0.98, () => {
-      if (boss.hitCooldown <= 0) {
-        boss.hitCooldown = 0.22;
-        directBossHit(true);
-      }
-    });
-    if (!weak)
-      mobileStatic(ball, boss, ball.r + 66, 0.9, () => {
-        if (boss.hitCooldown <= 0) {
-          boss.hitCooldown = 0.22;
-          directBossHit(false);
-        }
-      });
-    for (const g of gates) {
-      if (isBladeWheelPhasing(g)) {
-        const speed = Math.hypot(g.vx, g.vy),
-          reach = g.r + 66,
-          insideBoss =
-            (g.x - boss.x) * (g.x - boss.x) + (g.y - boss.y) * (g.y - boss.y) <
-            reach * reach,
-          movingThrough = speed > 55 || g.bossPhaseUntilClear;
-        if (speed > 55) {
-          g.bossPhaseVx = g.vx / speed;
-          g.bossPhaseVy = g.vy / speed;
-        }
-        if (movingThrough) {
-          g.bossPhaseUntilClear = insideBoss;
-          // If friction drops the unit below the normal settle threshold while
-          // still inside the boss, keep a tiny carry velocity until it exits.
-          if (insideBoss && speed <= 55) {
-            g.vx = (g.bossPhaseVx || 0) * 58;
-            g.vy = (g.bossPhaseVy || -1) * 58;
-          }
-          continue;
-        }
-      }
-      mobileStatic(g, boss, g.r + 66, 0.88, () => {
-        // A normal boss collision is physical only. An armed wheel reaches
-        // the boss through its own travelling damage path above.
-      });
-    }
-    updateCloneBalls(step);
-    ball.wallShock = Math.max(0, (ball.wallShock || 0) - step);
-    ball.trailSample = (ball.trailSample || 0) + step;
-    if (ball.trailSample >= 1 / 60) {
-      ball.trailSample = 0;
-      ball.trail.push({ x: ball.x, y: ball.y });
-      if (ball.trail.length > 24) ball.trail.shift();
-    }
-  }
-  // Use the original settle thresholds. The raised 150/110 cut-off ended a
-  // still-readable rebound before it could carry into the next contact.
-  const partyStillRolling = gates.some((g) => Math.hypot(g.vx, g.vy) > 55);
-  if (ball?.moving && Math.hypot(ball.vx, ball.vy) < 68 && !partyStillRolling)
-    endShot();
-};
-billiardPredict = function (dx, dy) {
-  const aim = billiardAim(dx, dy),
-    points = [{ x: ball.x, y: ball.y }],
-    unitPaths = [];
-  let px = ball.x,
-    py = ball.y,
-    vx = aim.x,
-    vy = aim.y,
-    first = null;
-  // This used to shallow-clone every gate to tag it `type: "unit"`, sixty times
-  // a second, for the five fields the sweep and the guide actually read
-  // (x, y, r, col, s) — and the tag was never read off the clone anyway; the
-  // hit record below sets its own.  Walk the live gates instead.
-  for (const t of gates) {
-    const ox = t.x - px,
-      oy = t.y - py,
-      along = ox * vx + oy * vy,
-      near = ox * ox + oy * oy - along * along,
-      reach = t.r + ball.r,
-      inside = reach * reach - near;
-    if (inside < 0) continue;
-    const hit = along - Math.sqrt(inside);
-    if (hit > 0.02 && (!first || hit < first.t)) first = { t: hit, target: t };
-  }
-  if (first) {
-    px += vx * first.t;
-    py += vy * first.t;
-    points.push({ x: px, y: py });
-    const nx = (px - first.target.x) / (ball.r + first.target.r),
-      ny = (py - first.target.y) / (ball.r + first.target.r),
-      normal = vx * nx + vy * ny,
-      unitV = { x: nx * normal, y: ny * normal },
-      cueV = { x: vx - unitV.x, y: vy - unitV.y };
-    const travel = 260;
-    unitPaths.push({
-      from: { x: px, y: py },
-      to: { x: px + unitV.x * travel, y: py + unitV.y * travel },
-      target: first.target,
-    });
-    // The Big Dipper points at the pole star, and the boon it leaves shows the
-    // line further than the guide normally admits to knowing.
-    const after = ball.trueAim ? 520 : 150;
-    points.push({ x: px + cueV.x * after, y: py + cueV.y * after });
-  } else {
-    points.push({
-      x: px + vx * (ball.trueAim ? 620 : 340),
-      y: py + vy * (ball.trueAim ? 620 : 340),
-    });
-  }
-  return {
-    points,
-    hits: first ? [{ x: px, y: py, type: "unit", target: first.target }] : [],
-    unitPaths,
-    assisted: aim.assisted,
-    target: aim.target,
-  };
-};
-drawAimGuide = function () {
-  if (!run || battle?.victory || ball?.moving) return;
-  const raw = drag || { x: ball.x, y: ball.y + 145 },
-    p = cuePull(raw),
-    guide = billiardPredict(ball.x - p.x, ball.y - p.y);
-  x.save();
-  // A dot chain rather than a dashed line: the carved floor and the stepped
-  // rings are all hard pixels, and an antialiased stroke reads as a different
-  // material laid over them.  Bounce points get a cross so the turn is legible
-  // without following the dots.
-  x.fillStyle = "#d8ece5";
-  for (let i = 1; i < guide.points.length; i++) {
-    const from = guide.points[i - 1],
-      to = guide.points[i],
-      span = Math.hypot(to.x - from.x, to.y - from.y),
-      steps = Math.max(1, Math.round(span / 11));
-    for (let k = 0; k <= steps; k++) {
-      const t = k / steps;
-      x.fillRect(
-        Math.round(from.x + (to.x - from.x) * t) - 1,
-        Math.round(from.y + (to.y - from.y) * t) - 1,
-        3,
-        3,
-      );
-    }
-    if (i < guide.points.length - 1) {
-      x.fillRect(Math.round(to.x) - 7, Math.round(to.y) - 1, 15, 3);
-      x.fillRect(Math.round(to.x) - 1, Math.round(to.y) - 7, 3, 15);
-    }
-  }
-  x.setLineDash([4, 4]);
-  x.lineWidth = 2;
-  for (const path of guide.unitPaths) {
-    x.strokeStyle = path.target.col;
-    // No glow: it softens the edge against the pixel floor.  The starkeeper's
-    // own colour is contrast enough.
-    x.shadowBlur = 0;
-    x.beginPath();
-    x.moveTo(path.from.x, path.from.y);
-    x.lineTo(path.to.x, path.to.y);
-    x.stroke();
-    x.fillStyle = path.target.col;
-    x.font = "bold 10px ui-monospace";
-    x.textAlign = "center";
-    x.fillText(path.target.s + " 굴림", path.to.x, path.to.y - 9);
-  }
-  x.setLineDash([]);
-  x.fillStyle = "#d8ece5";
-  x.font = "bold 10px ui-monospace";
-  x.textAlign = "center";
-  x.fillText(
-    drag
-      ? guide.unitPaths.length
-        ? "별지기 이동선까지 예측"
-        : "아래로 끌어 별지기를 굴리세요"
-      : "아래로 끌어 별지기를 굴리세요",
-    ball.x,
-    ball.y - 28,
-  );
-  x.restore();
-};
-registerRuntimeHook("afterDraw", function drawSteerPrompt() {
-  if (!run || battle?.victory || !ball?.moving) return;
-  const flash = ball.steerFlash || 0;
-  x.save();
-  x.textAlign = "center";
-  x.font = "bold 10px ui-monospace";
-  if (!ball.steerUsed) {
-    x.globalAlpha = 0.82;
-    x.fillStyle = "#fff2c6";
-    x.fillText("좌클릭 ↶ · 우클릭 ↷ · 1회 전환", ball.x, ball.y - 27);
-  } else if (flash > 0) {
-    x.globalAlpha = Math.min(1, flash * 2.4);
-    x.fillStyle = "#e8f7df";
-    x.fillText("궤도 전환 완료", ball.x, ball.y - 27);
-  }
-  x.restore();
-});
-registerRuntimeHook("afterDraw", drawCloneBalls);

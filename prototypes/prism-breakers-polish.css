@@ -380,7 +380,8 @@
   .result-medal {
     width: 48px !important;
     height: 48px !important;
-  }}
+  }
+}
 
 /* A home-screen layout, not a splash poster: constellation progress lives on
    the left, while the next objective and the three-step play loop stay next
@@ -499,7 +500,7 @@
     top: -4%;
     height: 74%;
   }
-.title-mode .title-copy {
+  .title-mode .title-copy {
     position: absolute;
     inset: 43% 0 0;
     width: 100%;
@@ -520,7 +521,8 @@
   }
   .title-help {
     margin-top: 4px;
-  }}
+  }
+}
 
 /* Campaign map: a single constellation, not a list of isolated cards. */
 .constellation-map-scene {
@@ -878,7 +880,8 @@
   .constellation-node.s5 {
     left: 57%;
     top: 76%;
-  }}
+  }
+}
 
 /* First-session onboarding lives on the actual 1-1 table. */
 .onboarding-card {
@@ -1016,7 +1019,8 @@
   }
   .onboarding-card p {
     font-size: 9px;
-  }}
+  }
+}
 
 /* Guided explanations use the lower dialogue lane. The table remains visible
    and the practice button removes the banner before input is restored. */
@@ -1203,7 +1207,8 @@ body.onboarding-locked canvas {
   }
   .onboarding-dock .onboarding-progress {
     margin-top: 7px;
-  }}
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .onboarding-card.onboarding-enter,
@@ -1216,7 +1221,8 @@ body.onboarding-locked canvas {
     animation: none;
     opacity: 1;
     transform: none;
-  }}
+  }
+}
 
 /* The title opens on the star-guardians rebuilding a constellation. Keep the
    scene hopeful and readable; enemies belong beyond the start button. */
@@ -1413,7 +1419,7 @@ body.onboarding-locked canvas {
   .title-constellation {
     height: min(54dvh, 370px);
   }
-.title-copy {
+  .title-copy {
     padding: 0 14px 18px;
   }
   .title-wordmark {
@@ -1426,7 +1432,8 @@ body.onboarding-locked canvas {
   }
   .title-enter {
     min-width: 230px !important;
-  }}
+  }
+}
 
 /* ---------------------------------------------------------------------
    Title pass (VFX_POLISH_SPEC 1): the three guardian portraits, the route
@@ -1456,7 +1463,8 @@ body.onboarding-locked canvas {
   border-right: 0 !important;
 }
 .title-mode .title-sky-map {
-  top: -9%;
+  /* Give the dome crown and Orion's head star breathing room below the frame. */
+  top: -4%;
   left: 0;
   width: 100%;
   height: 88%;

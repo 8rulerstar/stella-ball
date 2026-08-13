@@ -14,13 +14,17 @@ import vm from "node:vm";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const runtimeFiles = [
   "prototypes/js/game-platform.js",
+  "prototypes/js/game-runtime.js",
   "prototypes/js/game-data.js",
   "prototypes/js/game-ui.js",
   "prototypes/js/game-session.js",
   "prototypes/js/game-core-physics.js",
   "prototypes/js/game-core-render.js",
+  "prototypes/js/game-meta-state.js",
   "prototypes/js/game-meta.js",
   "prototypes/js/game-combat.js",
+  "prototypes/js/game-combat-physics.js",
+  "prototypes/js/game-figure-recognition.js",
   "prototypes/js/game-figure.js",
   "prototypes/js/game-feedback.js",
 ];
@@ -382,6 +386,83 @@ function __botSteerProbe(config, side) {
   const secondUse = steerMeteor(-side);
   return { firstUse, secondUse, lateralVelocity };
 }
+function __botRuntimeModuleProbe() {
+  const priorityOrder = [];
+  const removeLow = registerRuntimeHook(
+    "afterBattleSetup",
+    () => priorityOrder.push("low"),
+    { priority: 0 },
+  );
+  const removeHigh = registerRuntimeHook(
+    "afterBattleSetup",
+    () => priorityOrder.push("high"),
+    { priority: 100 },
+  );
+  runRuntimeHooks("afterBattleSetup", {});
+  removeLow();
+  removeHigh();
+
+  let unknownHookRejected = false;
+  try {
+    registerRuntimeHook("not-a-runtime-hook", () => {});
+  } catch {
+    unknownHookRejected = true;
+  }
+
+  let duplicateModuleRejected = false;
+  try {
+    StellaRuntime.modules.register("combat", {});
+  } catch {
+    duplicateModuleRejected = true;
+  }
+
+  return {
+    version: StellaRuntime.version,
+    modules: StellaRuntime.modules.list(),
+    combatApiFrozen: Object.isFrozen(StellaRuntime.modules.require("combat")),
+    figureApiFrozen: Object.isFrozen(StellaRuntime.modules.require("figure")),
+    renderApiFrozen: Object.isFrozen(StellaRuntime.modules.require("render")),
+    priorityOrder,
+    unknownHookRejected,
+    duplicateModuleRejected,
+  };
+}
+function __botDeferredFigureProbe(config) {
+  __botStart(config);
+  battle.shots = 0;
+  ball.moving = true;
+  figureFx = {
+    battle,
+    ring: [{}, {}, {}],
+    rune: false,
+    cast: function () {
+      if (config.outcome === "kill") {
+        boss.hp = 0;
+        scheduleWin();
+      } else if (config.outcome === "refund") battle.shots += 1;
+    },
+    t: FIGURE_CAST_AT,
+  };
+  endShot();
+  const beforeCast = {
+    run,
+    battleComplete,
+    pending: isFigureResolutionPending(),
+    deferred: typeof figureFx?.afterCast === "function",
+    shots: battle.shots,
+  };
+  runRuntimeHooks("afterFeedbackUpdate", 0);
+  return {
+    beforeCast,
+    afterCast: {
+      run,
+      battleComplete,
+      pending: isFigureResolutionPending(),
+      shots: battle.shots,
+      moving: ball.moving,
+    },
+  };
+}
 `;
 
 function runInRuntime(config, entryPoint = "__botRun") {
@@ -444,6 +525,10 @@ export function probeSteerDirection(side) {
   );
 }
 
+export function probeRuntimeModules() {
+  return runInRuntime({ seed: 1 }, "__botRuntimeModuleProbe");
+}
+
 export function runCampaignStage({
   campaignIndex = 0,
   partySize = 3,
@@ -475,6 +560,27 @@ export function probeIndividualClaims() {
 
 export function probeArchiveClaimCount() {
   return runInRuntime({ seed: 1 }, "__botArchiveClaimCountProbe");
+}
+
+export function probeDeferredFigureResolution(outcome) {
+  if (!["kill", "refund", "fail"].includes(outcome))
+    throw new Error("outcome must be kill, refund, or fail");
+  return runInRuntime(
+    {
+      arena: plainArena,
+      party: PARTY_POOLS[3],
+      bossHp: 260,
+      policy: "contact",
+      seed: 1,
+      steer: false,
+      shots: 1,
+      steerAt: 0,
+      frameLimit: 1,
+      spread: [0],
+      outcome,
+    },
+    "__botDeferredFigureProbe",
+  );
 }
 
 export function sweepPlainArena({

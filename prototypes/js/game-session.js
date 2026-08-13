@@ -8,7 +8,9 @@ function resetBuild() {
   };
 }
 function setupBattle() {
-  const s = currentStage();
+  const s = currentStage(),
+    onboardingApi = StellaRuntime.modules.optional("onboarding");
+  const tutorial = Boolean(s.tutorial && onboardingApi?.isActive());
   setScene("game");
   clearToastQueue();
   battle = {
@@ -20,17 +22,14 @@ function setupBattle() {
     constel: 0,
     guideStarCharges: s.guideStarCharges ?? 0,
     training: Boolean(s.training),
-    tutorial: Boolean(s.tutorial),
+    tutorial,
   };
   battleComplete = false;
   primeCombatTextures();
   // The tutorial keeps the colossus immortal while Luna is teaching, then
   // hands the player a real, winnable fight for the closing lesson.
-  const finalLesson =
-    Boolean(s.tutorial) &&
-    typeof isOnboardingFinalLesson === "function" &&
-    isOnboardingFinalLesson();
-  const immortal = Boolean(s.training || (s.tutorial && !finalLesson));
+  const finalLesson = tutorial && onboardingApi?.isFinalLesson();
+  const immortal = Boolean(s.training || (tutorial && !finalLesson));
   const hp = immortal
     ? 999999999
     : finalLesson
@@ -63,23 +62,30 @@ function setupBattle() {
   U.over.classList.add("hide");
   msg = s.training
     ? "무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기."
-    : s.tutorial
+    : tutorial
       ? "1-1 · 유성을 아래로 끌어 미리내에게 부딪혀 보세요."
       : s.guideStarCharges
         ? s.name + " · 첫 패링이 안내별 둘을 밝혀 별자리를 돕습니다."
-        : s.name + " · 별지기를 깨우고, 멈춘 자리로 별자리를 그리세요.";
+        : s.name + " · Space 패링 접점을 모아 별자리를 그리세요.";
   toast(
     s.training
       ? "훈련 시작 · 불멸의 거상"
-      : s.tutorial
+      : tutorial
         ? "1-1 · 첫 관측 시작"
         : s.guideStarCharges
           ? "관측 잔광 · 첫 패링으로 안내별을 밝히세요"
           : " " + s.id + " · " + s.name,
   );
+  runRuntimeHooks("afterBattleSetup", { stage: s, battle });
   sync();
 }
-function startShot() {
+function startShot(restingPoint = null) {
+  const context = { restingPoint, handled: false };
+  runRuntimeHooks("beforeShotStart", context);
+  if (context.handled) {
+    runRuntimeHooks("afterShotStart", context);
+    return;
+  }
   const s = currentStage();
   ball = {
     x: W / 2,
@@ -109,6 +115,7 @@ function startShot() {
   for (const bumper of bumpers) bumper.on = 0;
   chain = [];
   drag = null;
+  runRuntimeHooks("afterShotStart", context);
 }
 let titleSequence = 0;
 function renderTitlePresentation() {
@@ -150,12 +157,6 @@ function renderTitlePresentation() {
   }, 1080);
   return enter;
 }
-// Superseded wholesale by the game-onboarding.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function showTitle() {}
-// Superseded wholesale by the game-onboarding.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function showMeta() {}
 let rosterFocus = "gaon";
 // One screen owns the whole squad decision.  The field map carries a marker
 // per board slot, every owned starkeeper sits in a tray underneath, and the
@@ -383,18 +384,43 @@ function showRoster() {
   };
   U.over.classList.remove("hide");
   sync();
+  runRuntimeHooks("afterRosterShown");
 }
 // The placement step now lives inside showRoster().  Keep the old entry point
 // for any saved flow that still targets the former deployment screen.
 function showDeployment() {
   showRoster();
 }
-// Superseded wholesale by the game-combat.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function endShot() {}
-// Superseded wholesale by the game-onboarding.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function fail(text) {}
+function resultCard(shotsUsed, elapsedMs) {
+  const medal =
+      shotsUsed <= 1 ? "flawless" : shotsUsed <= 2 ? "sharp" : "clear",
+    seconds = (elapsedMs / 1000).toFixed(1);
+  return (
+    '<div class="result-card"><img class="result-medal" src="' +
+    libraryArt.result[medal] +
+    '" alt="전투 메달"><div class="result-metrics"><span class="result-metric"><img src="' +
+    libraryArt.result.time +
+    '" alt=""><span>클리어<b>' +
+    seconds +
+    '초</b></span></span><span class="result-metric"><img src="' +
+    libraryArt.result.shots +
+    '" alt=""><span>사용 유성<b>' +
+    shotsUsed +
+    '개</b></span></span><span class="result-metric"><img src="' +
+    libraryArt.result.damage +
+    '" alt=""><span>처치 피해<b>' +
+    boss.maxHp +
+    "</b></span></span></div></div>"
+  );
+}
+function fail() {
+  battleComplete = true;
+  assistShots = [];
+  U.over.className = "overlay";
+  U.over.innerHTML =
+    '<div class="outcome-cut fail"><div class="outcome-constellation" aria-hidden="true"><i>·</i><i>✧</i><i>·</i></div><div class="tag">관측 실패</div><h2>별빛이 닿지 않았습니다.</h2><p>다른 별지기와 다른 궤적으로 다시 관측하세요.</p><button onclick="showRoster()">다시 관측하기</button></div>';
+  U.over.classList.remove("hide");
+}
 function scheduleWin() {
   const id = battle?.id;
   if (!id || battleComplete || battle?.victory) return;
@@ -433,9 +459,6 @@ function scheduleWin() {
     if (battle?.id === id && battle?.victory) win();
   }, 2550);
 }
-// Superseded wholesale by the game-onboarding.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function resultCard(shotsUsed, elapsedMs) {}
 function resultGoldReward(amount) {
   if (!amount) return "";
   return (
@@ -447,6 +470,8 @@ function resultGoldReward(amount) {
   );
 }
 function win() {
+  const winContext = { battle };
+  if (runtimeHookHandled("beforeBattleWin", winContext)) return;
   if (!battle || (battleComplete && !battle.victory)) return;
   const victory = battle.victory;
   battleComplete = true;
@@ -470,6 +495,11 @@ function win() {
     resultCard(shotsUsed, elapsedMs) +
     '<p>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
   U.over.classList.remove("hide");
+  runRuntimeHooks("afterBattleWin", {
+    ...winContext,
+    shotsUsed,
+    elapsedMs,
+  });
 }
 // One collision can fire several mechanics at once, and the banner used to be
 // a single element whose textContent the last one overwrote — so two of three
@@ -576,20 +606,25 @@ const hudState = {
   summary: null,
 };
 function sync() {
+  const unlimitedShots = Boolean(
+    battle && (battle.training || battle.tutorial),
+  );
   const shotsText = battle
-    ? battle.training || battle.tutorial
+    ? unlimitedShots
       ? "∞ · 관측 유성"
       : battle.shots + " / " + battle.shotMax
     : "—";
   const shotsKey = battle
-    ? battle.tutorial
-      ? "tutorial"
+    ? unlimitedShots
+      ? battle.training
+        ? "training"
+        : "tutorial"
       : battle.shots + "/" + battle.shotMax
     : "none";
   if (hudState.shots !== shotsKey) {
     U.shotsText.textContent = shotsText;
     U.shotDots.innerHTML = battle
-      ? battle.tutorial
+      ? unlimitedShots
         ? "관측 유성 · 무제한"
         : Array.from(
             { length: battle.shotMax },
@@ -629,7 +664,10 @@ function sync() {
     U.tip.textContent = msg;
     hudState.tip = msg;
   }
-  const summaryKey = deployed.join("|");
+  const summaryKey =
+    (currentStage()?.id ?? stageIndex) +
+    "|" +
+    deployed.map((id, index) => id + ":" + slotRole(index).id).join("|");
   if (hudState.summary !== summaryKey) {
     U.summary.innerHTML = deployed
       .map((id, i) => {
@@ -657,8 +695,11 @@ function pointer(e) {
   };
 }
 function isCombatInputLocked() {
+  const onboardingApi = StellaRuntime.modules.optional("onboarding"),
+    figureApi = StellaRuntime.modules.optional("figure");
   return (
-    typeof isOnboardingInputLocked === "function" && isOnboardingInputLocked()
+    Boolean(onboardingApi?.isInputLocked()) ||
+    Boolean(figureApi?.isResolutionPending())
   );
 }
 // Pause keeps the arena on screen and frozen: the scene stays "game" so the
@@ -734,11 +775,22 @@ addEventListener("keydown", (e) => {
   if (
     paused ||
     isCombatInputLocked() ||
-    (typeof isOnboardingSessionActive === "function" &&
-      isOnboardingSessionActive())
+    StellaRuntime.modules.optional("onboarding")?.isActive()
   )
     return;
-  if (e.key.toLowerCase() === "r") showRoster();
+  if (
+    e.key.toLowerCase() === "r" &&
+    !e.altKey &&
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.shiftKey &&
+    isRuntimeScene("game") &&
+    battle &&
+    !battleComplete
+  ) {
+    e.preventDefault();
+    showRoster();
+  }
 });
 // Touch and mouse players never get a keyboard, so the same menu is one tap
 // away from the arena.  The button lives beside the canvas, not in the HUD

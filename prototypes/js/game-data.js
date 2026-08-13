@@ -1572,30 +1572,6 @@ let build,
   msg = "파티를 편성하세요.",
   flippers = { left: 0, right: 0 };
 
-const runtimeHooks = {
-  afterArenaDraw: [],
-  afterDraw: [],
-  afterFeedbackUpdate: [],
-  afterSpecialDraw: [],
-};
-
-function registerRuntimeHook(name, callback) {
-  const hooks = runtimeHooks[name];
-  if (!hooks) throw new Error(`Unknown runtime hook: ${name}`);
-  if (hooks.includes(callback)) return () => {};
-  hooks.push(callback);
-  return () => {
-    const index = hooks.indexOf(callback);
-    if (index >= 0) hooks.splice(index, 1);
-  };
-}
-
-function runRuntimeHooks(name, ...args) {
-  // Snapshot the list so a hook may unregister itself without skipping the
-  // next extension in the same frame.
-  for (const callback of [...runtimeHooks[name]]) callback(...args);
-}
-
 // Short-lived combat arrays are updated every frame. Compacting them in place
 // avoids new arrays and garbage-collection hitches during busy combos.
 function advanceTimed(items, delta) {

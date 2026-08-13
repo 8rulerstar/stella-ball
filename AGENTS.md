@@ -17,8 +17,12 @@
 - `prototypes/js/game-session.js` owns battle lifecycle and base screen flow.
 - `prototypes/js/game-core-physics.js` owns the base solver and moving entities.
 - `prototypes/js/game-core-render.js` owns base combat drawing and HUD feedback.
-- `prototypes/js/game-meta.js` owns settings, achievements, stage select, and replay tutorial screens.
-- `prototypes/js/game-combat.js` owns aim, collisions, abilities, and damage.
+- `prototypes/js/game-meta-state.js` owns settings, progress, economy, audio, and achievement state.
+- `prototypes/js/game-meta.js` owns meta screens such as settings, achievements, shop, profile, stage select, and replay tutorial.
+- `prototypes/js/game-combat.js` owns input, blaze scoring, hero abilities, and combat feedback state.
+- `prototypes/js/game-combat-physics.js` owns combat collision rules, stage gimmicks, shot settlement, and aim prediction.
+- `prototypes/js/game-figure-recognition.js` owns parry trace capture, constellation templates, normalization, and classification.
+- `prototypes/js/game-figure.js` owns constellation abilities, settlement deferral, and figure presentation.
 - `prototypes/js/game-feedback.js` owns visual/audio feedback and the frame loop.
 - `prototypes/js/game-onboarding.js` owns first-session story, tutorial, and unlocks.
 - `prototypes/js/game-bootstrap.js` only starts the runtime.
@@ -29,7 +33,8 @@ These are ordered classic scripts sharing one global scope. Do not reorder their
 
 - Put roster, stage, asset-path, and balance changes in `game-data.js`.
 - Put new browser storage or scene lifecycle behavior in `game-platform.js`; put reusable DOM presentation behavior in `game-ui.js`.
-- Put gameplay-rule changes in `game-combat.js`.
+- Put input and ability changes in `game-combat.js`; put collision, stage-gimmick, or shot-settlement changes in `game-combat-physics.js`.
+- Put constellation templates and recognition math in `game-figure-recognition.js`; put constellation outcomes and presentation in `game-figure.js`.
 - Put tutorial changes in `game-onboarding.js`.
 - Register render or feedback work with `registerRuntimeHook()` instead of replacing `draw`, `drawArena`, `drawSpecial`, or `updateFeedback`.
 - Keep browser assets relative to `prototypes/prism-breakers.html`, including references written from `prototypes/js/` scripts.

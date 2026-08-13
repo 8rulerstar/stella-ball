@@ -3,7 +3,7 @@
 // 사양: FIGURE_ART_SPEC_6_7.md, 좌표 규약: ASSET_PLAN.md 「별자리 실루엣 규약」
 //   384 × 384, 배경 투명, 128 그리드에 그린 뒤 ×3
 //   뼈대 원점 = 이미지 정중앙, 뼈대 1단위 = 46 그리드칸 = 138px
-//   game-figure.js 의 FIGURE_ART_SIZE(384) · FIGURE_ART_UNIT(46*3) 과 반드시 일치
+//   game-figure-recognition.js 의 FIGURE_ART_SIZE(384) · FIGURE_ART_UNIT(46*3) 과 반드시 일치
 //
 // 실행: node scripts/generate_constellation_art_6_7.mjs
 // 외부 의존성 없음 (node:zlib 로 PNG 직접 인코딩).
@@ -20,7 +20,7 @@ const GRID = 128,
   CENTER = GRID / 2,
   UNIT = 46;
 
-// 뼈대 단위 좌표 → 그리드칸.  game-figure.js FIGURE_SHAPES[6|7].points 와 동일한 값.
+// 뼈대 단위 좌표 → 그리드칸. game-figure-recognition.js FIGURE_SHAPES[6|7].points 와 동일한 값.
 const at = (x, y) => [CENTER + x * UNIT, CENTER + y * UNIT];
 
 const ORION = {
@@ -116,7 +116,10 @@ function taper(m, pts, r0, r1) {
     total += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   let run = 0;
   for (let i = 1; i < pts.length; i++) {
-    const seg = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    const seg = Math.hypot(
+      pts[i][0] - pts[i - 1][0],
+      pts[i][1] - pts[i - 1][1],
+    );
     const steps = Math.max(2, Math.ceil(seg));
     for (let s = 0; s <= steps; s++) {
       const t = (run + (seg * s) / steps) / (total || 1);
@@ -296,18 +299,18 @@ export function renderOrion() {
     4,
     2.6,
   );
-  capsule(saiph, [hipL[0] - 20, hipL[1] + 27], [hipL[0] - 26, hipL[1] + 29], 2.6);
+  capsule(
+    saiph,
+    [hipL[0] - 20, hipL[1] + 27],
+    [hipL[0] - 26, hipL[1] + 29],
+    2.6,
+  );
 
   // 가까운 다리 — 리겔이 발끝이다.  발은 별 자리에 정확히 둔다.
   const legs = newMask();
   const knee = [hipR[0] + 7, hipR[1] + 13];
   taper(legs, [hipR, knee, ORION.rigel], 5, 3.2);
-  capsule(
-    legs,
-    ORION.rigel,
-    [ORION.rigel[0] + 6, ORION.rigel[1] + 1.5],
-    3.2,
-  ); // 발
+  capsule(legs, ORION.rigel, [ORION.rigel[0] + 6, ORION.rigel[1] + 1.5], 3.2); // 발
 
   // 몸통 — 어깨에서 띠까지 좁아지는 모래시계.  아래 변이 곧 띠 선이다.
   const torso = newMask();
@@ -336,7 +339,12 @@ export function renderOrion() {
   // 팔 — 늘어뜨린 자세.  어깨 별에서 시작해야 어깨가 별로 읽힌다.
   const arms = newMask();
   taper(arms, [LS, [LS[0] - 9, LS[1] + 15], [LS[0] - 6, LS[1] + 30]], 4.2, 2.6);
-  taper(arms, [RS, [RS[0] + 10, RS[1] + 14], [RS[0] + 12, RS[1] + 29]], 4.2, 2.6);
+  taper(
+    arms,
+    [RS, [RS[0] + 10, RS[1] + 14], [RS[0] + 12, RS[1] + 29]],
+    4.2,
+    2.6,
+  );
 
   const head = newMask();
   const headC = [shoulderMid[0] + up[0] * 12, shoulderMid[1] + up[1] * 12];
@@ -479,7 +487,8 @@ function upscale({ size, pixels }) {
   const out = new Uint8ClampedArray(SIZE * SIZE * 4);
   for (let y = 0; y < SIZE; y++)
     for (let x = 0; x < SIZE; x++) {
-      const s = ((((y / SCALE) | 0) % size) * size + (((x / SCALE) | 0) % size)) * 4,
+      const s =
+          ((((y / SCALE) | 0) % size) * size + (((x / SCALE) | 0) % size)) * 4,
         d = (y * SIZE + x) * 4;
       out[d] = pixels[s];
       out[d + 1] = pixels[s + 1];
@@ -504,5 +513,8 @@ function main() {
     console.log(`${name}.png — ${SIZE}×${SIZE}, ${png.length} bytes`);
   }
 }
-if (process.argv[1] && process.argv[1].endsWith("generate_constellation_art_6_7.mjs"))
+if (
+  process.argv[1] &&
+  process.argv[1].endsWith("generate_constellation_art_6_7.mjs")
+)
   main();

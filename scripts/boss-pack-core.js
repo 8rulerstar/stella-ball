@@ -68,20 +68,29 @@
     if (t >= 1) return b;
     const pa = parseInt(a.slice(1), 16),
       pb = parseInt(b.slice(1), 16);
-    const r = Math.round((((pa >> 16) & 255) * (1 - t) + ((pb >> 16) & 255) * t) | 0);
-    const g = Math.round((((pa >> 8) & 255) * (1 - t) + ((pb >> 8) & 255) * t) | 0);
+    const r = Math.round(
+      (((pa >> 16) & 255) * (1 - t) + ((pb >> 16) & 255) * t) | 0,
+    );
+    const g = Math.round(
+      (((pa >> 8) & 255) * (1 - t) + ((pb >> 8) & 255) * t) | 0,
+    );
     const bl = Math.round(((pa & 255) * (1 - t) + (pb & 255) * t) | 0);
     return "#" + ((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1);
   }
 
   /* ---- 파츠 헬퍼: 논리 좌표만 받는다 ---- */
   const rect = (x, y, w, h, o) => Object.assign({ k: "rect", x, y, w, h }, o);
-  const dia = (cx, cy, rx, ry, o) => Object.assign({ k: "dia", cx, cy, rx, ry }, o);
+  const dia = (cx, cy, rx, ry, o) =>
+    Object.assign({ k: "dia", cx, cy, rx, ry }, o);
   const circ = (cx, cy, r, o) => Object.assign({ k: "circ", cx, cy, r }, o);
-  const ring = (cx, cy, r, t, o) => Object.assign({ k: "ring", cx, cy, r, t }, o);
-  const tri = (cx, cy, w, h, dir, o) => Object.assign({ k: "tri", cx, cy, w, h, dir }, o);
-  const star = (cx, cy, rx, ry, o) => Object.assign({ k: "star", cx, cy, rx, ry }, o);
-  const shadow = (cx, rx, ry) => dia(cx, 44.5, rx, ry, { mv: "shadow", role: "shadow" });
+  const ring = (cx, cy, r, t, o) =>
+    Object.assign({ k: "ring", cx, cy, r, t }, o);
+  const tri = (cx, cy, w, h, dir, o) =>
+    Object.assign({ k: "tri", cx, cy, w, h, dir }, o);
+  const star = (cx, cy, rx, ry, o) =>
+    Object.assign({ k: "star", cx, cy, rx, ry }, o);
+  const shadow = (cx, rx, ry) =>
+    dia(cx, 44.5, rx, ry, { mv: "shadow", role: "shadow" });
   const core = (cx, cy, r) => star(cx, cy, r, r, { mv: "core", role: "core" });
   const weak = (cx, cy) => dia(cx, cy, 2.2, 2.8, { mv: "core", role: "weak" });
 
@@ -259,7 +268,8 @@
       world: "무한 훈련장",
       tier: "pale",
       weakCount: 1,
-      brief: "물리·능력 QA용. 무기믹 판정 확인을 위해 실루엣을 단순하게 유지한다.",
+      brief:
+        "물리·능력 QA용. 무기믹 판정 확인을 위해 실루엣을 단순하게 유지한다.",
       parts: [
         shadow(24, 12, 2.4),
         dia(24, 36, 9.5, 6.5, { mv: "body", seam: 1 }),
@@ -444,7 +454,8 @@
         cy = p.cy + oy,
         r = p.r * S,
         t = p.t;
-      return (u, v) => Math.abs(Math.sqrt((u - cx) * (u - cx) + (v - cy) * (v - cy)) - r) <= t;
+      return (u, v) =>
+        Math.abs(Math.sqrt((u - cx) * (u - cx) + (v - cy) * (v - cy)) - r) <= t;
     }
     if (p.k === "tri") {
       const cx = p.cx + ox,
@@ -455,9 +466,12 @@
       return (u, v) => {
         const du = u - cx,
           dv = v - cy;
-        if (d === "up") return dv >= 0 && dv <= h && Math.abs(du) <= (w / 2) * (dv / h);
-        if (d === "down") return dv <= 0 && dv >= -h && Math.abs(du) <= (w / 2) * (-dv / h);
-        if (d === "left") return du >= 0 && du <= w && Math.abs(dv) <= (h / 2) * (du / w);
+        if (d === "up")
+          return dv >= 0 && dv <= h && Math.abs(du) <= (w / 2) * (dv / h);
+        if (d === "down")
+          return dv <= 0 && dv >= -h && Math.abs(du) <= (w / 2) * (-dv / h);
+        if (d === "left")
+          return du >= 0 && du <= w && Math.abs(dv) <= (h / 2) * (du / w);
         return du <= 0 && du >= -w && Math.abs(dv) <= (h / 2) * (-du / w);
       };
     }
@@ -511,7 +525,8 @@
   function bake(buf, p, pal, m, extra) {
     const mo = motion(p, m);
     const partA = p.a != null ? p.a : p.role === "glow" ? 0.62 : 1;
-    const alpha = mo.a * partA * (extra && extra.alpha != null ? extra.alpha : 1);
+    const alpha =
+      mo.a * partA * (extra && extra.alpha != null ? extra.alpha : 1);
     if (alpha <= 0.04) return;
     let ox = mo.dx,
       oy = mo.dy;
@@ -589,11 +604,20 @@
             rx = Math.max(0.001, (p.rx || p.r) * sc),
             ry = Math.max(0.001, (p.ry || p.r) * sc);
           const dt = Math.sqrt(((u - pcx) / rx) ** 2 + ((v - pcy) / ry) ** 2);
-          put(buf, gx, gy, dt < 0.3 ? ramp[0] : dt < 0.72 ? ramp[1] : ramp[2], alpha);
+          put(
+            buf,
+            gx,
+            gy,
+            dt < 0.3 ? ramp[0] : dt < 0.72 ? ramp[1] : ramp[2],
+            alpha,
+          );
           continue;
         }
         const edge =
-          !inside(u - step, v) || !inside(u + step, v) || !inside(u, v - step) || !inside(u, v + step);
+          !inside(u - step, v) ||
+          !inside(u + step, v) ||
+          !inside(u, v - step) ||
+          !inside(u, v + step);
         if (edge && role !== "glow" && role !== "eye") c = outline;
         else if (!inside(u, v - step * 2) && role !== "glow") c = hi;
         else if (!inside(u, v + step * 2) && role !== "glow") c = lo;
@@ -613,8 +637,10 @@
   function fragments(buf, boss, pal, m) {
     if (m.decay <= 0) return;
     let seed = 0;
-    for (let i = 0; i < boss.slug.length; i++) seed = (seed * 31 + boss.slug.charCodeAt(i)) % 99991;
-    const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+    for (let i = 0; i < boss.slug.length; i++)
+      seed = (seed * 31 + boss.slug.charCodeAt(i)) % 99991;
+    const rnd = () =>
+      (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
     const count = 18;
     for (let i = 0; i < count; i++) {
       const a = rnd() * Math.PI * 2,
@@ -626,7 +652,8 @@
       const gx = Math.round(u * SUB),
         gy = Math.round(v * SUB);
       for (let dy = 0; dy < s; dy++)
-        for (let dx = 0; dx < s; dx++) put(buf, gx + dx, gy + dy, c, (1 - m.decay * 0.55) * 0.95);
+        for (let dx = 0; dx < s; dx++)
+          put(buf, gx + dx, gy + dy, c, (1 - m.decay * 0.55) * 0.95);
     }
   }
 
@@ -641,10 +668,12 @@
     for (let gy = 0; gy < buf.n; gy++)
       for (let gx = 0; gx < buf.n; gx++) {
         const u = (gx + 0.5) / SUB,
-          v = (cy + ((gy + 0.5) / SUB - cy) / 0.62);
+          v = cy + ((gy + 0.5) / SUB - cy) / 0.62;
         const dd = Math.sqrt((u - cx) * (u - cx) + (v - cy) * (v - cy));
-        if (Math.abs(dd - r) <= 0.9 && (gx + gy) % 2 === 0) put(buf, gx, gy, pal.coreHi, alpha);
-        else if (Math.abs(dd - r) <= 1.6 && (gx + gy) % 3 === 0) put(buf, gx, gy, pal.core, alpha * 0.7);
+        if (Math.abs(dd - r) <= 0.9 && (gx + gy) % 2 === 0)
+          put(buf, gx, gy, pal.coreHi, alpha);
+        else if (Math.abs(dd - r) <= 1.6 && (gx + gy) % 3 === 0)
+          put(buf, gx, gy, pal.core, alpha * 0.7);
         void step;
       }
   }
@@ -668,7 +697,16 @@
         if (!ringed)
           bake(
             buf,
-            { k: "ring", cx: p.cx, cy: p.cy, r: (p.rx || 4) * 1.55, t: 0.55, mv: p.mv, role: "glow", a: 0.5 },
+            {
+              k: "ring",
+              cx: p.cx,
+              cy: p.cy,
+              r: (p.rx || 4) * 1.55,
+              t: 0.55,
+              mv: p.mv,
+              role: "glow",
+              a: 0.5,
+            },
             pal,
             m,
           );

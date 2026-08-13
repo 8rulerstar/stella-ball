@@ -1,10 +1,13 @@
-// Canonical story layer — presentation only; no physics or balance state is changed here.
+// Canonical story and guided-practice layer. Tutorial-only layouts and event
+// tracking live here; shared combat rules remain owned by the combat scripts.
 const STORY_INTRO_STORAGE = "prism-breakers.story-intro.v1";
 const STORY_CONSTELLATION_TOOLTIP =
-  "별지기들이 멈춘 자리가 별자리를 이룹니다. 크게, 대담하게 그릴수록 강해집니다.";
+  "성공한 Space 패링 접점이 별빛 노드가 됩니다. 한 샷에 3개 이상 모으면 별자리가 발동합니다.";
+if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
 const ONBOARDING_STORAGE = "stella-ball.onboarding.v1";
 const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
 const PARTY_SLOT_STORAGE = "stella-ball.party-slots.v1";
+const onboardingStageSlots = stages[0].slots.map((point) => [...point]);
 let constellationReveal = null;
 function markStoryIntroSeen() {
   appStorage.writeText(STORY_INTRO_STORAGE, "1");
@@ -37,12 +40,15 @@ function unlockThirdPartySlot() {
 }
 let onboarding = null;
 function isOnboardingInputLocked() {
-  return Boolean(onboarding && onboarding.panelVisible !== false);
+  return Boolean(
+    onboarding &&
+      (onboarding.panelVisible !== false || onboarding.transitioning),
+  );
 }
 function isOnboardingSessionActive() {
   return Boolean(onboarding);
 }
-// Lessons 1-5 teach against an immortal colossus.  Lesson 6 is the real kill,
+// Lessons 1-3 teach against an immortal colossus. Lesson 4 is the real kill,
 // so the battle setup asks this before it decides the boss pool.
 const ONBOARDING_FINAL_PHASE = 3;
 function isOnboardingFinalLesson() {
@@ -58,31 +64,31 @@ const onboardingLayouts = [
     ],
   },
   {
-    party: ["biyeon"],
+    party: [],
     slots: [
-      [360, 405],
+      [210, 405],
       [360, 340],
       [360, 480],
     ],
   },
   {
-    party: ["biyeon", "ria"],
+    party: ["biyeon"],
     slots: [
-      [210, 350],
+      [360, 405],
       [360, 430],
       [360, 480],
     ],
   },
   {
-    party: ["biyeon", "ria"],
+    party: [...STARTER_HERO_IDS],
     slots: [
-      [474, 350],
-      [246, 442],
-      [360, 480],
+      [270, 392],
+      [450, 392],
+      [360, 520],
     ],
   },
 ];
-function setOnboardingPhase(phase, first = false) {
+function setOnboardingPhase(phase) {
   const layout = onboardingLayouts[phase];
   if (!onboarding) return;
   stageIndex = 0;
@@ -96,22 +102,29 @@ function setOnboardingPhase(phase, first = false) {
     ...onboarding,
     phase,
     dialogue: 0,
-    contacts: new Set(),
     attempts: 0,
     bossHit: false,
-    bladeHit: false,
+    steered: false,
+    parrySuccess: false,
+    figureResolved: false,
+    parriedHero: null,
+    parryQueued: false,
     launched: finalLesson,
     settled: false,
     transitioning: false,
     panelVisible: !finalLesson,
   };
-  if (first || !battle) setupBattle();
-  else setupBattle();
+  setupBattle();
+  // The parry lesson adds four non-physical guide stars so one genuine Space
+  // parry demonstrates the loudest five-point reveal without faking a contact.
+  // The final battle removes the aid and uses the same rules as the campaign.
+  battle.guideStarCharges = phase === 2 ? 1 : 0;
+  battle.guideFigure = phase === 2 ? "pentagram" : null;
   msg = [
     "도우미 루나 · 유성을 보스에게 곧장 보내 보세요.",
-    "도우미 루나 · 미리내를 굴려, 멈춘 자리의 거리 저격을 확인하세요.",
-    "도우미 루나 · 윤슬을 빠르게 굴려 회전 칼날로 보스를 스쳐 보세요.",
-    "실전 · 이제 거상은 쓰러집니다. 유성은 무제한이니 직접 무너뜨리세요.",
+    "도우미 루나 · 유성이 움직일 때 좌·우 클릭 중 하나로 궤도를 한 번 꺾어 보세요.",
+    "도우미 루나 · 미리내와 닿기 직전이나 접점 잔광 중 Space로 공명하세요.",
+    "실전 · 세 별지기의 패링 각성과 별자리를 엮어 거상을 무너뜨리세요.",
   ][phase];
   sync();
   renderOnboarding();
@@ -120,14 +133,15 @@ function beginOnboardingPractice() {
   if (!onboarding) return;
   onboarding.panelVisible = false;
   onboarding.launched = true;
+  onboarding.parryQueued = false;
   drag = null;
   renderOnboarding();
 }
 function continueOnboarding(action) {
   if (!onboarding) return;
   playSfx?.("confirm");
-  if (action === "add-biyeon") return setOnboardingPhase(1);
-  if (action === "add-pair") return setOnboardingPhase(2);
+  if (action === "learn-steer") return setOnboardingPhase(1);
+  if (action === "learn-parry") return setOnboardingPhase(2);
   if (action === "final-battle")
     return setOnboardingPhase(ONBOARDING_FINAL_PHASE);
   if (action === "practice") return beginOnboardingPractice();
@@ -162,7 +176,7 @@ function renderOnboarding() {
   dock?.setAttribute("aria-hidden", "false");
   const step = onboarding.phase,
     dialogue = onboarding.dialogue ?? 0;
-  // Six cards, and every one of them waits for the player's button.  Gameplay
+  // Six cards, and every one of them waits for the player's button. Gameplay
   // events only record what happened; they never swap the card being read.
   const retried = (onboarding.attempts ?? 0) >= 2;
   const lessons = [
@@ -178,65 +192,66 @@ function renderOnboarding() {
         n: 2,
         title: onboarding.bossHit ? "직격! 잘했어요." : "빗나갔네요. 괜찮아요.",
         body: onboarding.bossHit
-          ? "빛나는 약점이 아니어도 거상은 피해를 받아요. 유성 자체가 무기예요. 하지만 훨씬 큰 공격은 잠든 별지기를 깨울 때 나옵니다."
+          ? "유성 자체도 피해를 주지만, 별지기를 거치지 않은 직격은 약해요. 이제 발사 뒤에도 한 번 궤도를 고칠 수 있다는 걸 익혀 볼게요."
           : "각도만 조금 바꾸면 돼요. 아래로 길게 끌수록 세게 날아갑니다. 한 번 더 해볼까요?",
         button: onboarding.bossHit
-          ? "다음 · 미리내 만나기"
+          ? "다음 · 궤도 전환"
           : retried
             ? "괜찮아요, 다음으로"
             : "다시 시도",
-        action: onboarding.bossHit || retried ? "add-biyeon" : "practice",
+        action: onboarding.bossHit || retried ? "learn-steer" : "practice",
       },
     ],
     [
       {
         n: 3,
-        title: "첫 별지기, 미리내예요.",
-        body: "점선 끝의 붉은 원 안에 미리내가 잠들어 있어요. 유성을 미리내에게 부딪히면 둘 다 굴러갑니다. 모든 움직임이 멈추면 미리내가 그 자리에서 거상을 저격해요. 멀리 멈출수록 강합니다.",
-        button: "미리내에게 발사하기",
+        title: "날아가는 유성도 조종할 수 있어요.",
+        body: "유성을 먼저 발사한 뒤, 움직이는 동안 좌클릭하면 진행 방향의 왼쪽, 우클릭하면 오른쪽으로 꺾입니다. 두 버튼은 한 발에 합쳐서 딱 한 번만 쓸 수 있어요.",
+        button: "발사 후 한 번 꺾기",
         action: "practice",
       },
       {
         n: 4,
-        title: onboarding.contacts.has("biyeon")
-          ? "미리내가 깨어나 저격했어요."
-          : "미리내에게 닿지 않았어요.",
-        body: onboarding.contacts.has("biyeon")
-          ? "이게 이 게임의 핵심이에요 — 부딪혀 깨우고, 멈추면 공격한다. 다음은 반대예요. 멈춘 뒤가 아니라 굴러가는 동안 공격하는 별지기를 만나 볼게요."
-          : "유성을 미리내 쪽으로 조금 더 정확히 보내 보세요. 살짝만 스쳐도 깨어납니다.",
-        button: onboarding.contacts.has("biyeon")
-          ? "다음 · 윤슬 만나기"
+        title: onboarding.steered
+          ? "궤도를 한 번 꺾었어요."
+          : "아직 궤도 전환을 쓰지 않았어요.",
+        body: onboarding.steered
+          ? "전환은 속도를 조금 더하며 즉시 소모됩니다. 이제 핵심 입력인 Space 패링으로 별지기를 깨우고 고유 능력을 발동해 볼게요."
+          : "유성이 움직이기 시작한 다음 캔버스를 좌클릭하거나 우클릭해 보세요. 드래그가 아니라 짧게 한 번 누르면 됩니다.",
+        button: onboarding.steered
+          ? "다음 · Space 패링"
           : retried
             ? "괜찮아요, 다음으로"
             : "다시 시도",
-        action:
-          onboarding.contacts.has("biyeon") || retried
-            ? "add-pair"
-            : "practice",
+        action: onboarding.steered || retried ? "learn-parry" : "practice",
       },
     ],
     [
       {
         n: 5,
-        title: "두 번째 별지기, 윤슬이에요.",
-        body: "윤슬은 멈춘 뒤에 공격하지 않아요. 굴러가는 동안 거상을 그대로 관통하며 쌍칼을 돌립니다. 빠를수록 피해가 커져요. 윤슬을 세게 밀어 거상을 뚫고 지나가게 해보세요.",
-        button: "윤슬을 강하게 밀기",
+        title: "첫 공명 항로는 루나가 고정할게요.",
+        body: "어느 방향으로 당겨도 이번 유성은 미리내에게 향해요. 발사한 뒤 Space를 한 번 누르세요. 접점에서 공명하면 미리내의 능력과 별빛 하나가 깨어나고, 안내별 넷이 최고의 첫 별자리를 완성합니다.",
+        button: "Space로 첫 별자리 열기",
         action: "practice",
       },
       {
         n: 6,
-        title: onboarding.bladeHit
-          ? "회전 칼날이 적중했어요!"
-          : "칼날이 거상까지 닿지 않았어요.",
-        body: onboarding.bladeHit
-          ? "미리내는 멈출 자리를 설계하고, 윤슬은 지나갈 길을 설계합니다. 이제 배운 걸 전부 써 볼 차례예요. 거상은 더 이상 불멸이 아닙니다. 유성은 무제한이니 직접 무너뜨리세요."
-          : "윤슬을 더 세게, 거상 쪽으로 밀어야 해요. 다시 해볼까요?",
-        button: onboarding.bladeHit
-          ? "직접 잡아보기"
-          : retried
-            ? "괜찮아요, 실전으로"
-            : "다시 시도",
-        action: onboarding.bladeHit || retried ? "final-battle" : "practice",
+        title:
+          onboarding.parrySuccess && onboarding.figureResolved
+            ? "공명과 오망성이 이어졌어요!"
+            : onboarding.parrySuccess
+              ? "패링은 성공했어요."
+              : "일반 충돌로 지나갔어요.",
+        body:
+          onboarding.parrySuccess && onboarding.figureResolved
+            ? "미리내의 거리 저격은 패링 순간 발동했고, 실제 접점 하나와 안내별 넷이 오망성을 현현시켰어요. 실전에서는 한 샷에 패링 접점 3개 이상을 직접 모아 여러 별자리를 발동합니다."
+            : onboarding.parrySuccess
+              ? "공명 각성은 성공했습니다. 별자리는 한 샷이 멈출 때 별빛 노드가 3개 이상이면 발동해요."
+              : "그냥 부딪히면 물리 반동만 남아요. 충돌 직전 또는 접점 잔광이 보일 때 Space를 눌러 공명으로 바꿔 보세요.",
+        button: onboarding.parrySuccess ? "직접 잡아보기" : "다시 시도",
+        // The showcase is the promise of the combat system. Do not let a
+        // skipped practice advance before the player has actually seen it.
+        action: onboarding.parrySuccess ? "final-battle" : "practice",
       },
     ],
     [],
@@ -299,24 +314,44 @@ function showOnboardingTutorial(replay = false) {
     dialogue: 0,
     replay,
     returnParty,
-    contacts: new Set(),
     bossHit: false,
-    bladeHit: false,
+    steered: false,
+    parrySuccess: false,
+    figureResolved: false,
+    parriedHero: null,
+    parryQueued: false,
     launched: false,
     settled: false,
     transitioning: false,
     panelVisible: true,
   };
-  setOnboardingPhase(0, true);
+  setOnboardingPhase(0);
+}
+function restoreOnboardingStage() {
+  stages[0].slots = onboardingStageSlots.map((point) => [...point]);
+}
+function clearOnboardingRuntime() {
+  restoreOnboardingStage();
+  onboarding = null;
+  constellationReveal = null;
+  run = false;
+  drag = null;
+  renderOnboarding();
+}
+function cancelOnboarding() {
+  const returnParty = onboarding?.returnParty?.length
+    ? [...onboarding.returnParty]
+    : [...STARTER_HERO_IDS];
+  selected = returnParty;
+  deployed = [...returnParty];
+  clearOnboardingRuntime();
 }
 function completeOnboarding() {
   const firstClear = !hasOnboardingClear();
   markOnboardingSeen();
   unlockThirdPartySlot();
   if (firstClear) {
-    try {
-      appStorage.writeText(ONBOARDING_CLEAR_STORAGE, "1");
-    } catch {}
+    appStorage.writeText(ONBOARDING_CLEAR_STORAGE, "1");
     progress.clears++;
     grantFreeSummon(1);
     saveProgress();
@@ -327,16 +362,8 @@ function completeOnboarding() {
       ? [...onboarding.returnParty]
       : [...STARTER_HERO_IDS];
   deployed = [...selected];
-  onboarding = null;
-  run = false;
-  drag = null;
+  clearOnboardingRuntime();
   playSfx?.("unlock");
-  document.body.classList.remove("onboarding-active");
-  document.body.classList.remove("onboarding-locked");
-  document.querySelector(".onboarding-card")?.remove();
-  document
-    .querySelector("#onboardingDock")
-    ?.setAttribute("aria-hidden", "true");
   U.over.className = "overlay";
   U.over.innerHTML =
     '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">업적 해금</div><h2>첫 관측자의 증명</h2><p>세 번째 별지기 자리가 열렸습니다.<br>그 자리를 채울 <b>무료 소환권 1장</b>을 드릴게요.</p><button id="openOnboardingAchievement">무료로 소환하기</button><button id="openConstellationMap">나중에 하기</button></div>';
@@ -350,51 +377,70 @@ function completeOnboarding() {
     showMeta();
   };
 }
-const baseOnboardingDamage = damage;
-damage = function (weak = false) {
-  baseOnboardingDamage(weak);
+registerRuntimeHook("afterBossDamage", () => {
   // Record only.  The lesson card advances when the player presses the button.
   if (onboarding?.phase === 0) onboarding.bossHit = true;
-};
-const baseOnboardingTrackBlazeUnit = trackBlazeUnit;
-trackBlazeUnit = function (g) {
-  baseOnboardingTrackBlazeUnit(g);
-  if (
-    onboarding &&
-    ((onboarding.phase === 1 && g.id === "biyeon") ||
-      (onboarding.phase === 2 && g.id === "ria"))
-  )
-    onboarding.contacts.add(g.id);
-};
-const baseOnboardingWakeUnit = wakeUnit;
-wakeUnit = function (g) {
-  baseOnboardingWakeUnit(g);
-  if (
-    onboarding &&
-    ((onboarding.phase === 1 && g.id === "biyeon") ||
-      (onboarding.phase === 2 && g.id === "ria"))
-  )
-    onboarding.contacts.add(g.id);
-};
-const baseOnboardingBladeWheelHit = reportBladeWheelHit;
-reportBladeWheelHit = function (g, target, amount) {
-  baseOnboardingBladeWheelHit(g, target, amount);
-  if (onboarding?.phase !== 2 || g.id !== "ria") return;
-  onboarding.bladeHit = true;
-};
+});
+registerRuntimeHook("afterMeteorSteer", () => {
+  if (onboarding?.phase === 1) onboarding.steered = true;
+});
+registerRuntimeHook(
+  "resolveBilliardAim",
+  ({ dx, dy }) => {
+    if (onboarding?.phase === 2 && gates[0] && ball) {
+      const tx = gates[0].x - ball.x,
+        ty = gates[0].y - ball.y,
+        distance = Math.hypot(tx, ty) || 1;
+      return {
+        x: tx / distance,
+        y: ty / distance,
+        assisted: true,
+        tutorialLocked: true,
+      };
+    }
+    return undefined;
+  },
+  { priority: 100 },
+);
+registerRuntimeHook("assistParryRequest", () => {
+  if (onboarding?.phase !== 2 || !ball?.moving) return false;
+  onboarding.parryQueued = true;
+  return true;
+});
+registerRuntimeHook("afterParryRequest", () => {
+  if (onboarding?.parrySuccess) onboarding.parryQueued = false;
+});
+function takeOnboardingParryAssist() {
+  if (onboarding?.phase !== 2 || !onboarding.parryQueued) return false;
+  onboarding.parryQueued = false;
+  return true;
+}
+registerRuntimeHook("consumeParryAssist", takeOnboardingParryAssist);
+registerRuntimeHook("afterParryContact", ({ gate }) => {
+  if (onboarding?.phase !== 2) return;
+  onboarding.parrySuccess = true;
+  onboarding.parriedHero = gate.id;
+});
+registerRuntimeHook("afterFigureShot", ({ missed, resolved }) => {
+  if (onboarding?.phase === 2 && !missed && resolved)
+    onboarding.figureResolved = true;
+});
 // Killing the colossus in the closing lesson finishes the tutorial itself
 // instead of opening the ordinary battle result screen.
-const baseOnboardingWin = win;
-win = function () {
-  if (!onboarding || onboarding.phase !== ONBOARDING_FINAL_PHASE)
-    return baseOnboardingWin();
-  if (!battle) return;
-  battle.victory = null;
-  battleComplete = true;
-  run = false;
-  assistShots = [];
-  completeOnboarding();
-};
+registerRuntimeHook(
+  "beforeBattleWin",
+  () => {
+    if (!onboarding || onboarding.phase !== ONBOARDING_FINAL_PHASE || !battle)
+      return false;
+    battle.victory = null;
+    battleComplete = true;
+    run = false;
+    assistShots = [];
+    completeOnboarding();
+    return true;
+  },
+  { priority: 100 },
+);
 function showStoryIntro() {
   run = false;
   drag = null;
@@ -420,7 +466,7 @@ function showStoryIntro() {
     { once: true },
   );
 }
-showTitle = function () {
+function showTitle() {
   run = false;
   drag = null;
   setScene("title");
@@ -435,7 +481,7 @@ showTitle = function () {
       showMeta();
     }
   };
-};
+}
 function storySkyStars(count) {
   return Array.from(
     { length: Math.min(30, count) },
@@ -461,7 +507,8 @@ function hubSelectedMapIndex(mapStages) {
     if (!mapStages[i].locked && !mapStages[i].onboarding) return i;
   return 0;
 }
-showMeta = function () {
+function showMeta() {
+  if (onboarding) cancelOnboarding();
   run = false;
   drag = null;
   setScene("meta");
@@ -638,68 +685,31 @@ showMeta = function () {
     playSfx();
     showSettings();
   };
-};
-const baseStorySetupBattle = setupBattle;
-setupBattle = function () {
-  baseStorySetupBattle();
-  const stage = currentStage();
-  if (stage.tutorial) {
-    battle.shots = 99;
-    battle.shotMax = 99;
+}
+registerRuntimeHook("afterBattleSetup", ({ stage, battle: activeBattle }) => {
+  if (activeBattle.tutorial) {
+    activeBattle.shots = 99;
+    activeBattle.shotMax = 99;
   }
-  msg = battle.training
+  msg = activeBattle.training
     ? "무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기."
-    : stage.tutorial
-      ? "1-1 · 루나의 안내를 따라 유성과 별지기의 첫 연계를 관측하세요."
-      : stage.name + " · 별지기를 깨우고, 멈춘 자리로 별자리를 그리세요.";
+    : activeBattle.tutorial
+      ? "1-1 · 드래그 발사, 1회 조향, Space 패링과 별빛 노드를 익히세요."
+      : stage.name + " · Space 패링 접점을 모아 별자리를 그리세요.";
   sync();
-};
-resultCard = function (shotsUsed, elapsedMs) {
-  const medal =
-      shotsUsed <= 1 ? "flawless" : shotsUsed <= 2 ? "sharp" : "clear",
-    seconds = (elapsedMs / 1000).toFixed(1);
-  return (
-    '<div class="result-card"><img class="result-medal" src="' +
-    libraryArt.result[medal] +
-    '" alt="전투 메달"><div class="result-metrics"><span class="result-metric"><img src="' +
-    libraryArt.result.time +
-    '" alt=""><span>클리어<b>' +
-    seconds +
-    '초</b></span></span><span class="result-metric"><img src="' +
-    libraryArt.result.shots +
-    '" alt=""><span>사용 유성<b>' +
-    shotsUsed +
-    '개</b></span></span><span class="result-metric"><img src="' +
-    libraryArt.result.damage +
-    '" alt=""><span>처치 피해<b>' +
-    boss.maxHp +
-    "</b></span></span></div></div>"
-  );
-};
-fail = function () {
-  battleComplete = true;
-  assistShots = [];
-  U.over.className = "overlay";
-  U.over.innerHTML =
-    '<div class="outcome-cut fail"><div class="outcome-constellation" aria-hidden="true"><i>·</i><i>✧</i><i>·</i></div><div class="tag">관측 실패</div><h2>별빛이 닿지 않았습니다.</h2><p>다른 별지기와 다른 궤적으로 다시 관측하세요.</p><button onclick="showRoster()">다시 관측하기</button></div>';
-  U.over.classList.remove("hide");
-};
-const baseStoryEndShot = endShot;
-endShot = function () {
-  baseStoryEndShot();
+});
+registerRuntimeHook("afterShotEnd", () => {
   if (run && battle && !battle.training) {
-    msg = "다음 유성을 준비하세요. 남은 배치에서 별자리를 다시 설계하세요.";
+    msg =
+      "다음 유성을 준비하세요. 패링 접점과 남은 배치에서 항로를 다시 설계하세요.";
     sync();
   }
-};
-const baseStorySettleParty = settleParty;
-settleParty = function () {
-  baseStorySettleParty();
+});
+registerRuntimeHook("afterPartySettle", ({ figureActive }) => {
   // The dashed "별자리 완성" triangle is the old three-gate reveal.  Where the
   // figure prototype is running it draws its own constellation over the same
   // points, so the two would trace competing shapes on the same beat.
-  const figureOwnsSettle = typeof figureActive === "function" && figureActive();
-  if (gates.length === 3 && !figureOwnsSettle) {
+  if (gates.length === 3 && !figureActive) {
     constellationReveal = {
       points: gates.map((g) => ({ x: g.x, y: g.y })),
       endsAt: performance.now() + 800,
@@ -715,9 +725,27 @@ settleParty = function () {
   onboarding.attempts = (onboarding.attempts ?? 0) + 1;
   onboarding.dialogue = 1;
   onboarding.launched = false;
-  onboarding.panelVisible = true;
-  setTimeout(renderOnboarding, 180);
-};
+  // Let the first constellation complete its trace, correction and cast before
+  // the result card covers the table. Input stays locked during this short beat.
+  const resultDelay =
+    onboarding.phase === 2 && onboarding.figureResolved
+      ? Math.ceil(
+          (StellaRuntime.modules.require("figure").castAt + 0.35) * 1000,
+        )
+      : 180;
+  const phase = onboarding.phase,
+    battleId = battle?.id;
+  onboarding.transitioning = true;
+  onboarding.panelVisible = false;
+  renderOnboarding();
+  setTimeout(() => {
+    if (!onboarding || onboarding.phase !== phase || battle?.id !== battleId)
+      return;
+    onboarding.transitioning = false;
+    onboarding.panelVisible = true;
+    renderOnboarding();
+  }, resultDelay);
+});
 function drawConstellationReveal() {
   if (!constellationReveal) return;
   const left = constellationReveal.endsAt - performance.now();
@@ -770,18 +798,56 @@ function drawOnboardingGuide() {
     !onboarding ||
     !battle ||
     !ball ||
-    ball.moving ||
     onboarding.panelVisible !== false ||
     onboarding.phase === ONBOARDING_FINAL_PHASE
   )
     return;
   const phase = onboarding.phase;
+  if (ball.moving) {
+    if (phase === 1 && !ball.steerUsed) {
+      x.save();
+      x.strokeStyle = "#ffe6a1";
+      x.fillStyle = "#fff0bd";
+      x.shadowBlur = 11;
+      x.shadowColor = "#ffd36f";
+      x.lineWidth = 2;
+      x.beginPath();
+      x.arc(ball.x, ball.y, ball.r + 24, -Math.PI * 0.9, Math.PI * 0.7);
+      x.stroke();
+      x.textAlign = "center";
+      x.font = "bold 10px Galmuri11, ui-monospace";
+      x.fillText("좌클릭 ↶ · 우클릭 ↷ · 합산 1회", ball.x, ball.y - 45);
+      x.restore();
+    } else if (phase === 2 && !onboarding.parrySuccess) {
+      const target = gates[0];
+      if (target) {
+        x.save();
+        x.strokeStyle = target.col;
+        x.fillStyle = "#fff0bd";
+        x.shadowBlur = 11;
+        x.shadowColor = target.col;
+        x.lineWidth = 2;
+        x.beginPath();
+        x.arc(target.x, target.y, target.r + 12, 0, Math.PI * 2);
+        x.stroke();
+        x.textAlign = "center";
+        x.font = "bold 10px Galmuri11, ui-monospace";
+        x.fillText(
+          "항로 고정 · 지금 Space",
+          target.x,
+          target.y - target.r - 20,
+        );
+        x.restore();
+      }
+    }
+    return;
+  }
   const target =
     phase === 0
       ? boss
       : phase === 1
-        ? gates[0]
-        : gates.find((gate) => gate.id === "ria");
+        ? { x: boss.x + 145, y: boss.y + 85, r: 34, col: "#8ee7ff" }
+        : gates[0];
   x.save();
   x.lineWidth = 1.5;
   x.setLineDash([5, 5]);
@@ -794,7 +860,7 @@ function drawOnboardingGuide() {
     x.lineTo(target.x, target.y);
     x.stroke();
     x.setLineDash([]);
-    x.strokeStyle = phase === 0 ? "#f2a48d" : target.col;
+    x.strokeStyle = phase === 0 ? "#f2a48d" : target.col || "#ffe6a1";
     x.lineWidth = 2;
     x.beginPath();
     x.arc(target.x, target.y, phase === 0 ? 72 : 35, 0, Math.PI * 2);
@@ -805,9 +871,9 @@ function drawOnboardingGuide() {
     x.fillText(
       phase === 0
         ? "직격 목표"
-        : phase === 2
-          ? "윤슬을 보스 쪽으로"
-          : target.s + "을 향해",
+        : phase === 1
+          ? "먼저 이 항로로 발사"
+          : "항로 고정 · 발사 후 Space",
       target.x,
       target.y - 44,
     );
@@ -834,18 +900,6 @@ function drawOnboardingGuide() {
     x.fillStyle = "#fff0bd";
     x.fillText("여기서 아래로 당기기", fingerX, fingerY + 28);
   }
-  if (phase === 2 && gates.length === 2) {
-    const ria = gates.find((gate) => gate.id === "ria");
-    if (!ria) {
-      x.restore();
-      return;
-    }
-    x.beginPath();
-    x.moveTo(ria.x, ria.y);
-    x.lineTo(boss.x, boss.y);
-    x.stroke();
-    x.setLineDash([]);
-  }
   x.restore();
 }
 registerRuntimeHook("afterDraw", drawOnboardingGuide);
@@ -863,9 +917,7 @@ registerRuntimeHook("afterFeedbackUpdate", () => {
     .querySelector(".onboarding-card")
     ?.classList.toggle("table-live", onboardingTableLive());
 });
-const baseStoryVictoryFx = drawVictoryFx;
-drawVictoryFx = function () {
-  baseStoryVictoryFx();
+registerRuntimeHook("afterSpecialDraw", () => {
   const v = battle?.victory;
   if (!v || !boss) return;
   const p = Math.min(1, v.t / v.d),
@@ -886,9 +938,8 @@ drawVictoryFx = function () {
     circle(0, 0, 4, "#fff", 2);
   }
   x.restore();
-};
-const baseStoryWin = win;
-win = function () {
+});
+registerRuntimeHook("beforeBattleWin", (context) => {
   const shouldRecord = Boolean(
       battle && battleComplete && battle.victory && !battle.storyRecorded,
     ),
@@ -911,7 +962,18 @@ win = function () {
       : Math.min(progress.bestTime, elapsedMs);
     saveProgress();
   }
-  baseStoryWin();
+  context.story = {
+    shouldRecord,
+    partyNames,
+    shotsUsed,
+    elapsedMs,
+    goldEarned,
+  };
+  return false;
+});
+registerRuntimeHook("afterBattleWin", (context) => {
+  const { shouldRecord, partyNames, shotsUsed, elapsedMs, goldEarned } =
+    context.story ?? {};
   if (goldEarned > 0)
     rewardToast(
       "관측 보상함에 적립",
@@ -930,12 +992,7 @@ win = function () {
     U.over.classList.remove("hide");
     announceNewAchievements();
   }
-};
-const baseStoryRenderBlaze = renderBlaze;
-renderBlaze = function (pulse = false) {
-  baseStoryRenderBlaze(pulse);
-  if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
-};
+});
 let observatoryGlowLayer = null,
   observatoryGlowBossX = -1,
   observatoryGlowBossY = -1;
@@ -1005,3 +1062,11 @@ function drawObservatoryAtmosphere() {
   x.restore();
 }
 registerRuntimeHook("afterArenaDraw", drawObservatoryAtmosphere);
+
+const OnboardingModule = StellaRuntime.modules.register("onboarding", {
+  isActive: isOnboardingSessionActive,
+  isInputLocked: isOnboardingInputLocked,
+  isFinalLesson: isOnboardingFinalLesson,
+  hasClear: hasOnboardingClear,
+  showTutorial: showOnboardingTutorial,
+});

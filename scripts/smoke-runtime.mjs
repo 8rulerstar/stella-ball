@@ -2,6 +2,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Script } from "node:vm";
+import {
+  probeDeferredFigureResolution,
+  probeRuntimeModules,
+} from "../bot/runtime-harness.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = readFileSync(
@@ -20,13 +24,17 @@ const expectedStyles = [
 const expectedScripts = [
   "../hive/prism-hive-client.js",
   "./js/game-platform.js",
+  "./js/game-runtime.js",
   "./js/game-data.js",
   "./js/game-ui.js",
   "./js/game-session.js",
   "./js/game-core-physics.js",
   "./js/game-core-render.js",
+  "./js/game-meta-state.js",
   "./js/game-meta.js",
   "./js/game-combat.js",
+  "./js/game-combat-physics.js",
+  "./js/game-figure-recognition.js",
   "./js/game-figure.js",
   "./js/game-feedback.js",
   "./js/game-onboarding.js",
@@ -71,14 +79,9 @@ const runtimeSource = expectedScripts
   .join("\n");
 new Script(runtimeSource, { filename: "stella-ball-runtime.js" });
 
-// The runtime layers behaviour by reassigning globals from later scripts. That
-// only works when the new definition captures the old one first — otherwise the
-// predecessor becomes unreachable, and every reader who looks at it is reading
-// code that never runs. Three separate bugs in August 2026 came from exactly
-// that: a settle mute that covered one layer of four, a skin tint dropped by a
-// `drawFrame` reassignment, and a button added to a `showMeta` that no longer
-// ran. An empty body is fine — that is the house style for a forward
-// declaration another file fills in.
+// Every runtime function has one definition. Cross-file behavior belongs in
+// StellaRuntime hooks or a registered module strategy instead of a global
+// replacement whose effective implementation depends on script order.
 const scriptPaths = expectedScripts.filter(
   (script) => !script.startsWith("../hive/"),
 );
@@ -99,27 +102,30 @@ for (const script of scriptPaths) {
     definitions.set(match[1], list);
   });
 }
-const strandedDefinitions = [];
-for (const [name, sites] of definitions) {
-  if (sites.length < 2) continue;
-  const aliases = [
-    ...runtimeSource.matchAll(
-      new RegExp(`(?:const|let|var)\\s+([\\w$]+)\\s*=\\s*${name}\\s*;`, "g"),
-    ),
-  ]
-    .map((alias) => alias[1])
-    .filter((alias) => new RegExp(`\\b${alias}\\s*\\(`).test(runtimeSource));
-  const reachable = 1 + aliases.length;
-  for (const site of sites.slice(0, Math.max(0, sites.length - reachable))) {
-    if (site.empty) continue;
-    strandedDefinitions.push(`${name} at ${site.script}:${site.line}`);
-  }
-}
-if (strandedDefinitions.length > 0) {
+const overriddenNames = [...definitions]
+  .filter(([, sites]) => sites.length > 1)
+  .map(([name]) => name);
+if (overriddenNames.length) {
   throw new Error(
-    "Overridden without capturing the predecessor, so these definitions are " +
-      `unreachable:\n  ${strandedDefinitions.join("\n  ")}\n` +
-      "Capture it (`const baseX = x;`) and call it, empty the body, or delete it.",
+    `Global function replacements are forbidden: ${overriddenNames.join(", ")}`,
+  );
+}
+const functionNames = new Set(definitions.keys());
+const functionAliasAssignments = [];
+for (const script of scriptPaths) {
+  const body = readFileSync(resolve(root, "prototypes", script), "utf8");
+  body.split("\n").forEach((line, index) => {
+    const match = /^([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\s*;/.exec(line);
+    if (match && functionNames.has(match[2]))
+      functionAliasAssignments.push(
+        `${match[1]} = ${match[2]} at ${script}:${index + 1}`,
+      );
+  });
+}
+if (functionAliasAssignments.length) {
+  throw new Error(
+    "Global function alias replacements are forbidden:\n  " +
+      functionAliasAssignments.join("\n  "),
   );
 }
 
@@ -136,13 +142,48 @@ if (
   );
 }
 
+const deferredFigureCases = {
+  kill: probeDeferredFigureResolution("kill"),
+  refund: probeDeferredFigureResolution("refund"),
+  fail: probeDeferredFigureResolution("fail"),
+};
+for (const [outcome, probe] of Object.entries(deferredFigureCases)) {
+  if (!probe.beforeCast.run || !probe.beforeCast.pending)
+    throw new Error(`${outcome}: final-shot verdict was not deferred.`);
+}
+if (!deferredFigureCases.kill.afterCast.battleComplete)
+  throw new Error("kill: constellation kill did not win the battle.");
+if (
+  !deferredFigureCases.refund.afterCast.run ||
+  deferredFigureCases.refund.afterCast.shots !== 1
+)
+  throw new Error("refund: constellation refund did not continue the battle.");
+if (deferredFigureCases.fail.afterCast.run)
+  throw new Error("fail: unresolved final shot did not end the battle.");
+
+const moduleProbe = probeRuntimeModules();
+if (
+  moduleProbe.version !== 1 ||
+  !moduleProbe.modules.includes("combat") ||
+  !moduleProbe.modules.includes("figure") ||
+  !moduleProbe.modules.includes("render") ||
+  !moduleProbe.combatApiFrozen ||
+  !moduleProbe.figureApiFrozen ||
+  !moduleProbe.renderApiFrozen
+) {
+  throw new Error("Runtime module APIs are missing or mutable.");
+}
+if (moduleProbe.priorityOrder.join(",") !== "high,low")
+  throw new Error("Runtime hook priority order is unstable.");
+if (!moduleProbe.unknownHookRejected || !moduleProbe.duplicateModuleRejected)
+  throw new Error("Runtime registry accepted an invalid contract.");
+
 console.log(
   JSON.stringify(
     {
       result: "passed",
       runtimeScripts: actualScripts.length,
-      overriddenGlobals: [...definitions.values()].filter((s) => s.length > 1)
-        .length,
+      overriddenGlobals: overriddenNames.length,
       stylesheets: actualStyles.length,
     },
     null,

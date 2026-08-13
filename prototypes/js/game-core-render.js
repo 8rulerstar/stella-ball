@@ -1,8 +1,3 @@
-// Superseded wholesale by the game-combat.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function damage(weak = false) {}
-// Superseded wholesale by the game-combat.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
 function resolveAssist(a) {
   if (!boss || battleComplete) return;
   if (a.areaRadius) {
@@ -31,9 +26,6 @@ function resolveAssist(a) {
   if (boss.hp <= 0) scheduleWin();
   syncBossHealth();
 }
-// Superseded wholesale by the game-feedback.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function updateAssists(d) {}
 function drawAssistProjectile(a, px, py, t) {
   const angle = Math.atan2(boss.y - a.fromY, boss.x - a.fromX),
     visual = a.visual || "basic";
@@ -141,6 +133,7 @@ function drawAssists() {
       x.restore();
     }
   }
+  runRuntimeHooks("afterAssistsDraw");
 }
 function registerBossHit(weak) {
   hitCombo = comboTimer > 0 ? hitCombo + 1 : 1;
@@ -153,11 +146,12 @@ function registerBossHit(weak) {
       : "COMBO · " + hitCombo + " HIT";
     U.combo.classList.toggle("hot", riposte);
   }
-  if (riposte) setTimeout(() => toast("연타! 연속 명중 " + hitCombo + "회"), 0);
+  if (riposte) {
+    const combo = hitCombo;
+    setTimeout(() => toast("연타! 연속 명중 " + combo + "회"), 0);
+  }
+  runRuntimeHooks("afterBossHitRegistered", { weak, combo: hitCombo, riposte });
 }
-// Superseded wholesale by the game-feedback.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function impact(weak) {}
 function addPopup(px, py, text, col, big = false) {
   const bossHit = text.includes("몸체") || text.includes("약점");
   if (bossHit) {
@@ -170,6 +164,7 @@ function addPopup(px, py, text, col, big = false) {
     text,
     col,
     t: 0,
+    d: 0.9,
     big: big || text.includes("약점") || hitCombo >= 3,
   });
   if (popups.length > 12) popups.shift();
@@ -319,6 +314,7 @@ function drawFieldFx() {
       x.strokeRect(a.x - 28, a.y - 28, 56, 56);
       x.restore();
     }
+  runRuntimeHooks("afterFieldFxDraw");
 }
 function drawSpecial() {
   drawFieldFx();
@@ -567,7 +563,7 @@ function buildStageArenaLayer() {
   stageArenaLayers.set(key, layer);
   return layer;
 }
-function drawStageArena() {
+function drawDefaultStageArena() {
   const layer = buildStageArenaLayer();
   if (layer) {
     x.drawImage(layer, 0, 0);
@@ -591,10 +587,22 @@ function drawStageArena() {
   drawStageProps();
   drawArenaFrame();
 }
-// Base declaration only.  The pinball version drew a fixed plunger gauge at
-// the bottom of the table ("플런저를 당겨 발사"); the billiards pass replaces
-// this with a cue guide anchored to wherever the meteor came to rest.
-function drawAimGuide() {}
+let stageArenaRenderer = drawDefaultStageArena;
+function drawStageArena() {
+  stageArenaRenderer();
+}
+const RenderModule = StellaRuntime.modules.register("render", {
+  installStageArena(renderer) {
+    if (typeof renderer !== "function")
+      throw new TypeError("Stage arena renderer must be a function.");
+    const previous = stageArenaRenderer,
+      installed = () => renderer(previous);
+    stageArenaRenderer = installed;
+    return () => {
+      if (stageArenaRenderer === installed) stageArenaRenderer = previous;
+    };
+  },
+});
 function drawProjectileOverlay() {
   if (!ball?.moving) return;
   const path = ball.mark
@@ -624,9 +632,6 @@ function drawFrame(spec, cx, cy, frame, scale, state) {
   x.restore();
   return drawn;
 }
-// Superseded wholesale by the game-meta.js definition, which never calls back
-// here.  The empty body keeps the binding explicit for that reassignment.
-function drawFrameRaw() {}
 function drawAnimated(name, cx, cy, size, frame) {
   const im = textures[staticArt[name]];
   if (!im?.complete || !im.naturalWidth) return false;
@@ -645,14 +650,6 @@ function drawAnimated(name, cx, cy, size, frame) {
   );
   return true;
 }
-// Base declarations for the table furniture.  The pinball versions — a
-// plunger lane, two flippers and a "좌측 클릭 · 플리퍼" caption — were replaced
-// wholesale: `drawPinballTable` and `drawCombatControls` by game-combat.js,
-// then `drawCombatControls` again and `drawZoneRules` by game-meta.js.  These
-// stay as empty bases so those assignments keep a declaration to bind to.
-function drawPinballTable() {}
-function drawCombatControls() {}
-function drawZoneRules() {}
 function drawArena() {
   drawStageArena();
   drawPinballTable();
@@ -842,13 +839,12 @@ function drawCombo() {
   x.fillText(riposte ? "연타!" : "COMBO x" + hitCombo, 0, 0);
   x.restore();
 }
-function modernUpdate(d) {
+function update(d) {
   if (toastTimer > 0) {
     toastTimer -= d;
     if (toastTimer <= 0) showNextToast();
   }
-  for (const p of popups) p.t += d;
-  popups = popups.filter((p) => p.t < 0.9);
+  advanceTimed(popups, d);
   for (const a of adds) {
     a.hitCooldown = Math.max(0, a.hitCooldown - d);
     a.frozen = Math.max(0, (a.frozen || 0) - d);
@@ -878,4 +874,3 @@ function modernUpdate(d) {
   if (!ball.moving) return;
   simulatePhysics(d);
 }
-update = modernUpdate;

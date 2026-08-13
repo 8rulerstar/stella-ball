@@ -1,23 +1,21 @@
 // Arena floor pass — "Observatory Ground" (design turn 4a).
 //
-// Replaces the tiled-PNG arena with a fully procedural floor so the table
+// Installs a fully procedural floor so the table
 // stops carrying the old indigo/violet terrain set while the DOM runs the
 // Dawn Observatory palette.  Nothing here loads an image: the floor is
 // voronoi stone plates, an engraved astrolabe carrying the stage's own
 // constellation, two-pole lighting (void violet at the top, launch apricot
 // at the bottom) and an inner wall shadow.
 //
-// Ownership: this file only replaces `drawStageArena`.  It captures the
-// previous definition first, so `npm run smoke` can still reach the base
-// implementation, and it never touches gameplay state, collisions or the
-// canvas judgement colours of units.
+// Ownership: this file only installs the render module's stage-arena strategy.
+// It never touches gameplay state, collisions, or the canvas judgement colours
+// of units.
 //
 // Load order: after `js/game-onboarding.js`, before `js/game-bootstrap.js`.
 // Add the same path to `expectedScripts` in `scripts/smoke-runtime.mjs`.
 
-const baseDrawStageArena = drawStageArena;
-
 const CARVE_WALL = 18;
+const CARVE_CACHE_LIMIT = 4;
 const CARVE_PLATE_RAMP = [
   "#0b1519",
   "#0d181c",
@@ -294,12 +292,17 @@ function carveInnerShadow(layerX) {
   }
 }
 
-// One cached canvas per stage.  The floor never animates, so this costs a
-// single bake and then one drawImage per frame — cheaper than the previous
-// tile loop it replaces.
+// The floor never animates, so recently visited stages keep their baked layer.
+// Each canvas is 720x900, though, so an LRU cap prevents a full campaign tour
+// from retaining roughly 90 MiB of pixel buffers.
 function buildCarveLayer(index) {
   const key = String(index);
-  if (carveLayers.has(key)) return carveLayers.get(key);
+  if (carveLayers.has(key)) {
+    const cached = carveLayers.get(key);
+    carveLayers.delete(key);
+    carveLayers.set(key, cached);
+    return cached;
+  }
   const layer = document.createElement("canvas");
   layer.width = W;
   layer.height = H;
@@ -328,14 +331,19 @@ function buildCarveLayer(index) {
   carveInnerShadow(layerX);
   carveWall(layerX);
   carveLayers.set(key, layer);
+  while (carveLayers.size > CARVE_CACHE_LIMIT) {
+    carveLayers.delete(carveLayers.keys().next().value);
+  }
   return layer;
 }
 
-drawStageArena = function () {
+function drawCarvedStageArena(drawFallback) {
   const layer = buildCarveLayer(stageIndex);
   if (!layer) {
-    baseDrawStageArena();
+    drawFallback();
     return;
   }
   x.drawImage(layer, 0, 0);
-};
+}
+
+StellaRuntime.modules.require("render").installStageArena(drawCarvedStageArena);

@@ -1,7 +1,7 @@
 # 별자리 발동 연출 · 아트 요구서
 
 > 기준일: 2026-08-13
-> 대상: 모든 전투의 별자리 도형 시스템 (`prototypes/js/game-figure.js`)
+> 대상: 모든 전투의 별자리 도형 시스템 (`prototypes/js/game-figure-recognition.js`, `prototypes/js/game-figure.js`)
 > 접수 경로: [ASSET_BACKLOG.md](ASSET_BACKLOG.md)의 「별자리별 발동 연출과 도형 실루엣」 항목
 >
 > 이 문서는 아트 제작에 넘기는 사양서다. 수치는 대부분 실제 런타임에서 측정한 값이고, 정하지 않은 것은 **미정**으로 표기했다. 임의로 채우지 말고 물어봐 주기 바란다.
@@ -153,7 +153,7 @@
 
 ## 8. 구현 현황 — 2026-08-13
 
-**반입 완료.** 실루엣 5종과 연출 5단계 전부 `prototypes/js/game-figure.js`에서 동작한다.
+**반입 완료.** 실루엣 5종의 정의·인식은 `prototypes/js/game-figure-recognition.js`, 능력·연출 5단계는 `prototypes/js/game-figure.js`에서 동작한다.
 
 - 판정·분류·간선 연결·이름표 — 완료
 - 교정(②) — 완료. `figureFit()`이 실제 꼭짓점에 별자리 뼈대를 최적 정합(회전·균등 배율·중심)하고, 그 목표로 0.8초 ease-in-out 이동한다

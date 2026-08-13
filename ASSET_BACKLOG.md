@@ -49,7 +49,7 @@
 - 플레이 목적: 실루엣과 색은 구분되지만 소리가 공용 큐라, 어떤 보스의 어떤 상태인지 귀로 구분되지 않는다.
 - 필요한 형태: 보스 계층 4종(void·teal·apricot·pale)별 attack 상승음과 death 붕괴음. WAV 0.6초 이하.
 - 기존 후보·재사용 경로: `scripts/generate_sfx_parry.py`가 같은 규격(22050Hz 모노 16비트)으로 절차 생성하므로 거기에 계층 4종을 더하면 된다. 외부 샘플·라이선스 없음.
-- 코드 연결 지점: `game-combat.js`의 보스 피해·처치 경로, `game-feedback.js`의 `sampleSfxCue`.
+- 코드 연결 지점: `game-combat-physics.js`의 보스 피해·처치 경로, `game-feedback.js`의 `sampleSfxCue`.
 - 결정·검수 메모: 아트는 반입됐으므로 소리만 남았다. attack·death 상태 자체가 아직 재생되지 않으므로(§보스 팩 규약), 상태 재생이 붙는 시점과 함께 본다.
 
 ### [후보] P2 — 보스 등장 컷인
@@ -222,9 +222,9 @@
 
 ### [반입 완료] P1 — 별자리별 발동 연출과 도형 실루엣
 
-**2026-08-13 반입.** 3~~5점 실루엣 5종(`assets/library/constellations/`)과 궤적·교정·현현·발동 연출을 `game-figure.js`에 붙였다. 성공한 `Space` 패링의 유성-별지기 접점이 고정 별빛 노드가 되며, 3–7개 노드가 별자리를 만든다. 규격·좌표 규약은 [ASSET_PLAN.md](ASSET_PLAN.md)의 「별자리 실루엣 규약」, 3~~5점 사양서는 [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md), 6·7점은 [FIGURE_ART_SPEC_6_7.md](FIGURE_ART_SPEC_6_7.md)다. 오망성은 기존 전용 연출을 쓰므로 실루엣을 만들지 않았다. 아래는 최초 접수 기록이다.
+**2026-08-13 반입.** 3~~5점 실루엣 5종(`assets/library/constellations/`)과 궤적·교정·현현·발동 연출을 별자리 런타임에 붙였다. 현재 정의·인식은 `game-figure-recognition.js`, 능력·연출은 `game-figure.js`가 소유한다. 성공한 `Space` 패링의 유성-별지기 접점이 고정 별빛 노드가 되며, 3–7개 노드가 별자리를 만든다. 규격·좌표 규약은 [ASSET_PLAN.md](ASSET_PLAN.md)의 「별자리 실루엣 규약」, 3~~5점 사양서는 [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md), 6·7점은 [FIGURE_ART_SPEC_6_7.md](FIGURE_ART_SPEC_6_7.md)다. 오망성은 기존 전용 연출을 쓰므로 실루엣을 만들지 않았다. 아래는 최초 접수 기록이다.
 
-**2026-08-13 6·7점 반입.** 오리온자리(6점)·북두칠성(7점) 실루엣 2종을 `assets/library/constellations/`에 넣고 `game-figure.js`의 `art`를 연결했다. 재생성은 `scripts/generate_constellation_art_6_7.mjs`. 미정이던 세 항목을 확정했다 — 오리온은 전신, 사이프는 반투명 암시, 북두칠성은 국자만. 반입 시점에는 `maxNodes`가 5라 볼 수 없었으나, 같은 날 패링 통합이 7로 올리면서 **일곱 계층 전부 실제로 발동한다.**
+**2026-08-13 6·7점 반입.** 오리온자리(6점)·북두칠성(7점) 실루엣 2종을 `assets/library/constellations/`에 넣고 `game-figure-recognition.js`의 `art`를 연결했다. 재생성은 `scripts/generate_constellation_art_6_7.mjs`. 미정이던 세 항목을 확정했다 — 오리온은 전신, 사이프는 반투명 암시, 북두칠성은 국자만. 반입 시점에는 `maxNodes`가 5라 볼 수 없었으나, 같은 날 패링 통합이 7로 올리면서 **일곱 계층 전부 실제로 발동한다.**
 
 **2026-08-13 첫 고유 능력.** 화살자리가 `piercingShot`으로 갈라져 나왔다 — `axis: [3, 0]`(자루 끝→촉)을 따라 표 끝까지 직선을 쏘므로, 인식된 **방향이 결과를 가르는 첫 사례**다(촉이 보스를 향하면 56, 반대면 0). **남은 것: 나머지 7종의 고유 능력과 구분 SFX**(아직 `encloseDamage` 공용). 관통선은 전용 아트 없이 `figureFx` 위 코드 드로잉으로만 낸다.
 
@@ -234,7 +234,7 @@
 - 희망 규격·프레임: SFX 규격은 미정. 오망성만 현재 전용 연출(별 채우기·광선·맥동)을 갖고 있어 기준 삼을 수 있다.
 - 화풍·색 규칙: 기존 프리즘 픽셀 FX 범위. 오망성만 따뜻한 `#ffd2a0` 계열을 쓰고 나머지는 차가운 `#9adfc9` 계열로 묶여 있다. 희귀도에 따라 색 계층을 나눠야 한다.
 - 기존 후보·재사용 경로: `assets/library/fx/`의 `prism-impact` · `rune-shockwave` · `core-break-signature-512`. 현재는 공용 `areaBursts`와 `unlock` SFX만 재사용 중이다.
-- 코드 연결 지점: `prototypes/js/game-figure.js`의 `FIGURE_SHAPES`(별자리 정의)와 `FIGURE_ABILITIES`(능력 실행), `drawFigure` 훅의 이름표 블록.
+- 코드 연결 지점: `prototypes/js/game-figure-recognition.js`의 `FIGURE_SHAPES`(별자리 정의), `prototypes/js/game-figure.js`의 `FIGURE_ABILITIES`(능력 실행)와 `drawFigure` 훅의 이름표 블록.
 - 결정·검수 메모: 선행 과제였던 도형별 연결 순서는 완료됐다. `FIGURE_SHAPES[].edges`가 실제 간선을, `figureFit()`이 실루엣과 선을 같은 변환으로 배치한다. 백조자리도 중심 별을 통과하는 십자 간선을 쓴다. 다음 자산 작업은 고유 능력이 확정된 뒤의 SFX만 대상으로 한다.
 
 ## 일괄 제작 패스 체크리스트

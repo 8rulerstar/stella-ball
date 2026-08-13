@@ -117,8 +117,11 @@ for (const boss of core.BOSSES) {
 
   for (const state of core.STATES) {
     const sheet = canvas(F * 4, F);
-    for (let f = 0; f < 4; f++) blit(sheet, core.renderFrame(boss.slug, state, f), f * F, 0);
-    console.log(write(`assets/library/anim/boss10/${boss.slug}-${state}.png`, sheet));
+    for (let f = 0; f < 4; f++)
+      blit(sheet, core.renderFrame(boss.slug, state, f), f * F, 0);
+    console.log(
+      write(`assets/library/anim/boss10/${boss.slug}-${state}.png`, sheet),
+    );
     count++;
   }
 }

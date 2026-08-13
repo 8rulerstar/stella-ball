@@ -18,6 +18,7 @@
 // event, so the body must stay the single place a bounce is tallied.
 function tableWall() {
   ball.bounces++;
+  runRuntimeHooks("afterTableWall", { ball });
 }
 
 // Per-frame upkeep for the short-lived field effects, called once per rendered
@@ -27,15 +28,8 @@ function updateExpanded(d) {
   advanceTimed(fieldFx, d);
 }
 
-// A starkeeper is woken by the meteor rolling into it; the billiards pass owns
-// what that means.
-function hitGate(g) {}
+// Starkeeper, bumper, and solver behavior are declared by game-combat.js.
+// This base layer references them only after the ordered runtime has loaded.
 
-// Bumper response; the campaign version lives in `game-meta.js`.
-function hitBumper(b) {}
-
-// The collision solver itself; the billiards version lives in `game-combat.js`.
-function simulatePhysics(d) {}
-
-// The per-frame battle step; `game-core-render.js` supplies `modernUpdate`.
-function update(d) {}
+// The per-frame battle step is declared by game-core-render.js after the draw
+// helpers it coordinates. The loop calls it only after all scripts have loaded.

@@ -17,13 +17,19 @@ const types = {
 };
 
 function resolveRequest(url) {
-  const pathname = decodeURIComponent(
-    new URL(url, "http://localhost").pathname,
-  );
-  const relativePath =
-    pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
-  const target = normalize(join(root, relativePath));
-  return target.startsWith(`${root}${sep}`) || target === root ? target : null;
+  try {
+    const pathname = decodeURIComponent(
+      new URL(url, "http://localhost").pathname,
+    );
+    const relativePath =
+      pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
+    const target = normalize(join(root, relativePath));
+    return target.startsWith(`${root}${sep}`) || target === root
+      ? target
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 createServer((request, response) => {

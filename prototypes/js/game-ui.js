@@ -47,7 +47,9 @@ function showConfirm({
   onCancel,
 }) {
   const previousClass = U.over.className,
-    previousHtml = U.over.innerHTML;
+    previousChildren = [...U.over.childNodes],
+    previousOnClick = U.over.onclick;
+  U.over.onclick = null;
   U.over.className = "overlay confirm-scene";
   U.over.innerHTML =
     '<section class="confirm-card" role="dialog" aria-modal="true"><small>' +
@@ -68,7 +70,8 @@ function showConfirm({
     playSfx?.();
     if (onCancel) return onCancel();
     U.over.className = previousClass;
-    U.over.innerHTML = previousHtml;
+    U.over.replaceChildren(...previousChildren);
+    U.over.onclick = previousOnClick;
   };
   document.querySelector("#confirmYes").focus({ preventScroll: true });
 }

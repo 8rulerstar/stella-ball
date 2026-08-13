@@ -9,13 +9,17 @@ const demoPath = resolve(root, "prototypes/prism-breakers.html");
 const source = readFileSync(demoPath, "utf8");
 const gameFiles = [
   "prototypes/js/game-platform.js",
+  "prototypes/js/game-runtime.js",
   "prototypes/js/game-data.js",
   "prototypes/js/game-ui.js",
   "prototypes/js/game-session.js",
   "prototypes/js/game-core-physics.js",
   "prototypes/js/game-core-render.js",
+  "prototypes/js/game-meta-state.js",
   "prototypes/js/game-meta.js",
   "prototypes/js/game-combat.js",
+  "prototypes/js/game-combat-physics.js",
+  "prototypes/js/game-figure-recognition.js",
   "prototypes/js/game-figure.js",
   "prototypes/js/game-feedback.js",
   "prototypes/js/game-onboarding.js",

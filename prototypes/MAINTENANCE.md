@@ -4,37 +4,48 @@
 
 The browser build is intentionally a set of ordered classic scripts, not a bundled application. This keeps the GitHub Pages build and `PLAY_WINDOWS.cmd` launch path simple. Treat the order in `prism-breakers.html` as a public dependency contract; `npm run smoke` enforces it, along with a second rule about how later scripts extend earlier ones.
 
-### Overriding a global
+### Crossing a module boundary
 
-Later scripts layer behaviour by reassigning globals. Capture the predecessor before you replace it and call it:
+Do not replace a function owned by another file. Publish a small service API when a caller needs an answer or command:
 
 ```js
-const baseSettleParty = settleParty;
-settleParty = function () {
-  baseSettleParty();
-  // your addition
-};
+const ExampleModule = StellaRuntime.modules.register("example", {
+  isReady: () => ready,
+});
+
+StellaRuntime.modules.require("example").isReady();
 ```
 
-Replacing without capturing strands the earlier definition — it stays in the file, reads as live code, and never runs. `npm run smoke` fails on that and names the file and line. An empty body is exempt, because that is how a file declares a binding for a later file to fill in. Prefer `registerRuntimeHook()` over wrapping wherever a hook already exists.
+Registered APIs are copied and frozen. Expose behavior or immutable values, not mutable owner state. Use `optional(name)` only where the feature may legitimately be absent in a focused harness.
 
-A wrapper's position in the chain is load order, so a change that only covers one layer is a real failure mode: muting an effect from `game-figure.js` does nothing about the copy `game-feedback.js` queues a layer above it.
+Use a named hook when the other file only reacts to a lifecycle event:
+
+```js
+registerRuntimeHook("afterShotEnd", ({ battle }) => {
+  // reaction owned by this file
+});
+```
+
+`runRuntimeHooks` broadcasts, `queryRuntimeHook` returns the first defined answer, and `runtimeHookHandled` stops when a callback returns `true`. Hook names are validated in `game-runtime.js`; add a name there before registering it. Use priority only when product behavior requires ordering, and document why.
+
+`npm run smoke` rejects every globally replaced function name. The runtime has no legacy exception or allowlist. See [ADR-001](./ADR-001-RUNTIME-MODULES.md) for the decision and trade-offs.
 
 Start a change in the smallest owner module listed in [ARCHITECTURE.md](./ARCHITECTURE.md). Shared browser concerns have dedicated boundaries:
 
 - `js/game-platform.js` owns resilient local persistence (`appStorage`) and the active scene lifecycle.
-- `js/game-data.js` owns gameplay data, mutable combat state, texture caching, and extension registration.
+- `js/game-runtime.js` owns the module registry and named hook contracts, but no game state.
+- `js/game-data.js` owns gameplay data, mutable combat state, and texture caching.
 - `js/game-ui.js` owns reusable DOM presentation (`setScene`, `setPortrait`).
 
 Use `setScene()` for every major-screen transition. It updates both the CSS body class and the runtime lifecycle. The animation loop simulates and draws only while `game` is active, and does nothing expensive when the tab is hidden.
 
 ## Extending combat safely
 
-New render or feedback behavior must register with `registerRuntimeHook(name, callback)`. It returns an optional cleanup function for temporary behavior. Available hook names are `afterArenaDraw`, `afterDraw`, `afterFeedbackUpdate`, and `afterSpecialDraw`.
+New render, feedback, onboarding, or combat reactions must register with `registerRuntimeHook(name, callback)`. It returns a cleanup function for temporary behavior. The closed hook-name list and dispatch semantics live in `game-runtime.js`.
 
-Do not add new assignments such as `draw = function () { ... }` or `updateFeedback = function () { ... }`. A few historical wrappers remain in the combat, feedback, meta, and onboarding scripts; leave their order intact until a dedicated migration replaces them with named hooks.
+Do not add assignments such as `draw = function () { ... }` or `updateFeedback = function () { ... }`. Add a named hook or an owner-controlled strategy instead.
 
-`game-arena-carve.js` is the narrow rendering exception. It captures and replaces only `drawStageArena()` to draw its per-stage cached floor. Keep it after onboarding, before bootstrap, and presentation-only; do not add collisions, gameplay state, or per-frame canvas allocation there.
+`game-arena-carve.js` installs its per-stage cached floor through `render.installStageArena()`. Keep it after onboarding, before bootstrap, and presentation-only; do not add collisions, gameplay state, or per-frame canvas allocation there.
 
 ## Adding one stage gimmick
 
@@ -56,10 +67,10 @@ The infinite training table is the current reference configuration for all three
 
 ## Maintaining constellation figures
 
-`js/game-figure.js` is enabled only for the infinite training table. At settlement it uses the meteor and starkeepers that actually moved: two points draw a segment; three or more always select the nearest skeleton in their point-count tier. It then keeps the physical units fixed and animates only the drawn line toward that skeleton.
+`js/game-figure-recognition.js` owns constellation trace capture and recognition in every combat. At settlement it uses the successful parry contacts collected during the shot: three or more select the nearest skeleton in their point-count tier. `js/game-figure.js` then keeps the physical units fixed, applies the selected outcome, and animates the drawn line toward that skeleton.
 
-- Keep the file immediately after `game-combat.js`. It wraps `settleParty`; use the predecessor-capture rule above if that wrapper changes.
-- `FIGURE_SHAPES` owns recognition templates, draw edges, and the optional silhouette texture path. `FIGURE_ABILITIES` owns the outcome. The six current entries deliberately share `encloseDamage`; do not describe them as distinct abilities until that table changes.
+- Keep the order `game-combat.js` → `game-combat-physics.js` → `game-figure-recognition.js` → `game-figure.js`. The figure pair consumes `beforePartySettle` and `beforeShotResolution`; do not restore a `settleParty` or `endShot` wrapper.
+- `game-figure-recognition.js` owns `FIGURE_SHAPES`, recognition templates, draw edges, and optional silhouette paths. `game-figure.js` owns `FIGURE_ABILITIES` and the outcome. The six current entries deliberately share `encloseDamage`; do not describe them as distinct abilities until that table changes.
 - The seven 384×384 silhouette files are coordinate-bound to `FIGURE_SHAPES`. Update `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, and `FIGURE_ART_SPEC.md` in the same change if their points, size, or paths change. The 6- and 7-point pair regenerates from `scripts/generate_constellation_art_6_7.mjs`.
 - Figure damage must continue through `applyBossHit()` and `damageAdd()` so shields and phase rules cannot be bypassed.
 
@@ -83,7 +94,7 @@ npm run check
 For a changed runtime module, add the focused formatting check and whitespace check:
 
 ```sh
-npx --yes prettier@3.5.3 --check prototypes/js/game-platform.js prototypes/js/game-ui.js prototypes/js/game-data.js prototypes/js/game-session.js prototypes/js/game-meta.js prototypes/js/game-combat.js prototypes/js/game-figure.js prototypes/js/game-feedback.js scripts/smoke-runtime.mjs scripts/verify-evidence.mjs
+npx --yes prettier@3.5.3 --check prototypes/js/game-platform.js prototypes/js/game-runtime.js prototypes/js/game-data.js prototypes/js/game-ui.js prototypes/js/game-session.js prototypes/js/game-core-physics.js prototypes/js/game-core-render.js prototypes/js/game-meta-state.js prototypes/js/game-meta.js prototypes/js/game-combat.js prototypes/js/game-combat-physics.js prototypes/js/game-figure-recognition.js prototypes/js/game-figure.js prototypes/js/game-feedback.js prototypes/js/game-onboarding.js prototypes/js/game-arena-carve.js scripts/smoke-runtime.mjs scripts/verify-evidence.mjs
 git diff --check
 ```
 
