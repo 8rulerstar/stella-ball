@@ -311,15 +311,25 @@ function showRoster() {
   const slotBox = document.querySelector("#slotChoices"),
     tray = document.querySelector("#squadTray"),
     detail = document.querySelector("#squadDetail");
+  // Slot indices in the order they were last filled, oldest first.  This is
+  // what makes a full party rotate: the next tap evicts whoever has been
+  // standing there longest, so repeated taps cycle through the slots.
+  let fillOrder = Array.from({ length: slotCount }, (_, i) => i);
+  const oldestSlot = () => fillOrder[0] ?? 0;
+  const touchSlot = (slot) => {
+    fillOrder = [...fillOrder.filter((entry) => entry !== slot), slot];
+  };
   // Dropping a deployed hero swaps the two slots; dropping a benched one takes
   // the slot over and sends its previous occupant back to the tray.
   const place = (id, slot) => {
     if (!heroes[id] || !owned.includes(id)) return;
     const from = deployed.indexOf(id);
     if (from === slot) return;
-    if (from >= 0)
+    if (from >= 0) {
       [deployed[from], deployed[slot]] = [deployed[slot], deployed[from]];
-    else deployed[slot] = id;
+      touchSlot(from);
+    } else deployed[slot] = id;
+    touchSlot(slot);
     selected = [...deployed];
     rosterFocus = id;
     placementPick = null;
@@ -435,10 +445,14 @@ function showRoster() {
       setPortrait(b.querySelector(".portrait"), h, 48);
       b.addEventListener("pointerenter", () => focus(id));
       b.addEventListener("click", () => {
-        // Tapping a benched unit with a free slot open seats it right away, so
-        // the tray still works without a drag on touch.
-        const free = deployed.findIndex((entry) => !entry);
-        if (at < 0 && free >= 0) return place(id, free);
+        // Tapping a benched unit seats it with no second click: an empty slot
+        // first, and once the party is full the slot that has been held the
+        // longest gives way.  Keep tapping and the party rotates in tap order
+        // instead of dead-ending on "파티가 가득 찼습니다".
+        if (at < 0) {
+          const free = deployed.findIndex((entry) => !entry);
+          return place(id, free >= 0 ? free : oldestSlot());
+        }
         placementPick = placementPick === id ? null : id;
         focus(id);
         renderTray();
