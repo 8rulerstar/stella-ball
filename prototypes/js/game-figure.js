@@ -105,6 +105,7 @@ function currentFigureShot() {
       flash: 0,
       contact: null,
       nearMiss: 0,
+      guideStarClaimed: false,
     };
   }
   return figureShot;
@@ -115,6 +116,45 @@ function clearFigureShot() {
   state.parry = 0;
   state.contact = null;
   state.nearMiss = 0;
+  state.guideStarClaimed = false;
+}
+// The first live stage modifier is deliberately not a collision target.  It
+// turns the player's first successful parry into a readable three-point loop,
+// without changing the meteor's path or asking for a second input.  The pair
+// fans out behind the incoming line so the real parry contact stays the point
+// that visually leads the triangle.
+function addGuideStars(state, contact) {
+  if (!battle?.guideStarCharges || state.guideStarClaimed) return false;
+  const x = contact?.x ?? ball.x,
+    y = contact?.y ?? ball.y,
+    incoming = contact?.incoming ?? ball,
+    speed =
+      Math.hypot(incoming.x ?? incoming.vx, incoming.y ?? incoming.vy) || 1,
+    ux = (incoming.x ?? incoming.vx) / speed,
+    uy = (incoming.y ?? incoming.vy) / speed,
+    px = -uy,
+    py = ux,
+    place = (side) => ({
+      x: clamp(x - ux * 66 + px * 76 * side, 28, W - 28),
+      y: clamp(y - uy * 66 + py * 76 * side, 28, H - 28),
+      col: "#ffd27f",
+      label: "안내별",
+      guide: true,
+      born: PARRY_FX.nodeBorn,
+    });
+  if (state.nodes.length + 2 > FIGURE_PARRY.maxNodes) return false;
+  state.nodes.push(place(-1), place(1));
+  state.guideStarClaimed = true;
+  pushParryFx({
+    kind: "guide",
+    x,
+    y,
+    nodes: state.nodes.slice(-2),
+    d: 0.62,
+  });
+  addPopup(x, y - 42, "안내별 점등 · 별빛 3/7", "#ffd27f", true);
+  toast("관측 잔광 · 안내별 둘이 첫 별자리를 돕습니다");
+  return true;
 }
 // Called by the combat collision pass. `mobilePair` has already left the
 // ordinary bounce in place; this consumes only the additional powered contact.
@@ -163,6 +203,12 @@ function consumeTrainingParry(g, contact = null, remembered = false) {
         d: PARRY_FX.close,
       });
   }
+  if (addGuideStars(state, contact))
+    pushParryFx({
+      kind: "close",
+      ring: figureRing(state.nodes).map((n) => ({ x: n.x, y: n.y })),
+      d: PARRY_FX.close,
+    });
   return true;
 }
 // A real collision leaves a short, single-use echo. It stores the pre-bounce
@@ -226,9 +272,11 @@ function finishFigureShot({ missed = false } = {}) {
     return Boolean(lostNodes);
   }
   if (!state.nodes.length) return;
-  const nodes = state.nodes;
+  const nodes = state.nodes,
+    spentGuideStars = state.guideStarClaimed;
   clearFigureShot();
   if (nodes.length >= FIGURE_PARRY.minNodes) {
+    if (spentGuideStars) battle.guideStarCharges -= 1;
     resolveFigure(nodes);
     return true;
   }
@@ -948,7 +996,7 @@ function figureCorrection(t) {
 // contrast: at 0.4 alpha in unit colour alone the eight roster colours all
 // landed between 2.5 and 3.4 against the floor, with 봇새기 pink and 그즘 purple
 // worst. The halo keeps `node.col` doing its job — saying who made the node.
-function drawStarNode(cx, cy, col, born = 0) {
+function drawStarNode(cx, cy, col, born = 0, guide = false) {
   const pop = born > 0 ? born / PARRY_FX.nodeBorn : 0,
     halo = 7 + pop * 3;
   x.save();
@@ -971,6 +1019,17 @@ function drawStarNode(cx, cy, col, born = 0) {
     x.lineWidth = 2;
     x.beginPath();
     x.arc(cx, cy, halo + 5 + (1 - pop) * 10, 0, Math.PI * 2);
+    x.stroke();
+  }
+  if (guide) {
+    x.globalAlpha = 0.9;
+    x.strokeStyle = "#fff2bf";
+    x.lineWidth = 1.5;
+    x.beginPath();
+    x.moveTo(cx - 6, cy);
+    x.lineTo(cx + 6, cy);
+    x.moveTo(cx, cy - 6);
+    x.lineTo(cx, cy + 6);
     x.stroke();
   }
   x.restore();
@@ -1002,6 +1061,21 @@ function drawParryFxLayer() {
           fx.x + Math.cos(a) * (from + 9 * life),
           fx.y + Math.sin(a) * (from + 9 * life),
         );
+        x.stroke();
+      }
+    } else if (fx.kind === "guide") {
+      x.strokeStyle = "#ffd27f";
+      x.shadowBlur = 16;
+      x.shadowColor = "#ffd27f";
+      x.globalAlpha = life * 0.8;
+      x.lineWidth = 2 + life * 2;
+      for (const node of fx.nodes) {
+        x.beginPath();
+        x.moveTo(fx.x, fx.y);
+        x.lineTo(node.x, node.y);
+        x.stroke();
+        x.beginPath();
+        x.arc(node.x, node.y, 6 + p * 7, 0, Math.PI * 2);
         x.stroke();
       }
     } else if (fx.kind === "miss") {
@@ -1074,9 +1148,7 @@ function drawParryFxLayer() {
       x.shadowBlur = 12;
       x.shadowColor = PARRY_FX.window;
       x.beginPath();
-      fx.ring.forEach((n, i) =>
-        i ? x.lineTo(n.x, n.y) : x.moveTo(n.x, n.y),
-      );
+      fx.ring.forEach((n, i) => (i ? x.lineTo(n.x, n.y) : x.moveTo(n.x, n.y)));
       x.closePath();
       x.stroke();
     }
@@ -1184,7 +1256,7 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
   x.setLineDash([]);
   x.restore();
   for (const node of nodes)
-    drawStarNode(node.x, node.y, node.col, node.born || 0);
+    drawStarNode(node.x, node.y, node.col, node.born || 0, node.guide);
   if (match) {
     x.save();
     x.globalAlpha = 0.9;

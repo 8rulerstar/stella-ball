@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generatedAt": "2026-08-13T08:01:25.639Z",
+    "generatedAt": "2026-08-13T08:42:23.973Z",
     "model": "runtime-harness-v1",
     "scenario": "plain arena / no gimmicks / 5 shots / manual steer excluded",
     "cases": 96,
@@ -140,6 +140,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -148,7 +149,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -167,6 +169,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -175,7 +178,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -194,6 +198,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 3.4625,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -202,7 +207,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 180,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -221,6 +227,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -229,7 +236,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -246,6 +254,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 3.5583333333333336,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -254,7 +263,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 63,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -271,6 +281,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 3.5583333333333336,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -279,7 +290,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 63,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -296,6 +308,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 3.5583333333333336,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -304,7 +317,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 63,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -321,6 +335,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 3.5583333333333336,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -329,7 +344,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 63,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -348,6 +364,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -356,7 +373,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -375,6 +393,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -383,7 +402,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -402,6 +422,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -410,7 +431,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 192,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -429,6 +451,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -437,7 +460,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -454,6 +478,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 4.141666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -462,7 +487,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 105,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -479,6 +505,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 4.141666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -487,7 +514,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 105,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -504,6 +532,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 4.141666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -512,7 +541,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 105,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -529,6 +559,7 @@
       ],
       "maxShotDuration": 5.433333333333334,
       "averageShotDuration": 4.141666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -537,7 +568,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 105,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -556,6 +588,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -564,7 +597,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -583,6 +617,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -591,7 +626,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -610,6 +646,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -618,7 +655,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 192,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -637,6 +675,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -645,7 +684,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -663,6 +703,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.144444444444445,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -671,7 +712,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 167,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -689,6 +731,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.144444444444445,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -697,7 +740,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 167,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -715,6 +759,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.144444444444445,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -723,7 +768,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 167,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -741,6 +787,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.144444444444445,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -749,7 +796,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 167,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -768,6 +816,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -776,7 +825,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -795,6 +845,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -803,7 +854,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -822,6 +874,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -830,7 +883,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 192,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -849,6 +903,7 @@
       ],
       "maxShotDuration": 5.733333333333333,
       "averageShotDuration": 4.433333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -857,7 +912,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 6,
       "directBossDamage": 157,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -875,6 +931,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.3500000000000005,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -883,7 +940,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 247,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -901,6 +959,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.3500000000000005,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -909,7 +968,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 247,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -927,6 +987,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.3500000000000005,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -935,7 +996,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 247,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 2,
@@ -953,6 +1015,7 @@
       ],
       "maxShotDuration": 5.883333333333334,
       "averageShotDuration": 4.3500000000000005,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -961,7 +1024,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 247,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -980,6 +1044,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -988,7 +1053,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1007,6 +1073,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1015,7 +1082,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1034,6 +1102,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1042,7 +1111,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1061,6 +1131,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1069,7 +1140,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1086,6 +1158,7 @@
       ],
       "maxShotDuration": 4.483333333333333,
       "averageShotDuration": 3.966666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1094,7 +1167,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 96,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1111,6 +1185,7 @@
       ],
       "maxShotDuration": 4.483333333333333,
       "averageShotDuration": 3.966666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1119,7 +1194,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 96,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1136,6 +1212,7 @@
       ],
       "maxShotDuration": 4.483333333333333,
       "averageShotDuration": 3.966666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1144,7 +1221,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 96,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1161,6 +1239,7 @@
       ],
       "maxShotDuration": 4.483333333333333,
       "averageShotDuration": 3.966666666666667,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1169,7 +1248,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 96,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1188,6 +1268,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1196,7 +1277,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1215,6 +1297,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1223,7 +1306,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1242,6 +1326,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1250,7 +1335,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1269,6 +1355,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1277,7 +1364,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1296,6 +1384,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 3.6708333333333334,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1304,7 +1393,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 2,
       "directBossDamage": 176,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1323,6 +1413,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 3.6708333333333334,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1331,7 +1422,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 2,
       "directBossDamage": 176,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1350,6 +1442,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 3.6708333333333334,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1358,7 +1451,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 2,
       "directBossDamage": 176,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1377,6 +1471,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 3.6708333333333334,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1385,7 +1480,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 2,
       "directBossDamage": 176,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1404,6 +1500,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1412,7 +1509,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1431,6 +1529,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1439,7 +1538,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1458,6 +1558,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1466,7 +1567,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1485,6 +1587,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1493,7 +1596,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1512,6 +1616,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1520,7 +1625,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1539,6 +1645,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1547,7 +1654,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1566,6 +1674,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1574,7 +1683,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1593,6 +1703,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1601,7 +1712,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1620,6 +1732,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1628,7 +1741,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1647,6 +1761,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1655,7 +1770,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1674,6 +1790,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1682,7 +1799,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1701,6 +1819,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 4.8,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1709,7 +1828,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 5,
       "directBossDamage": 98,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1728,6 +1848,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1736,7 +1857,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1755,6 +1877,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1763,7 +1886,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1782,6 +1906,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1790,7 +1915,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 3,
@@ -1809,6 +1935,7 @@
       ],
       "maxShotDuration": 5.916666666666667,
       "averageShotDuration": 4.9125,
+      "guideStarsRemaining": 0,
       "parries": 3,
       "lateParries": 0,
       "constellations": 0,
@@ -1817,7 +1944,8 @@
       "openingDirectHits": 1,
       "unroutedBossHits": 3,
       "directBossDamage": 223,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -1836,6 +1964,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1844,7 +1973,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -1863,6 +1993,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1871,7 +2002,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -1890,6 +2022,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1898,7 +2031,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -1917,6 +2051,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -1925,7 +2060,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -1943,6 +2079,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 3.4722222222222228,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -1951,7 +2088,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 92,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -1969,6 +2107,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 3.4722222222222228,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -1977,7 +2116,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 92,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -1995,6 +2135,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 3.4722222222222228,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -2003,7 +2144,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 92,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2021,6 +2163,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 3.4722222222222228,
+      "guideStarsRemaining": 0,
       "parries": 4,
       "lateParries": 0,
       "constellations": 0,
@@ -2029,7 +2172,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 92,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2048,6 +2192,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2056,7 +2201,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2075,6 +2221,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2083,7 +2230,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2102,6 +2250,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2110,7 +2259,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2129,6 +2279,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2137,7 +2288,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2156,6 +2308,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 4.354166666666667,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2164,7 +2317,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 147,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2183,6 +2337,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 4.354166666666667,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2191,7 +2346,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 147,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2210,6 +2366,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 4.354166666666667,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2218,7 +2375,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 147,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2237,6 +2395,7 @@
       ],
       "maxShotDuration": 5.65,
       "averageShotDuration": 4.354166666666667,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2245,7 +2404,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 147,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2264,6 +2424,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2272,7 +2433,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2291,6 +2453,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2299,7 +2462,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2318,6 +2482,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2326,7 +2491,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2345,6 +2511,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2353,7 +2520,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2372,6 +2540,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2380,7 +2549,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2399,6 +2569,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2407,7 +2578,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2426,6 +2598,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2434,7 +2607,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2453,6 +2627,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2461,7 +2636,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2480,6 +2656,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2488,7 +2665,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2507,6 +2685,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2515,7 +2694,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2534,6 +2714,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2542,7 +2723,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2561,6 +2743,7 @@
       ],
       "maxShotDuration": 5.783333333333333,
       "averageShotDuration": 5.058333333333334,
+      "guideStarsRemaining": 0,
       "parries": 0,
       "lateParries": 0,
       "constellations": 0,
@@ -2569,7 +2752,8 @@
       "openingDirectHits": 4,
       "unroutedBossHits": 4,
       "directBossDamage": 66,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2588,6 +2772,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2596,7 +2781,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2615,6 +2801,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2623,7 +2810,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2642,6 +2830,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2650,7 +2839,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     },
     {
       "partySize": 4,
@@ -2669,6 +2859,7 @@
       ],
       "maxShotDuration": 6.166666666666667,
       "averageShotDuration": 5.195833333333334,
+      "guideStarsRemaining": 0,
       "parries": 5,
       "lateParries": 0,
       "constellations": 0,
@@ -2677,7 +2868,8 @@
       "openingDirectHits": 0,
       "unroutedBossHits": 0,
       "directBossDamage": 189,
-      "steers": 0
+      "steers": 0,
+      "guideStarsAtStart": 0
     }
   ]
 }

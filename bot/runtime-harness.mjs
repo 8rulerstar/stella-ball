@@ -224,6 +224,7 @@ function __botStart(config) {
     unroutedBossHits: 0,
     directBossDamage: 0,
     steers: 0,
+    guideStarsAtStart: battle.guideStarCharges || 0,
   };
   const originalResolve = resolveMeteorParryContact;
   resolveMeteorParryContact = function (g, contact) {
@@ -315,6 +316,7 @@ function __botRun(config) {
     averageShotDuration: duration.length
       ? duration.reduce((sum, value) => sum + value, 0) / duration.length
       : 0,
+    guideStarsRemaining: battle.guideStarCharges || 0,
     ...__botMetrics,
   };
 }
@@ -326,6 +328,33 @@ function __botCampaignRun(config) {
     arena: { ...source, tutorial: false },
     bossHp: source.bossHp,
   });
+}
+function __botIndividualClaimProbe() {
+  progress = {
+    ...progress,
+    gold: 0,
+    pendingGold: 0,
+    pendingRewards: [],
+    pendingRewardSerial: 0,
+  };
+  accrueGold(100, "1-2 클리어 보상");
+  accrueGold(100, "1-3 클리어 보상");
+  const before = pendingRewardEntries();
+  const claimed = claimPendingGold(before[0].id);
+  const afterOne = pendingRewardEntries();
+  progress.pendingGold = 60;
+  const legacy = pendingRewardEntries().find(
+    (entry) => entry.id === "legacy-pending-gold",
+  );
+  const legacyClaim = claimPendingGold(legacy.id);
+  return {
+    before,
+    claimed,
+    afterOne,
+    legacyClaim,
+    finalEntries: pendingRewardEntries(),
+    gold: progress.gold,
+  };
 }
 function __botSteerProbe(config, side) {
   __botStart(config);
@@ -423,6 +452,10 @@ export function runCampaignStage({
     },
     "__botCampaignRun",
   );
+}
+
+export function probeIndividualClaims() {
+  return runInRuntime({ seed: 1 }, "__botIndividualClaimProbe");
 }
 
 export function sweepPlainArena({

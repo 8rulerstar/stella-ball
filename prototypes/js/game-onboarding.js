@@ -320,6 +320,7 @@ function completeOnboarding() {
     progress.clears++;
     grantFreeSummon(1);
     saveProgress();
+    announceNewAchievements();
   }
   selected =
     onboarding?.replay && onboarding.returnParty?.length
@@ -899,7 +900,7 @@ win = function () {
     elapsedMs = battle?.victory?.elapsedMs ?? 0,
     goldEarned =
       shouldRecord && !battle?.training && !battle?.tutorial
-        ? accrueGold(ECONOMY.clearGold)
+        ? accrueGold(ECONOMY.clearGold, currentStage().id + " 클리어 보상")
         : 0;
   if (shouldRecord) {
     battle.storyRecorded = true;
@@ -927,6 +928,7 @@ win = function () {
       partyNames +
       '</p><button onclick="showStageSelect()">다음 관측</button></div>';
     U.over.classList.remove("hide");
+    announceNewAchievements();
   }
 };
 const baseStoryRenderBlaze = renderBlaze;

@@ -869,14 +869,16 @@ const CAMPAIGN_WORLD_PLANS = [
         "β Ari",
         "갈라진 뿔",
         155,
-        "왼쪽과 오른쪽 별지기 중 먼저 공명할 길을 고르세요.",
+        "첫 성공 패링이 안내별 둘을 밝혀 첫 별자리를 돕습니다.",
+        { guideStarCharges: 1 },
       ],
       [
         "메사르팀",
         "γ Ari",
         "세 점의 고리",
         180,
-        "세 별의 첫 별자리 루프를 완성하세요.",
+        "첫 성공 패링이 안내별 둘을 밝혀 별자리 루프를 돕습니다.",
+        { guideStarCharges: 1 },
       ],
     ],
   },
@@ -1138,7 +1140,17 @@ function buildCampaignStages() {
   let campaignIndex = 0;
   return CAMPAIGN_WORLD_PLANS.flatMap((world, worldIndex) =>
     world.stages.map(
-      ([starName, bayer, subtitle, bossHp, terrain], stageIndex) => {
+      (
+        [
+          starName,
+          bayer,
+          subtitle,
+          bossHp,
+          terrain,
+          { guideStarCharges = 0 } = {},
+        ],
+        stageIndex,
+      ) => {
         const layout =
           CAMPAIGN_LAYOUTS[campaignIndex % CAMPAIGN_LAYOUTS.length];
         campaignIndex += 1;
@@ -1152,6 +1164,7 @@ function buildCampaignStages() {
           preview: stagePreview(layout.slots),
           boss: { x: layout.boss[0], y: layout.boss[1] },
           bossHp,
+          guideStarCharges,
           labels: ["좌측 항로", "우측 항로", "중앙 항로"],
           bumpers: [],
           gimmicks: {},
@@ -1183,6 +1196,7 @@ function stageGimmickLabels(stage) {
   const g = stage?.gimmicks ?? {};
   return [
     stage?.bumpers?.length && "공명 범퍼 ×" + stage.bumpers.length,
+    stage?.guideStarCharges && "관측 잔광 ×" + stage.guideStarCharges,
     g.walls?.length && "반사 벽 ×" + g.walls.length,
     g.boostPads?.length && "가속 발판 ×" + g.boostPads.length,
     g.dragPads?.length && "흐린 발판 ×" + g.dragPads.length,

@@ -18,6 +18,7 @@ function setupBattle() {
     startedAt: performance.now(),
     slow: 0,
     constel: 0,
+    guideStarCharges: s.guideStarCharges ?? 0,
     training: Boolean(s.training),
     tutorial: Boolean(s.tutorial),
   };
@@ -64,13 +65,17 @@ function setupBattle() {
     ? "무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기."
     : s.tutorial
       ? "1-1 · 유성을 아래로 끌어 미리내에게 부딪혀 보세요."
-      : s.name + " · 별지기를 깨우고, 멈춘 자리로 별자리를 그리세요.";
+      : s.guideStarCharges
+        ? s.name + " · 첫 패링이 안내별 둘을 밝혀 별자리를 돕습니다."
+        : s.name + " · 별지기를 깨우고, 멈춘 자리로 별자리를 그리세요.";
   toast(
     s.training
       ? "훈련 시작 · 불멸의 거상"
       : s.tutorial
         ? "1-1 · 첫 관측 시작"
-        : " " + s.id + " · " + s.name,
+        : s.guideStarCharges
+          ? "관측 잔광 · 첫 패링으로 안내별을 밝히세요"
+          : " " + s.id + " · " + s.name,
   );
   sync();
 }
