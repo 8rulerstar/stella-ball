@@ -12,7 +12,6 @@ startShot = function (restingPoint = null) {
   }
   ball.billiards = true;
   ball.aimAssist = false;
-  ball.nudgeCooldown = 0;
 };
 endShot = function () {
   const restingPoint = { x: ball.x, y: ball.y };
@@ -243,55 +242,13 @@ drawCombatControls = function () {
 };
 function billiardPointerDown(e) {
   if (!run) return;
-  const p = pointer(e);
   if (!ball?.moving) {
+    if (e.button !== 0) return;
+    const p = pointer(e);
     e.stopImmediatePropagation();
     drag = { x: p.x, y: p.y };
     c.setPointerCapture(e.pointerId);
     return;
-  }
-  e.stopImmediatePropagation();
-  if (e.button === 0 && ball.turnReady && !ball.turnUsed) {
-    e.preventDefault();
-    const vx = ball.vx,
-      vy = ball.vy;
-    ball.vx = -vy;
-    ball.vy = vx;
-    ball.turnUsed = true;
-    ball.turnReady = false;
-    ball.power += 0.92;
-    ball.runeBurst = 0.9;
-    emitAbilityFx(
-      ball.turnGate || { id: "sera", col: "#bca7ff" },
-      ball.x,
-      ball.y,
-      118,
-      0.46,
-      Math.atan2(ball.vy, ball.vx),
-    );
-    fieldFx.push({
-      type: "turn",
-      x: ball.x,
-      y: ball.y,
-      t: 0,
-      d: 0.52,
-      col: ball.turnGate?.col || "#bca7ff",
-    });
-    addPopup(ball.x, ball.y - 34, "90° 전환 +에너지", "#e5c7ff", true);
-    toast("달무리 · 90° 전환!");
-    msg = "달무리 · 전환 명령으로 운동량을 크게 얻었습니다.";
-    return;
-  }
-  if (e.button === 2 && ball.nudgeCooldown <= 0) {
-    e.preventDefault();
-    const dx = ball.x - p.x,
-      dy = ball.y - p.y,
-      l = Math.hypot(dx, dy) || 1;
-    ball.vx += (dx / l) * 225;
-    ball.vy += (dy / l) * 225;
-    ball.nudgeCooldown = 0.7;
-    ball.runeBurst = 0.3;
-    toast("미세 조정 · 운동량 +");
   }
 }
 // The launch stone sits at the bottom of the board, so a literal drag would
@@ -897,16 +854,6 @@ function redirectToNearestUnit(g) {
   toast(g.s + " · " + target.s + "에게 강제 중계");
   msg = g.s + " · 가장 가까운 " + target.s + "에게 유성을 재발사합니다.";
 }
-function armTurnCommand(g) {
-  if (ball.turnReady || ball.turnUsed) return;
-  ball.turnReady = true;
-  ball.turnGate = g;
-  ball.power += 0.28;
-  emitAbilityFx(g, ball.x, ball.y, 98, 0.56, Math.atan2(ball.vy, ball.vx));
-  fieldFx.push({ type: "turn", x: g.x, y: g.y, t: 0, d: 0.55, col: g.col });
-  toast(g.s + " · 클릭 1회 90° 전환");
-  msg = g.s + " · 움직이는 유성을 한 번 클릭해 90도로 꺾으세요.";
-}
 function reportBladeWheelHit() {}
 function updateBladeWheel(g, speed, step) {
   const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
@@ -975,10 +922,6 @@ function applyContactAbility(g, incoming) {
   }
   if (fx === "seek") {
     redirectToNearestUnit(g);
-    return true;
-  }
-  if (fx === "turn") {
-    armTurnCommand(g);
     return true;
   }
   if (fx === "bladewheel") {
@@ -1058,16 +1001,6 @@ function activateCloneUnit(o, g, incoming) {
       emitAbilityFx(g, g.x, g.y, 94, 0.42, Math.atan2(dy, dx));
       toast("살별 · 분열체 강제 중계!");
     }
-  } else if (fx === "turn") {
-    const vx = o.vx,
-      vy = o.vy;
-    o.vx = -vy;
-    o.vy = vx;
-    const ratio = (speed + 220) / (Math.hypot(o.vx, o.vy) || 1);
-    o.vx *= ratio;
-    o.vy *= ratio;
-    emitAbilityFx(g, g.x, g.y, 92, 0.44, Math.atan2(o.vy, o.vx));
-    toast("달무리 · 분열체 90° 전환!");
   }
   queueUnitAssist(
     g,
@@ -1216,7 +1149,6 @@ startShot = function (restingPoint = null) {
       bounces: 0,
       launchPower: 0.35,
       billiards: true,
-      nudgeCooldown: 0,
       mark: Boolean(battle.nextMark),
       pulse: battle.nextPulse || 0,
       blaze: createBlaze(),
@@ -2033,7 +1965,6 @@ simulatePhysics = function (d) {
     }
     updateCloneBalls(step);
     ball.wallShock = Math.max(0, (ball.wallShock || 0) - step);
-    ball.nudgeCooldown = Math.max(0, (ball.nudgeCooldown || 0) - step);
     ball.trailSample = (ball.trailSample || 0) + step;
     if (ball.trailSample >= 1 / 60) {
       ball.trailSample = 0;

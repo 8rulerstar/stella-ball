@@ -337,16 +337,6 @@ function drawSpecial() {
     x.stroke();
     x.restore();
   }
-  // Sera's turn command is the only in-flight input left; the orbit and moon
-  // cues belonged to the flipper build and could never light up again.
-  if (ball.turnReady && !ball.turnUsed) {
-    x.save();
-    x.fillStyle = "#e5c7ff";
-    x.font = "bold 11px ui-monospace";
-    x.textAlign = "center";
-    x.fillText("클릭 · 90° 전환 + 에너지", ball.x, ball.y - 28);
-    x.restore();
-  }
   runRuntimeHooks("afterSpecialDraw");
 }
 function drawStatic(name, cx, cy, size) {

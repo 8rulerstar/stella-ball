@@ -15,7 +15,7 @@
 | 별하 · 이중 분열     | `assets/characters/lumi-shaman-idle.png`                                  | 프로젝트 오너 제작 (2026-08-13)             | 이번 샷에 한 번 룬볼을 둘로 복제                                                                                                                                                                     |
 | 살별 · 강제 중계     | `assets/characters/haru-lancer-idle.png`                                  | 프로젝트 오너 제작 (2026-08-13)             | 가장 가까운 다른 유닛에게 룬볼 재발사                                                                                                                                                                |
 | 윤슬 · 질풍 칼날     | `assets/characters/ria-bladewheel-idle.png`                               | 프로젝트 오너 제작 (2026-08-13)             | 이동 속도 비례 회전 칼날, 정산 공격 없음                                                                                                                                                             |
-| 달무리 · 전환 명령   | `assets/characters/sera-monk-idle.png`                                    | 프로젝트 오너 제작 (2026-08-13)             | 클릭 한 번으로 90° 전환 및 에너지 획득                                                                                                                                                               |
+| 달무리 · 전환 명령   | `assets/characters/sera-monk-idle.png`                                    | 프로젝트 오너 제작 (2026-08-13)             | 새 충돌 발동 조건 재설계 중; 현재는 기본 충돌 반응만 유지                                                                                                                                            |
 | 모루 · 충돌 충격파   | `assets/characters/taeo-orc-idle.png`                                     | 프로젝트 오너 제작 (2026-08-13)             | 모든 충돌 수에 비례한 주변 충격파. 파일명의 orc는 교체 전 시트 잔재                                                                                                                                  |
 | 그믐 · 마지막 모사   | `assets/characters/nyx-oracle-idle.png`                                   | 프로젝트 오너 제작 (2026-08-13)             | 마지막으로 충돌한 아군의 능력을 복제                                                                                                                                                                 |
 | Stella Ball 워드마크 | `assets/original/stella-ball-wordmark.svg`                                | 프로젝트 오리지널 벡터                      | 타이틀·메타·튜토리얼의 공식 게임명 표기                                                                                                                                                              |
@@ -41,16 +41,16 @@
 
 ## 유닛 전용 이펙트
 
-| 유닛   | 이펙트 파일                                   | 전투 타이밍                    |
-| ------ | --------------------------------------------- | ------------------------------ |
-| 샛별   | `assets/library/restyle/fx/gaon-slash.png`    | 멈춘 뒤 근접 베기              |
-| 미리내 | `assets/library/restyle/fx/biyeon-volley.png` | 멈춘 뒤 거리 저격              |
-| 별하   | `assets/library/restyle/fx/lumi-wave.png`     | 룬볼 분열                      |
-| 살별   | `assets/library/restyle/fx/haru-dash.png`     | 가장 가까운 유닛으로 강제 중계 |
-| 윤슬   | 런타임 회전 칼날 링                           | 이동 속도 비례 지속 피해       |
-| 달무리 | `assets/library/restyle/fx/rio-turn.png`      | 전환 준비 및 클릭 90° 전환     |
-| 모루   | `assets/library/restyle/fx/taeo-quake.png`    | 충돌 수 기반 충격파            |
-| 그믐   | `assets/library/restyle/fx/nyx-lock.png`      | 마지막 충돌 아군 능력 모사     |
+| 유닛   | 이펙트 파일                                   | 전투 타이밍                      |
+| ------ | --------------------------------------------- | -------------------------------- |
+| 샛별   | `assets/library/restyle/fx/gaon-slash.png`    | 멈춘 뒤 근접 베기                |
+| 미리내 | `assets/library/restyle/fx/biyeon-volley.png` | 멈춘 뒤 거리 저격                |
+| 별하   | `assets/library/restyle/fx/lumi-wave.png`     | 룬볼 분열                        |
+| 살별   | `assets/library/restyle/fx/haru-dash.png`     | 가장 가까운 유닛으로 강제 중계   |
+| 윤슬   | 런타임 회전 칼날 링                           | 이동 속도 비례 지속 피해         |
+| 달무리 | `assets/library/restyle/fx/rio-turn.png`      | 다음 발동 규칙 설계 후 연결 예정 |
+| 모루   | `assets/library/restyle/fx/taeo-quake.png`    | 충돌 수 기반 충격파              |
+| 그믐   | `assets/library/restyle/fx/nyx-lock.png`      | 마지막 충돌 아군 능력 모사       |
 
 위 이펙트는 프로젝트 라이브러리의 오리지널 픽셀 VFX를 재사용하며, 능력 발동 순간에만 짧게 확대·페이드한다.
 
