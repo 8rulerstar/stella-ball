@@ -496,10 +496,10 @@ showMeta = function () {
   const clear = progress.clears || 0,
     gold = goldBalance(),
     best = formatRunTime(progress.bestTime),
-    gimmicks = stageData.gimmicks ?? {},
     stageRule = mapStage.onboarding
       ? "루나의 관측 수업"
-      : stageGimmickLabels(stageData).join(" · ") || "별자리 전술";
+      : stageGimmickLabels(stageData).join(" · ") ||
+        "무기믹 전장 · 거상 HP " + (stageData.bossHp ?? RULES.coreHp);
   const nodes = mapStages
     .map((entry, index) => {
       const cleared = isStageCleared(entry);
@@ -518,9 +518,11 @@ showMeta = function () {
         entry.mark +
         '</span><span class="stage-copy"><small>' +
         (entry.star ? entry.star.bayer : "STAGE " + entry.id) +
-        '</small><b class="marquee"><span>' +
-        (entry.star ? entry.star.name : entry.name) +
-        '</span></b><span class="marquee"><span>' +
+        '</small><b class="stage-id">' +
+        entry.id +
+        '</b><strong class="marquee"><span>' +
+        entry.name +
+        '</span></strong><span class="marquee"><span>' +
         entry.note +
         '</span></span></span><em class="node-status">' +
         (entry.locked
@@ -569,7 +571,9 @@ showMeta = function () {
     "</svg>" +
     nodes +
     '</section><section class="hub-mission-bar"><div class="hub-mission-info"><small>' +
-    (mapStage.star ? mapStage.star.bayer + " · " : "STAGE " + mapStage.id + " · ") +
+    (mapStage.star
+      ? mapStage.star.bayer + " · "
+      : "STAGE " + mapStage.id + " · ") +
     stageRule +
     '</small><b class="marquee"><span>' +
     mapStage.name +

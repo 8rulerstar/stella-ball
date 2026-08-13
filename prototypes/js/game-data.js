@@ -51,6 +51,11 @@ U.combo = document.querySelector("#comboText");
 const RULES = {
   baseDamage: 24,
   chainStep: 0.55,
+  // A bare boss rush is allowed as a recovery line, but it cannot replace the
+  // party route. The opening direct hit is lower again when it is the shot's
+  // first collision, before the meteor has touched a starkeeper or rail.
+  unroutedBossDamage: 0.6,
+  openingBossDamage: 0.5,
   shots: 5,
   coreHp: 260,
   // The last onboarding lesson is a real kill, so the colossus stops being
@@ -351,25 +356,45 @@ for (const id of Object.keys(heroes))
 // connect on the hub map.
 const WORLDS = [
   {
-    id: "ursa",
-    name: "북두칠성",
-    bayer: "URSA MAJOR",
-    lore: "일곱 별이 국자를 이루는, 밤하늘에서 가장 먼저 배우는 별자리.",
+    id: "aries",
+    name: "양자리",
+    bayer: "ARIES",
+    lore: "세 점을 잇는 첫 관측 항로. 별지기 경유와 패링을 배운다.",
     shape: [
-      [86, 30],
-      [84, 58],
-      [66, 66],
-      [64, 42],
-      [48, 36],
-      [31, 30],
-      [13, 20],
+      [13, 62],
+      [48, 27],
+      [87, 55],
+    ],
+  },
+  {
+    id: "sagitta",
+    name: "화살자리",
+    bayer: "SAGITTA",
+    lore: "네 점의 화살이 향하는 곳. 발사 뒤 궤도 전환을 익힌다.",
+    shape: [
+      [12, 55],
+      [35, 55],
+      [66, 24],
+      [88, 55],
+    ],
+  },
+  {
+    id: "corvus",
+    name: "까마귀자리",
+    bayer: "CORVUS",
+    lore: "네 점의 굽은 날개. 충돌 순서와 다음 샷의 자리를 읽는다.",
+    shape: [
+      [12, 61],
+      [35, 28],
+      [68, 37],
+      [89, 62],
     ],
   },
   {
     id: "cass",
     name: "카시오페이아",
     bayer: "CASSIOPEIA",
-    lore: "다섯 별이 W를 그리는, 북극성을 찾는 두 번째 이정표.",
+    lore: "다섯 별의 W. 어느 별지기를 먼저 공명할지 고른다.",
     shape: [
       [12, 34],
       [30, 64],
@@ -378,11 +403,55 @@ const WORLDS = [
       [88, 34],
     ],
   },
+  {
+    id: "cygnus",
+    name: "백조자리",
+    bayer: "CYGNUS",
+    lore: "다섯 점의 긴 날개. 한 샷 안에서 접점을 이어 간다.",
+    shape: [
+      [12, 54],
+      [35, 54],
+      [52, 22],
+      [68, 54],
+      [90, 54],
+    ],
+  },
+  {
+    id: "orion",
+    name: "오리온자리",
+    bayer: "ORION",
+    lore: "여섯 별의 사냥꾼. 조향 한 번과 패링을 함께 회수한다.",
+    shape: [
+      [12, 62],
+      [28, 27],
+      [46, 48],
+      [60, 48],
+      [76, 28],
+      [89, 62],
+    ],
+  },
+  {
+    id: "ursa",
+    name: "북두칠성",
+    bayer: "URSA MAJOR",
+    lore: "일곱 별의 국자. 모든 경로 판단을 묻는 마지막 관측.",
+    shape: [
+      [13, 20],
+      [31, 30],
+      [48, 36],
+      [64, 42],
+      [66, 66],
+      [84, 58],
+      [86, 30],
+    ],
+  },
 ];
 // The table is 720x900, and `preview` is the same slot in percent so the
 // squad minimap and the real table agree.  Every stage that introduces a
 // gimmick carries that gimmick alone; only later stages combine two.
-const stages = [
+// Preserved only as a reference for retired gimmick layouts.  The active
+// campaign below is intentionally a no-gimmick HP/route progression.
+const LEGACY_GIMMICK_STAGES = [
   {
     id: "1-1",
     world: "ursa",
@@ -725,6 +794,376 @@ const stages = [
     training: true,
   },
 ];
+const TRAINING_STAGE = LEGACY_GIMMICK_STAGES.find((stage) => stage.training);
+const CAMPAIGN_LAYOUTS = [
+  {
+    slots: [
+      [182, 542],
+      [538, 542],
+      [360, 470],
+    ],
+    boss: [360, 190],
+  },
+  {
+    slots: [
+      [156, 520],
+      [486, 566],
+      [352, 414],
+    ],
+    boss: [448, 202],
+  },
+  {
+    slots: [
+      [232, 564],
+      [560, 438],
+      [338, 506],
+    ],
+    boss: [274, 198],
+  },
+  {
+    slots: [
+      [162, 458],
+      [526, 540],
+      [390, 620],
+    ],
+    boss: [406, 214],
+  },
+  {
+    slots: [
+      [208, 536],
+      [514, 432],
+      [348, 598],
+    ],
+    boss: [332, 188],
+  },
+  {
+    slots: [
+      [142, 570],
+      [454, 506],
+      [586, 382],
+    ],
+    boss: [472, 210],
+  },
+  {
+    slots: [
+      [194, 406],
+      [526, 584],
+      [334, 632],
+    ],
+    boss: [244, 214],
+  },
+];
+const CAMPAIGN_WORLD_PLANS = [
+  {
+    id: "aries",
+    stages: [
+      [
+        "하말",
+        "α Ari",
+        "첫 관측",
+        120,
+        "루나와 함께 첫 패링 접점을 관측하세요.",
+      ],
+      [
+        "셰라탄",
+        "β Ari",
+        "갈라진 뿔",
+        155,
+        "왼쪽과 오른쪽 별지기 중 먼저 공명할 길을 고르세요.",
+      ],
+      [
+        "메사르팀",
+        "γ Ari",
+        "세 점의 고리",
+        180,
+        "세 별의 첫 별자리 루프를 완성하세요.",
+      ],
+    ],
+  },
+  {
+    id: "sagitta",
+    stages: [
+      [
+        "샴",
+        "α Sge",
+        "첫 화살",
+        190,
+        "별지기 경유 뒤 보스에게 향하는 한 줄을 만드세요.",
+      ],
+      [
+        "화살의 허리",
+        "β Sge",
+        "갈림 궤도",
+        200,
+        "발사당 한 번의 궤도 전환을 안전하게 써 보세요.",
+      ],
+      [
+        "화살촉",
+        "γ Sge",
+        "먼저 꺾기",
+        210,
+        "보스보다 별지기를 먼저 맞히는 각을 찾으세요.",
+      ],
+      [
+        "되돌림",
+        "δ Sge",
+        "끝의 방향",
+        220,
+        "패링 이후 남은 방향으로 다음 접점을 이어 가세요.",
+      ],
+    ],
+  },
+  {
+    id: "corvus",
+    stages: [
+      [
+        "알키바",
+        "α Crv",
+        "검은 첫 점",
+        225,
+        "첫 충돌 순서를 바꿔 보스 진입을 설계하세요.",
+      ],
+      [
+        "크라즈",
+        "β Crv",
+        "굽은 날개",
+        235,
+        "멈춘 자리가 다음 샷의 출발점이 되는 것을 활용하세요.",
+      ],
+      [
+        "기에나",
+        "γ Crv",
+        "중계 깃",
+        245,
+        "두 별지기를 연달아 깨우는 경로를 만드세요.",
+      ],
+      [
+        "알고라브",
+        "δ Crv",
+        "돌아오는 그림자",
+        250,
+        "직격 대신 되돌아오는 공명 경로를 선택하세요.",
+      ],
+    ],
+  },
+  {
+    id: "cass",
+    stages: [
+      [
+        "카프",
+        "β Cas",
+        "W의 첫 점",
+        255,
+        "분산된 시작 배치에서 첫 목표를 정하세요.",
+      ],
+      [
+        "셰다르",
+        "α Cas",
+        "갈라진 왕관",
+        265,
+        "서로 먼 별지기를 한 발 안에서 연결하세요.",
+      ],
+      [
+        "감마 카스",
+        "γ Cas",
+        "중앙의 틈",
+        275,
+        "가운데를 비워 둔 경유선의 리턴을 확인하세요.",
+      ],
+      [
+        "루크바",
+        "δ Cas",
+        "뒤집힌 W",
+        285,
+        "좌·우 전환 중 무엇을 남길지 판단하세요.",
+      ],
+      [
+        "세긴",
+        "ε Cas",
+        "다섯 번째 점",
+        295,
+        "패링 실패 없이 다섯 발의 경로를 완주하세요.",
+      ],
+    ],
+  },
+  {
+    id: "cygnus",
+    stages: [
+      [
+        "데네브",
+        "α Cyg",
+        "긴 날개",
+        300,
+        "먼 별지기까지 닿는 첫 경로를 만드세요.",
+      ],
+      [
+        "사드르",
+        "γ Cyg",
+        "교차점",
+        305,
+        "두 패링의 접점을 한 샷에 이어 보세요.",
+      ],
+      [
+        "중앙 깃",
+        "δ Cyg",
+        "흐르는 선",
+        310,
+        "멈추지 않는 유성에서 다음 충돌을 예측하세요.",
+      ],
+      [
+        "남쪽 날개",
+        "ε Cyg",
+        "백조의 턴",
+        315,
+        "조향 한 번으로 안전한 귀환선을 만드세요.",
+      ],
+      [
+        "알비레오",
+        "β Cyg",
+        "두 빛의 끝",
+        320,
+        "별자리 후보를 남긴 채 보스 진입을 결정하세요.",
+      ],
+    ],
+  },
+  {
+    id: "orion",
+    stages: [
+      [
+        "베텔게우스",
+        "α Ori",
+        "어깨의 불꽃",
+        325,
+        "첫 샷에서 다음 샷의 자리를 확보하세요.",
+      ],
+      [
+        "벨라트릭스",
+        "γ Ori",
+        "반대 어깨",
+        330,
+        "두 방향의 공명 중 더 긴 경로를 선택하세요.",
+      ],
+      [
+        "알니타크",
+        "ζ Ori",
+        "허리의 시작",
+        335,
+        "패링과 조향의 사용 순서를 맞추세요.",
+      ],
+      [
+        "알니람",
+        "ε Ori",
+        "허리의 중심",
+        340,
+        "세 접점으로 별자리 발동을 노리세요.",
+      ],
+      [
+        "민타카",
+        "δ Ori",
+        "허리의 끝",
+        345,
+        "보스 앞에서 유성의 운동량을 보존하세요.",
+      ],
+      [
+        "리겔",
+        "β Ori",
+        "사냥의 발",
+        350,
+        "다섯 발 전체를 쓰는 안정적인 경로를 완성하세요.",
+      ],
+    ],
+  },
+  {
+    id: "ursa",
+    stages: [
+      [
+        "두베",
+        "α UMa",
+        "국자의 시작",
+        350,
+        "마지막 월드의 첫 경유선을 세우세요.",
+      ],
+      [
+        "메라크",
+        "β UMa",
+        "깊은 물",
+        355,
+        "패링 뒤의 유성 방향을 끝까지 읽으세요.",
+      ],
+      [
+        "페크다",
+        "γ UMa",
+        "굽은 손잡이",
+        360,
+        "별지기 둘을 거쳐 보스에 닿으세요.",
+      ],
+      [
+        "메그레즈",
+        "δ UMa",
+        "국자의 목",
+        365,
+        "별자리 노드와 직접 피해의 우선순위를 고르세요.",
+      ],
+      [
+        "알리오트",
+        "ε UMa",
+        "기울어진 빛",
+        370,
+        "조향 1회를 가장 가치 있는 접점에 쓰세요.",
+      ],
+      [
+        "미자르",
+        "ζ UMa",
+        "두 별의 선",
+        375,
+        "짧은 패링 창을 놓치지 않고 연쇄하세요.",
+      ],
+      [
+        "알카이드",
+        "η UMa",
+        "마지막 꼭짓점",
+        380,
+        "모은 모든 경로 판단으로 거상을 끝내세요.",
+      ],
+    ],
+  },
+];
+function stagePreview(slots) {
+  return slots.map(([x, y]) => [
+    Number(((x / W) * 100).toFixed(1)),
+    Number(((y / H) * 100).toFixed(1)),
+  ]);
+}
+function buildCampaignStages() {
+  let campaignIndex = 0;
+  return CAMPAIGN_WORLD_PLANS.flatMap((world, worldIndex) =>
+    world.stages.map(
+      ([starName, bayer, subtitle, bossHp, terrain], stageIndex) => {
+        const layout =
+          CAMPAIGN_LAYOUTS[campaignIndex % CAMPAIGN_LAYOUTS.length];
+        campaignIndex += 1;
+        return {
+          id: worldIndex + 1 + "-" + (stageIndex + 1),
+          world: world.id,
+          star: { name: starName, bayer },
+          name: starName + " · " + subtitle,
+          terrain,
+          slots: layout.slots.map(([x, y]) => [x, y]),
+          preview: stagePreview(layout.slots),
+          boss: { x: layout.boss[0], y: layout.boss[1] },
+          bossHp,
+          labels: ["좌측 항로", "우측 항로", "중앙 항로"],
+          bumpers: [],
+          gimmicks: {},
+          tutorial: worldIndex === 0 && stageIndex === 0,
+          art: campaignIndex % 5,
+        };
+      },
+    ),
+  );
+}
+const stages = [...buildCampaignStages(), TRAINING_STAGE];
+
 // Campaign order is the flat stage order minus the training table, and one
 // clear opens the next star.  `progress.clears` is the only save field this
 // needs, so no migration is required for players already part way in.

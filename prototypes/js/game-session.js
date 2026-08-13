@@ -35,7 +35,7 @@ function setupBattle() {
     ? 999999999
     : finalLesson
       ? RULES.tutorialCoreHp
-      : RULES.coreHp;
+      : (s.bossHp ?? RULES.coreHp);
   boss = {
     ...s.boss,
     hp,

@@ -1,4694 +1,2683 @@
 {
   "summary": {
-    "generatedAt": "2026-08-10T01:39:38.129Z",
-    "model": "headless-v1",
-    "cases": 168,
-    "clearRate": 43.5,
-    "averageRemainingHp": 34.6,
-    "averageGateHits": 4.9,
-    "failedSeeds": [
+    "generatedAt": "2026-08-13T08:01:25.639Z",
+    "model": "runtime-harness-v1",
+    "scenario": "plain arena / no gimmicks / 5 shots / manual steer excluded",
+    "cases": 96,
+    "clearRate": 34.4,
+    "averageRemainingHp": 107.8,
+    "averageParries": 1.9,
+    "failedCases": [
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "biyeon",
-          "lumi"
-        ],
-        "remainingHp": 65
+        "partySize": 2,
+        "bossHp": 180,
+        "policy": "direct",
+        "seed": 11,
+        "remainingHp": 23
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "biyeon",
-          "haru"
-        ],
-        "remainingHp": 66
+        "partySize": 2,
+        "bossHp": 180,
+        "policy": "direct",
+        "seed": 29,
+        "remainingHp": 23
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "biyeon",
-          "sera"
-        ],
-        "remainingHp": 63
+        "partySize": 2,
+        "bossHp": 180,
+        "policy": "direct",
+        "seed": 83,
+        "remainingHp": 23
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "biyeon",
-          "taeo"
-        ],
+        "partySize": 2,
+        "bossHp": 260,
+        "policy": "direct",
+        "seed": 11,
+        "remainingHp": 103
+      },
+      {
+        "partySize": 2,
+        "bossHp": 260,
+        "policy": "direct",
+        "seed": 29,
+        "remainingHp": 103
+      },
+      {
+        "partySize": 2,
+        "bossHp": 260,
+        "policy": "direct",
+        "seed": 47,
         "remainingHp": 68
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "biyeon",
-          "nyx"
-        ],
-        "remainingHp": 62
+        "partySize": 2,
+        "bossHp": 260,
+        "policy": "direct",
+        "seed": 83,
+        "remainingHp": 103
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "biyeon",
-          "rio"
-        ],
-        "remainingHp": 64
+        "partySize": 2,
+        "bossHp": 340,
+        "policy": "direct",
+        "seed": 11,
+        "remainingHp": 183
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "lumi",
-          "haru"
-        ],
-        "remainingHp": 94
+        "partySize": 2,
+        "bossHp": 340,
+        "policy": "direct",
+        "seed": 29,
+        "remainingHp": 183
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "lumi",
-          "sera"
-        ],
-        "remainingHp": 91
+        "partySize": 2,
+        "bossHp": 340,
+        "policy": "direct",
+        "seed": 47,
+        "remainingHp": 148
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "lumi",
-          "taeo"
-        ],
-        "remainingHp": 96
+        "partySize": 2,
+        "bossHp": 340,
+        "policy": "direct",
+        "seed": 83,
+        "remainingHp": 183
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "lumi",
-          "nyx"
-        ],
-        "remainingHp": 90
+        "partySize": 2,
+        "bossHp": 420,
+        "policy": "direct",
+        "seed": 11,
+        "remainingHp": 263
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "lumi",
-          "rio"
-        ],
-        "remainingHp": 92
+        "partySize": 2,
+        "bossHp": 420,
+        "policy": "direct",
+        "seed": 29,
+        "remainingHp": 263
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "haru",
-          "sera"
-        ],
-        "remainingHp": 91
+        "partySize": 2,
+        "bossHp": 420,
+        "policy": "direct",
+        "seed": 47,
+        "remainingHp": 228
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "haru",
-          "taeo"
-        ],
-        "remainingHp": 96
+        "partySize": 2,
+        "bossHp": 420,
+        "policy": "direct",
+        "seed": 83,
+        "remainingHp": 263
       },
       {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "haru",
-          "nyx"
-        ],
-        "remainingHp": 90
-      },
-      {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "haru",
-          "rio"
-        ],
-        "remainingHp": 92
-      },
-      {
-        "stage": "S-01",
-        "party": [
-          "gaon",
-          "sera",
-          "taeo"
-        ],
-        "remainingHp": 96
+        "partySize": 3,
+        "bossHp": 180,
+        "policy": "direct",
+        "seed": 11,
+        "remainingHp": 82
       }
     ]
   },
   "report": [
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "biyeon",
-        "lumi"
-      ],
-      "hp": 64.976512,
-      "damage": 175,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 65,
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
       "cleared": false,
-      "angle": -0.2825
+      "remainingHp": 23,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "biyeon",
-        "haru"
-      ],
-      "hp": 65.976512,
-      "damage": 174,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 66,
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.2825
+      "remainingHp": 23,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "biyeon",
-        "sera"
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 4,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        0.1
       ],
-      "hp": 62.976512,
-      "damage": 177,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 63,
-      "cleared": false,
-      "angle": -0.2825
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 3.4625,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 180,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "biyeon",
-        "taeo"
-      ],
-      "hp": 67.976512,
-      "damage": 196,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 68,
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
       "cleared": false,
-      "angle": -0.2825
+      "remainingHp": 23,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "biyeon",
-        "nyx"
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        1.6833333333333333
       ],
-      "hp": 61.976512,
-      "damage": 178,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 62,
-      "cleared": false,
-      "angle": -0.2825
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 3.5583333333333336,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 1,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 63,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "biyeon",
-        "rio"
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        1.6833333333333333
       ],
-      "hp": 63.976512,
-      "damage": 176,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 64,
-      "cleared": false,
-      "angle": -0.2825
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 3.5583333333333336,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 1,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 63,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "lumi",
-        "haru"
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        1.6833333333333333
       ],
-      "hp": 93.3296,
-      "damage": 147,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 94,
-      "cleared": false,
-      "angle": -0.2825
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 3.5583333333333336,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 1,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 63,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "lumi",
-        "sera"
+      "partySize": 2,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        1.6833333333333333
       ],
-      "hp": 90.3296,
-      "damage": 150,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 91,
-      "cleared": false,
-      "angle": -0.2825
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 3.5583333333333336,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 1,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 63,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "lumi",
-        "taeo"
-      ],
-      "hp": 95.3296,
-      "damage": 169,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 96,
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
       "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "lumi",
-        "nyx"
-      ],
-      "hp": 89.3296,
-      "damage": 151,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 90,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "lumi",
-        "rio"
-      ],
-      "hp": 91.3296,
-      "damage": 149,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 92,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "haru",
-        "sera"
-      ],
-      "hp": 90.3296,
-      "damage": 150,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 91,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "haru",
-        "taeo"
-      ],
-      "hp": 95.3296,
-      "damage": 169,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 96,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "haru",
-        "nyx"
-      ],
-      "hp": 89.3296,
-      "damage": 151,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 90,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "haru",
-        "rio"
-      ],
-      "hp": 91.3296,
-      "damage": 149,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 92,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "sera",
-        "taeo"
-      ],
-      "hp": 95.3296,
-      "damage": 169,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 96,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "sera",
-        "nyx"
-      ],
-      "hp": 89.3296,
-      "damage": 151,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 90,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "sera",
-        "rio"
-      ],
-      "hp": 91.3296,
-      "damage": 149,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 92,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 89.3296,
-      "damage": 175,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 90,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "taeo",
-        "rio"
-      ],
-      "hp": 91.3296,
-      "damage": 173,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 92,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "gaon",
-        "nyx",
-        "rio"
-      ],
-      "hp": 91.3296,
-      "damage": 149,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 4,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 827.8747861608372,
-        "y": 454.54334047372606,
-        "vx": 16.350682562750876,
-        "vy": 22.669247979640375,
-        "moving": false
-      },
-      "tick": 14.524999999999816,
-      "remainingHp": 92,
-      "cleared": false,
-      "angle": -0.2825
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "lumi",
-        "haru"
-      ],
-      "hp": 76.77247999999999,
-      "damage": 163,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 77,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "lumi",
-        "sera"
-      ],
-      "hp": 73.77247999999999,
-      "damage": 166,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 74,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "lumi",
-        "taeo"
-      ],
-      "hp": 78.77247999999999,
-      "damage": 217,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 79,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "lumi",
-        "nyx"
-      ],
-      "hp": 72.77247999999999,
-      "damage": 167,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 73,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "lumi",
-        "rio"
-      ],
-      "hp": 74.77247999999999,
-      "damage": 165,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 75,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "haru",
-        "sera"
-      ],
-      "hp": 73.77247999999999,
-      "damage": 166,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 74,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "haru",
-        "taeo"
-      ],
-      "hp": 78.77247999999999,
-      "damage": 217,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 79,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "haru",
-        "nyx"
-      ],
-      "hp": 72.77247999999999,
-      "damage": 167,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 73,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "haru",
-        "rio"
-      ],
-      "hp": 74.77247999999999,
-      "damage": 165,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 75,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "sera",
-        "taeo"
-      ],
-      "hp": 78.77247999999999,
-      "damage": 217,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 79,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "sera",
-        "nyx"
-      ],
-      "hp": 72.77247999999999,
-      "damage": 167,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 73,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "sera",
-        "rio"
-      ],
-      "hp": 74.77247999999999,
-      "damage": 165,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 75,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 72.77247999999999,
-      "damage": 223,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 73,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "taeo",
-        "rio"
-      ],
-      "hp": 74.77247999999999,
-      "damage": 221,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 75,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "biyeon",
-        "nyx",
-        "rio"
-      ],
-      "hp": 74.77247999999999,
-      "damage": 165,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 75,
-      "cleared": false,
-      "angle": -0.4142
-    },
-    {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "haru",
-        "sera"
-      ],
-      "hp": 102.416,
-      "damage": 138,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
       "remainingHp": 103,
-      "cleared": false,
-      "angle": -0.4142
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "haru",
-        "taeo"
-      ],
-      "hp": 107.416,
-      "damage": 189,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 108,
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 103,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "haru",
-        "nyx"
-      ],
-      "hp": 101.416,
-      "damage": 139,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 102,
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 68,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 192,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "haru",
-        "rio"
-      ],
-      "hp": 103.416,
-      "damage": 137,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 104,
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 103,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "sera",
-        "taeo"
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        2.85
       ],
-      "hp": 107.416,
-      "damage": 189,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 108,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 4.141666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 105,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "sera",
-        "nyx"
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        2.85
       ],
-      "hp": 101.416,
-      "damage": 139,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 102,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 4.141666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 105,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "sera",
-        "rio"
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        2.85
       ],
-      "hp": 103.416,
-      "damage": 137,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 104,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 4.141666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 105,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "taeo",
-        "nyx"
+      "partySize": 2,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        5.433333333333334,
+        2.85
       ],
-      "hp": 101.416,
-      "damage": 195,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 102,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.433333333333334,
+      "averageShotDuration": 4.141666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 105,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "taeo",
-        "rio"
-      ],
-      "hp": 103.416,
-      "damage": 193,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 104,
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 183,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "lumi",
-        "nyx",
-        "rio"
-      ],
-      "hp": 103.416,
-      "damage": 137,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 104,
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 183,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "haru",
-        "sera",
-        "taeo"
-      ],
-      "hp": 110.416,
-      "damage": 186,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 111,
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 148,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 192,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "haru",
-        "sera",
-        "nyx"
-      ],
-      "hp": 104.416,
-      "damage": 136,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 105,
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 183,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "haru",
-        "sera",
-        "rio"
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.1166666666666667
       ],
-      "hp": 106.416,
-      "damage": 134,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 107,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.144444444444445,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 167,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "haru",
-        "taeo",
-        "nyx"
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.1166666666666667
       ],
-      "hp": 104.416,
-      "damage": 192,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 105,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.144444444444445,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 167,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "haru",
-        "taeo",
-        "rio"
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.1166666666666667
       ],
-      "hp": 106.416,
-      "damage": 190,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 107,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.144444444444445,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 167,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "haru",
-        "nyx",
-        "rio"
+      "partySize": 2,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.1166666666666667
       ],
-      "hp": 106.416,
-      "damage": 134,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 107,
-      "cleared": false,
-      "angle": -0.4142
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.144444444444445,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 167,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "sera",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 95.416,
-      "damage": 201,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 96,
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 263,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "sera",
-        "taeo",
-        "rio"
-      ],
-      "hp": 97.416,
-      "damage": 199,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 98,
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 263,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "sera",
-        "nyx",
-        "rio"
-      ],
-      "hp": 97.416,
-      "damage": 143,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
-      "remainingHp": 98,
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 228,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
+      ],
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 192,
+      "steers": 0
     },
     {
-      "stage": "S-01",
-      "party": [
-        "taeo",
-        "nyx",
-        "rio"
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 263,
+      "shotsUsed": 5,
+      "shotDuration": [
+        5.733333333333333,
+        2.95,
+        5.066666666666666,
+        3.9833333333333334
       ],
-      "hp": 112.416,
-      "damage": 184,
-      "hits": 1,
-      "weakHits": 1,
-      "gateHits": 4,
-      "bounces": 7,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 289.83188426593676,
-        "y": 68.30378001068368,
-        "vx": -25.530648688283662,
-        "vy": 11.22548526260147,
-        "moving": false
-      },
-      "tick": 14.641666666666476,
+      "maxShotDuration": 5.733333333333333,
+      "averageShotDuration": 4.433333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 6,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 6,
+      "directBossDamage": 157,
+      "steers": 0
+    },
+    {
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.7333333333333334
+      ],
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.3500000000000005,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 247,
+      "steers": 0
+    },
+    {
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.7333333333333334
+      ],
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.3500000000000005,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 247,
+      "steers": 0
+    },
+    {
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.7333333333333334
+      ],
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.3500000000000005,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 247,
+      "steers": 0
+    },
+    {
+      "partySize": 2,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        5.433333333333334,
+        5.883333333333334,
+        1.7333333333333334
+      ],
+      "maxShotDuration": 5.883333333333334,
+      "averageShotDuration": 4.3500000000000005,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 247,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 82,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 82,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 82,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 82,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        3.45,
+        4.483333333333333
+      ],
+      "maxShotDuration": 4.483333333333333,
+      "averageShotDuration": 3.966666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 96,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        3.45,
+        4.483333333333333
+      ],
+      "maxShotDuration": 4.483333333333333,
+      "averageShotDuration": 3.966666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 96,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        3.45,
+        4.483333333333333
+      ],
+      "maxShotDuration": 4.483333333333333,
+      "averageShotDuration": 3.966666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 96,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 2,
+      "shotDuration": [
+        3.45,
+        4.483333333333333
+      ],
+      "maxShotDuration": 4.483333333333333,
+      "averageShotDuration": 3.966666666666667,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 96,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 162,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 162,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 162,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 162,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        0.6333333333333333
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 3.6708333333333334,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 2,
+      "directBossDamage": 176,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        0.6333333333333333
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 3.6708333333333334,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 2,
+      "directBossDamage": 176,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        0.6333333333333333
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 3.6708333333333334,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 2,
+      "directBossDamage": 176,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": true,
+      "remainingHp": 0,
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        0.6333333333333333
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 3.6708333333333334,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 4,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 2,
+      "directBossDamage": 176,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 242,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 242,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 242,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 242,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 33,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 33,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 33,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 33,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 322,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 322,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 322,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 322,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        4.533333333333333
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 4.8,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 5,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 5,
+      "directBossDamage": 98,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
       "remainingHp": 113,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
+    },
+    {
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.4142
+      "remainingHp": 113,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
     },
     {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "biyeon",
-        "lumi"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "biyeon",
-        "haru"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "biyeon",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "biyeon",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "biyeon",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "biyeon",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "lumi",
-        "haru"
-      ],
-      "hp": 0,
-      "damage": 247,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "lumi",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 247,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "lumi",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 255,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "lumi",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 247,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "lumi",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 247,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "haru",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 242,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "haru",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 250,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "haru",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 242,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "haru",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 242,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "sera",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "sera",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "sera",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "taeo",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "gaon",
-        "nyx",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "lumi",
-        "haru"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "lumi",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "lumi",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 256,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "lumi",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "lumi",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "haru",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "haru",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "haru",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "haru",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 568.6425609945533,
-        "y": 343.41837038389673,
-        "vx": 50.11457531676078,
-        "vy": -156.73800478291105,
-        "moving": true
-      },
-      "tick": 3.6416666666666564,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "sera",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 251,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 584.3345071482025,
-        "y": 342.2228544432593,
-        "vx": -177.26050457994222,
-        "vy": 13.50487420717293,
-        "moving": true
-      },
-      "tick": 3.54999999999999,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "sera",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 243,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 584.3345071482025,
-        "y": 342.2228544432593,
-        "vx": -177.26050457994222,
-        "vy": 13.50487420717293,
-        "moving": true
-      },
-      "tick": 3.54999999999999,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "sera",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 243,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 584.3345071482025,
-        "y": 342.2228544432593,
-        "vx": -177.26050457994222,
-        "vy": 13.50487420717293,
-        "moving": true
-      },
-      "tick": 3.54999999999999,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 282,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "taeo",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 282,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "biyeon",
-        "nyx",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 246,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 584.3345071482025,
-        "y": 342.2228544432593,
-        "vx": -177.26050457994222,
-        "vy": 13.50487420717293,
-        "moving": true
-      },
-      "tick": 3.54999999999999,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "haru",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 242,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "haru",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 250,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "haru",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 242,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "haru",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 242,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 569.009743146075,
-        "y": 342.269973985091,
-        "vx": 90.45649801235935,
-        "vy": -9.691622302627792,
-        "moving": true
-      },
-      "tick": 4.049999999999991,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "sera",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "sera",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "sera",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "taeo",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "lumi",
-        "nyx",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "haru",
-        "sera",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "haru",
-        "sera",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "haru",
-        "sera",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 244,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "haru",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "haru",
-        "taeo",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "haru",
-        "nyx",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "sera",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "sera",
-        "taeo",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 260,
-      "hits": 8,
-      "weakHits": 6,
-      "gateHits": 5,
-      "bounces": 2,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 665.2138042615791,
-        "y": 313.9516183262611,
-        "vx": 195.88245975445236,
-        "vy": 8.421311990212285,
-        "moving": true
-      },
-      "tick": 6.5750000000001165,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "sera",
-        "nyx",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-02",
-      "party": [
-        "taeo",
-        "nyx",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 256,
-      "hits": 7,
-      "weakHits": 6,
-      "gateHits": 4,
-      "bounces": 1,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 576.4622032654817,
-        "y": 318.96171042190895,
-        "vx": -33.96593913116104,
-        "vy": 106.23164012357614,
-        "moving": true
-      },
-      "tick": 3.8083333333333225,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.0443
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "biyeon",
-        "lumi"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 640.8265642211976,
-        "y": 141.03218982239497,
-        "vx": -161.1067729128046,
-        "vy": 19.303181382546516,
-        "moving": true
-      },
-      "tick": 7.575000000000166,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "biyeon",
-        "haru"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 640.8265642211976,
-        "y": 141.03218982239497,
-        "vx": -161.1067729128046,
-        "vy": 19.303181382546516,
-        "moving": true
-      },
-      "tick": 7.575000000000166,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "biyeon",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 640.8265642211976,
-        "y": 141.03218982239497,
-        "vx": -161.1067729128046,
-        "vy": 19.303181382546516,
-        "moving": true
-      },
-      "tick": 7.575000000000166,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "biyeon",
-        "taeo"
-      ],
-      "hp": 0,
-      "damage": 276,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 640.8265642211976,
-        "y": 141.03218982239497,
-        "vx": -161.1067729128046,
-        "vy": 19.303181382546516,
-        "moving": true
-      },
-      "tick": 7.575000000000166,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "biyeon",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 640.8265642211976,
-        "y": 141.03218982239497,
-        "vx": -161.1067729128046,
-        "vy": 19.303181382546516,
-        "moving": true
-      },
-      "tick": 7.575000000000166,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "biyeon",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 252,
-      "hits": 6,
-      "weakHits": 5,
-      "gateHits": 3,
-      "bounces": 3,
-      "chain": 0,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 640.8265642211976,
-        "y": 141.03218982239497,
-        "vx": -161.1067729128046,
-        "vy": 19.303181382546516,
-        "moving": true
-      },
-      "tick": 7.575000000000166,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "lumi",
-        "haru"
-      ],
-      "hp": 10.915199999999992,
-      "damage": 229,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 11,
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
       "cleared": false,
-      "angle": -0.2085
+      "remainingHp": 113,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "lumi",
-        "sera"
-      ],
-      "hp": 10.915199999999992,
-      "damage": 229,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 11,
+      "partySize": 3,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
       "cleared": false,
-      "angle": -0.2085
+      "remainingHp": 113,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.916666666666667,
+        4.683333333333334,
+        5.6
+      ],
+      "maxShotDuration": 5.916666666666667,
+      "averageShotDuration": 4.9125,
+      "parries": 3,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 5,
+      "openingDirectHits": 1,
+      "unroutedBossHits": 3,
+      "directBossDamage": 223,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "lumi",
-        "taeo"
-      ],
-      "hp": 10.915199999999992,
-      "damage": 269,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 11,
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
       "cleared": false,
-      "angle": -0.2085
+      "remainingHp": 114,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "lumi",
-        "nyx"
-      ],
-      "hp": 10.915199999999992,
-      "damage": 229,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 11,
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.2085
+      "remainingHp": 114,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "lumi",
-        "rio"
-      ],
-      "hp": 10.915199999999992,
-      "damage": 229,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 11,
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
       "cleared": false,
-      "angle": -0.2085
+      "remainingHp": 114,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "haru",
-        "sera"
-      ],
-      "hp": 13.915199999999992,
-      "damage": 226,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 14,
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
       "cleared": false,
-      "angle": -0.2085
+      "remainingHp": 114,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "haru",
-        "taeo"
-      ],
-      "hp": 13.915199999999992,
-      "damage": 266,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 14,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "haru",
-        "nyx"
-      ],
-      "hp": 13.915199999999992,
-      "damage": 226,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 14,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "haru",
-        "rio"
-      ],
-      "hp": 13.915199999999992,
-      "damage": 226,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 14,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "sera",
-        "taeo"
-      ],
-      "hp": 4.915199999999992,
-      "damage": 275,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 5,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "sera",
-        "nyx"
-      ],
-      "hp": 4.915199999999992,
-      "damage": 235,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 5,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "sera",
-        "rio"
-      ],
-      "hp": 4.915199999999992,
-      "damage": 235,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 5,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 19.91519999999999,
-      "damage": 260,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 20,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "taeo",
-        "rio"
-      ],
-      "hp": 19.91519999999999,
-      "damage": 260,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 20,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "gaon",
-        "nyx",
-        "rio"
-      ],
-      "hp": 1.9151999999999916,
-      "damage": 238,
-      "hits": 7,
-      "weakHits": 5,
-      "gateHits": 4,
-      "bounces": 5,
-      "chain": 0,
-      "weakMult": 1,
-      "ball": {
-        "x": 457.2710009042611,
-        "y": 13.763504686934299,
-        "vx": -27.285788575199827,
-        "vy": 5.771592817839742,
-        "moving": false
-      },
-      "tick": 13.099999999999897,
-      "remainingHp": 2,
-      "cleared": false,
-      "angle": -0.2085
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "lumi",
-        "haru"
-      ],
-      "hp": 9.990783999999984,
-      "damage": 230,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 10,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "lumi",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 245,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
-      "remainingHp": 0,
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
       "cleared": true,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "lumi",
-        "taeo"
-      ],
-      "hp": 19.990783999999984,
-      "damage": 228,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 20,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "lumi",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 250,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
       "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
+      "shotsUsed": 3,
+      "shotDuration": [
+        3.45,
+        5.65,
+        1.3166666666666667
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 3.4722222222222228,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 92,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "lumi",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 240,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": true,
       "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
+      "shotsUsed": 3,
+      "shotDuration": [
+        3.45,
+        5.65,
+        1.3166666666666667
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 3.4722222222222228,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 92,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "haru",
-        "sera"
-      ],
-      "hp": 0,
-      "damage": 245,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
       "remainingHp": 0,
+      "shotsUsed": 3,
+      "shotDuration": [
+        3.45,
+        5.65,
+        1.3166666666666667
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 3.4722222222222228,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 92,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 180,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
       "cleared": true,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "haru",
-        "taeo"
-      ],
-      "hp": 19.990783999999984,
-      "damage": 228,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 20,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "haru",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 250,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
       "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
+      "shotsUsed": 3,
+      "shotDuration": [
+        3.45,
+        5.65,
+        1.3166666666666667
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 3.4722222222222228,
+      "parries": 4,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 2,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 92,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "haru",
-        "rio"
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 194,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
       ],
-      "hp": 0,
-      "damage": 240,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 194,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 194,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 194,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": true,
       "remainingHp": 0,
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        2.8
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 4.354166666666667,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 147,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
       "cleared": true,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "sera",
-        "taeo"
-      ],
-      "hp": 19.990783999999984,
-      "damage": 228,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 20,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "sera",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 250,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
       "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        2.8
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 4.354166666666667,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 147,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "sera",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 240,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": true,
       "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        2.8
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 4.354166666666667,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 147,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 0,
-      "damage": 258,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
+      "partySize": 4,
+      "bossHp": 260,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": true,
       "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
+      "shotsUsed": 4,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        2.8
+      ],
+      "maxShotDuration": 5.65,
+      "averageShotDuration": 4.354166666666667,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 147,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "taeo",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 248,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "biyeon",
-        "nyx",
-        "rio"
-      ],
-      "hp": 0,
-      "damage": 240,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1.28,
-      "ball": {
-        "x": 398.52477219345883,
-        "y": 365.8301765492398,
-        "vx": 13.229670372757461,
-        "vy": 30.605454717086925,
-        "moving": true
-      },
-      "tick": 13.699999999999863,
-      "remainingHp": 0,
-      "cleared": true,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "haru",
-        "sera"
-      ],
-      "hp": 23.989119999999986,
-      "damage": 216,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 24,
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
       "cleared": false,
-      "angle": -0.1714
+      "remainingHp": 274,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "haru",
-        "taeo"
-      ],
-      "hp": 48.989119999999986,
-      "damage": 199,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 49,
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.1714
+      "remainingHp": 274,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "haru",
-        "nyx"
-      ],
-      "hp": 18.989119999999982,
-      "damage": 221,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 19,
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
       "cleared": false,
-      "angle": -0.1714
+      "remainingHp": 274,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "haru",
-        "rio"
-      ],
-      "hp": 28.989119999999986,
-      "damage": 211,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 29,
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
       "cleared": false,
-      "angle": -0.1714
+      "remainingHp": 274,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
     },
     {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "sera",
-        "taeo"
-      ],
-      "hp": 48.989119999999986,
-      "damage": 199,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 49,
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
       "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "sera",
-        "nyx"
-      ],
-      "hp": 18.989119999999982,
-      "damage": 221,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 19,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "sera",
-        "rio"
-      ],
-      "hp": 28.989119999999986,
-      "damage": 211,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 29,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 18.989119999999982,
-      "damage": 229,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 19,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "taeo",
-        "rio"
-      ],
-      "hp": 28.989119999999986,
-      "damage": 219,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 29,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "lumi",
-        "nyx",
-        "rio"
-      ],
-      "hp": 28.989119999999986,
-      "damage": 211,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 29,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "haru",
-        "sera",
-        "taeo"
-      ],
-      "hp": 51.989119999999986,
-      "damage": 196,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 52,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "haru",
-        "sera",
-        "nyx"
-      ],
-      "hp": 21.989119999999982,
-      "damage": 218,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 22,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "haru",
-        "sera",
-        "rio"
-      ],
-      "hp": 31.989119999999986,
-      "damage": 208,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 32,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "haru",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 21.989119999999982,
-      "damage": 226,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 22,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "haru",
-        "taeo",
-        "rio"
-      ],
-      "hp": 31.989119999999986,
-      "damage": 216,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 32,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "haru",
-        "nyx",
-        "rio"
-      ],
-      "hp": 31.989119999999986,
-      "damage": 208,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 32,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "sera",
-        "taeo",
-        "nyx"
-      ],
-      "hp": 12.989119999999982,
-      "damage": 235,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 13,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "sera",
-        "taeo",
-        "rio"
-      ],
-      "hp": 22.989119999999986,
-      "damage": 225,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 23,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "sera",
-        "nyx",
-        "rio"
-      ],
-      "hp": 22.989119999999986,
-      "damage": 217,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
-      "remainingHp": 23,
-      "cleared": false,
-      "angle": -0.1714
-    },
-    {
-      "stage": "S-03",
-      "party": [
-        "taeo",
-        "nyx",
-        "rio"
-      ],
-      "hp": 37.989119999999986,
-      "damage": 210,
-      "hits": 3,
-      "weakHits": 2,
-      "gateHits": 8,
-      "bounces": 1,
-      "chain": 1,
-      "weakMult": 1,
-      "ball": {
-        "x": 401.0613945393895,
-        "y": 371.6983862744497,
-        "vx": 11.098907602175577,
-        "vy": 25.676158547910628,
-        "moving": false
-      },
-      "tick": 13.908333333333184,
       "remainingHp": 38,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
       "cleared": false,
-      "angle": -0.1714
+      "remainingHp": 38,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 38,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 340,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 38,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 354,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 354,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 354,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "direct",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 354,
+      "shotsUsed": 5,
+      "shotDuration": [
+        4.4,
+        4.483333333333333,
+        5.783333333333333,
+        5.566666666666666
+      ],
+      "maxShotDuration": 5.783333333333333,
+      "averageShotDuration": 5.058333333333334,
+      "parries": 0,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 0,
+      "directBossHits": 4,
+      "openingDirectHits": 4,
+      "unroutedBossHits": 4,
+      "directBossDamage": 66,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 11,
+      "cleared": false,
+      "remainingHp": 118,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 29,
+      "cleared": false,
+      "remainingHp": 118,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 47,
+      "cleared": false,
+      "remainingHp": 118,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
+    },
+    {
+      "partySize": 4,
+      "bossHp": 420,
+      "policy": "contact",
+      "steer": false,
+      "seed": 83,
+      "cleared": false,
+      "remainingHp": 118,
+      "shotsUsed": 5,
+      "shotDuration": [
+        3.45,
+        5.65,
+        5.516666666666667,
+        6.166666666666667
+      ],
+      "maxShotDuration": 6.166666666666667,
+      "averageShotDuration": 5.195833333333334,
+      "parries": 5,
+      "lateParries": 0,
+      "constellations": 0,
+      "maxNodes": 2,
+      "directBossHits": 3,
+      "openingDirectHits": 0,
+      "unroutedBossHits": 0,
+      "directBossDamage": 189,
+      "steers": 0
     }
   ]
 }

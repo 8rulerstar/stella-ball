@@ -1280,7 +1280,7 @@ function constellationMapStages(worldId = activeWorld().id) {
       star: stage.star,
       note: stage.tutorial
         ? "온보딩 튜토리얼"
-        : stageGimmickLabels(stage).join(" · ") || "별자리 전술",
+        : "기믹 없음 · 거상 HP " + (stage.bossHp ?? RULES.coreHp),
       mark: stage.tutorial ? "✦" : "★",
       stage: stages.indexOf(stage),
       campaignIndex,
@@ -1319,6 +1319,9 @@ function showStageSelect() {
   drag = null;
   setScene("meta");
   const mapStages = constellationMapStages();
+  const currentEntry =
+    mapStages.find((entry) => !entry.locked && !isStageCleared(entry)) ??
+    mapStages.filter((entry) => !entry.locked).at(-1);
   const nodes = mapStages
     .map(
       (stage, index) =>
@@ -1339,12 +1342,18 @@ function showStageSelect() {
         stage.mark +
         '</span><span class="stage-copy"><small>' +
         (stage.star ? stage.star.bayer : "STAGE " + stage.id) +
-        "</small><b>" +
+        '</small><b class="stage-id">' +
+        stage.id +
+        "</b><strong>" +
         stage.name +
-        "</b><span>" +
+        "</strong><span>" +
         stage.note +
         '</span></span><em class="node-status">' +
-        (stage.locked ? "잠김" : "시작 →") +
+        (stage.locked
+          ? "잠김"
+          : stage.id === currentEntry?.id
+            ? "현재 출격 →"
+            : "시작 →") +
         "</em></button>",
     )
     .join("");
@@ -1360,7 +1369,11 @@ function showStageSelect() {
     constellationRoute(mapStages) +
     "</svg>" +
     nodes +
-    '</section><footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><button class="constellation-training" id="enterTraining">무한 훈련장</button><span>현재 플레이 가능: 1-1 · 1-2</span><button id="stageSelectBack">뒤로</button></footer></div>';
+    '</section><footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><button class="constellation-training" id="enterTraining">무한 훈련장</button><span>현재 출격: ' +
+    (currentEntry
+      ? currentEntry.id + " · " + currentEntry.name
+      : "전 월드 관측 완료") +
+    '</span><button id="stageSelectBack">뒤로</button></footer></div>';
   for (const button of document.querySelectorAll("[data-stage]"))
     button.onclick = () => {
       stageIndex = Number(button.dataset.stage);

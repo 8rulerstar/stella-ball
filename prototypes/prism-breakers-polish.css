@@ -899,9 +899,20 @@
 }
 .constellation-node b {
   display: block;
-  margin: 3px 0 1px;
+  margin: 1px 0;
   color: #fff0c5;
-  font-size: 13px;
+  font-size: 16px;
+  letter-spacing: 0.08em;
+}
+.constellation-node strong {
+  display: block;
+  margin: 1px 0 2px;
+  color: #dce7ff;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .constellation-node span {
   display: block;
@@ -913,6 +924,9 @@
 }
 .constellation-node.locked b {
   color: #aeb8d1;
+}
+.constellation-node.locked strong {
+  color: #8794b9;
 }
 .constellation-node.locked span {
   color: #707d9f;
@@ -970,10 +984,11 @@
 }
 .constellation-map-scene .constellation-node b {
   margin: 0;
-  overflow: hidden;
-  font-size: 9px;
+  font-size: 12px;
   white-space: nowrap;
-  text-overflow: ellipsis;
+}
+.constellation-map-scene .constellation-node strong {
+  display: none;
 }
 .constellation-map-scene .constellation-node:hover,
 .constellation-map-scene .constellation-node:focus-visible {
@@ -997,8 +1012,12 @@
 }
 .constellation-map-scene .constellation-node:hover b,
 .constellation-map-scene .constellation-node:focus-visible b {
-  margin: 3px 0 1px;
-  font-size: 13px;
+  margin: 1px 0;
+  font-size: 16px;
+}
+.constellation-map-scene .constellation-node:hover strong,
+.constellation-map-scene .constellation-node:focus-visible strong {
+  display: block;
 }
 .constellation-map-foot {
   display: flex;
@@ -1045,7 +1064,7 @@
     font-size: 16px;
   }
   .constellation-node b {
-    font-size: 11px;
+    font-size: 14px;
   }
   .constellation-node span {
     font-size: 8px;

@@ -79,6 +79,10 @@ damage = function (weak = false) {
   if (battleComplete) return;
   trackBlazeDirect();
   let amount = RULES.baseDamage + build.weakFlat;
+  const unrouted = !ball.starkeeperTouched,
+    openingDirect = unrouted && ball.openingBossContact;
+  if (unrouted) amount *= RULES.unroutedBossDamage;
+  if (openingDirect) amount *= RULES.openingBossDamage;
   amount *=
     1 + Math.max(0, chain.length - 1) * (RULES.chainStep + build.chainStep);
   amount *= 1 + ball.power * 0.2;
@@ -91,7 +95,15 @@ damage = function (weak = false) {
     weak && Math.random() < 0.12 + Math.min(0.18, chain.length * 0.04);
   if (crit) amount *= 1.6;
   amount = Math.max(1, Math.round(amount));
-  const label = weak ? (crit ? "치명 약점" : "약점") : "몸체";
+  const label = openingDirect
+    ? "첫 직격"
+    : weak
+      ? crit
+        ? "치명 약점"
+        : "약점"
+      : unrouted
+        ? "직격"
+        : "몸체";
   const dealt = applyBossHit(amount);
   if (dealt > 0)
     addPopup(
@@ -110,6 +122,7 @@ damage = function (weak = false) {
   toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
   if (boss.hp <= 0) scheduleWin();
   ball.power = 0;
+  ball.openingBossContact = false;
   if (weak) ball.mark = false;
   chain = [];
   sync();
@@ -239,6 +252,47 @@ drawCombatControls = function () {
   );
   x.restore();
 };
+function steerMeteor(side) {
+  if (!ball?.moving || ball.steerUsed || battleComplete) return false;
+  const speed = Math.hypot(ball.vx, ball.vy);
+  if (speed < 1) return false;
+  const ux = ball.vx / speed,
+    uy = ball.vy / speed,
+    // Canvas y grows down, so (uy, -ux) is visually left of travel.
+    // `side` is -1 for the left click and +1 for the right click.
+    turnX = -uy * side,
+    turnY = ux * side,
+    forwardDrive = 170,
+    turnDrive = 430,
+    driveX = ux * forwardDrive + turnX * turnDrive,
+    driveY = uy * forwardDrive + turnY * turnDrive;
+  ball.vx += driveX;
+  ball.vy += driveY;
+  guaranteeMomentum(ball, driveX, driveY, 760, 1780);
+  ball.steerUsed = true;
+  ball.steerFlash = 0.42;
+  ball.runeBurst = Math.max(ball.runeBurst || 0, 0.7);
+  ball.power += 0.22;
+  fieldFx.push({
+    type: "relay",
+    x: ball.x,
+    y: ball.y,
+    t: 0,
+    d: 0.34,
+    col: side < 0 ? "#8ee7ff" : "#ffd18d",
+  });
+  impact?.(false, ball.x, ball.y, "contact");
+  combatSfx?.("bumper", 0.56);
+  addPopup(
+    ball.x,
+    ball.y - 30,
+    side < 0 ? "좌측 궤도 전환" : "우측 궤도 전환",
+    side < 0 ? "#8ee7ff" : "#ffd18d",
+    true,
+  );
+  toast(side < 0 ? "좌측으로 유성 전환" : "우측으로 유성 전환");
+  return true;
+}
 function billiardPointerDown(e) {
   if (!run) return;
   if (!ball?.moving) {
@@ -249,6 +303,10 @@ function billiardPointerDown(e) {
     c.setPointerCapture(e.pointerId);
     return;
   }
+  if (e.button !== 0 && e.button !== 2) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  steerMeteor(e.button === 0 ? -1 : 1);
 }
 // The launch stone sits at the bottom of the board, so a literal drag would
 // leave no room to pull a strong upward shot.  Downward input is stretched
@@ -298,6 +356,11 @@ function billiardPointerUp(e) {
   ball.vx = aim.x * speed;
   ball.vy = aim.y * speed;
   ball.moving = true;
+  ball.steerUsed = false;
+  ball.steerFlash = 0;
+  ball.firstImpact = null;
+  ball.starkeeperTouched = false;
+  ball.openingBossContact = false;
   combatSfx?.("launch", 0.72 + force * 0.42);
   ball.aimAssist = aim.assisted;
   battle.shots--;
@@ -1189,6 +1252,11 @@ startShot = function (restingPoint = null) {
       billiards: true,
       mark: Boolean(battle.nextMark),
       pulse: battle.nextPulse || 0,
+      steerUsed: false,
+      steerFlash: 0,
+      firstImpact: null,
+      starkeeperTouched: false,
+      openingBossContact: false,
       blaze: createBlaze(),
     };
     battle.nextMark = false;
@@ -1225,6 +1293,11 @@ startShot = function (restingPoint = null) {
   cloneBalls = [];
   prepareMobileBilliards();
   ball.blaze = createBlaze();
+  ball.steerUsed = false;
+  ball.steerFlash = 0;
+  ball.firstImpact = null;
+  ball.starkeeperTouched = false;
+  ball.openingBossContact = false;
   renderBlaze();
   for (const g of gates) {
     g.vx = 0;
@@ -1346,6 +1419,7 @@ function mobileWall(o, r, unit = null) {
     hit = true;
   }
   if (hit) {
+    if (!unit && o === ball) ball.firstImpact ??= "rail";
     // Rails keep their physical bounce but never count as a parry awakening.
     if (!unit) tableWall();
   }
@@ -1583,6 +1657,7 @@ function applyStageGimmicks(o, unit = null) {
   for (const orbit of orbitals) {
     if (orbit.down > 0) continue;
     mobileStatic(o, orbit, o.r + orbit.r, 1.02, () => {
+      if (!unit && o === ball) ball.firstImpact ??= "orbital";
       if (orbit.hitCooldown > 0) return;
       orbit.hitCooldown = 0.22;
       const amount = Math.max(
@@ -1614,6 +1689,7 @@ function applyStageGimmicks(o, unit = null) {
   }
   for (const wall of stageWalls)
     mobileRect(o, o.r, wall, wall.restitution, () => {
+      if (!unit && o === ball) ball.firstImpact ??= "stage-wall";
       wall.on = 0.18;
       fieldFx.push({
         type: "wall",
@@ -1895,6 +1971,8 @@ simulatePhysics = function (d) {
     }
     for (const g of gates)
       mobilePair(ball, ball.r, g, g.r, (nx, ny, impactSpeed, incoming) => {
+        ball.firstImpact ??= "starkeeper";
+        ball.starkeeperTouched = true;
         // `mobilePair` has already performed the ordinary elastic response.
         // An armed Space parry turns this contact into a high-energy resonance.
         // Otherwise retain it briefly, so a player can answer what they saw
@@ -1930,6 +2008,7 @@ simulatePhysics = function (d) {
       }
     for (const b of bumpers) {
       mobileStatic(ball, b, ball.r + b.r, 1.08, () => {
+        ball.firstImpact ??= "bumper";
         ball.bounces++;
         hitBumper(b);
       });
@@ -1952,6 +2031,7 @@ simulatePhysics = function (d) {
     for (const a of adds) {
       if (a.down > 0) continue;
       mobileStatic(ball, a, ball.r + a.r, 0.92, () => {
+        ball.firstImpact ??= "remnant";
         if (a.hitCooldown <= 0) {
           a.hitCooldown = 0.18;
           damageAdd(a, 14 + Math.round(ball.power * 6), "직격", "#d8c3ff");
@@ -1967,17 +2047,22 @@ simulatePhysics = function (d) {
     }
     const wx = boss.x + Math.cos(boss.a) * 84,
       wy = boss.y + Math.sin(boss.a) * 84;
+    const directBossHit = (weak) => {
+      ball.openingBossContact = ball.firstImpact === null;
+      ball.firstImpact ??= "boss";
+      damage(weak);
+    };
     const weak = mobileStatic(ball, { x: wx, y: wy }, ball.r + 25, 0.98, () => {
       if (boss.hitCooldown <= 0) {
         boss.hitCooldown = 0.22;
-        damage(true);
+        directBossHit(true);
       }
     });
     if (!weak)
       mobileStatic(ball, boss, ball.r + 66, 0.9, () => {
         if (boss.hitCooldown <= 0) {
           boss.hitCooldown = 0.22;
-          damage(false);
+          directBossHit(false);
         }
       });
     for (const g of gates) {
@@ -2135,4 +2220,21 @@ drawAimGuide = function () {
   );
   x.restore();
 };
+registerRuntimeHook("afterDraw", function drawSteerPrompt() {
+  if (!run || battle?.victory || !ball?.moving) return;
+  const flash = ball.steerFlash || 0;
+  x.save();
+  x.textAlign = "center";
+  x.font = "bold 10px ui-monospace";
+  if (!ball.steerUsed) {
+    x.globalAlpha = 0.82;
+    x.fillStyle = "#fff2c6";
+    x.fillText("좌클릭 ↶ · 우클릭 ↷ · 1회 전환", ball.x, ball.y - 27);
+  } else if (flash > 0) {
+    x.globalAlpha = Math.min(1, flash * 2.4);
+    x.fillStyle = "#e8f7df";
+    x.fillText("궤도 전환 완료", ball.x, ball.y - 27);
+  }
+  x.restore();
+});
 registerRuntimeHook("afterDraw", drawCloneBalls);

@@ -248,6 +248,7 @@ function pixelGem(cx, cy, r, ramp) {
 }
 function updateSpecial(d) {
   if (ball?.runeBurst) ball.runeBurst = Math.max(0, ball.runeBurst - d);
+  if (ball?.steerFlash) ball.steerFlash = Math.max(0, ball.steerFlash - d);
   momentumHudCooldown -= d;
   if (U.momentum && ball) {
     const momentum = Math.round(Math.hypot(ball.vx || 0, ball.vy || 0));
