@@ -115,30 +115,44 @@ const DEFAULT_METEOR_SKIN = METEOR_SKINS[0].id;
 // a skin can never change a physics or damage value.
 const HERO_SKINS = [
   { id: "origin", name: "본래 색", note: "관측소 지급", hue: 0, sat: 1 },
-  { id: "azure", name: "청군", note: "새벽 전 가장 짙은 파랑", hue: 168, sat: 1.05 },
-  { id: "crimson", name: "홍옥", note: "식지 않은 화로의 색", hue: 312, sat: 1.1 },
-  { id: "violet", name: "자수정", note: "공허를 오래 본 자의 색", hue: 254, sat: 1 },
-  { id: "verdigris", name: "청동", note: "오래 걸린 관측기의 녹", hue: 96, sat: 0.92 },
+  {
+    id: "azure",
+    name: "청군",
+    note: "새벽 전 가장 짙은 파랑",
+    hue: 168,
+    sat: 1.05,
+  },
+  {
+    id: "crimson",
+    name: "홍옥",
+    note: "식지 않은 화로의 색",
+    hue: 312,
+    sat: 1.1,
+  },
+  {
+    id: "violet",
+    name: "자수정",
+    note: "공허를 오래 본 자의 색",
+    hue: 254,
+    sat: 1,
+  },
+  {
+    id: "verdigris",
+    name: "청동",
+    note: "오래 걸린 관측기의 녹",
+    hue: 96,
+    sat: 0.92,
+  },
 ];
 const DEFAULT_HERO_SKIN = HERO_SKINS[0].id;
-// Pinball is simulated in small, fixed slices.  Keeping all contacts on the
-// same solver makes a flipper, bumper and wall feel like parts of one table.
-const PHYSICS = {
-  gravity: 720,
-  step: 1 / 120,
-  maxSlices: 4,
-  wallRestitution: 0.92,
-  bumperRestitution: 1.04,
-  flipperRestitution: 0.28,
-  flipperFriction: 0.025,
-  flipperRadius: 17,
-  flipperRise: 0.085,
-  flipperFall: 0.13,
-};
 const ZONE_RULES = [
   { id: "route", name: "경유 별지기", hint: "유성 충돌 시 직접 공격" },
   { id: "bumper", name: "공명 별지기", hint: "범퍼 충돌 시 연계 발동" },
   { id: "boss", name: "마무리 별지기", hint: "보스 명중 시 연계 발동" },
+  // Only the training table seats a fourth, so this role never reaches the
+  // campaign.  It exists because the roster, the HUD summary and startShot all
+  // index this list by slot and would read undefined at index three.
+  { id: "free", name: "자유 별지기", hint: "역할 조건 없이 자유 배치" },
 ];
 const heroes = {
   gaon: {
@@ -675,37 +689,37 @@ const stages = [
     // exclusion radius is g.r + 66 = 100), so surrounding it needed a vertex
     // threaded into a 60px band above it — one forced play, every shot.  Only
     // the training table moves; all twelve campaign stages keep their geometry.
+    // Four seats, one per corner of a rectangle centred on the colossus.  With
+    // the meteor that is five points, which is what the figure prototype needs
+    // to be judged against the pentagram template.
     slots: [
       [170, 300],
       [550, 300],
       [170, 600],
+      [550, 600],
     ],
     preview: [
       [23.6, 33.3],
       [76.4, 33.3],
       [23.6, 66.7],
+      [76.4, 66.7],
     ],
     boss: { x: 360, y: 450 },
-    labels: ["좌상 훈련 별지기", "우상 훈련 별지기", "좌하 훈련 별지기"],
-    // The middle bumper and the void remnant used to sit where the colossus
-    // now stands, so both moved clear of its 100px exclusion.
-    bumpers: [
-      [224, 168, 27],
-      [496, 168, 27],
-      [360, 700, 25],
+    labels: [
+      "좌상 훈련 별지기",
+      "우상 훈련 별지기",
+      "좌하 훈련 별지기",
+      "우하 훈련 별지기",
     ],
-    // The training table is the only place where every gimmick module runs at
-    // once, so a new one can be exercised before a stage is designed for it.
-    gimmicks: {
-      walls: [
-        { x: 132, y: 452, w: 104, h: 18 },
-        { x: 588, y: 452, w: 104, h: 18 },
-      ],
-      boostPads: [{ x: 360, y: 782, w: 156, h: 38, boost: 300 }],
-      dragPads: [{ x: 130, y: 736, w: 150, h: 38, drop: 0.4 }],
-      adds: [{ x: 360, y: 132, r: 23, hp: 56 }],
-      orbits: [{ r: 124, hp: 64, speed: 1, phase: 0 }],
-    },
+    // Bare table.  This used to run every gimmick module at once so a new one
+    // could be exercised before a stage was designed for it, but the bumpers,
+    // reflector walls, boost and drag pads, orbiting barriers and the void
+    // remnant all deflected the party mid-roll — where a starkeeper comes to
+    // rest is the whole of the figure prototype, so anything that moves it for
+    // you is noise here.  Only the colossus and the four seats remain.  The
+    // gimmick modules stay exercised by the twelve campaign stages.
+    bumpers: [],
+    gimmicks: {},
     training: true,
   },
 ];
@@ -806,7 +820,11 @@ function setupStageGimmicks(stage) {
     };
   });
   bossShield = gimmicks.shield
-    ? { hits: gimmicks.shield.hits ?? 3, max: gimmicks.shield.hits ?? 3, flash: 0 }
+    ? {
+        hits: gimmicks.shield.hits ?? 3,
+        max: gimmicks.shield.hits ?? 3,
+        flash: 0,
+      }
     : null;
   // Phase rules fire once each time the colossus drops past a health ratio.
   stagePhases = gimmicks.phases

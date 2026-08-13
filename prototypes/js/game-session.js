@@ -54,13 +54,10 @@ function setupBattle() {
   setupStageGimmicks(s);
   areaBursts = [];
   fieldFx = [];
-  barriers = [];
-  seeds = [];
   ball = null;
   assistShots = [];
   hitCombo = 0;
   comboTimer = 0;
-  flippers = { left: 0, right: 0 };
   startShot();
   run = true;
   U.over.classList.add("hide");
@@ -307,10 +304,23 @@ function showRoster() {
     slotCount +
     '명을 자리에 세우세요</h2></div><p>아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.</p></div><div class="squad-field"><div id="slotChoices" class="deployment-map" aria-label="전장 배치"><span class="map-boss" aria-label="보스">◆</span><span class="map-launch" aria-hidden="true">발사석</span></div><div id="squadDetail" class="squad-detail" aria-live="polite"></div></div><div class="squad-tray-shell"><div class="squad-tray-head"><small>보유 별지기</small><b>' +
     owned.length +
-    "명</b></div><div id=\"squadTray\" class=\"squad-tray\" aria-label=\"보유 별지기\"></div></div><div class=\"overlay-actions\"><button id=\"backMeta\">뒤로</button><button id=\"startTeam\">시작</button></div></div>";
+    '명</b></div><div id="squadTray" class="squad-tray" aria-label="보유 별지기"></div></div><div class="overlay-actions"><button id="backMeta">뒤로</button><button id="startTeam">시작</button></div></div>';
   const slotBox = document.querySelector("#slotChoices"),
     tray = document.querySelector("#squadTray"),
     detail = document.querySelector("#squadDetail");
+  // The schematic used to pin the colossus with CSS that assumed every stage
+  // keeps it at the top of the board.  The training table centres it, so the
+  // marker is placed from the stage data the same way the slots below are.
+  const bossMark = slotBox.querySelector(".map-boss");
+  if (bossMark) {
+    const place = (prop, value) =>
+      bossMark.style.setProperty(prop, value, "important");
+    place("left", (s.boss.x / W) * 100 + "%");
+    place("top", (s.boss.y / H) * 100 + "%");
+    place("right", "auto");
+    place("bottom", "auto");
+    place("transform", "translate(-50%, -50%)");
+  }
   // Slot indices in the order they were last filled, oldest first.  This is
   // what makes a full party rotate: the next tap evicts whoever has been
   // standing there longest, so repeated taps cycle through the slots.
@@ -360,7 +370,9 @@ function showRoster() {
       "</small><p>" +
       h.d +
       '</p></div><span class="squad-detail-zone">' +
-      (zone ? at + 1 + "번 자리 · " + zone.name + "<i>" + zone.hint + "</i>" : "대기 중<i>자리로 끌어 놓으세요</i>") +
+      (zone
+        ? at + 1 + "번 자리 · " + zone.name + "<i>" + zone.hint + "</i>"
+        : "대기 중<i>자리로 끌어 놓으세요</i>") +
       "</span>";
     setPortrait(detail.querySelector(".squad-detail-portrait"), h, 46);
   };
@@ -436,7 +448,10 @@ function showRoster() {
       b.draggable = true;
       b.style.setProperty("--unit", h.col);
       b.setAttribute("aria-pressed", at >= 0);
-      b.setAttribute("aria-label", h.s + (at >= 0 ? " · " + (at + 1) + "번 자리" : " · 대기"));
+      b.setAttribute(
+        "aria-label",
+        h.s + (at >= 0 ? " · " + (at + 1) + "번 자리" : " · 대기"),
+      );
       b.innerHTML =
         '<span class="portrait"></span><b>' +
         h.s +
@@ -528,29 +543,6 @@ function showDraft(title, sub, next) {
   U.over.classList.remove("hide");
 }
 function endShot() {
-  if (ball.needle) {
-    for (let i = -1; i <= 1; i++)
-      assistShots.push({
-        x: ball.x,
-        y: ball.y,
-        fromX: ball.x,
-        fromY: ball.y,
-        t: 0,
-        dur: 0.25 + Math.abs(i) * 0.05,
-        amount: 9,
-        name: "도라 바늘",
-        col: "#ffcf6d",
-      });
-    fieldFx.push({
-      type: "needle",
-      x: ball.x,
-      y: ball.y,
-      t: 0,
-      d: 0.5,
-      col: "#ffcf6d",
-    });
-    ball.needle = false;
-  }
   ball.moving = false;
   ball.vx = ball.vy = 0;
   ball.trail = [];
@@ -737,19 +729,7 @@ function damageAdd(a, amount, label, col) {
   if (a.hp <= 0) {
     a.down = 1.6;
     areaBursts.push({ x: a.x, y: a.y, r: 44, col, t: 0, d: 0.42 });
-    if (ball?.vortex) {
-      ball.vortex = false;
-      ball.gravity = { x: a.x, y: a.y, t: 2 };
-      fieldFx.push({
-        type: "vortex",
-        x: a.x,
-        y: a.y,
-        t: 0,
-        d: 2,
-        col: "#a886ff",
-      });
-      toast("제로 흡수 포털 생성!");
-    } else toast("공허 잔재 처치!");
+    toast("공허 잔재 처치!");
   }
 }
 function areaAttack(name, amount, col) {
@@ -872,29 +852,6 @@ function pointer(e) {
     y: ((e.clientY - r.top) * H) / r.height,
   };
 }
-function flipperKick(side) {
-  const key = side < 0 ? "left" : "right";
-  // Input only moves the physical flipper.  It never writes a launch vector
-  // onto the ball: contact with the moving surface supplies the impulse.
-  flippers[key + "Strike"] = PHYSICS.flipperRise;
-  playSfx?.("flip");
-  if (!ball?.moving) return;
-  if (ball.orbitReady && !ball.orbitUsed) {
-    beginOrbit();
-    return;
-  }
-  if (ball.turnReady && !ball.turnUsed) {
-    ball.turnUsed = true;
-    ball.turnReady = false;
-    ball.turnForce = 1;
-    toast("리오 · 우회전 플리퍼 준비");
-  } else if (ball.moon && !ball.moonUsed) {
-    ball.moonUsed = true;
-    ball.moon = false;
-    ball.moonForce = 1;
-    toast("시아 · 좌회전 플리퍼 준비");
-  } else toast(side < 0 ? "좌 플리퍼" : "우 플리퍼");
-}
 function isCombatInputLocked() {
   return (
     typeof isOnboardingInputLocked === "function" && isOnboardingInputLocked()
@@ -955,54 +912,11 @@ function togglePauseMenu() {
   if (paused) return resumeBattle();
   showPauseMenu();
 }
-c.addEventListener("pointerdown", (e) => {
-  if (!run || isCombatInputLocked()) {
-    drag = null;
-    return;
-  }
-  const p = pointer(e);
-  if (!ball?.moving) {
-    if (p.y > H - 190) {
-      drag = { x: p.x, y: p.y };
-      c.setPointerCapture(e.pointerId);
-    }
-    return;
-  }
-  if (ball.relay) return;
-  if (ball.orbit) {
-    releaseOrbit();
-    return;
-  }
-  flipperKick(p.x < W / 2 ? -1 : 1);
-});
-c.addEventListener("pointermove", (e) => {
-  if (!drag || isCombatInputLocked()) return;
-  const p = pointer(e);
-  ball.launchPower = clamp(
-    Math.hypot(p.x - drag.x, p.y - drag.y) / 145,
-    0.25,
-    1,
-  );
-});
-c.addEventListener("pointerup", (e) => {
-  if (!drag || ball.moving || isCombatInputLocked()) {
-    drag = null;
-    return;
-  }
-  const p = pointer(e),
-    power = clamp(Math.hypot(p.x - drag.x, p.y - drag.y) / 145, 0.25, 1);
-  drag = null;
-  ball.launchPower = power;
-  const speed = 650 + power * 530;
-  ball.vx = (battle.shots % 2 ? 1 : -1) * (42 + power * 62);
-  ball.vy = -speed;
-  ball.moving = true;
-  battle.shots--;
-  chain = [];
-  msg = "유성 발사! 별지기를 연계해 상단 보스를 공략하세요.";
-  toast("플런저 발사 · 위력 " + Math.round(power * 100) + "%");
-  sync();
-});
+// Aiming and launching belong to the billiards pass: `game-combat.js` binds
+// pointerdown/move/up on this same canvas in the capture phase, which runs
+// before any bubble listener here even though this file loads first.  The
+// plunger-and-flipper handlers this file used to add were unreachable because
+// of that, so they are gone; only the shared cancel guard stays.
 c.addEventListener("pointercancel", () => {
   drag = null;
 });

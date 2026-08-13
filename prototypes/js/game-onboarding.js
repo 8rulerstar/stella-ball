@@ -25,6 +25,11 @@ function hasThirdPartySlot() {
   return appStorage.readText(PARTY_SLOT_STORAGE) === "3";
 }
 function partySlotCount() {
+  // The training table is the prototype bench and seats a fourth starkeeper so
+  // the figure has five points once the meteor joins.  Campaign parties still
+  // cap at the three the story unlocks.
+  if (currentStage()?.training)
+    return Math.min(4, Math.max(1, ownedHeroIds().length));
   return hasThirdPartySlot() ? 3 : 2;
 }
 function unlockThirdPartySlot() {
@@ -575,7 +580,7 @@ showMeta = function () {
     stageRule +
     '</small><b class="marquee"><span>' +
     mapStage.name +
-    '</span></b><span class="hub-mission-hint">별지기는 관측 시작 후 고릅니다</span></div><button class="hub-battle-play" id="hubStartBattle"><img src="' +
+    '</span></b><span class="hub-mission-hint">별지기는 관측 시작 후 고릅니다</span></div><button class="hub-training" id="hubTraining">무한<br>훈련장</button><button class="hub-battle-play" id="hubStartBattle"><img src="' +
     metaArt.play +
     '" alt="">' +
     (mapStage.onboarding ? "수업 다시 보기" : "게임 시작!") +
@@ -605,6 +610,15 @@ showMeta = function () {
     showRoster();
   };
   document.querySelector("#hubStartBattle").onclick = startObservation;
+  // The training table sits outside the campaign order, so no map node points
+  // at it and `showStageSelect()` — the other screen carrying this entry — is
+  // not reachable from this hub.  Without this button it cannot be opened.
+  document.querySelector("#hubTraining").onclick = () => {
+    playSfx();
+    stageIndex = stages.findIndex((stage) => stage.training);
+    primeCombatTextures();
+    showRoster();
+  };
   document.querySelector("#hubBattleTab").onclick = startObservation;
   document.querySelector("#hubProfile").onclick = () => {
     playSfx();

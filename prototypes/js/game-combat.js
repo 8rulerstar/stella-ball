@@ -15,29 +15,6 @@ startShot = function (restingPoint = null) {
   ball.nudgeCooldown = 0;
 };
 endShot = function () {
-  if (ball.needle) {
-    for (let i = -1; i <= 1; i++)
-      assistShots.push({
-        x: ball.x,
-        y: ball.y,
-        fromX: ball.x,
-        fromY: ball.y,
-        t: 0,
-        dur: 0.25 + Math.abs(i) * 0.05,
-        amount: 12,
-        name: "도라 바늘",
-        col: "#ffcf6d",
-      });
-    fieldFx.push({
-      type: "needle",
-      x: ball.x,
-      y: ball.y,
-      t: 0,
-      d: 0.5,
-      col: "#ffcf6d",
-    });
-    ball.needle = false;
-  }
   const restingPoint = { x: ball.x, y: ball.y };
   ball.moving = false;
   ball.vx = ball.vy = 0;
@@ -146,87 +123,9 @@ function billiardPredict(dx, dy) {
   }
   return { points, hits, assisted: aim.assisted, target: aim.target };
 }
-simulatePhysics = function (d) {
-  const slices = Math.min(4, Math.max(1, Math.ceil(d / (1 / 120)))),
-    step = d / slices;
-  for (let i = 0; i < slices && ball?.moving; i++) {
-    updateExpanded(step);
-    if (ball.pulse > 0) {
-      ball.pulse -= step;
-      const wx = boss.x + Math.cos(boss.a) * 84,
-        wy = boss.y + Math.sin(boss.a) * 84,
-        dx = wx - ball.x,
-        dy = wy - ball.y,
-        l = Math.hypot(dx, dy) || 1;
-      ball.vx += (dx / l) * 135 * step;
-      ball.vy += (dy / l) * 135 * step;
-    }
-    ball.x += ball.vx * step;
-    ball.y += ball.vy * step;
-    const friction = Math.pow(0.992, step * 60);
-    ball.vx *= friction;
-    ball.vy *= friction;
-    if (ball.x < ball.r || ball.x > W - ball.r) {
-      ball.x = clamp(ball.x, ball.r, W - ball.r);
-      ball.vx *= -0.94;
-      tableWall();
-    }
-    if (ball.y < ball.r || ball.y > H - ball.r) {
-      ball.y = clamp(ball.y, ball.r, H - ball.r);
-      ball.vy *= -0.94;
-      tableWall();
-    }
-    for (const g of gates)
-      resolveCircle(g, g.r, 1.04, () => {
-        ball.bounces++;
-        ball.runeBurst = 0.55;
-        hitGate(g);
-        fieldFx.push({
-          type: "gate",
-          x: g.x,
-          y: g.y,
-          t: 0,
-          d: 0.35,
-          col: g.col,
-        });
-      });
-    for (const b of bumpers)
-      resolveCircle(b, b.r, 1.08, () => {
-        ball.bounces++;
-        hitBumper(b);
-      });
-    for (const a of adds) {
-      if (a.down > 0) continue;
-      resolveCircle(a, a.r, 0.92, () => {
-        if (a.hitCooldown <= 0) {
-          a.hitCooldown = 0.18;
-          damageAdd(a, 14 + Math.round(ball.power * 6), "직격", "#d8c3ff");
-          ball.runeBurst = 0.5;
-        }
-      });
-    }
-    const wx = boss.x + Math.cos(boss.a) * 84,
-      wy = boss.y + Math.sin(boss.a) * 84;
-    const weak = resolveCircle({ x: wx, y: wy }, 25, 0.98, () => {
-      if (boss.hitCooldown <= 0) {
-        boss.hitCooldown = 0.22;
-        damage(true);
-      }
-    });
-    if (!weak)
-      resolveCircle(boss, 66, 0.9, () => {
-        if (boss.hitCooldown <= 0) {
-          boss.hitCooldown = 0.22;
-          damage(false);
-        }
-      });
-    ball.wallShock = Math.max(0, (ball.wallShock || 0) - step);
-    ball.nudgeCooldown = Math.max(0, (ball.nudgeCooldown || 0) - step);
-    ball.trail.push({ x: ball.x, y: ball.y });
-    if (ball.trail.length > 24) ball.trail.shift();
-  }
-  if (ball?.moving && Math.hypot(ball.vx, ball.vy) < 52) endShot();
-};
+// The first billiards solver landed here and was replaced further down this
+// same file (see the live `simulatePhysics` next to the gimmick handling),
+// so this copy never ran. It has been removed along with the pinball layer.
 damage = function (weak = false) {
   if (battleComplete) return;
   trackBlazeDirect();
@@ -253,35 +152,16 @@ damage = function (weak = false) {
       weak ? "#ffe59a" : "#e6f7ef",
       crit,
     );
-  triggerZone("boss");
   if (marked)
     areaAttack(
       "비연 표식 폭발",
       Math.max(12, Math.round(amount * 0.38)),
       "#ef718d",
     );
-  if (ball.blink) {
-    const a = Math.atan2(ball.y - boss.y, ball.x - boss.x) + Math.PI;
-    ball.x = boss.x + Math.cos(a) * 96;
-    ball.y = boss.y + Math.sin(a) * 96;
-    ball.vx = Math.cos(a) * 760;
-    ball.vy = Math.sin(a) * 760;
-    ball.blink = false;
-    fieldFx.push({
-      type: "blink",
-      x: ball.x,
-      y: ball.y,
-      t: 0,
-      d: 0.5,
-      col: "#ff7fc8",
-    });
-    toast("카이 · 균열 도약!");
-  } else
-    toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
+  toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
   if (boss.hp <= 0) scheduleWin();
   ball.power = 0;
   if (weak) ball.mark = false;
-  ball.pulse = 0;
   chain = [];
   sync();
 };
@@ -320,7 +200,6 @@ hitBumper = function (b) {
     d: 0.42,
     col: "#80e8df",
   });
-  triggerZone("bumper");
   impact(false);
   combatSfx?.("bumper", 0.9);
   toast("공명 범퍼 · 속도 상승");
@@ -1154,8 +1033,7 @@ function updateBladeWheel(g, speed, step) {
   // It used to fade out at speed 82, so the wheel vanished while she was still
   // clearly rolling.  It now stays lit until she is nearly still; damage still
   // needs real speed (the 105 gate below), so this is readability only.
-  const targetStrength =
-    speed > 10 ? Math.min(1, 0.2 + (speed - 10) / 700) : 0;
+  const targetStrength = speed > 10 ? Math.min(1, 0.2 + (speed - 10) / 700) : 0;
   g.bladeStrength =
     (g.bladeStrength || 0) +
     (targetStrength - (g.bladeStrength || 0)) * Math.min(1, step * 15);
@@ -1528,7 +1406,13 @@ function wakeUnit(g) {
       g.on = Math.max(g.on, 0.4);
       g.animState = "move";
       g.animClock = 0;
-      addPopup(g.x, g.y - 40, g.s + " 아직 잠듦 " + g.sleepGuard, "#8ba39f", false);
+      addPopup(
+        g.x,
+        g.y - 40,
+        g.s + " 아직 잠듦 " + g.sleepGuard,
+        "#8ba39f",
+        false,
+      );
       combatSfx?.("hit", 0.4);
       return;
     }
@@ -1802,9 +1686,18 @@ function runStagePhase(effect) {
       g.moved = false;
       g.on = 0;
       g.sleepGuard = stagePhases.wakeNeed;
-      areaBursts.push({ x: g.x, y: g.y, r: g.r + 26, col: "#8ba39f", t: 0, d: 0.44 });
+      areaBursts.push({
+        x: g.x,
+        y: g.y,
+        r: g.r + 26,
+        col: "#8ba39f",
+        t: 0,
+        d: 0.44,
+      });
     }
-    toast("별지기가 다시 잠들었습니다 · " + stagePhases.wakeNeed + "회 충돌 필요");
+    toast(
+      "별지기가 다시 잠들었습니다 · " + stagePhases.wakeNeed + "회 충돌 필요",
+    );
   }
   combatSfx?.("unlock", 0.7);
 }
@@ -1844,7 +1737,13 @@ function applyStageGimmicks(o, unit = null) {
         Math.round(Math.hypot(o.vx, o.vy) / 46) + (unit ? 8 : 0),
       );
       orbit.hp = Math.max(0, orbit.hp - amount);
-      addPopup(orbit.x, orbit.y - 26, "방벽 -" + amount, "#9adfc9", amount >= 18);
+      addPopup(
+        orbit.x,
+        orbit.y - 26,
+        "방벽 -" + amount,
+        "#9adfc9",
+        amount >= 18,
+      );
       if (orbit.hp <= 0) {
         orbit.down = 1.4;
         areaBursts.push({
@@ -2037,9 +1936,9 @@ hitGate = function (g) {
   msg = g.s + "이(가) 굴러가기 시작했습니다. 멈추면 고유 공격을 시행합니다.";
   sync();
 };
-// Zone labels belonged to the former static-board version.  A hero now wakes
-// only by real movement, never because another object happened to hit a zone.
-triggerZone = function () {};
+// Zone labels belonged to the former static-board version, where hitting a
+// labelled tile fired the hero standing on it.  A hero now wakes only by real
+// movement, so the whole `triggerZone` concept and its call sites are gone.
 simulatePhysics = function (d) {
   const slices = Math.min(3, Math.max(1, Math.ceil(d / (1 / 90)))),
     step = d / slices;
@@ -2064,16 +1963,6 @@ simulatePhysics = function (d) {
     orbit.y = boss.y + Math.sin(orbit.a) * orbit.radius;
   }
   for (let i = 0; i < slices && ball?.moving; i++) {
-    if (ball.pulse > 0) {
-      ball.pulse -= step;
-      const wx = boss.x + Math.cos(boss.a) * 84,
-        wy = boss.y + Math.sin(boss.a) * 84,
-        dx = wx - ball.x,
-        dy = wy - ball.y,
-        l = Math.hypot(dx, dy) || 1;
-      ball.vx += (dx / l) * 130 * step;
-      ball.vy += (dy / l) * 130 * step;
-    }
     ball.x += ball.vx * step;
     ball.y += ball.vy * step;
     const cueDrag = Math.pow(0.9915, step * 60);
@@ -2387,7 +2276,8 @@ function figureVertices() {
   const points = gates
     .filter((g) => g.moved && g.travel > 10)
     .map((g) => ({ x: g.x, y: g.y, col: g.col, label: g.s }));
-  if (ball) points.push({ x: ball.x, y: ball.y, col: "#ffd2a0", label: "유성" });
+  if (ball)
+    points.push({ x: ball.x, y: ball.y, col: "#ffd2a0", label: "유성" });
   return points;
 }
 function figureCentroid(points) {
@@ -2404,7 +2294,8 @@ function figureCentroid(points) {
 function figureRing(points) {
   const c = figureCentroid(points);
   return [...points].sort(
-    (a, b) => Math.atan2(a.y - c.y, a.x - c.x) - Math.atan2(b.y - c.y, b.x - c.x),
+    (a, b) =>
+      Math.atan2(a.y - c.y, a.x - c.x) - Math.atan2(b.y - c.y, b.x - c.x),
   );
 }
 function pointInPolygon(px, py, ring) {
@@ -2423,7 +2314,9 @@ function distanceToSegment(px, py, a, b) {
   const dx = b.x - a.x,
     dy = b.y - a.y,
     len = dx * dx + dy * dy;
-  const t = len ? Math.max(0, Math.min(1, ((px - a.x) * dx + (py - a.y) * dy) / len)) : 0;
+  const t = len
+    ? Math.max(0, Math.min(1, ((px - a.x) * dx + (py - a.y) * dy) / len))
+    : 0;
   return Math.hypot(px - (a.x + dx * t), py - (a.y + dy * t));
 }
 /* --- point-cloud recogniser (RuneCast port) ----------------------------- */
@@ -2434,7 +2327,9 @@ function figureNormalize(points) {
   // a regular one, because that difference is exactly what is being judged.
   let max = 0;
   for (const p of centred) max = Math.max(max, Math.hypot(p.x, p.y));
-  return max > 0 ? centred.map((p) => ({ x: p.x / max, y: p.y / max })) : centred;
+  return max > 0
+    ? centred.map((p) => ({ x: p.x / max, y: p.y / max }))
+    : centred;
 }
 function figureCloudDistance(a, b, start) {
   const n = a.length,
@@ -2499,7 +2394,10 @@ function recognizePentagram(points) {
     distance,
     score: Math.max(
       0,
-      Math.min(1, (FIGURE.reject - distance) / (FIGURE.reject - FIGURE.perfect)),
+      Math.min(
+        1,
+        (FIGURE.reject - distance) / (FIGURE.reject - FIGURE.perfect),
+      ),
     ),
   };
 }
@@ -2540,7 +2438,10 @@ function resolveFigure() {
     t: 0,
   };
   if (rune.score > 0) {
-    earnBlaze(1 + rune.score * 2, "오망성 완성 " + Math.round(rune.score * 100) + "%");
+    earnBlaze(
+      1 + rune.score * 2,
+      "오망성 완성 " + Math.round(rune.score * 100) + "%",
+    );
     toast("오망성 완성 · 정확도 " + Math.round(rune.score * 100) + "%");
     combatSfx?.("unlock", 0.9);
     screenShake = Math.max(screenShake, 12);
@@ -2584,7 +2485,8 @@ registerRuntimeHook("afterDraw", function drawFigure() {
         : Math.max(
             0,
             1 -
-              (figureFx.t - FIGURE.drawTime - FIGURE.holdTime) / FIGURE.fadeTime,
+              (figureFx.t - FIGURE.drawTime - FIGURE.holdTime) /
+                FIGURE.fadeTime,
           ),
     tint = figureFx.score > 0 ? "#ffd2a0" : "#9adfc9";
   // The figure is traced edge by edge so the moment reads as being drawn, the
@@ -2606,7 +2508,10 @@ registerRuntimeHook("afterDraw", function drawFigure() {
         to = path[(i + 1) % path.length],
         span = Math.max(0, Math.min(1, drawn - i));
       if (span <= 0) break;
-      x.lineTo(from.x + (to.x - from.x) * span, from.y + (to.y - from.y) * span);
+      x.lineTo(
+        from.x + (to.x - from.x) * span,
+        from.y + (to.y - from.y) * span,
+      );
     }
     x.stroke();
     x.restore();
@@ -2631,37 +2536,17 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.fillStyle = "#ffe3c0";
     x.font = "bold 15px ui-monospace";
     x.textAlign = "center";
-    x.fillText("오망성 " + Math.round(figureFx.score * 100) + "%", c.x, c.y + 5);
+    x.fillText(
+      "오망성 " + Math.round(figureFx.score * 100) + "%",
+      c.x,
+      c.y + 5,
+    );
     x.restore();
   }
 });
-/* --- the training table seats four, so the meteor makes a fifth point ---- */
-const figureSetupBattle = setupBattle;
-setupBattle = function () {
-  figureSetupBattle();
-  if (!battle?.training || gates.length >= 4) return;
-  const spare = ownedHeroIds().find((id) => !deployed.includes(id));
-  if (!spare) return;
-  // Fourth corner of the ring the three stage slots start: the party begins
-  // spread around the colossus so a closing figure is one shot away.
-  const seat = [550, 600];
-  gates.push({
-    id: spare,
-    ...heroes[spare],
-    x: seat[0],
-    y: seat[1],
-    r: 34,
-    on: 0,
-    zone: ZONE_RULES[0].id,
-    slot: "실험 4번 자리",
-    hint: ZONE_RULES[0].hint,
-  });
-  loadSpec?.(heroes[spare]);
-  // startShot is what puts the per-shot fields (unitTrail, travel, moved, the
-  // blade counters) on a gate, and setupBattle already called it before this
-  // seat existed.  Without a second pass the fourth starkeeper reaches the
-  // solver bare and the first frame of the first shot throws on unitTrail,
-  // killing the frame loop.  Re-running it from the meteor's own spot primes
-  // all four and leaves the ball exactly where it already was.
-  startShot({ x: ball.x, y: ball.y });
-};
+/* --- the training table seats four, so the meteor makes a fifth point ------
+ * The fourth seat is a real party slot now: the stage carries four `slots` and
+ * `partySlotCount()` opens the roster to four there, so startShot builds and
+ * primes all four the same way it does the campaign's three.  This block used
+ * to push a spare starkeeper on after setupBattle had already run, which left
+ * it without unitTrail and threw on the first frame of the first shot. */

@@ -3,6 +3,13 @@
   font-family: ui-sans-serif, system-ui, sans-serif;
   background: #120d25;
   color: #f6edff;
+  /* The interface is Korean, and Korean has no inter-word break opportunity
+     the default algorithm can use, so a narrow panel splits titles mid-word:
+     "위상 공명기" wraps as "위상 공명 / 기".  `keep-all` moves the break to the
+     space between 어절; `break-word` is the escape hatch for a single token
+     that genuinely cannot fit, so nothing overflows its box instead. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 * {
   box-sizing: border-box;

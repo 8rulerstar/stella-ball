@@ -23,35 +23,16 @@ damage = function (weak = false) {
     weak ? "#ffe59a" : "#e6c7ff",
     crit,
   );
-  triggerZone("boss");
   if (marked)
     areaAttack(
       "비연 표식 폭발",
       Math.max(9, Math.round(amount * 0.34)),
       "#ef718d",
     );
-  if (ball.blink) {
-    const a = Math.atan2(ball.y - boss.y, ball.x - boss.x) + Math.PI;
-    ball.x = boss.x + Math.cos(a) * 96;
-    ball.y = boss.y + Math.sin(a) * 96;
-    ball.vx = Math.cos(a) * 760;
-    ball.vy = Math.sin(a) * 760;
-    ball.blink = false;
-    fieldFx.push({
-      type: "blink",
-      x: ball.x,
-      y: ball.y,
-      t: 0,
-      d: 0.5,
-      col: "#ff7fc8",
-    });
-    toast("카이 · 균열 도약!");
-  } else
-    toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
+  toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
   if (boss.hp <= 0) scheduleWin();
   ball.power = 0;
   if (weak) ball.mark = false;
-  ball.pulse = 0;
   chain = [];
   sync();
 };
@@ -1138,7 +1119,7 @@ function showShop() {
     gold +
     '</b></span></div><div class="shop-keeper"><span class="shop-keeper-art">' +
     pixelSpriteMarkup("orr", "☄", "도색장 오르") +
-    '</span><div><small>도색장 · 오르</small><p>' +
+    "</span><div><small>도색장 · 오르</small><p>" +
     shopKeeperLine(owned.length, gold) +
     '</p></div></div><div class="shop-intro"><small>METEOR SKINS</small><h2>유성 도색</h2><p>겉모습만 바뀝니다. 피해·속도·물리에는 영향이 없습니다.</p></div><div class="shop-grid">' +
     cards +
@@ -1327,7 +1308,6 @@ hitBumper = function (b) {
     d: 0.36,
     col: "#80e8df",
   });
-  triggerZone("bumper");
   impact(false);
   toast("공명 범퍼 · 운동량 상승");
   sync();
@@ -1554,7 +1534,7 @@ function showStageSelect() {
     constellationRoute(mapStages) +
     "</svg>" +
     nodes +
-    '</section><footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><span>현재 플레이 가능: 1-1 · 1-2</span><button id="stageSelectBack">뒤로</button></footer></div>';
+    '</section><footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><button class="constellation-training" id="enterTraining">무한 훈련장</button><span>현재 플레이 가능: 1-1 · 1-2</span><button id="stageSelectBack">뒤로</button></footer></div>';
   for (const button of document.querySelectorAll("[data-stage]"))
     button.onclick = () => {
       stageIndex = Number(button.dataset.stage);
@@ -1569,6 +1549,15 @@ function showStageSelect() {
   document.querySelector("#replayOnboarding").onclick = () => {
     playSfx();
     showOnboardingTutorial(true);
+  };
+  // The training table sits outside the campaign order, so no map node points
+  // at it and nothing else in the runtime sets its stage index.  Without this
+  // button it is unreachable.
+  document.querySelector("#enterTraining").onclick = () => {
+    playSfx();
+    stageIndex = stages.findIndex((stage) => stage.training);
+    primeCombatTextures();
+    showRoster();
   };
   document.querySelector("#stageSelectBack").onclick = () => {
     playSfx();
@@ -1878,7 +1867,7 @@ function showLibrary() {
           h.d +
           '</p><em class="codex-lore">「' +
           h.lore +
-          "」</em></div><span class=\"codex-skin\">" +
+          '」</em></div><span class="codex-skin">' +
           (has ? skin.name : "—") +
           "</span></article>"
         );

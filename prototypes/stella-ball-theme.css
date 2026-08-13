@@ -257,6 +257,19 @@ button:hover {
   color: #cfdad7 !important;
   font-size: 8px !important;
 }
+/* The prototype bench, parked beside the play button so it reads as a second
+   destination rather than a second call to action. */
+.hub-training {
+  align-self: end;
+  flex: 0 0 auto;
+  min-width: 62px;
+  padding: 7px 9px !important;
+  border-color: #42585c !important;
+  background: #0d1619d9 !important;
+  color: #cfdad7 !important;
+  font-size: 9px !important;
+  line-height: 1.35;
+}
 .hub-battle-play {
   align-self: end;
   min-width: 136px;

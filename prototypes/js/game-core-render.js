@@ -21,37 +21,18 @@ function damage(weak = false) {
     weak ? "#ffe59a" : "#e6c7ff",
     crit,
   );
-  triggerZone("boss");
   if (marked)
     areaAttack(
       "비연 표식 폭발",
       Math.max(9, Math.round(amount * 0.34)),
       "#ef718d",
     );
-  if (ball.blink) {
-    const a = Math.atan2(ball.y - boss.y, ball.x - boss.x) + Math.PI;
-    ball.x = boss.x + Math.cos(a) * 96;
-    ball.y = boss.y + Math.sin(a) * 96;
-    ball.vx = Math.cos(a) * 760;
-    ball.vy = Math.sin(a) * 760;
-    ball.blink = false;
-    fieldFx.push({
-      type: "blink",
-      x: ball.x,
-      y: ball.y,
-      t: 0,
-      d: 0.5,
-      col: "#ff7fc8",
-    });
-    toast("카이 · 균열 도약!");
-  } else
-    toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
+  toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
   if (boss.hp <= 0) scheduleWin();
   ball.vx *= weak ? -0.88 : -0.72;
   ball.vy *= weak ? -0.88 : -0.72;
   ball.power = 0;
   if (weak) ball.mark = false;
-  ball.pulse = 0;
   chain = [];
   sync();
 }
@@ -224,8 +205,7 @@ function registerBossHit(weak) {
       : "COMBO · " + hitCombo + " HIT";
     U.combo.classList.toggle("hot", riposte);
   }
-  if (riposte)
-    setTimeout(() => toast("연타! 연속 명중 " + hitCombo + "회"), 0);
+  if (riposte) setTimeout(() => toast("연타! 연속 명중 " + hitCombo + "회"), 0);
 }
 function impact(weak) {
   const force = Math.min(1.65, 1 + (hitCombo - 1) * 0.16);
@@ -312,26 +292,6 @@ function updateSpecial(d) {
       momentumHudCooldown = 1 / 12;
     }
   }
-  if (ball?.firework && ball.bounces > ball.fireworkBounce) {
-    ball.firework = false;
-    areaAttack("루카 벽 폭죽", 24, "#ff9d64");
-    fieldFx.push({
-      type: "firework",
-      x: ball.x,
-      y: ball.y,
-      t: 0,
-      d: 0.55,
-      col: "#ff9d64",
-    });
-  }
-  if (!run || !ball?.homing || ball.relay || ball.orbit) return;
-  const wx = boss.x + Math.cos(boss.a) * 84,
-    wy = boss.y + Math.sin(boss.a) * 84,
-    dx = wx - ball.x,
-    dy = wy - ball.y,
-    l = Math.hypot(dx, dy) || 1;
-  ball.vx = (dx / l) * 920;
-  ball.vy = (dy / l) * 920;
 }
 const orbitalFieldFxTypes = new Set(["gravity", "magnet", "vortex", "time"]);
 function drawFieldFx() {
@@ -380,18 +340,6 @@ function drawFieldFx() {
     }
     x.restore();
   }
-  for (const wall of barriers) {
-    x.save();
-    x.strokeStyle = wall.col;
-    x.shadowBlur = 14;
-    x.shadowColor = wall.col;
-    x.lineWidth = 3;
-    x.strokeRect(wall.x - 25, wall.y - 25, 50, 50);
-    x.restore();
-  }
-  for (const seed of seeds) {
-    circle(seed.x, seed.y, 8, seed.col, 12);
-  }
   for (const a of adds)
     if (a.frozen > 0) {
       x.save();
@@ -420,36 +368,14 @@ function drawSpecial() {
     x.stroke();
     x.restore();
   }
-  if (ball.homing) {
+  // Sera's turn command is the only in-flight input left; the orbit and moon
+  // cues belonged to the flipper build and could never light up again.
+  if (ball.turnReady && !ball.turnUsed) {
     x.save();
-    x.strokeStyle = "#fff09d";
-    x.shadowBlur = 14;
-    x.shadowColor = "#fff09d";
-    x.lineWidth = 2;
-    x.beginPath();
-    x.arc(ball.x, ball.y, ball.r + 8, 0, Math.PI * 2);
-    x.stroke();
-    x.restore();
-  }
-  let cue = "";
-  if (ball.orbit)
-    cue =
-      "탭 · 원심 발사 " +
-      Math.min(100, Math.round((ball.orbit.t / 1.2) * 100)) +
-      "%";
-  else if (ball.orbitReady) cue = "하단 탭 · 원심 플리퍼";
-  else if (ball.turnReady && !ball.turnUsed) cue = "클릭 · 90° 전환 + 에너지";
-  else if (ball.moon && !ball.moonUsed) cue = "하단 탭 · 좌상단 플리퍼";
-  if (cue) {
-    x.save();
-    x.fillStyle = ball.turnReady
-      ? "#e5c7ff"
-      : ball.moon
-        ? "#a9b9ff"
-        : "#ffe49b";
+    x.fillStyle = "#e5c7ff";
     x.font = "bold 11px ui-monospace";
     x.textAlign = "center";
-    x.fillText(cue, ball.x, ball.y - 28);
+    x.fillText("클릭 · 90° 전환 + 에너지", ball.x, ball.y - 28);
     x.restore();
   }
   runRuntimeHooks("afterSpecialDraw");
@@ -705,56 +631,17 @@ function drawStageArena() {
   drawStageProps();
   drawArenaFrame();
 }
-function drawAimGuide() {
-  if (!run || ball?.moving) return;
-  drawLibraryAsset(
-    libraryArt.tutorial.drag,
-    ball.x + 48,
-    ball.y - 34,
-    58,
-    58,
-    "hue-rotate(145deg) saturate(.7)",
-  );
-  const force = ball.launchPower || 0.25,
-    gaugeX = W / 2 - 66,
-    gaugeY = H - 59,
-    gaugeW = 132,
-    gaugeH = 24,
-    fill = textures[libraryArt.tutorial.gaugeFill],
-    frame = textures[libraryArt.tutorial.gaugeFrame];
-  x.save();
-  if (fill?.complete && fill.naturalWidth) {
-    x.beginPath();
-    x.rect(gaugeX, gaugeY, gaugeW * force, gaugeH);
-    x.clip();
-    x.filter = "hue-rotate(145deg) saturate(.7)";
-    x.drawImage(fill, gaugeX, gaugeY, gaugeW, gaugeH);
-  }
-  if (frame?.complete && frame.naturalWidth) {
-    x.filter = "hue-rotate(145deg) saturate(.7)";
-    x.drawImage(frame, gaugeX, gaugeY, gaugeW, gaugeH);
-  }
-  x.fillStyle = "#f5deb0";
-  x.font = "bold 10px ui-monospace";
-  x.textAlign = "center";
-  x.fillText(
-    drag
-      ? "당겨서 위력 " + Math.round(force * 100) + "%"
-      : "플런저를 당겨 발사",
-    W / 2,
-    H - 68,
-  );
-  x.restore();
-}
+// Base declaration only.  The pinball version drew a fixed plunger gauge at
+// the bottom of the table ("플런저를 당겨 발사"); the billiards pass replaces
+// this with a cue guide anchored to wherever the meteor came to rest.
+function drawAimGuide() {}
 function drawProjectileOverlay() {
   if (!ball?.moving) return;
-  const path = ball.homing
-    ? libraryArt.projectile.homing
-    : ball.mark
-      ? libraryArt.projectile.marked
-      : ball.runeBurst
-        ? libraryArt.projectile.charged
-        : "";
+  const path = ball.mark
+    ? libraryArt.projectile.marked
+    : ball.runeBurst
+      ? libraryArt.projectile.charged
+      : "";
   if (path)
     drawLibraryAsset(
       path,
@@ -844,96 +731,14 @@ function drawAnimated(name, cx, cy, size, frame) {
   );
   return true;
 }
-function drawFlipper(side) {
-  const f = flipperPose(side);
-  x.save();
-  x.translate(f.pivotX, f.pivotY);
-  x.rotate(f.angle);
-  x.shadowBlur = f.raised ? 24 : 11;
-  x.shadowColor = f.raised ? "#fff0a6" : "#d9b45e";
-  x.fillStyle = f.raised ? "#fff0a6" : "#e5bd62";
-  x.fillRect(0, -17, f.length, 34);
-  x.fillStyle = "#a66e37";
-  x.fillRect(11, -8, f.length - 26, 16);
-  x.fillStyle = "#fff1b5";
-  x.fillRect(20, -12, f.length - 50, 5);
-  x.restore();
-  circle(f.pivotX, f.pivotY, 19, "#101d23", 9);
-  circle(
-    f.pivotX,
-    f.pivotY,
-    12,
-    f.raised ? "#fff0a6" : "#e5bd62",
-    f.raised ? 22 : 8,
-  );
-  circle(f.pivotX, f.pivotY, 4, "#4a3024");
-}
-function drawCombatControls() {
-  const launch = !ball?.moving,
-    alpha = launch ? 1 : 0.82;
-  x.save();
-  x.globalAlpha = alpha;
-  x.textAlign = "center";
-  x.font = "bold 11px ui-monospace";
-  x.fillStyle = "#08151bdf";
-  x.strokeStyle = "#5e9290";
-  x.lineWidth = 1;
-  x.beginPath();
-  x.roundRect(W / 2 - 174, H - 246, 348, 31, 7);
-  x.fill();
-  x.stroke();
-  x.fillStyle = "#f3e6bf";
-  x.fillText(
-    launch
-      ? "① 하단을 아래로 드래그 → 놓기 : 플런저 발사"
-      : "② 공이 내려오면 좌 / 우 화면 클릭 : 플리퍼",
-    W / 2,
-    H - 226,
-  );
-  x.font = "bold 10px ui-monospace";
-  x.fillStyle = "#8bded2";
-  x.fillText("좌측 클릭", W * 0.2, H - 274);
-  x.fillText("우측 클릭", W * 0.8, H - 274);
-  x.fillStyle = "#d6e8df";
-  x.fillText("플리퍼", W * 0.2, H - 260);
-  x.fillText("플리퍼", W * 0.8, H - 260);
-  x.restore();
-}
-function drawPinballTable() {
-  x.save();
-  x.strokeStyle = "#d0ad5b";
-  x.lineWidth = 4;
-  x.beginPath();
-  x.moveTo(44, H - 44);
-  x.lineTo(W * 0.17, H - 202);
-  x.lineTo(W * 0.83, H - 202);
-  x.lineTo(W - 44, H - 44);
-  x.stroke();
-  x.restore();
-  drawFlipper(-1);
-  drawFlipper(1);
-  for (const b of bumpers) {
-    circle(b.x, b.y, b.r + 6, "#10222c", b.on ? 22 : 7);
-    circle(b.x, b.y, b.r, b.on ? "#e4f5d5" : "#4db8b3", b.on ? 24 : 10);
-    circle(b.x, b.y, Math.max(6, b.r - 9), "#e8cf77", b.on ? 12 : 3);
-  }
-  drawCombatControls();
-}
-function drawZoneRules() {
-  for (const g of gates) {
-    x.save();
-    x.fillStyle = g.on > 0 ? "#f2cb79e8" : "#0a1a22df";
-    x.strokeStyle = g.on > 0 ? g.col : "#5e8d8c";
-    x.lineWidth = 1;
-    x.fillRect(g.x - 48, g.y - 59, 96, 16);
-    x.strokeRect(g.x - 48, g.y - 59, 96, 16);
-    x.fillStyle = g.on > 0 ? "#071116" : "#d8e8e1";
-    x.font = "bold 8px ui-monospace";
-    x.textAlign = "center";
-    x.fillText(g.slot, g.x, g.y - 48);
-    x.restore();
-  }
-}
+// Base declarations for the table furniture.  The pinball versions — a
+// plunger lane, two flippers and a "좌측 클릭 · 플리퍼" caption — were replaced
+// wholesale: `drawPinballTable` and `drawCombatControls` by game-combat.js,
+// then `drawCombatControls` again and `drawZoneRules` by game-meta.js.  These
+// stay as empty bases so those assignments keep a declaration to bind to.
+function drawPinballTable() {}
+function drawCombatControls() {}
+function drawZoneRules() {}
 function drawArena() {
   drawStageArena();
   drawPinballTable();
@@ -948,32 +753,6 @@ function draw() {
     x.moveTo(ball.trail[i - 1].x, ball.trail[i - 1].y);
     x.lineTo(ball.trail[i].x, ball.trail[i].y);
     x.stroke();
-  }
-  if (ball.relay) {
-    x.save();
-    x.strokeStyle = "#66f7d7";
-    x.shadowBlur = 13;
-    x.shadowColor = "#66f7d7";
-    x.lineWidth = 2;
-    x.setLineDash([5, 5]);
-    x.beginPath();
-    x.moveTo(ball.relay.from.x, ball.relay.from.y);
-    x.lineTo(ball.relay.target.x, ball.relay.target.y);
-    x.stroke();
-    x.setLineDash([]);
-    x.restore();
-  }
-  if (ball.orbit) {
-    x.save();
-    x.strokeStyle = "#ffe39c";
-    x.shadowBlur = 12;
-    x.shadowColor = "#ffcf65";
-    x.lineWidth = 2;
-    x.beginPath();
-    x.moveTo(ball.orbit.anchor.x, ball.orbit.anchor.y);
-    x.lineTo(ball.x, ball.y);
-    x.stroke();
-    x.restore();
   }
   for (const g of gates) {
     const actionFrame = Math.floor(
@@ -1118,13 +897,6 @@ function modernUpdate(d) {
     toastTimer -= d;
     if (toastTimer <= 0) showNextToast();
   }
-  for (const key of ["left", "right"]) {
-    const rising = (flippers[key + "Strike"] || 0) > 0;
-    flippers[key] = rising
-      ? Math.min(1, (flippers[key] || 0) + d / PHYSICS.flipperRise)
-      : Math.max(0, (flippers[key] || 0) - d / PHYSICS.flipperFall);
-    flippers[key + "Strike"] = Math.max(0, (flippers[key + "Strike"] || 0) - d);
-  }
   for (const p of popups) p.t += d;
   popups = popups.filter((p) => p.t < 0.9);
   for (const a of adds) {
@@ -1154,14 +926,6 @@ function modernUpdate(d) {
   }
   for (const b of bumpers) b.on = Math.max(0, b.on - d);
   if (!ball.moving) return;
-  if (ball.relay) {
-    updateRelay(d);
-    return;
-  }
-  if (ball.orbit) {
-    updateOrbit(d);
-    return;
-  }
   simulatePhysics(d);
 }
 update = modernUpdate;
