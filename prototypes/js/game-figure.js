@@ -353,6 +353,9 @@ const FIGURE_SHAPES = {
         [0, 1],
         [0, 2],
       ],
+      // The shaft, nock first.  `piercingShot` fires along it, so this is the
+      // one constellation whose recognised orientation decides an outcome.
+      axis: [3, 0],
       art: "../assets/library/constellations/sagitta.png",
     },
     {
@@ -625,6 +628,67 @@ function encloseDamage(ctx) {
   }
   return caught.length ? caught.length + "체 포위" : "포위 실패";
 }
+// How far off the shaft a target can stand and still be run through, on top of
+// its own radius.  The meteor's own width, matching the two-point segment.
+const FIGURE_PIERCE_WIDTH = 26;
+// Seconds the fired line stays on the table, measured on the figure's clock.
+const FIGURE_PIERCE_FADE = 0.5;
+// 화살자리 · 관통 사격.  The arrow is the one constellation whose recognised
+// geometry decides the outcome rather than just the label: the shaft flies on
+// past the arrowhead to the table edge, and everything it crosses is hit.
+// Enclosure is not required, so unlike `encloseDamage` it cannot come up empty
+// on a figure that happens to surround nothing — a four-point ring is small,
+// and the colossus is often just outside it.
+//
+// It fires along the CORRECTED arrow (`fit.ideal`), not the drawn one.  The
+// reveal eases the vertices onto the skeleton before `cast` runs, so by the
+// time the line is drawn the corrected arrow is the arrow on screen; using the
+// drawn points would send the beam somewhere the player never saw.
+function piercingShot(ctx) {
+  const axis = ctx.shape?.axis,
+    fit = ctx.fit;
+  // No fit means no way to tell which vertex is the arrowhead, and a beam fired
+  // in an arbitrary direction is worse than the plain effect.
+  if (!axis || !fit) return encloseDamage(ctx);
+  const from = fit.ideal[fit.order[axis[0]]],
+    tip = fit.ideal[fit.order[axis[1]]];
+  if (!from || !tip) return encloseDamage(ctx);
+  const dx = tip.x - from.x,
+    dy = tip.y - from.y,
+    len = Math.hypot(dx, dy);
+  if (!len) return encloseDamage(ctx);
+  // One table diagonal past the nock always clears the far edge, whatever the
+  // angle, so the beam never stops short inside the arena.
+  const reach = Math.hypot(W, H),
+    to = { x: from.x + (dx / len) * reach, y: from.y + (dy / len) * reach },
+    crosses = (tx, ty, tr) =>
+      distanceToSegment(tx, ty, from, to) <= tr + FIGURE_PIERCE_WIDTH;
+  const run = [];
+  if (boss && boss.hp > 0 && crosses(boss.x, boss.y, 66)) {
+    const dealt = applyBossHit(ctx.bonus);
+    if (dealt > 0) {
+      addPopup(boss.x, boss.y - 92, "관통 -" + dealt, "#ffd2a0", true);
+      run.push("공허 거상");
+    }
+  }
+  for (const a of adds) {
+    if (a.down > 0 || !crosses(a.x, a.y, a.r)) continue;
+    damageAdd(a, ctx.bonus, "관통", "#ffd2a0");
+    run.push("공허 잔재");
+  }
+  // The shot rides the figure's own clock, not `fieldFx`.  Field effects are
+  // only advanced from inside `simulatePhysics`, which `modernUpdate` skips
+  // once `ball.moving` is false — and a constellation casts at settle, exactly
+  // when the meteor has stopped.  A beam pushed there would hang at full
+  // opacity until the next launch.  `figureFx` is also where it belongs: it is
+  // part of the reveal, and it is cleared with it at `FIGURE_END_AT`.
+  //
+  // On the flush path `figureFx` is the outgoing figure, so its beam is
+  // dropped with it.  That is correct — the player has already launched again,
+  // and the damage above has been paid.
+  if (figureFx) figureFx.beam = { from, to, at: figureFx.t };
+  return run.length ? run.length + "체 관통" : "빗나감";
+}
 // One entry per `FIGURE_SHAPES` id.  Replace them one at a time — the
 // classification, the trace and the on-table label already tell the
 // constellations apart, so an ability only has to decide what happens.
@@ -635,6 +699,11 @@ function encloseDamage(ctx) {
 //   ctx.score   0..1 read of how cleanly the shape was drawn
 //   ctx.covers  (x, y, radius) => whether that target sits inside the figure
 //   ctx.bonus   FIGURE.bonusPerPoint × vertex count
+//   ctx.fit     the alignment onto the skeleton, or null for a bare segment.
+//               `fit.order[star]` is which drawn vertex stands on skeleton star
+//               `star`, and `fit.ideal` is where the corrected figure puts each
+//               one — together they are how an ability reads a named part of
+//               the constellation, such as the arrow's shaft.
 // and returns a short line for the toast, or nothing to stay quiet.
 //
 // Available without new assets: `applyBossHit`, `areaAttack`, `damageAdd`,
@@ -642,7 +711,7 @@ function encloseDamage(ctx) {
 // art or SFX goes to ASSET_BACKLOG.md first.
 const FIGURE_ABILITIES = {
   aries: encloseDamage, // 3점 · 한 샷당 19%
-  sagitta: encloseDamage, // 4점 · 11%
+  sagitta: piercingShot, // 4점 · 11% — 화살대 방향 관통
   corvus: encloseDamage, // 4점 · 7%
   cassiopeia: encloseDamage, // 5점 · 8%
   cygnus: encloseDamage, // 5점 · 5% — 버프 예정
@@ -673,6 +742,10 @@ function resolveFigure(points) {
     bonus = FIGURE.bonusPerPoint * ring.length;
   // Two points are a line, not a constellation, so they keep the plain effect.
   const match = segment ? null : classifyFigure(points);
+  // The fit is resolved before the context because abilities read it too, not
+  // just the trace: it is the only thing that says which vertex is the arrow's
+  // head rather than its nock.
+  const fit = match ? figureFit(points, match.shape) : null;
   const ctx = {
     shape: match?.shape ?? null,
     ring,
@@ -680,9 +753,9 @@ function resolveFigure(points) {
     score: match?.score ?? 0,
     covers,
     bonus,
+    fit,
   };
-  const rune = match?.shape.id === "pentagram",
-    fit = match ? figureFit(points, match.shape) : null;
+  const rune = match?.shape.id === "pentagram";
   figureFx = {
     ring,
     segment,
@@ -832,6 +905,27 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
 });
 registerRuntimeHook("afterDraw", function drawFigure() {
   if (!figureFx) return;
+  // The arrow's shot, under everything else so the figure that fired it still
+  // reads on top.
+  if (figureFx.beam) {
+    const life = Math.max(
+      0,
+      1 - (figureFx.t - figureFx.beam.at) / FIGURE_PIERCE_FADE,
+    );
+    if (life > 0) {
+      x.save();
+      x.globalAlpha = life;
+      x.strokeStyle = "#ffd2a0";
+      x.shadowBlur = 16;
+      x.shadowColor = "#ffd2a0";
+      x.lineWidth = 2 + life * 5;
+      x.beginPath();
+      x.moveTo(figureFx.beam.from.x, figureFx.beam.from.y);
+      x.lineTo(figureFx.beam.to.x, figureFx.beam.to.y);
+      x.stroke();
+      x.restore();
+    }
+  }
   // Vertices ease from where the starkeepers actually stopped onto the fitted
   // skeleton.  Only the drawing moves — the units stay exactly where they are,
   // because the next shot tees off from the meteor's real resting place.
