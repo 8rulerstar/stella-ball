@@ -1303,6 +1303,59 @@ const bossArt = {
     hit: "../assets/library/anim/boss2/void-colossus-hit.png",
   },
 };
+/* --- the boss pack --------------------------------------------------------
+ * Ten colossi, one per constellation world plus three specials, all sharing
+ * the frame contract above so `loadSpec` needs no new case.  The art and the
+ * two generator scripts came in together; `node scripts/generate_boss_pack_10.mjs`
+ * rebuilds all sixty files from `scripts/boss-pack-core.js`, which is the
+ * single source for the dot definitions — edit that and regenerate rather
+ * than touching a PNG.
+ *
+ * `weakCount` is recorded here because the pack ships a gem sheet per boss
+ * drawn for that many weak points.  Nothing reads it yet: the rule that a
+ * multi-gem boss discounts body damage until its gems are broken is not
+ * implemented, and neither are the attack and death states, which have sheets
+ * but no state selection in `game-core-render.js`.  The data is here so that
+ * work has something to attach to; see the guide's §5.
+ */
+const BOSS_PACK_SPEC = {
+  fw: 384,
+  fh: 384,
+  frames: 1,
+  scale: 0.48,
+  sheetFrame: 384,
+};
+const bossPack = {
+  "aries-horngate": { weakCount: 1, tier: "void" },
+  "sagitta-archon": { weakCount: 2, tier: "teal" },
+  "corvus-swarm": { weakCount: 3, tier: "void" },
+  "cassiopeia-throne": { weakCount: 2, tier: "apricot" },
+  "cygnus-drifter": { weakCount: 1, tier: "pale" },
+  "orion-hunter": { weakCount: 3, tier: "apricot" },
+  "dipper-crawler": { weakCount: 4, tier: "teal" },
+  "training-effigy": { weakCount: 1, tier: "pale" },
+  "pentacle-core": { weakCount: 5, tier: "void" },
+  "erosion-warden": { weakCount: 2, tier: "teal" },
+};
+function bossArtFor(slug) {
+  const meta = bossPack[slug];
+  // Falls back to the void colossus rather than throwing, so a stage naming a
+  // boss that does not exist yet still opens.
+  if (!meta) return bossArt;
+  return Object.assign({}, BOSS_PACK_SPEC, {
+    slug,
+    sprite: `../assets/library/boss10/${slug}.png`,
+    weak: `../assets/library/boss10/${slug}-weakgem.png`,
+    weakCount: meta.weakCount,
+    tier: meta.tier,
+    animations: {
+      idle: `../assets/library/anim/boss10/${slug}-idle.png`,
+      hit: `../assets/library/anim/boss10/${slug}-hit.png`,
+      attack: `../assets/library/anim/boss10/${slug}-attack.png`,
+      death: `../assets/library/anim/boss10/${slug}-death.png`,
+    },
+  });
+}
 const staticArt = {
   orb: "../assets/original/prism-orb.svg",
   weak: "../assets/library/boss2/void-colossus-weakgem.png",

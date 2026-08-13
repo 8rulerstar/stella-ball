@@ -328,10 +328,108 @@ function ensureAudio() {
       osc.start();
     }
     audioEngine = { ac, master, music };
+    startObservatoryScore(audioEngine);
   }
   audioEngine.ac.resume?.();
   syncAudio();
   return audioEngine;
+}
+/* --- the score ------------------------------------------------------------
+ * Generated at runtime rather than shipped as a file.  The two drone
+ * oscillators above were already the whole of the music, and they are E2 and
+ * B2 — a bare fifth — so the piece is written in E and simply continues them
+ * instead of replacing them.  Nothing is loaded, nothing is licensed, and the
+ * existing `music` gain and the `배경음` slider stay in charge of the level.
+ *
+ * It never loops.  A loop of any length announces itself over a 60 to 90
+ * second battle and then over the next one, so each bar picks its own notes
+ * and the piece simply continues.  What repeats is the harmony, not the audio.
+ */
+const SCORE = {
+  // E natural minor.  The drone already sits on E and B, so this is what those
+  // two were implying; the pad below moves underneath them rather than against.
+  root: 82.41,
+  // Four chords as semitone offsets from the root, one per bar: Em, C, Am, B.
+  // A slow, unhurried circle that resolves without ever quite settling, which
+  // is what the observatory wants — waiting, not arriving.
+  progression: [
+    [0, 3, 7],
+    [8, 12, 15],
+    [5, 8, 12],
+    [7, 11, 14],
+  ],
+  // Pentatonic degrees, in semitones from the root.  Any of these against any
+  // of the chords above is consonant, which is what lets the melody be chosen
+  // at random without ever sounding wrong.
+  scale: [0, 3, 5, 7, 10, 12, 15, 17, 19, 22],
+  barSeconds: 7.2,
+  lookahead: 0.6,
+  tickMs: 220,
+};
+function startObservatoryScore(engine) {
+  const ac = engine.ac,
+    bed = ac.createGain();
+  bed.gain.value = 1;
+  bed.connect(engine.music);
+  // A soft ceiling on the pad's brightness.  Without it the stacked sines beat
+  // against the drone and the result reads as a mistuned organ.
+  const veil = ac.createBiquadFilter();
+  veil.type = "lowpass";
+  veil.frequency.value = 1250;
+  veil.Q.value = 0.4;
+  veil.connect(bed);
+  const state = { bar: 0, at: ac.currentTime + 0.4, seed: 20260813 };
+  // Deterministic: the same session always writes the same piece, which makes
+  // an odd-sounding bar reproducible instead of a ghost.
+  const rnd = () => ((state.seed = (state.seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const hz = (semitones) => SCORE.root * Math.pow(2, semitones / 12);
+  function voice(freq, at, dur, peak, type = "sine", target = veil) {
+    const osc = ac.createOscillator(),
+      gain = ac.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.exponentialRampToValueAtTime(peak, at + dur * 0.25);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    osc.connect(gain);
+    gain.connect(target);
+    osc.start(at);
+    osc.stop(at + dur + 0.05);
+  }
+  function writeBar(at, index) {
+    const chord = SCORE.progression[index % SCORE.progression.length];
+    // The pad: the chord an octave up, entering and leaving slowly enough that
+    // no single note is ever the thing you notice.
+    for (const step of chord)
+      voice(hz(step + 12), at, SCORE.barSeconds * 1.1, 0.09);
+    // Two or three struck notes a bar, placed on eighths so they land with the
+    // pad rather than across it.  Sparse on purpose: this plays under a game.
+    const strikes = 2 + (rnd() < 0.4 ? 1 : 0);
+    for (let i = 0; i < strikes; i++) {
+      const beat = Math.floor(rnd() * 8) / 8,
+        step = SCORE.scale[Math.floor(rnd() * SCORE.scale.length)];
+      voice(
+        hz(step + 24),
+        at + beat * SCORE.barSeconds,
+        1.7 + rnd() * 1.4,
+        0.07,
+        "triangle",
+      );
+    }
+    // One low swell every fourth bar, to mark the turn of the progression.
+    if (index % 4 === 0)
+      voice(hz(chord[0] - 12), at, SCORE.barSeconds * 1.6, 0.1, "sine", bed);
+  }
+  // A lookahead scheduler rather than the render loop: music has to keep its
+  // own clock, and the frame loop stops on menus and hidden tabs.
+  setInterval(() => {
+    if (ac.state !== "running") return;
+    while (state.at < ac.currentTime + SCORE.lookahead) {
+      writeBar(state.at, state.bar++);
+      state.at += SCORE.barSeconds;
+    }
+  }, SCORE.tickMs);
+  engine.score = state;
 }
 function syncAudio() {
   if (!audioEngine) return;
@@ -1245,7 +1343,11 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
         stage.dataset.phase = phase;
         if (label) {
           caption.textContent = label;
-          if (phase !== "call") playSfx("unlock");
+          // Two dedicated cues instead of the same unlock blip on every beat:
+          // the gathering phases draw inward, the manifestation opens out.
+          if (phase === "manifest" || phase === "intro")
+            combatSfx?.("summonReveal", 1);
+          else if (phase !== "call") combatSfx?.("summonGather", 0.85);
         } else caption.textContent = "";
         if (phase === "manifest") manifest();
         if (phase === "intro") intro();

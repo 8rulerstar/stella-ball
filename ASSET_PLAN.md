@@ -25,9 +25,21 @@
 | 유성·별지기·약점     | `assets/original/*.svg`, `assets/library/boss2/void-colossus-weakgem.png` | Stella Ball 오리지널                        | 게임 고유 식별자. 유성/별지기는 SVG, 공허 거상 약점은 픽셀 젬                                                                                                                                                                   |
 | 별지기 액션 시트     | `assets/characters/anim/*-roll.png`, `*-attack.png`                       | 프로젝트 오너 제작 (2026-08-13)             | 구르기 4프레임 + 각성 공격 4프레임, 768×192. `scripts/generate_unit_action_sheets.py`는 교체 전 시트를 다시 만드니 실행 금지                                                                                                    |
 | 능력 버스트 시트     | `assets/library/anim/fx/fx-*-burst.png`                                   | Stella Ball 오리지널 절차 생성              | 능력 종류별 4프레임 버스트. 재생성: `scripts/generate_ability_bursts.py`                                                                                                                                                        |
+| 월드 보스 7종        | `assets/library/boss10/{aries-horngate,sagitta-archon,corvus-swarm,cassiopeia-throne,cygnus-drifter,orion-hunter,dipper-crawler}.png` | 프로젝트 오너 발주 · 절차 생성 (2026-08-13) | 별자리 월드 1~7의 거상. idle/hit/attack/death 4상태 × 4프레임, 전용 약점 젬. 규격은 아래 「보스 팩 10종 규약」 참조 |
+| 특수 보스 3종        | `assets/library/boss10/{training-effigy,pentacle-core,erosion-warden}.png` | 동일 | 무한 훈련장 표적, 오망성 발동체, 1-3 침식의 계단 파수 |
+| 보스 상태 시트       | `assets/library/anim/boss10/*-{idle,hit,attack,death}.png`                | 동일 | 1536×384 가로 4프레임. 재생성 `node scripts/generate_boss_pack_10.mjs` |
+| 보스 약점 젬 10종    | `assets/library/boss10/*-weakgem.png`                                     | 동일 | 보스별 유효타 1~5개소 표시. 256×256 |
 | 별자리 실루엣 7종    | `assets/library/constellations/*.png`                                     | 프로젝트 오너 발주 · 절차 생성 (2026-08-13) | 모든 전투의 성공 패링 접점 별빛 노드가 완성한 별자리 뒤에 희미하게 겹치는 그림. 양자리·화살자리·까마귀자리·카시오페이아(왕좌)·백조자리, 6점 오리온자리(사냥꾼 전신·사이프 암시), 7점 북두칠성(국자). 오망성은 기존 전용 연출을 쓰므로 실루엣 없음. 규격은 아래 「별자리 실루엣 규약」 참조 |
 
 별자리 실루엣의 출처는 프로젝트 오너 발주 절차 생성이고, 라이선스는 **프로젝트 오너 원본 에셋(제3자 재배포 조건 미정)**으로 기록한다. 경로는 `assets/library/constellations/`, 런타임 연결점은 `prototypes/js/game-figure.js`의 `FIGURE_SHAPES[].art`와 `drawFigure`다.
+
+## 보스 팩 10종 규약
+
+- 384×384, 셀 4px, 논리 격자 48유닛. 중심 x=24, 접지선 y=44
+- 상태 4종(idle/hit/attack/death) × 4프레임 가로 시트(1536×384), 약점 젬은 256×256 별도
+- 색 계층 4종(공허 보라 / 관측 청록 / 여명 살구 / 창백 달빛). 본체는 저채도 어두운 셸, 강조색은 림·첨탑·핵·약점에만 쓴다
+- 도트 정의는 `scripts/boss-pack-core.js` 하나뿐. 아트를 손으로 고치지 말고 이 파일을 고친 뒤 `node scripts/generate_boss_pack_10.mjs`로 60개를 다시 만든다
+- 런타임 조회는 `game-data.js`의 `bossArtFor(slug)`. 없는 슬러그는 기존 공허 거상으로 폴백한다
 
 ## 별자리 실루엣 규약
 
