@@ -91,10 +91,12 @@ Run this quick handoff check from the repository root:
 npm run check
 ```
 
+`check` ends with the roughly 30-second onboarding browser journey. To rerun only that journey, use `npm run test:onboarding`; set `STELLA_BROWSER_PATH` when Chrome or Edge is installed outside the documented platform defaults.
+
 For a changed runtime module, add the focused formatting check and whitespace check:
 
 ```sh
-npx --yes prettier@3.5.3 --check prototypes/js/game-platform.js prototypes/js/game-runtime.js prototypes/js/game-data.js prototypes/js/game-ui.js prototypes/js/game-session.js prototypes/js/game-core-physics.js prototypes/js/game-core-render.js prototypes/js/game-meta-state.js prototypes/js/game-meta.js prototypes/js/game-combat.js prototypes/js/game-combat-physics.js prototypes/js/game-figure-recognition.js prototypes/js/game-figure.js prototypes/js/game-feedback.js prototypes/js/game-onboarding.js prototypes/js/game-arena-carve.js scripts/smoke-runtime.mjs scripts/verify-evidence.mjs
+npx --yes prettier@3.5.3 --check prototypes/js/game-platform.js prototypes/js/game-runtime.js prototypes/js/game-data.js prototypes/js/game-ui.js prototypes/js/game-session.js prototypes/js/game-core-physics.js prototypes/js/game-core-render.js prototypes/js/game-meta-state.js prototypes/js/game-meta.js prototypes/js/game-combat.js prototypes/js/game-combat-physics.js prototypes/js/game-figure-recognition.js prototypes/js/game-figure.js prototypes/js/game-feedback.js prototypes/js/game-onboarding.js prototypes/js/game-arena-carve.js scripts/smoke-runtime.mjs scripts/test-onboarding-e2e.mjs scripts/verify-evidence.mjs
 git diff --check
 ```
 

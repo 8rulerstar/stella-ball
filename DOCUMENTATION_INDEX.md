@@ -13,7 +13,8 @@
 5. [prototypes/MAINTENANCE.md](prototypes/MAINTENANCE.md) — 기믹·성능·검증 변경 절차
 6. [prototypes/TECH_DEBT.md](prototypes/TECH_DEBT.md) — 영향·위험·공수로 정렬한 유지보수 부채와 단계별 해소 계획
 7. [prototypes/ADR-001-RUNTIME-MODULES.md](prototypes/ADR-001-RUNTIME-MODULES.md), [ADR-002-STABLE-SUBOWNERS.md](prototypes/ADR-002-STABLE-SUBOWNERS.md) — 런타임 훅·모듈 계약과 대형 파일 분리의 결정 근거
-8. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙. [UI_REDESIGN_HANDOFF.md](UI_REDESIGN_HANDOFF.md)(Ink & Brass v2)를 대체했다.
+8. [prototypes/ONBOARDING-E2E.md](prototypes/ONBOARDING-E2E.md) — 첫 세션 브라우저 회귀 경로, 단언 범위, 테스트 전용 체력 픽스처와 의도적 공백
+9. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙. [UI_REDESIGN_HANDOFF.md](UI_REDESIGN_HANDOFF.md)(Ink & Brass v2)를 대체했다.
 
 ## 제출과 이력 문서
 

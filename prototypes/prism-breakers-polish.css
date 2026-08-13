@@ -1463,8 +1463,9 @@ body.onboarding-locked canvas {
   border-right: 0 !important;
 }
 .title-mode .title-sky-map {
-  /* Give the dome crown and Orion's head star breathing room below the frame. */
-  top: -4%;
+  /* Keep the celestial dome below the frame edge instead of pinning its crown
+     to the bezel; the title stack stays independently positioned. */
+  top: 4%;
   left: 0;
   width: 100%;
   height: 88%;

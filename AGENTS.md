@@ -43,7 +43,8 @@ These are ordered classic scripts sharing one global scope. Do not reorder their
 
 - `npm run verify` checks markers, runtime files, asset references, portability, and whitespace.
 - `npm run smoke` checks the document/runtime contract without a browser.
-- `npm run check` runs both required checks in the handoff order.
+- `npm run test:onboarding` drives the six-card tutorial, guaranteed pentagram, final battle, and reward in a fresh headless Chromium profile.
+- `npm run check` runs verification, smoke, and onboarding E2E in the handoff order.
 - `npm run format:check` checks formatting; use `npm run format` to apply it.
 - Do not edit generated `artifacts/` output or user-owned `.claude/` files.
 - Preserve unrelated changes in a dirty worktree. Do not amend, rebase, or force-push `main`.

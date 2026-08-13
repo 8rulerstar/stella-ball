@@ -28,6 +28,9 @@ jobs:
       - name: Verify browser prototype
         run: node scripts/verify-evidence.mjs
 
+      - name: Run the six-card onboarding journey
+        run: npm run test:onboarding
+
       - name: Archive time-stamped verification report
         uses: actions/upload-artifact@v4
         with:

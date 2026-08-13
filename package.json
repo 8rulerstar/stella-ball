@@ -5,7 +5,8 @@
   "scripts": {
     "verify": "node scripts/verify-evidence.mjs",
     "smoke": "node scripts/smoke-runtime.mjs",
-    "check": "npm run verify && npm run smoke",
+    "test:onboarding": "node --experimental-websocket scripts/test-onboarding-e2e.mjs",
+    "check": "npm run verify && npm run smoke && npm run test:onboarding",
     "serve": "node scripts/serve.mjs",
     "format": "npx --yes prettier@3.5.3 --write .",
     "format:check": "npx --yes prettier@3.5.3 --check ."
