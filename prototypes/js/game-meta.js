@@ -183,11 +183,10 @@ function claimableAchievements() {
   return achievementList().filter((a) => a.done && !isAchievementClaimed(a.id));
 }
 function claimCount() {
-  return (
-    claimableAchievements().length +
-    pendingRewardEntries().length +
-    (typeof attendanceReady === "function" && attendanceReady() ? 1 : 0)
-  );
+  // The hub chip opens the archive, so count only rewards that can actually
+  // be collected there. Daily attendance lives in the profile screen and has
+  // its own ready state; including it here produced a misleading “수령 1”.
+  return claimableAchievements().length + pendingRewardEntries().length;
 }
 function claimAchievement(id) {
   const entry = claimableAchievements().find((a) => a.id === id);

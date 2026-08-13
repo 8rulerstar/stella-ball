@@ -356,6 +356,21 @@ function __botIndividualClaimProbe() {
     gold: progress.gold,
   };
 }
+function __botArchiveClaimCountProbe() {
+  progress = {
+    ...progress,
+    clears: 0,
+    bestCombo: 0,
+    bestShots: 99,
+    claimedAchievements: [],
+    pendingGold: 0,
+    pendingRewards: [],
+  };
+  return {
+    archiveClaims: claimCount(),
+    attendanceReady: attendanceReady(),
+  };
+}
 function __botSteerProbe(config, side) {
   __botStart(config);
   ball.vx = 1000;
@@ -456,6 +471,10 @@ export function runCampaignStage({
 
 export function probeIndividualClaims() {
   return runInRuntime({ seed: 1 }, "__botIndividualClaimProbe");
+}
+
+export function probeArchiveClaimCount() {
+  return runInRuntime({ seed: 1 }, "__botArchiveClaimCountProbe");
 }
 
 export function sweepPlainArena({
