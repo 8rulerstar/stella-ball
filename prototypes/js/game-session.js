@@ -174,85 +174,12 @@ function renderTitlePresentation() {
   }, 1080);
   return enter;
 }
-function showTitle() {
-  run = false;
-  drag = null;
-  setScene("title");
-  const enter = renderTitlePresentation();
-  enter.onclick = () => {
-    playSfx?.("confirm");
-    showMeta();
-  };
-}
-function showMeta() {
-  run = false;
-  drag = null;
-  setScene("meta");
-  const s = currentStage(),
-    today = new Intl.DateTimeFormat("ko-KR", {
-      month: "long",
-      day: "numeric",
-    }).format(new Date()),
-    party = selected
-      .map((id) => {
-        const h = heroes[id],
-          stone = runeStone(id);
-        return (
-          '<div class="meta-rune"><span class="meta-rune-art" data-hero="' +
-          id +
-          '" style="background-image:url(\'' +
-          stone +
-          '\')"></span><b style="color:' +
-          h.col +
-          '">' +
-          h.s +
-          "</b><small>" +
-          h.e +
-          "</small></div>"
-        );
-      })
-      .join("");
-  U.over.className = "overlay meta-scene";
-  U.over.innerHTML =
-    '<div class="meta-hub"><div class="meta-brand"><img src="' +
-    metaArt.wordmark +
-    '" alt="Prism Breakers"><span class="meta-profile">PRISM ID<b>PLAYER 01</b></span></div><section class="meta-daily"><img src="' +
-    metaArt.daily +
-    '" alt="오늘의 밤하늘"><div><small>' +
-    today +
-    " · 오늘의 밤하늘</small><h2>" +
-    s.id +
-    " · " +
-    s.name +
-    '</h2><p>위기의 별자리에 도전하세요.</p></div><button class="meta-launch" id="metaLaunch"><img src="' +
-    metaArt.play +
-    '" alt="">게임 시작</button></section><div class="meta-section-title"><span>현재 별지기</span><span>3 / 3</span></div><section class="meta-party">' +
-    party +
-    '</section><div class="meta-actions"><button id="metaRoster"><img src="' +
-    metaArt.home +
-    '" alt="">별지기 편성</button><button id="metaHelp"><img src="' +
-    metaArt.help +
-    '" alt="">조작법</button></div><p class="meta-note">오늘의 관측은 한 번의 궤적에서 더 큰 별자리를 완성하는 도전입니다.</p></div>';
-  for (const el of document.querySelectorAll(".meta-rune-art")) {
-    const id = el.dataset.hero;
-    if (
-      ![
-        "gaon",
-        "biyeon",
-        "lumi",
-        "haru",
-        "sera",
-        "taeo",
-        "nyx",
-        "rio",
-      ].includes(id)
-    )
-      setPortrait(el, heroes[id], 58);
-  }
-  document.querySelector("#metaLaunch").onclick = showRoster;
-  document.querySelector("#metaRoster").onclick = showRoster;
-  document.querySelector("#metaHelp").onclick = showMetaHelp;
-}
+// Superseded wholesale by the game-onboarding.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function showTitle() {}
+// Superseded wholesale by the game-onboarding.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function showMeta() {}
 function showMetaHelp() {
   run = false;
   drag = null;
@@ -542,34 +469,12 @@ function showDraft(title, sub, next) {
   document.querySelector("#backDeployment").onclick = showDeployment;
   U.over.classList.remove("hide");
 }
-function endShot() {
-  ball.moving = false;
-  ball.vx = ball.vy = 0;
-  ball.trail = [];
-  // Training and the tutorial advertise unlimited meteors in the HUD, so they
-  // reload instead of ending the battle.  Nobody fails a lesson.
-  if (battle.shots <= 0 && (battle.training || battle.tutorial))
-    battle.shots = battle.shotMax;
-  if (battle.shots <= 0) {
-    run = false;
-    if (boss.hp > 0) return fail("별빛이 닿지 않았습니다.");
-  } else {
-    startShot();
-    msg = "다음 유성을 준비하세요. 남은 배치에서 별자리를 다시 설계하세요.";
-    sync();
-  }
-}
-function fail(text) {
-  battleComplete = true;
-  assistShots = [];
-  combatSfx?.("fail", 0.9);
-  U.over.className = "overlay";
-  U.over.innerHTML =
-    '<div class="outcome-cut fail"><div class="tag">전투 종료</div><h2>공허 거상이 버텼습니다.</h2><p>' +
-    text +
-    '</p><button onclick="showRoster()">다시 하기</button></div>';
-  U.over.classList.remove("hide");
-}
+// Superseded wholesale by the game-combat.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function endShot() {}
+// Superseded wholesale by the game-onboarding.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function fail(text) {}
 function scheduleWin() {
   const id = battle?.id;
   if (!id || battleComplete || battle?.victory) return;
@@ -608,28 +513,9 @@ function scheduleWin() {
     if (battle?.id === id && battle?.victory) win();
   }, 2550);
 }
-function resultCard(shotsUsed, elapsedMs) {
-  const medal =
-      shotsUsed <= 1 ? "flawless" : shotsUsed <= 2 ? "sharp" : "clear",
-    seconds = (elapsedMs / 1000).toFixed(1);
-  return (
-    '<div class="result-card"><img class="result-medal" src="' +
-    libraryArt.result[medal] +
-    '" alt="전투 메달"><div class="result-metrics"><span class="result-metric"><img src="' +
-    libraryArt.result.time +
-    '" alt=""><span>클리어<b>' +
-    seconds +
-    '초</b></span></span><span class="result-metric"><img src="' +
-    libraryArt.result.shots +
-    '" alt=""><span>사용 유성<b>' +
-    shotsUsed +
-    '개</b></span></span><span class="result-metric"><img src="' +
-    libraryArt.result.damage +
-    '" alt=""><span>처치 피해<b>' +
-    boss.maxHp +
-    "</b></span></span></div></div>"
-  );
-}
+// Superseded wholesale by the game-onboarding.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function resultCard(shotsUsed, elapsedMs) {}
 function resultGoldReward(amount) {
   if (!amount) return "";
   return (

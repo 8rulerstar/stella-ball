@@ -1,41 +1,5 @@
 // Damage is feedback only.  The collision solver has already chosen the
 // rebound vector, so combat must not reverse it a second time.
-damage = function (weak = false) {
-  if (battleComplete) return;
-  let amount = RULES.baseDamage + build.weakFlat;
-  amount *=
-    1 + Math.max(0, chain.length - 1) * (RULES.chainStep + build.chainStep);
-  amount *= 1 + ball.power * 0.18;
-  const marked = weak && ball.mark;
-  if (marked) amount *= build.markMultiplier;
-  amount *= weak ? 1.8 : 0.72;
-  amount *= 1 + Math.min(0.48, ball.bounces * build.bounceStep);
-  const crit =
-    weak && Math.random() < 0.1 + Math.min(0.18, chain.length * 0.04);
-  if (crit) amount *= 1.6;
-  amount = Math.max(1, Math.round(amount));
-  const label = weak ? (crit ? "치명 약점" : "약점") : "몸체";
-  boss.hp = Math.max(0, boss.hp - amount);
-  addPopup(
-    ball.x,
-    ball.y - 28,
-    label + " -" + amount,
-    weak ? "#ffe59a" : "#e6c7ff",
-    crit,
-  );
-  if (marked)
-    areaAttack(
-      "미리내 표식 폭발",
-      Math.max(9, Math.round(amount * 0.34)),
-      "#ef718d",
-    );
-  toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
-  if (boss.hp <= 0) scheduleWin();
-  ball.power = 0;
-  if (weak) ball.mark = false;
-  chain = [];
-  sync();
-};
 const META_COPY = {
   ko: {
     start: "게임 시작",
@@ -400,97 +364,6 @@ function metaHeader(label = "PLAYER 01") {
     "</b></span></div>"
   );
 }
-showMeta = function () {
-  run = false;
-  drag = null;
-  setScene("meta");
-  const s = currentStage(),
-    today = new Intl.DateTimeFormat(
-      settings.language === "ko" ? "ko-KR" : "en-US",
-      { month: "long", day: "numeric" },
-    ).format(new Date()),
-    party = selected
-      .map((id) => {
-        const h = heroes[id],
-          stone = runeStone(id);
-        return (
-          '<div class="meta-rune"><span class="meta-rune-art" data-hero="' +
-          id +
-          '" style="background-image:url(\'' +
-          stone +
-          '\')"></span><b style="color:' +
-          h.col +
-          '">' +
-          h.s +
-          "</b><small>" +
-          h.e +
-          "</small></div>"
-        );
-      })
-      .join("");
-  U.over.className = "overlay meta-scene";
-  U.over.innerHTML =
-    '<div class="meta-hub">' +
-    metaHeader() +
-    '<section class="meta-daily"><img src="' +
-    metaArt.daily +
-    '" alt="' +
-    tr("daily") +
-    '"><div><small>' +
-    today +
-    " · " +
-    tr("daily") +
-    "</small><h2>" +
-    s.id +
-    " · " +
-    s.name +
-    "</h2><p>" +
-    tr("dailyNote") +
-    '</p></div><button class="meta-launch" id="metaLaunch"><img src="' +
-    metaArt.play +
-    '" alt="">' +
-    tr("start") +
-    '</button></section><div class="meta-section-title"><span>' +
-    tr("currentParty") +
-    '</span><span>3 / 3</span></div><section class="meta-party">' +
-    party +
-    '</section><div class="meta-actions meta-tabs"><button class="meta-tab" id="metaRoster"><img src="../assets/library/system/icon-home.png" alt="">' +
-    tr("party") +
-    '</button><button class="meta-tab" id="metaHelp"><img src="' +
-    metaArt.help +
-    '" alt="">' +
-    tr("guide") +
-    '</button><button class="meta-tab" id="metaAchievements"><img src="../assets/library/event/achievement-unlocked.png" alt="">' +
-    tr("achievements") +
-    '</button><button class="meta-tab" id="metaSettings"><img src="../assets/library/system/icon-settings.png" alt="">' +
-    tr("settings") +
-    '</button></div><p class="meta-note">오늘의 관측은 한 번의 궤적으로 더 큰 별자리를 완성하는 도전입니다.</p></div>';
-  for (const el of document.querySelectorAll(".meta-rune-art")) {
-    const id = el.dataset.hero;
-    if (!["gaon", "biyeon", "lumi", "haru", "sera", "taeo", "nyx"].includes(id))
-      setPortrait(el, heroes[id], 58);
-  }
-  document.querySelector("#metaLaunch").onclick = () => {
-    playSfx();
-    showRoster();
-  };
-  document.querySelector("#metaRoster").onclick = () => {
-    playSfx();
-    showRoster();
-  };
-  document.querySelector("#metaHelp").onclick = () => {
-    playSfx();
-    showMetaHelp();
-  };
-  document.querySelector("#metaAchievements").onclick = () => {
-    playSfx();
-    showAchievements();
-  };
-  document.querySelector("#metaSettings").onclick = () => {
-    playSfx();
-    showSettings();
-  };
-};
 // `onBack` lets the pause menu borrow this screen without losing the battle
 // behind it.  Menu callers keep the default hub return.
 function showSettings(onBack) {
@@ -1290,28 +1163,6 @@ startShot = function (restingPoint = null) {
 // Bumpers are deliberately sparse: they build momentum and invoke the bumper
 // rule-slot. Damage belongs to the boss hit and the supporting unit, not to a
 // pile of anonymous table objects.
-hitBumper = function (b) {
-  if (b.on > 0 || battleComplete) return;
-  b.on = 0.22;
-  const speed = Math.hypot(ball.vx, ball.vy) || 1,
-    boosted = Math.min(1040, speed + 82);
-  ball.vx *= boosted / speed;
-  ball.vy *= boosted / speed;
-  ball.power += 0.2;
-  ball.runeBurst = 0.42;
-  addPopup(b.x, b.y - 26, "공명 가속", "#80e8df", false);
-  fieldFx.push({
-    type: "bumper",
-    x: b.x,
-    y: b.y,
-    t: 0,
-    d: 0.36,
-    col: "#80e8df",
-  });
-  impact(false);
-  toast("공명 범퍼 · 운동량 상승");
-  sync();
-};
 // Support characters use the full frame centre as their anchor.  The earlier
 // sprite baseline was tuned for the boss and made small hero frames look cut.
 // Replace the RAW renderer, not drawFrame itself: the drawFrame wrapper in
@@ -1405,14 +1256,6 @@ drawFrameRaw = function (
     Math.round(dh),
   );
   return true;
-};
-const baseMetaHub = showMeta;
-showMeta = function () {
-  baseMetaHub();
-  document.querySelector("#metaLaunch").onclick = () => {
-    playSfx();
-    showStageSelect();
-  };
 };
 // One list drives both the full map screen and the hub's inline map, so a
 // stage unlock never has to be edited in two places.
@@ -1704,22 +1547,6 @@ showMeta = function () {
 // During battle, rules are taught in deployment. Keep the table readable:
 // only the launch instruction remains until the first ball is fired.
 drawZoneRules = function () {};
-drawCombatControls = function () {
-  if (!run || ball?.moving) return;
-  x.save();
-  x.fillStyle = "#07131be8";
-  x.strokeStyle = "#5e9290";
-  x.lineWidth = 1;
-  x.beginPath();
-  x.roundRect(W / 2 - 116, H - 126, 232, 25, 6);
-  x.fill();
-  x.stroke();
-  x.fillStyle = "#e8dfbd";
-  x.font = "bold 10px ui-monospace";
-  x.textAlign = "center";
-  x.fillText("하단을 아래로 드래그한 뒤 놓기", W / 2, H - 110);
-  x.restore();
-};
 
 /* Starkeeper skins ---------------------------------------------------------
    Cosmetic only, and deliberately per hero: buying a colour for 샛별 does not

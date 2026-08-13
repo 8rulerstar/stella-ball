@@ -1,57 +1,9 @@
-function damage(weak = false) {
-  if (battleComplete) return;
-  let amount = RULES.baseDamage + build.weakFlat;
-  amount *=
-    1 + Math.max(0, chain.length - 1) * (RULES.chainStep + build.chainStep);
-  amount *= 1 + ball.power * 0.18;
-  const marked = weak && ball.mark;
-  if (marked) amount *= build.markMultiplier;
-  amount *= weak ? 1.8 : 0.72;
-  amount *= 1 + Math.min(0.48, ball.bounces * build.bounceStep);
-  const crit =
-    weak && Math.random() < 0.1 + Math.min(0.18, chain.length * 0.04);
-  if (crit) amount *= 1.6;
-  amount = Math.max(1, Math.round(amount));
-  const label = weak ? (crit ? "치명 약점" : "약점") : "몸체";
-  boss.hp = Math.max(0, boss.hp - amount);
-  addPopup(
-    ball.x,
-    ball.y - 28,
-    label + " -" + amount,
-    weak ? "#ffe59a" : "#e6c7ff",
-    crit,
-  );
-  if (marked)
-    areaAttack(
-      "미리내 표식 폭발",
-      Math.max(9, Math.round(amount * 0.34)),
-      "#ef718d",
-    );
-  toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
-  if (boss.hp <= 0) scheduleWin();
-  ball.vx *= weak ? -0.88 : -0.72;
-  ball.vy *= weak ? -0.88 : -0.72;
-  ball.power = 0;
-  if (weak) ball.mark = false;
-  chain = [];
-  sync();
-}
-function triggerAssist(g) {
-  const amount = 7 + Math.min(12, chain.length * 4);
-  assistShots.push({
-    x: g.x,
-    y: g.y,
-    fromX: g.x,
-    fromY: g.y,
-    t: 0,
-    dur: 0.22,
-    amount,
-    name: g.s,
-    col: g.col,
-    sourceId: g.id,
-  });
-  toast(g.s + " · 지원 공격!");
-}
+// Superseded wholesale by the game-combat.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function damage(weak = false) {}
+// Superseded wholesale by the game-combat.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function triggerAssist(g) {}
 function resolveAssist(a) {
   if (!boss || battleComplete) return;
   if (a.areaRadius) {
@@ -80,12 +32,9 @@ function resolveAssist(a) {
   if (boss.hp <= 0) scheduleWin();
   syncBossHealth();
 }
-function updateAssists(d) {
-  for (const a of assistShots) a.t += d;
-  const arrived = assistShots.filter((a) => a.t >= a.dur);
-  assistShots = assistShots.filter((a) => a.t < a.dur);
-  for (const a of arrived) resolveAssist(a);
-}
+// Superseded wholesale by the game-feedback.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function updateAssists(d) {}
 function drawAssistProjectile(a, px, py, t) {
   const angle = Math.atan2(boss.y - a.fromY, boss.x - a.fromX),
     visual = a.visual || "basic";
@@ -207,14 +156,9 @@ function registerBossHit(weak) {
   }
   if (riposte) setTimeout(() => toast("연타! 연속 명중 " + hitCombo + "회"), 0);
 }
-function impact(weak) {
-  const force = Math.min(1.65, 1 + (hitCombo - 1) * 0.16);
-  impactStop = Math.max(impactStop, (weak ? 0.09 : 0.035) * force);
-  screenShake = Math.max(screenShake, (weak ? 8 : 4) * force);
-  screenFlash = Math.max(screenFlash, (weak ? 1 : 0.48) * force);
-  if (navigator.vibrate)
-    navigator.vibrate(weak || hitCombo >= 3 ? [12, 24, 18] : 10);
-}
+// Superseded wholesale by the game-feedback.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function impact(weak) {}
 function addPopup(px, py, text, col, big = false) {
   const bossHit = text.includes("몸체") || text.includes("약점");
   if (bossHit) {
@@ -664,55 +608,9 @@ function drawFrame(spec, cx, cy, frame, scale, state) {
   x.restore();
   return drawn;
 }
-function drawFrameRaw(
-  spec,
-  cx,
-  cy,
-  frame = 0,
-  scale = spec.scale,
-  state = spec.animState === "hit" && spec.on > 0.08
-    ? "hit"
-    : spec.animState === "attack" && spec.on > 0.08
-      ? "attack"
-      : "idle",
-) {
-  const animated = spec.animations?.[state],
-    path = animated ?? spec.sprite,
-    im = textures[path];
-  if (!im?.complete || !im.naturalWidth) return false;
-  if (animated) {
-    const size = 256 * (spec.sheetScale ?? scale),
-      sx = (frame % 4) * 256;
-    x.drawImage(
-      im,
-      sx,
-      0,
-      256,
-      256,
-      Math.round(cx - size / 2),
-      Math.round(cy - size * 0.64),
-      Math.round(size),
-      Math.round(size),
-    );
-    return true;
-  }
-  const dw = spec.fw * scale,
-    dh = spec.fh * scale,
-    sx = spec.atlas ? spec.atlas[0] * spec.fw : (frame % spec.frames) * spec.fw,
-    sy = spec.atlas ? spec.atlas[1] * spec.fh : 0;
-  x.drawImage(
-    im,
-    sx,
-    sy,
-    spec.fw,
-    spec.fh,
-    Math.round(cx - dw / 2),
-    Math.round(cy - dh * 0.64),
-    Math.round(dw),
-    Math.round(dh),
-  );
-  return true;
-}
+// Superseded wholesale by the game-meta.js definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function drawFrameRaw() {}
 function drawAnimated(name, cx, cy, size, frame) {
   const im = textures[staticArt[name]];
   if (!im?.complete || !im.naturalWidth) return false;

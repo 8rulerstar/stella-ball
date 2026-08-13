@@ -71,58 +71,9 @@ function billiardAim(dx, dy) {
     target: best.target,
   };
 }
-function billiardPredict(dx, dy) {
-  const aim = billiardAim(dx, dy),
-    points = [{ x: ball.x, y: ball.y }],
-    hits = [];
-  let px = ball.x,
-    py = ball.y,
-    vx = aim.x,
-    vy = aim.y;
-  const targets = [
-    ...gates.map((g) => ({ ...g, type: "unit" })),
-    ...bumpers.map((b) => ({ ...b, type: "bumper" })),
-    ...adds.filter((a) => a.down <= 0).map((a) => ({ ...a, type: "add" })),
-    { ...boss, r: 66, type: "boss" },
-  ];
-  for (let n = 0; n < 4; n++) {
-    let next = null;
-    const wallHit = (t, nx, ny) => {
-      if (t > 0.02 && (!next || t < next.t)) next = { t, nx, ny, type: "wall" };
-    };
-    if (vx > 0.001) wallHit((W - ball.r - px) / vx, -1, 0);
-    else if (vx < -0.001) wallHit((ball.r - px) / vx, 1, 0);
-    if (vy > 0.001) wallHit((H - ball.r - py) / vy, 0, -1);
-    else if (vy < -0.001) wallHit((ball.r - py) / vy, 0, 1);
-    for (const target of targets) {
-      const ox = target.x - px,
-        oy = target.y - py,
-        reach = target.r + ball.r,
-        along = ox * vx + oy * vy,
-        near = ox * ox + oy * oy - along * along,
-        inside = reach * reach - near;
-      if (inside < 0) continue;
-      const t = along - Math.sqrt(inside);
-      if (t <= 0.02 || (next && t >= next.t)) continue;
-      const hx = px + vx * t,
-        hy = py + vy * t,
-        nx = (hx - target.x) / reach,
-        ny = (hy - target.y) / reach;
-      next = { t, nx, ny, type: target.type, target };
-    }
-    if (!next) break;
-    px += vx * next.t;
-    py += vy * next.t;
-    points.push({ x: px, y: py });
-    hits.push({ ...next, x: px, y: py });
-    const dot = vx * next.nx + vy * next.ny;
-    vx -= 2 * dot * next.nx;
-    vy -= 2 * dot * next.ny;
-    px += next.nx * 0.8;
-    py += next.ny * 0.8;
-  }
-  return { points, hits, assisted: aim.assisted, target: aim.target };
-}
+// Superseded wholesale by the 같은 파일 아래쪽 definition, which never calls back
+// here.  The empty body keeps the binding explicit for that reassignment.
+function billiardPredict(dx, dy) {}
 // The first billiards solver landed here and was replaced further down this
 // same file (see the live `simulatePhysics` next to the gimmick handling),
 // so this copy never ran. It has been removed along with the pinball layer.
@@ -304,63 +255,6 @@ drawCombatControls = function () {
     "유성을 반대 방향으로 끌어 당긴 뒤 놓기 · 2회 반사 예측",
     W / 2,
     H - 101,
-  );
-  x.restore();
-};
-drawAimGuide = function () {
-  if (!run || ball?.moving) return;
-  const p = drag || { x: ball.x, y: ball.y + 145 },
-    dx = ball.x - p.x,
-    dy = ball.y - p.y,
-    guide = billiardPredict(dx, dy);
-  x.save();
-  x.setLineDash([7, 5]);
-  x.lineWidth = 2;
-  x.strokeStyle = guide.assisted ? "#ffdf83" : "#c9eee4";
-  x.shadowBlur = guide.assisted ? 12 : 0;
-  x.shadowColor = "#ffcf62";
-  x.beginPath();
-  x.moveTo(guide.points[0].x, guide.points[0].y);
-  for (const q of guide.points.slice(1)) x.lineTo(q.x, q.y);
-  x.stroke();
-  x.setLineDash([]);
-  for (const hit of guide.hits) {
-    const col =
-      hit.type === "unit"
-        ? hit.target.col
-        : hit.type === "boss"
-          ? "#ff9d7a"
-          : hit.type === "bumper"
-            ? "#80e8df"
-            : "#d8c3ff";
-    x.strokeStyle = col;
-    x.fillStyle = "#07151b";
-    x.lineWidth = 2;
-    x.shadowBlur = 10;
-    x.shadowColor = col;
-    x.beginPath();
-    x.arc(hit.x, hit.y, 7, 0, Math.PI * 2);
-    x.fill();
-    x.stroke();
-    x.beginPath();
-    x.moveTo(hit.x - 11, hit.y);
-    x.lineTo(hit.x + 11, hit.y);
-    x.moveTo(hit.x, hit.y - 11);
-    x.lineTo(hit.x, hit.y + 11);
-    x.stroke();
-  }
-  x.fillStyle = guide.assisted ? "#ffebad" : "#d8ece5";
-  x.font = "bold 10px ui-monospace";
-  x.textAlign = "center";
-  const first = guide.hits[0];
-  x.fillText(
-    drag
-      ? first?.type === "unit"
-        ? first.target.s + " 반사각까지 예측"
-        : "놓아 발사"
-      : "유성을 드래그해 경로 확인",
-    ball.x,
-    ball.y - 28,
   );
   x.restore();
 };
