@@ -110,7 +110,12 @@
   "expandedRosterAnimations": {
     "manifest": "characters/expanded/animations/manifest.json",
     "unitCount": 20,
-    "states": ["idle", "move", "attack", "hit"],
+    "states": [
+      "idle",
+      "move",
+      "attack",
+      "hit"
+    ],
     "framesPerState": 4,
     "source": "Deterministic pixel animation generation from the expanded roster portraits"
   },
@@ -290,7 +295,9 @@
       "library/input/touch-drag.png",
       "library/input/keycap-r.png"
     ],
-    "record": ["library/record/daily-challenge-badge.png"],
+    "record": [
+      "library/record/daily-challenge-badge.png"
+    ],
     "runeStones": [
       "library/runes/rune-stone-gaon.png",
       "library/runes/rune-stone-biyeon.png",
@@ -338,5 +345,231 @@
       "orion": "library/constellations/orion.png",
       "bigdipper": "library/constellations/bigdipper.png"
     }
+  },
+  "boss10": {
+    "note": "보스 팩 10종. 384x384 4프레임 가로 시트, 셀 4px, 논리 격자 48유닛, 중심 x=24 접지선 y=44. 도트 정의는 scripts/boss-pack-core.js 하나뿐이며 손으로 고치지 않는다.",
+    "runtimeUse": "prototypes/js/game-data.js의 bossArtFor(slug)로 조회. attack/death 상태 재생과 weakCount 감산 규칙은 아직 미구현.",
+    "entries": [
+      {
+        "id": "boss10/aries-horngate",
+        "role": "월드 1 보스 · 각석 문지기",
+        "tier": "void",
+        "weakCount": 1,
+        "still": "assets/library/boss10/aries-horngate.png",
+        "weak": "assets/library/boss10/aries-horngate-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/aries-horngate-idle.png",
+          "hit": "assets/library/anim/boss10/aries-horngate-hit.png",
+          "attack": "assets/library/anim/boss10/aries-horngate-attack.png",
+          "death": "assets/library/anim/boss10/aries-horngate-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/sagitta-archon",
+        "role": "월드 2 보스 · 관통 사수",
+        "tier": "teal",
+        "weakCount": 2,
+        "still": "assets/library/boss10/sagitta-archon.png",
+        "weak": "assets/library/boss10/sagitta-archon-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/sagitta-archon-idle.png",
+          "hit": "assets/library/anim/boss10/sagitta-archon-hit.png",
+          "attack": "assets/library/anim/boss10/sagitta-archon-attack.png",
+          "death": "assets/library/anim/boss10/sagitta-archon-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/corvus-swarm",
+        "role": "월드 3 보스 · 까마귀 군체",
+        "tier": "void",
+        "weakCount": 3,
+        "still": "assets/library/boss10/corvus-swarm.png",
+        "weak": "assets/library/boss10/corvus-swarm-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/corvus-swarm-idle.png",
+          "hit": "assets/library/anim/boss10/corvus-swarm-hit.png",
+          "attack": "assets/library/anim/boss10/corvus-swarm-attack.png",
+          "death": "assets/library/anim/boss10/corvus-swarm-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/cassiopeia-throne",
+        "role": "월드 4 보스 · 왕좌 파수",
+        "tier": "apricot",
+        "weakCount": 2,
+        "still": "assets/library/boss10/cassiopeia-throne.png",
+        "weak": "assets/library/boss10/cassiopeia-throne-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/cassiopeia-throne-idle.png",
+          "hit": "assets/library/anim/boss10/cassiopeia-throne-hit.png",
+          "attack": "assets/library/anim/boss10/cassiopeia-throne-attack.png",
+          "death": "assets/library/anim/boss10/cassiopeia-throne-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/cygnus-drifter",
+        "role": "월드 5 보스 · 백조 부유체",
+        "tier": "pale",
+        "weakCount": 1,
+        "still": "assets/library/boss10/cygnus-drifter.png",
+        "weak": "assets/library/boss10/cygnus-drifter-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/cygnus-drifter-idle.png",
+          "hit": "assets/library/anim/boss10/cygnus-drifter-hit.png",
+          "attack": "assets/library/anim/boss10/cygnus-drifter-attack.png",
+          "death": "assets/library/anim/boss10/cygnus-drifter-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/orion-hunter",
+        "role": "월드 6 보스 · 사냥꾼 거상",
+        "tier": "apricot",
+        "weakCount": 3,
+        "still": "assets/library/boss10/orion-hunter.png",
+        "weak": "assets/library/boss10/orion-hunter-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/orion-hunter-idle.png",
+          "hit": "assets/library/anim/boss10/orion-hunter-hit.png",
+          "attack": "assets/library/anim/boss10/orion-hunter-attack.png",
+          "death": "assets/library/anim/boss10/orion-hunter-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/dipper-crawler",
+        "role": "월드 7 보스 · 국자 절지체",
+        "tier": "teal",
+        "weakCount": 4,
+        "still": "assets/library/boss10/dipper-crawler.png",
+        "weak": "assets/library/boss10/dipper-crawler-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/dipper-crawler-idle.png",
+          "hit": "assets/library/anim/boss10/dipper-crawler-hit.png",
+          "attack": "assets/library/anim/boss10/dipper-crawler-attack.png",
+          "death": "assets/library/anim/boss10/dipper-crawler-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/training-effigy",
+        "role": "무한 훈련장 표적",
+        "tier": "pale",
+        "weakCount": 1,
+        "still": "assets/library/boss10/training-effigy.png",
+        "weak": "assets/library/boss10/training-effigy-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/training-effigy-idle.png",
+          "hit": "assets/library/anim/boss10/training-effigy-hit.png",
+          "attack": "assets/library/anim/boss10/training-effigy-attack.png",
+          "death": "assets/library/anim/boss10/training-effigy-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/pentacle-core",
+        "role": "특수 · 오망성 핵",
+        "tier": "void",
+        "weakCount": 5,
+        "still": "assets/library/boss10/pentacle-core.png",
+        "weak": "assets/library/boss10/pentacle-core-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/pentacle-core-idle.png",
+          "hit": "assets/library/anim/boss10/pentacle-core-hit.png",
+          "attack": "assets/library/anim/boss10/pentacle-core-attack.png",
+          "death": "assets/library/anim/boss10/pentacle-core-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      },
+      {
+        "id": "boss10/erosion-warden",
+        "role": "1-3 침식의 계단 파수",
+        "tier": "teal",
+        "weakCount": 2,
+        "still": "assets/library/boss10/erosion-warden.png",
+        "weak": "assets/library/boss10/erosion-warden-weakgem.png",
+        "animations": {
+          "idle": "assets/library/anim/boss10/erosion-warden-idle.png",
+          "hit": "assets/library/anim/boss10/erosion-warden-hit.png",
+          "attack": "assets/library/anim/boss10/erosion-warden-attack.png",
+          "death": "assets/library/anim/boss10/erosion-warden-death.png"
+        },
+        "frame": [
+          384,
+          384
+        ],
+        "frames": 4,
+        "source": "프로젝트 오너 발주 · 절차 생성",
+        "license": "프로젝트 오너 원본 에셋 (제3자 재배포 조건 미정)",
+        "regen": "node scripts/generate_boss_pack_10.mjs"
+      }
+    ]
   }
 }
