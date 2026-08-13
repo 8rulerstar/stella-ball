@@ -2635,7 +2635,9 @@ setupBattle = function () {
   if (!battle?.training || gates.length >= 4) return;
   const spare = ownedHeroIds().find((id) => !deployed.includes(id));
   if (!spare) return;
-  const seat = [360, 648];
+  // Fourth corner of the ring the three stage slots start: the party begins
+  // spread around the colossus so a closing figure is one shot away.
+  const seat = [550, 600];
   gates.push({
     id: spare,
     ...heroes[spare],

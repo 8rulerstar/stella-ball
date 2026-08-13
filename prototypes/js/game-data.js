@@ -669,33 +669,41 @@ const stages = [
     name: "무한 훈련장",
     terrain:
       "불멸의 거상과 자동 보충 유성으로 충돌·분열·배율을 제한 없이 시험합니다.",
+    // Prototype layout (2026-08-13): the colossus sits near the middle of the
+    // table instead of at the top, so a figure drawn by the party can actually
+    // enclose it.  At y=194 a starkeeper cannot pass the boss (its exclusion
+    // radius is g.r + 66 = 100), so surrounding it needed a vertex threaded
+    // into a 60px band above it — one forced play, every shot.  Only the
+    // training table moves; all twelve campaign stages keep their geometry.
     slots: [
-      [154, 526],
-      [566, 526],
-      [360, 348],
+      [170, 300],
+      [550, 300],
+      [170, 600],
     ],
     preview: [
-      [21.4, 58.4],
-      [78.6, 58.4],
-      [50, 38.7],
+      [23.6, 33.3],
+      [76.4, 33.3],
+      [23.6, 66.7],
     ],
-    boss: { x: 360, y: 194 },
-    labels: ["좌측 훈련 별지기", "우측 훈련 별지기", "중앙 훈련 별지기"],
+    boss: { x: 360, y: 396 },
+    labels: ["좌상 훈련 별지기", "우상 훈련 별지기", "좌하 훈련 별지기"],
+    // The middle bumper and the void remnant used to sit where the colossus
+    // now stands, so both moved clear of its 100px exclusion.
     bumpers: [
-      [224, 320, 27],
-      [496, 320, 27],
-      [360, 420, 25],
+      [224, 168, 27],
+      [496, 168, 27],
+      [360, 700, 25],
     ],
     // The training table is the only place where every gimmick module runs at
     // once, so a new one can be exercised before a stage is designed for it.
     gimmicks: {
       walls: [
-        { x: 156, y: 398, w: 104, h: 18 },
-        { x: 564, y: 398, w: 104, h: 18 },
+        { x: 132, y: 452, w: 104, h: 18 },
+        { x: 588, y: 452, w: 104, h: 18 },
       ],
-      boostPads: [{ x: 360, y: 504, w: 156, h: 38, boost: 300 }],
-      dragPads: [{ x: 360, y: 672, w: 150, h: 38, drop: 0.4 }],
-      adds: [{ x: 360, y: 306, r: 23, hp: 56 }],
+      boostPads: [{ x: 360, y: 782, w: 156, h: 38, boost: 300 }],
+      dragPads: [{ x: 130, y: 736, w: 150, h: 38, drop: 0.4 }],
+      adds: [{ x: 360, y: 132, r: 23, hp: 56 }],
       orbits: [{ r: 124, hp: 64, speed: 1, phase: 0 }],
     },
     training: true,
