@@ -139,7 +139,9 @@ function consumeTrainingParry(g, contact = null, remembered = false) {
   // Success bursts outward from the contact and lands on the node it just
   // created, so the cause reads without any text.
   pushParryFx({ kind: "hit", x, y, col: g.col, d: PARRY_FX.hit });
+  combatSfx?.("parry", 1);
   if (state.nodes.length < FIGURE_PARRY.maxNodes) {
+    combatSfx?.("node", 0.7);
     state.nodes.push({
       x,
       y,
@@ -180,8 +182,12 @@ function rememberTrainingParryContact(g, contact) {
     state.cooldown = FIGURE_PARRY.missCooldown;
     state.flash = 0.2;
     pushParryFx({ kind: "miss", x: contact.x, y: contact.y, d: PARRY_FX.miss });
-    if (lost.length)
+    // The scatter overrides the miss rather than layering: losing the chain is
+    // the louder fact, and two failure sounds at once read as one mess.
+    if (lost.length) {
       pushParryFx({ kind: "scatter", nodes: lost, d: PARRY_FX.scatter });
+      combatSfx?.("parryScatter", 1);
+    } else combatSfx?.("parryMiss", 0.9);
     fieldFx.push({
       type: "relay",
       x: contact.x,
@@ -1224,7 +1230,11 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
   if (figureFx.cast && figureFx.t >= FIGURE_CAST_AT) {
     const cast = figureFx.cast;
     figureFx.cast = null;
-    combatSfx?.("unlock", figureFx.rune ? 1 : 0.7);
+    // Pitched by point count rather than by name: the count is what the player
+    // earned, and three of the five tiers hold only one shape anyway. All eight
+    // used to share the one unlock tone, so seven parries sounded like three.
+    const tier = Math.max(3, Math.min(7, figureFx.ring?.length || 3));
+    combatSfx?.("figure" + tier, figureFx.rune ? 1 : 0.85);
     cast();
   }
   if (figureFx.t > FIGURE_END_AT) figureFx = null;

@@ -141,6 +141,24 @@ const sampleSfxCue = {
   finisherHit: "weak-05",
   victory: "victory-03",
   fail: "fail-01",
+  // Parry, from `generate_sfx_parry.py`.  Success and the two failures are
+  // deliberately opposite in direction, brightness and length: a timed input
+  // whose outcomes sound alike cannot teach its own timing, and until these
+  // existed success borrowed the generic unlock tone while both failures made
+  // no sound at all.
+  parry: "parry-hit",
+  parryMiss: "parry-miss",
+  parryScatter: "parry-scatter",
+  node: "node-01",
+  // Constellations by point count. Three of the five tiers hold a single shape
+  // anyway, and the count is what the player actually earned.
+  figure3: "figure-03",
+  figure4: "figure-04",
+  figure5: "figure-05",
+  figure6: "figure-06",
+  figure7: "figure-07",
+  summonGather: "summon-01",
+  summonReveal: "summon-02",
 };
 const sampleSfxCooldown = {};
 const sampleSfxPools = new Map();
