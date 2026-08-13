@@ -10,34 +10,34 @@
 
 | 게임 역할            | 프로젝트 파일                                                             | 원본                                          | 사용 방식                                                       |
 | -------------------- | ------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------- |
-| 샛별 · 근접 베기     | `assets/characters/gaon-warrior-idle.png`                                 | 새 로스터 패치 (출처 미기재)                  | 멈춘 자리에서 근거리 고위력 검격                                |
-| 미리내 · 거리 저격   | `assets/characters/biyeon-archer-idle.png`                                | 새 로스터 패치 (출처 미기재)                  | 멀수록 강해지는 보스 저격                                       |
-| 별하 · 이중 분열     | `assets/characters/lumi-shaman-idle.png`                                  | 새 로스터 패치 (출처 미기재)                  | 이번 샷에 한 번 룬볼을 둘로 복제                                |
-| 살별 · 강제 중계     | `assets/characters/haru-lancer-idle.png`                                  | 새 로스터 패치 (출처 미기재)                  | 가장 가까운 다른 유닛에게 룬볼 재발사                           |
-| 윤슬 · 질풍 칼날     | `assets/characters/ria-bladewheel-idle.png`                               | 새 로스터 패치 (출처 미기재)                  | 이동 속도 비례 회전 칼날, 정산 공격 없음                        |
-| 달무리 · 전환 명령   | `assets/characters/sera-monk-idle.png`                                    | 새 로스터 패치 (출처 미기재)                  | 클릭 한 번으로 90° 전환 및 에너지 획득                          |
-| 모루 · 충돌 충격파   | `assets/characters/taeo-orc-idle.png`                                     | 새 로스터 패치 (출처 미기재)                  | 모든 충돌 수에 비례한 주변 충격파. 파일명의 orc는 교체 전 시트 잔재 |
-| 그믐 · 마지막 모사   | `assets/characters/nyx-oracle-idle.png`                                   | 새 로스터 패치 (출처 미기재)                  | 마지막으로 충돌한 아군의 능력을 복제                            |
+| 샛별 · 근접 베기     | `assets/characters/gaon-warrior-idle.png`                                 | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 멈춘 자리에서 근거리 고위력 검격                                |
+| 미리내 · 거리 저격   | `assets/characters/biyeon-archer-idle.png`                                | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 멀수록 강해지는 보스 저격                                       |
+| 별하 · 이중 분열     | `assets/characters/lumi-shaman-idle.png`                                  | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 이번 샷에 한 번 룬볼을 둘로 복제                                |
+| 살별 · 강제 중계     | `assets/characters/haru-lancer-idle.png`                                  | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 가장 가까운 다른 유닛에게 룬볼 재발사                           |
+| 윤슬 · 질풍 칼날     | `assets/characters/ria-bladewheel-idle.png`                               | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 이동 속도 비례 회전 칼날, 정산 공격 없음                        |
+| 달무리 · 전환 명령   | `assets/characters/sera-monk-idle.png`                                    | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 클릭 한 번으로 90° 전환 및 에너지 획득                          |
+| 모루 · 충돌 충격파   | `assets/characters/taeo-orc-idle.png`                                     | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 모든 충돌 수에 비례한 주변 충격파. 파일명의 orc는 교체 전 시트 잔재 |
+| 그믐 · 마지막 모사   | `assets/characters/nyx-oracle-idle.png`                                   | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 마지막으로 충돌한 아군의 능력을 복제                            |
 | Stella Ball 워드마크 | `assets/original/stella-ball-wordmark.svg`                                | 프로젝트 오리지널 벡터                        | 타이틀·메타·튜토리얼의 공식 게임명 표기                         |
 | 공허 거상            | `assets/library/boss2/void-colossus.png`                                  | Stella Ball 오리지널 픽셀 에셋                | 4프레임 idle/hit 시트와 전용 약점 젬. 보스는 화면에서 가장 크게 |
 | 명중/연쇄/클리어     | `assets/fx/*.png`                                                         | brackeys_vfx_bundle / predrawn (CC0)          | 명중, 전기 연쇄, 클리어 폭발                                    |
 | 전장 장식            | `assets/terrain/rock-*.png`                                               | Tiny Swords Free Pack                         | 플레이 영역 바깥의 가장자리 장식만 사용                         |
 | 유성·별지기·약점     | `assets/original/*.svg`, `assets/library/boss2/void-colossus-weakgem.png` | Stella Ball 오리지널                          | 게임 고유 식별자. 유성/별지기는 SVG, 공허 거상 약점은 픽셀 젬   |
-| 별지기 액션 시트     | `assets/characters/anim/*-roll.png`, `*-attack.png`                       | 새 로스터 패치 (출처 미기재)                  | 구르기 4프레임 + 각성 공격 4프레임, 768×192. `scripts/generate_unit_action_sheets.py`는 교체 전 시트를 다시 만드니 실행 금지 |
+| 별지기 액션 시트     | `assets/characters/anim/*-roll.png`, `*-attack.png`                       | 새 로스터 패치 (출처 미확인, `assets/ATTRIBUTION.md` 참고)                  | 구르기 4프레임 + 각성 공격 4프레임, 768×192. `scripts/generate_unit_action_sheets.py`는 교체 전 시트를 다시 만드니 실행 금지 |
 | 능력 버스트 시트     | `assets/library/anim/fx/fx-*-burst.png`                                   | Stella Ball 오리지널 절차 생성                | 능력 종류별 4프레임 버스트. 재생성: `scripts/generate_ability_bursts.py` |
 
 ## 유닛 전용 이펙트
 
 | 유닛 | 이펙트 파일                                   | 전투 타이밍                    |
 | ---- | --------------------------------------------- | ------------------------------ |
-| 가온 | `assets/library/restyle/fx/gaon-slash.png`    | 멈춘 뒤 근접 베기              |
-| 비연 | `assets/library/restyle/fx/biyeon-volley.png` | 멈춘 뒤 거리 저격              |
-| 루미 | `assets/library/restyle/fx/lumi-wave.png`     | 룬볼 분열                      |
-| 하루 | `assets/library/restyle/fx/haru-dash.png`     | 가장 가까운 유닛으로 강제 중계 |
-| 리아 | 런타임 회전 칼날 링                           | 이동 속도 비례 지속 피해       |
-| 세라 | `assets/library/restyle/fx/rio-turn.png`      | 전환 준비 및 클릭 90° 전환     |
-| 태오 | `assets/library/restyle/fx/taeo-quake.png`    | 충돌 수 기반 충격파            |
-| 닉스 | `assets/library/restyle/fx/nyx-lock.png`      | 마지막 충돌 아군 능력 모사     |
+| 샛별 | `assets/library/restyle/fx/gaon-slash.png`    | 멈춘 뒤 근접 베기              |
+| 미리내 | `assets/library/restyle/fx/biyeon-volley.png` | 멈춘 뒤 거리 저격              |
+| 별하 | `assets/library/restyle/fx/lumi-wave.png`     | 룬볼 분열                      |
+| 살별 | `assets/library/restyle/fx/haru-dash.png`     | 가장 가까운 유닛으로 강제 중계 |
+| 윤슬 | 런타임 회전 칼날 링                           | 이동 속도 비례 지속 피해       |
+| 달무리 | `assets/library/restyle/fx/rio-turn.png`      | 전환 준비 및 클릭 90° 전환     |
+| 모루 | `assets/library/restyle/fx/taeo-quake.png`    | 충돌 수 기반 충격파            |
+| 그믐 | `assets/library/restyle/fx/nyx-lock.png`      | 마지막 충돌 아군 능력 모사     |
 
 위 이펙트는 프로젝트 라이브러리의 오리지널 픽셀 VFX를 재사용하며, 능력 발동 순간에만 짧게 확대·페이드한다.
 

@@ -53,6 +53,7 @@
 - 반입 경로: `characters/taeo-orc-idle.png`, `characters/anim/taeo-roll.png`·`taeo-attack.png`, `characters/cute/taeo-orc-token.png`. 재생성은 `scripts/generate_taeo_orc_restyle.py`.
 - 코드 연결 지점: `heroes.taeo`(frames 6)·`cuteUnitArt.taeo`·`combatUnitSize.taeo`(118), 기존 `heroAnimArt` 경로 그대로.
 - 결정·검수 메모: 구 Pawn 시트(`taeo-miner-idle.png`)와 구 큐트 토큰은 롤백 대비로 보존. 출처는 `ATTRIBUTION.md`의 Tiny RPG 항목.
+- **종료 (2026-08-13)**: 신규 로스터 패치가 태오를 모루로 바꾸면서 `taeo-orc-idle.png`·`anim/taeo-roll.png`·`anim/taeo-attack.png`를 전부 덮어썼다. 이 항목의 오크 리스타일은 더 이상 화면에 없고, `scripts/generate_taeo_orc_restyle.py`를 돌리면 새 아트가 지워진다. Tiny RPG 출처가 남은 파일은 `characters/cute/taeo-orc-token.png` 하나뿐이다.
 
 ### [명세 필요] P1 — 편성 트레이 카드 전술 정보 레이어
 
