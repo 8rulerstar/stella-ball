@@ -28,12 +28,30 @@ const FIGURE = {
   reject: 0.19,
   perfect: 0.04,
   bonusPerPoint: 14, // damage per enclosed target, per figure vertex
-  // Five seconds end to end, with the trace itself slow enough to watch being
-  // drawn.  At 0.55/0.9/0.45 the whole thing was over before the settle
+  // 5.6 seconds end to end, with the trace itself slow enough to watch being
+  // drawn. At 0.55/0.9/0.45 the whole thing was over before the settle
   // slow-motion finished, so it read as "nothing drew".
   drawTime: 1.4,
-  holdTime: 2.6,
+  // 2.6 was set when the whole sequence was 5s and a shot took ~7s to settle.
+  // The correction and reveal steps added 1.6s on top, and the meteor now
+  // settles in ~3s, so the hold was the one beat outlasting the shot itself.
+  holdTime: 1.6,
   fadeTime: 1,
+  // Sequence after the trace lands, all from the silhouette art delivery:
+  // the crooked figure the player actually made is corrected into the real
+  // constellation, the creature fades in over it, and only then does the
+  // ability fire.  See FIGURE_ART_SPEC.md §2.
+  correctTime: 0.8, // ease-in-out from drawn vertices to the fitted skeleton
+  revealDelay: 0.35, // silhouette starts fading in this long after correction
+  revealTime: 0.45,
+  castDelay: 0.3, // ability fires this long after the silhouette appears
+  // The delivery specified 0.13, matching the pentagram's inner wash.  On the
+  // real table that is invisible: the arena floor is dark purple and the
+  // silhouettes are pale, so at 0.13 the swan cannot be made out at all.  0.30
+  // is the lowest value where it still reads as "faint" rather than "absent",
+  // checked against the live canvas.  Revisit if the floor tone changes —
+  // PROGRESS_REPORT.md already lists that purple as an open item.
+  silhouetteAlpha: 0.3,
 };
 let figureFx = null;
 function figureActive() {
@@ -150,31 +168,356 @@ function figureMatch(cloud, template) {
   }
   return best;
 }
+// `figureMatch` measures how close two clouds are, but the pairing it builds on
+// the way — which drawn vertex sits on which template star — is thrown away
+// with the running total.  Recovering that pairing is what lets the trace
+// follow a constellation's own lines instead of a ring: the edge list is
+// written in template-star numbers, and this turns those into table positions.
+// Same rotation search as above, then one greedy pass per candidate.
+function figureAlign(cloud, template) {
+  const n = cloud.length,
+    anchor = Math.atan2(template[0].y, template[0].x);
+  let best = null;
+  for (let k = 0; k < n; k++) {
+    const turn = anchor - Math.atan2(cloud[k].y, cloud[k].x),
+      cos = Math.cos(turn),
+      sin = Math.sin(turn),
+      turned = cloud.map((p) => ({
+        x: p.x * cos - p.y * sin,
+        y: p.x * sin + p.y * cos,
+      }));
+    const used = new Array(n).fill(false),
+      pairs = new Array(n).fill(-1);
+    let sum = 0;
+    for (let star = 0; star < n; star++) {
+      let pick = -1,
+        near = Infinity;
+      for (let i = 0; i < n; i++) {
+        if (used[i]) continue;
+        const d = Math.hypot(
+          turned[i].x - template[star].x,
+          turned[i].y - template[star].y,
+        );
+        if (d < near) {
+          near = d;
+          pick = i;
+        }
+      }
+      used[pick] = true;
+      pairs[star] = pick;
+      sum += near;
+    }
+    if (!best || sum < best.sum) best = { sum, pairs };
+  }
+  // pairs[templateStarIndex] = index of the drawn vertex standing on that star
+  return best.pairs;
+}
 const PENTAGRAM_TEMPLATE = figureNormalize(
   Array.from({ length: 5 }, (_, i) => {
     const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
     return { x: Math.cos(a), y: Math.sin(a) };
   }),
 );
-function recognizePentagram(points) {
-  if (points.length !== 5) return { score: 0, distance: Infinity };
-  const distance = figureMatch(figureNormalize(points), PENTAGRAM_TEMPLATE);
+/* --- the constellation roster ------------------------------------------- */
+// One entry per constellation the table can draw, grouped by how many vertices
+// it needs.  A settle with three or more points ALWAYS lands on exactly one of
+// them: the nearest template in its own tier wins and there is no reject gate.
+//
+// That is a deliberate choice, and the measurement behind it is in
+// BOT_REPORT.md §2-3 — over 795 real shots the settled layout was statistically
+// indistinguishable from uniform random scatter, so no threshold can separate
+// "drawn well" from "landed there".  Gating it would only have hidden the
+// outcome, never earned it.  What the player does control is the vertex count
+// (how many starkeepers were woken), so the tier is the skill axis and which
+// constellation inside the tier is the draw.
+//
+// `share` is the measured chance of this constellation winning its tier, from
+// the same 795 shots.  Keep ability strength inversely proportional to it: the
+// pentagram shows up 4% of the time and should pay like it.
+// `edges` is the constellation's own figure, written as pairs of indices into
+// `points`.  It is what makes the trace look like the thing it is named after,
+// and it is fixed per constellation rather than derived: an angular ring around
+// the centroid can only ever draw a convex loop, so a cross with a star in the
+// middle — Cygnus — is impossible to reach that way.  Edges may be an open
+// path, may revisit a hub, and need not enclose anything.
+const FIGURE_SHAPES = {
+  3: [
+    {
+      id: "aries",
+      name: "양자리",
+      share: 19,
+      // Hamal, Sheratan, Mesarthim.  Skeleton coordinates come from the
+      // silhouette delivery so the ram lines up with the bend at Sheratan;
+      // they sit within a few hundredths of the projected J2000 positions.
+      points: [
+        [0.95, -0.18],
+        [-0.35, -0.02],
+        [-0.9, 0.42],
+      ],
+      edges: [
+        [0, 1],
+        [1, 2],
+      ],
+      art: "../assets/library/constellations/aries.png",
+    },
+  ],
+  4: [
+    {
+      id: "sagitta",
+      name: "화살자리",
+      share: 11,
+      // 촉, 왼 깃, 오른 깃, 자루 끝
+      points: [
+        [0, -1],
+        [-0.55, -0.1],
+        [0.55, -0.1],
+        [0, 1],
+      ],
+      edges: [
+        [3, 0],
+        [0, 1],
+        [0, 2],
+      ],
+      art: "../assets/library/constellations/sagitta.png",
+    },
+    {
+      id: "corvus",
+      name: "까마귀자리",
+      share: 7,
+      points: [
+        [-0.85, -0.38],
+        [0.82, -0.52],
+        [0.55, 0.52],
+        [-0.62, 0.42],
+      ],
+      edges: [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 0],
+      ],
+      art: "../assets/library/constellations/corvus.png",
+    },
+  ],
+  5: [
+    // Real star positions, projected flat from J2000 RA/Dec and normalised.
+    {
+      id: "cassiopeia",
+      name: "카시오페이아",
+      share: 8,
+      // 카프, 셰다르, 감마, 루크바, 세긴
+      points: [
+        [0.862, 0.121],
+        [0.344, 0.468],
+        [0.076, -0.087],
+        [-0.405, -0.023],
+        [-0.878, -0.478],
+      ],
+      // The W: an open zig-zag through the five in order, never closed.
+      edges: [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+      ],
+      art: "../assets/library/constellations/cassiopeia.png",
+    },
+    {
+      id: "cygnus",
+      name: "백조자리",
+      share: 5,
+      // 데네브(꼬리), 사드르(가슴), 알비레오(부리), 델타(날개), 기에나(날개)
+      points: [
+        [-0.412, -0.504],
+        [-0.133, -0.129],
+        [0.618, 0.786],
+        [0.409, -0.493],
+        [-0.482, 0.339],
+      ],
+      // The Northern Cross: every line passes through Sadr, the hub at 1.
+      edges: [
+        [0, 1],
+        [1, 2],
+        [3, 1],
+        [1, 4],
+      ],
+      art: "../assets/library/constellations/cygnus.png",
+    },
+    {
+      id: "pentagram",
+      name: "오망성",
+      share: 2,
+      points: null,
+      // Same five points as a pentagon; stepping two at a time is the star.
+      edges: [
+        [0, 2],
+        [2, 4],
+        [4, 1],
+        [1, 3],
+        [3, 0],
+      ],
+      // No silhouette by design: the pentagram already owns the loudest
+      // treatment on the table, so adding art would flatten the tiering.
+      art: null,
+    },
+  ],
+};
+for (const tier of Object.values(FIGURE_SHAPES))
+  for (const shape of tier) {
+    // `raw` is the skeleton in the coordinate frame the silhouette was drawn
+    // in, so it is what positions the art.  `cloud` is the same skeleton
+    // centred and unit-scaled, which is all the matcher looks at.
+    shape.raw = shape.points
+      ? shape.points.map(([x, y]) => ({ x, y }))
+      : PENTAGRAM_TEMPLATE.map((p) => ({ x: p.x, y: p.y }));
+    shape.cloud = figureNormalize(shape.raw);
+    if (shape.art) loadTexture(shape.art);
+  }
+// The silhouette sheets are 384px square, drawn on a 128 grid at ×3 with the
+// skeleton origin dead centre and one skeleton unit spanning 46 grid cells.
+// Both numbers come from the art delivery and are what tie a sheet to its
+// skeleton; changing either without regenerating the art misaligns every one.
+const FIGURE_ART_SIZE = 384,
+  FIGURE_ART_UNIT = 46 * 3;
+// Best-fit similarity transform from a shape's own skeleton onto the vertices
+// actually on the table: the rotation, uniform scale and centre that line the
+// two up.  This is what the correction step eases toward, and the same
+// transform places the silhouette, so the art can never drift off the figure.
+function figureFit(points, shape) {
+  const order = figureAlign(figureNormalize(points), shape.cloud),
+    n = points.length,
+    // Table vertices reordered so index i is the one standing on skeleton star i
+    table = order.map((index) => points[index]),
+    model = shape.raw;
+  let tx = 0,
+    ty = 0,
+    mx = 0,
+    my = 0;
+  for (let i = 0; i < n; i++) {
+    tx += table[i].x;
+    ty += table[i].y;
+    mx += model[i].x;
+    my += model[i].y;
+  }
+  tx /= n;
+  ty /= n;
+  mx /= n;
+  my /= n;
+  let dot = 0,
+    cross = 0,
+    norm = 0;
+  for (let i = 0; i < n; i++) {
+    const ax = model[i].x - mx,
+      ay = model[i].y - my,
+      bx = table[i].x - tx,
+      by = table[i].y - ty;
+    dot += ax * bx + ay * by;
+    cross += ax * by - ay * bx;
+    norm += ax * ax + ay * ay;
+  }
+  const rotation = Math.atan2(cross, dot),
+    scale = norm > 0 ? Math.hypot(dot, cross) / norm : 1,
+    cos = Math.cos(rotation),
+    sin = Math.sin(rotation),
+    place = (p) => ({
+      x: tx + scale * ((p.x - mx) * cos - (p.y - my) * sin),
+      y: ty + scale * ((p.x - mx) * sin + (p.y - my) * cos),
+    });
   return {
-    distance,
+    order,
+    rotation,
+    scale,
+    // Where each drawn vertex ends up once the figure is corrected.  Indexed
+    // like `points`, so the trace can ease straight from one to the other.
+    ideal: (() => {
+      const target = new Array(n);
+      for (let star = 0; star < n; star++)
+        target[order[star]] = place(model[star]);
+      return target;
+    })(),
+    origin: place({ x: 0, y: 0 }),
+  };
+}
+// Nearest template inside the tier. `score` is only a quality read for the
+// ability to scale with — it never decides whether the constellation fires.
+function classifyFigure(points) {
+  const tier = FIGURE_SHAPES[points.length];
+  if (!tier) return null;
+  const cloud = figureNormalize(points);
+  let best = null;
+  for (const shape of tier) {
+    const distance = figureMatch(cloud, shape.cloud);
+    if (!best || distance < best.distance) best = { shape, distance };
+  }
+  return {
+    ...best,
     score: Math.max(
       0,
       Math.min(
         1,
-        (FIGURE.reject - distance) / (FIGURE.reject - FIGURE.perfect),
+        (FIGURE.reject - best.distance) / (FIGURE.reject - FIGURE.perfect),
       ),
     ),
   };
 }
+/* --- what each constellation does --------------------------------------- */
+// The bonus damage the figure used to deal unconditionally.  It is still the
+// PLACEHOLDER every constellation runs, so behaviour is unchanged until each
+// entry below is given its own ability.
+function encloseDamage(ctx) {
+  const caught = [];
+  if (boss && boss.hp > 0 && ctx.covers(boss.x, boss.y, 66)) {
+    const dealt = applyBossHit(ctx.bonus);
+    if (dealt > 0) {
+      addPopup(boss.x, boss.y - 92, "별자리 -" + dealt, "#ffd2a0", true);
+      caught.push("공허 거상");
+    }
+  }
+  for (const a of adds) {
+    if (a.down > 0 || !ctx.covers(a.x, a.y, a.r)) continue;
+    damageAdd(a, ctx.bonus, "별자리", "#ffd2a0");
+    caught.push("공허 잔재");
+  }
+  return caught.length ? caught.length + "체 포위" : "포위 실패";
+}
+// One entry per `FIGURE_SHAPES` id.  Replace them one at a time — the
+// classification, the trace and the on-table label already tell the
+// constellations apart, so an ability only has to decide what happens.
+//
+// An ability receives:
+//   ctx.shape   the winning FIGURE_SHAPES entry (id, name, measured share)
+//   ctx.ring    vertices in draw order
+//   ctx.score   0..1 read of how cleanly the shape was drawn
+//   ctx.covers  (x, y, radius) => whether that target sits inside the figure
+//   ctx.bonus   FIGURE.bonusPerPoint × vertex count
+// and returns a short line for the toast, or nothing to stay quiet.
+//
+// Available without new assets: `applyBossHit`, `areaAttack`, `damageAdd`,
+// `earnBlaze`, `addPopup`, `areaBursts`, `fieldFx`.  Anything needing dedicated
+// art or SFX goes to ASSET_BACKLOG.md first.
+const FIGURE_ABILITIES = {
+  aries: encloseDamage, // 3점 · 한 샷당 19%
+  sagitta: encloseDamage, // 4점 · 11%
+  corvus: encloseDamage, // 4점 · 7%
+  cassiopeia: encloseDamage, // 5점 · 8%
+  cygnus: encloseDamage, // 5점 · 5% — 버프 예정
+  pentagram: encloseDamage, // 5점 · 2% — 최상급 예정
+};
 /* --- settlement --------------------------------------------------------- */
+// Nothing stops the player launching again while a figure is still revealing,
+// and the next settle replaces `figureFx` wholesale.  Any effect still waiting
+// on that clock has to be paid out first, or a fast player silently loses it.
+function flushPendingFigure() {
+  const pending = figureFx?.cast;
+  if (!pending) return;
+  figureFx.cast = null;
+  pending();
+}
 function resolveFigure() {
   if (!figureActive() || battleComplete) return;
   const points = figureVertices();
   if (points.length < 2) return;
+  flushPendingFigure();
   const ring = figureRing(points),
     segment = ring.length === 2,
     // Two points have no area, so the line itself is the effect: anything
@@ -184,47 +527,51 @@ function resolveFigure() {
         ? distanceToSegment(tx, ty, ring[0], ring[1]) <= tr + 26
         : pointInPolygon(tx, ty, ring),
     bonus = FIGURE.bonusPerPoint * ring.length;
-  const caught = [];
-  if (boss && boss.hp > 0 && covers(boss.x, boss.y, 66)) {
-    const dealt = applyBossHit(bonus);
-    if (dealt > 0) {
-      addPopup(boss.x, boss.y - 92, "별자리 -" + dealt, "#ffd2a0", true);
-      caught.push("공허 거상");
-    }
-  }
-  for (const a of adds) {
-    if (a.down > 0 || !covers(a.x, a.y, a.r)) continue;
-    damageAdd(a, bonus, "별자리", "#ffd2a0");
-    caught.push("공허 잔재");
-  }
-  const rune = recognizePentagram(points);
+  // Two points are a line, not a constellation, so they keep the plain effect.
+  const match = segment ? null : classifyFigure(points);
+  const ctx = {
+    shape: match?.shape ?? null,
+    ring,
+    segment,
+    score: match?.score ?? 0,
+    covers,
+    bonus,
+  };
+  const rune = match?.shape.id === "pentagram",
+    fit = match ? figureFit(points, match.shape) : null;
   figureFx = {
     ring,
     segment,
-    star: rune.score > 0 ? figureStarOrder(ring) : null,
-    score: rune.score,
-    distance: rune.distance,
+    shape: match?.shape ?? null,
+    rune,
+    fit,
+    // Where each vertex sits now, and where the correction eases it to.  The
+    // starkeepers themselves never move; only the drawn figure is corrected.
+    drawn: points,
+    ideal: fit?.ideal ?? points,
+    edgeIndex: match
+      ? match.shape.edges.map(([a, b]) => [fit.order[a], fit.order[b]])
+      : [[points.indexOf(ring[0]), points.indexOf(ring[1])]],
+    score: ctx.score,
+    distance: match?.distance ?? Infinity,
+    // The effect waits for the silhouette: the figure has to finish arriving
+    // before it is allowed to mean anything.  `cast` runs it exactly once.
+    cast: () => {
+      const line = (
+        match
+          ? (FIGURE_ABILITIES[match.shape.id] ?? encloseDamage)
+          : encloseDamage
+      )(ctx);
+      if (match) toast(match.shape.name + (line ? " · " + line : ""));
+      else if (line) toast("별자리 선 · " + line);
+    },
     t: 0,
   };
-  if (rune.score > 0) {
-    earnBlaze(
-      1 + rune.score * 2,
-      "오망성 완성 " + Math.round(rune.score * 100) + "%",
-    );
-    toast("오망성 완성 · 정확도 " + Math.round(rune.score * 100) + "%");
-    combatSfx?.("unlock", 0.9);
-    screenShake = Math.max(screenShake, 12);
-  } else if (caught.length) {
-    toast("별자리 " + ring.length + "각 · " + caught.length + "체 포위");
+  // A segment has no constellation to correct or reveal, so it fires at once.
+  if (!match) {
+    figureFx.cast();
+    figureFx.cast = null;
   }
-}
-// A pentagram is the same five points as a pentagon; only the connection order
-// differs, so the star is drawn by stepping two vertices at a time.
-function figureStarOrder(ring) {
-  if (ring.length !== 5) return null;
-  const order = [];
-  for (let i = 0, k = 0; i < 5; i++, k = (k + 2) % 5) order.push(ring[k]);
-  return order;
 }
 const figureSettleParty = settleParty;
 settleParty = function () {
@@ -235,42 +582,99 @@ settleParty = function () {
   if (!figureActive()) figureSettleParty();
   resolveFigure();
 };
+/* --- the beats after the trace ------------------------------------------ */
+// One clock, read the same way by the update hook and the draw hook.
+const FIGURE_CORRECT_AT = FIGURE.drawTime,
+  FIGURE_REVEAL_AT = FIGURE.drawTime + FIGURE.correctTime + FIGURE.revealDelay,
+  FIGURE_CAST_AT = FIGURE_REVEAL_AT + FIGURE.castDelay,
+  FIGURE_HOLD_AT = FIGURE_REVEAL_AT + FIGURE.revealTime,
+  FIGURE_END_AT = FIGURE_HOLD_AT + FIGURE.holdTime + FIGURE.fadeTime;
+const easeInOut = (t) =>
+  t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+// 0 while the figure is still crooked, 1 once it has settled onto its skeleton.
+function figureCorrection(t) {
+  if (!FIGURE.correctTime) return 1;
+  return easeInOut(
+    Math.max(0, Math.min(1, (t - FIGURE_CORRECT_AT) / FIGURE.correctTime)),
+  );
+}
 /* --- drawing (RuneCast RuneTracer: wide faint glow + thin bright core) --- */
 registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
   if (!figureFx) return;
   figureFx.t += d;
-  // The pentagram pays off on the frame the last edge lands, not at the settle
-  // that queued it: the trace has to arrive before the burst means anything.
-  if (figureFx.star && !figureFx.burst && figureFx.t >= FIGURE.drawTime) {
+  // The pentagram pays off once the corrected star is standing, not at the
+  // settle that queued it: the figure has to arrive before the burst means
+  // anything.
+  if (figureFx.rune && !figureFx.burst && figureFx.t >= FIGURE_REVEAL_AT) {
     figureFx.burst = true;
-    const c = figureCentroid(figureFx.star);
+    const c = figureFx.fit?.origin ?? figureCentroid(figureFx.ring);
     areaBursts.push({ x: c.x, y: c.y, r: 210, col: "#ffe6b0", t: 0, d: 0.62 });
     areaBursts.push({ x: c.x, y: c.y, r: 128, col: "#fff6e0", t: 0, d: 0.44 });
     screenFlash = Math.max(screenFlash, 0.42);
     screenShake = Math.max(screenShake, 14);
     combatSfx?.("unlock", 1);
   }
-  if (figureFx.t > FIGURE.drawTime + FIGURE.holdTime + FIGURE.fadeTime)
-    figureFx = null;
+  // The ability lands after the creature has shown itself, so the constellation
+  // reads as the cause and not as decoration over damage that already happened.
+  if (figureFx.cast && figureFx.t >= FIGURE_CAST_AT) {
+    const cast = figureFx.cast;
+    figureFx.cast = null;
+    combatSfx?.("unlock", figureFx.rune ? 1 : 0.7);
+    cast();
+  }
+  if (figureFx.t > FIGURE_END_AT) figureFx = null;
 });
 registerRuntimeHook("afterDraw", function drawFigure() {
   if (!figureFx) return;
-  const path = figureFx.star || figureFx.ring,
-    closed = !figureFx.segment,
-    total = closed ? path.length : path.length - 1,
+  // Vertices ease from where the starkeepers actually stopped onto the fitted
+  // skeleton.  Only the drawing moves — the units stay exactly where they are,
+  // because the next shot tees off from the meteor's real resting place.
+  const settle = figureCorrection(figureFx.t),
+    live = figureFx.drawn.map((p, i) => {
+      const to = figureFx.ideal[i];
+      return {
+        x: p.x + (to.x - p.x) * settle,
+        y: p.y + (to.y - p.y) * settle,
+        col: p.col,
+      };
+    }),
+    edges = figureFx.edgeIndex.map(([a, b]) => [live[a], live[b]]),
+    total = edges.length,
     grow = Math.min(1, figureFx.t / FIGURE.drawTime),
     fade =
-      figureFx.t < FIGURE.drawTime + FIGURE.holdTime
+      figureFx.t < FIGURE_HOLD_AT + FIGURE.holdTime
         ? 1
         : Math.max(
             0,
             1 -
-              (figureFx.t - FIGURE.drawTime - FIGURE.holdTime) /
-                FIGURE.fadeTime,
+              (figureFx.t - FIGURE_HOLD_AT - FIGURE.holdTime) / FIGURE.fadeTime,
           ),
-    tint = figureFx.score > 0 ? "#ffd2a0" : "#9adfc9";
-  // The figure is traced edge by edge so the moment reads as being drawn, the
-  // way RuneCast animates a rune instead of popping it in finished.
+    // Warm only for the pentagram.  Every other constellation now fires too,
+    // so colour has to stay reserved for the rare one or it stops meaning
+    // anything.
+    tint = figureFx.rune ? "#ffd2a0" : "#9adfc9";
+  // The creature itself, underneath its own lines.  It rides the same fitted
+  // transform as the corrected skeleton, so it can never drift off the figure,
+  // and it stays faint enough that the trace and the stars still read first.
+  const art = figureFx.shape?.art && textures[figureFx.shape.art];
+  if (art?.complete && art.naturalWidth && figureFx.t >= FIGURE_REVEAL_AT) {
+    const reveal = Math.min(
+        1,
+        (figureFx.t - FIGURE_REVEAL_AT) / FIGURE.revealTime,
+      ),
+      fit = figureFx.fit,
+      size = FIGURE_ART_SIZE * (fit.scale / FIGURE_ART_UNIT);
+    x.save();
+    x.globalAlpha = FIGURE.silhouetteAlpha * reveal * fade;
+    x.translate(fit.origin.x, fit.origin.y);
+    x.rotate(fit.rotation);
+    x.drawImage(art, -size / 2, -size / 2, size, size);
+    x.restore();
+  }
+  // Traced edge by edge so the moment reads as being drawn, the way RuneCast
+  // animates a rune instead of popping it in finished.  Each edge is its own
+  // sub-path: the constellation's lines are not one continuous stroke — Cygnus
+  // runs four separate lines through the same hub — so they must not be joined.
   const stroke = (width, alpha, colour, blur) => {
     x.save();
     x.globalAlpha = alpha * fade;
@@ -281,13 +685,12 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.shadowBlur = blur;
     x.shadowColor = tint;
     x.beginPath();
-    x.moveTo(path[0].x, path[0].y);
     const drawn = total * grow;
     for (let i = 0; i < total; i++) {
-      const from = path[i],
-        to = path[(i + 1) % path.length],
+      const [from, to] = edges[i],
         span = Math.max(0, Math.min(1, drawn - i));
       if (span <= 0) break;
+      x.moveTo(from.x, from.y);
       x.lineTo(
         from.x + (to.x - from.x) * span,
         from.y + (to.y - from.y) * span,
@@ -296,11 +699,10 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.stroke();
     x.restore();
   };
-  // A recognised pentagram is drawn as the star itself — `figureStarOrder`
-  // already reorders the same five points — and gets the whole flourish, so
-  // completing one never looks like an ordinary polygon in a warmer colour.
-  const rune = Boolean(figureFx.star),
-    centre = figureCentroid(path),
+  // The pentagram keeps the whole flourish, so completing one never looks like
+  // an ordinary constellation in a warmer colour.
+  const rune = Boolean(figureFx.rune),
+    centre = figureCentroid(live),
     // Settles to 1 over the trace, then breathes.  One clock drives the wash,
     // the rays and the vertex haloes so the sign pulses as a single object.
     pulse = rune
@@ -313,8 +715,8 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.globalAlpha = 0.13 * fade * pulse * grow;
     x.fillStyle = "#ffcf8a";
     x.beginPath();
-    x.moveTo(path[0].x, path[0].y);
-    for (let i = 1; i < path.length; i++) x.lineTo(path[i].x, path[i].y);
+    x.moveTo(edges[0][0].x, edges[0][0].y);
+    for (const [, to] of edges) x.lineTo(to.x, to.y);
     x.closePath();
     x.fill();
     x.restore();
@@ -341,12 +743,21 @@ registerRuntimeHook("afterDraw", function drawFigure() {
   }
   stroke(rune ? 17 : 13, rune ? 0.38 : 0.3, tint, rune ? 32 : 26);
   stroke(rune ? 4 : 3, 0.95, "#fff6e6", rune ? 14 : 10);
-  // Each vertex blooms as the trace reaches it, so the five stars light in the
-  // order the line visits them instead of all at once.
-  const drawn = total * grow;
-  path.forEach((p, i) => {
-    const bloom = rune ? Math.max(0, Math.min(1, (drawn - i) / 0.7)) : 1;
-    if (bloom <= 0) return;
+  // Each vertex blooms as the trace reaches it, so the stars light in the order
+  // the lines visit them instead of all at once.  A hub the figure passes
+  // through more than once — Cygnus's Sadr — lights on its first visit.
+  const drawn = total * grow,
+    reachedAt = new Map();
+  edges.forEach(([from, to], i) => {
+    if (!reachedAt.has(from)) reachedAt.set(from, i);
+    if (!reachedAt.has(to)) reachedAt.set(to, i + 1);
+  });
+  for (const p of live) {
+    const bloom = Math.max(
+      0,
+      Math.min(1, (drawn - (reachedAt.get(p) ?? 0)) / 0.7),
+    );
+    if (bloom <= 0) continue;
     x.save();
     x.globalAlpha = fade;
     x.fillStyle = p.col || tint;
@@ -356,23 +767,27 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.arc(p.x, p.y, 5 + (rune ? bloom * 3 * pulse : 0), 0, Math.PI * 2);
     x.fill();
     x.restore();
-  });
-  if (rune && grow >= 1) {
+  }
+  // Naming the constellation is the whole point now that one always lands:
+  // the player has to be able to read which ability just fired.
+  if (figureFx.shape && grow >= 1) {
     x.save();
     x.globalAlpha = fade;
     x.textAlign = "center";
-    x.shadowBlur = 12;
-    x.shadowColor = "#c97a45";
-    x.fillStyle = "#fff3d6";
-    x.font = "bold 22px ui-monospace";
-    x.fillText("오망성", centre.x, centre.y - 4);
-    x.fillStyle = "#ffd2a0";
-    x.font = "bold 12px ui-monospace";
-    x.fillText(
-      "정확도 " + Math.round(figureFx.score * 100) + "%",
-      centre.x,
-      centre.y + 14,
-    );
+    x.shadowBlur = rune ? 12 : 8;
+    x.shadowColor = rune ? "#c97a45" : "#1d3b36";
+    x.fillStyle = rune ? "#fff3d6" : "#dff3ea";
+    x.font = "bold " + (rune ? 22 : 15) + "px ui-monospace";
+    x.fillText(figureFx.shape.name, centre.x, centre.y - (rune ? 4 : 1));
+    if (rune) {
+      x.fillStyle = "#ffd2a0";
+      x.font = "bold 12px ui-monospace";
+      x.fillText(
+        "정확도 " + Math.round(figureFx.score * 100) + "%",
+        centre.x,
+        centre.y + 14,
+      );
+    }
     x.restore();
   }
 });

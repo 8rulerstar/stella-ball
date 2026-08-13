@@ -30,6 +30,7 @@ const expectedScripts = [
   "./js/game-figure.js",
   "./js/game-feedback.js",
   "./js/game-onboarding.js",
+  "./js/game-arena-carve.js",
   "./js/game-bootstrap.js",
   "./stella-ball-pixel-ui.js",
   "./stella-ball-dawn.js",

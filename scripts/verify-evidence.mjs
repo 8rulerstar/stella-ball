@@ -16,8 +16,10 @@ const gameFiles = [
   "prototypes/js/game-core-render.js",
   "prototypes/js/game-meta.js",
   "prototypes/js/game-combat.js",
+  "prototypes/js/game-figure.js",
   "prototypes/js/game-feedback.js",
   "prototypes/js/game-onboarding.js",
+  "prototypes/js/game-arena-carve.js",
   "prototypes/js/game-bootstrap.js",
 ];
 const gameSource = gameFiles
@@ -95,6 +97,11 @@ const requiredAssetReferences = [
   "../assets/enemies/void-wisp-idle.png",
   "../assets/enemies/void-wisp-hit.png",
   "../assets/original/prism-orb.svg",
+  "../assets/library/constellations/aries.png",
+  "../assets/library/constellations/sagitta.png",
+  "../assets/library/constellations/corvus.png",
+  "../assets/library/constellations/cassiopeia.png",
+  "../assets/library/constellations/cygnus.png",
 ];
 const missingAssetReferences = requiredAssetReferences.filter(
   (asset) => !combinedSource.includes(asset),
@@ -117,6 +124,7 @@ const assetFiles = [
   ...Object.values(manifest.terrain).map((asset) => asset.file),
   ...Object.values(manifest.original),
   ...Object.values(manifest.combat ?? {}),
+  ...Object.values(manifest.constellations?.files ?? {}),
 ];
 const missingAssets = assetFiles.filter(
   (asset) => !existsSync(resolve(root, "assets", asset)),

@@ -1852,7 +1852,18 @@ simulatePhysics = function (d) {
   for (let i = 0; i < slices && ball?.moving; i++) {
     ball.x += ball.vx * step;
     ball.y += ball.vy * step;
-    const cueDrag = Math.pow(0.9915, step * 60);
+    // Drag depends on speed, and that split is the whole point.  A flat 0.9915
+    // left the meteor coasting for hundreds of frames: a shot averaged 7.2s and
+    // the worst ran 15s, nearly all of it watching a ball that had already
+    // stopped mattering.  Simply raising the drag fixes the clock and wrecks the
+    // game — at a flat 0.986 the ball also dies during the part of the shot that
+    // still had work to do, and five-point figures fell from 12% of shots to 1%.
+    // So the energetic phase keeps its original coast and only the dead tail is
+    // cut: same 3s average as the flat value, but 40% of shots still draw a
+    // figure instead of 27%, and 8% still reach five points.  Measured 120 shots
+    // per setting.
+    const cueSpeed = Math.hypot(ball.vx, ball.vy),
+      cueDrag = Math.pow(cueSpeed > 500 ? 0.9915 : 0.972, step * 60);
     ball.vx *= cueDrag;
     ball.vy *= cueDrag;
     tickGimmickCooldowns(ball, step);
@@ -2030,8 +2041,14 @@ simulatePhysics = function (d) {
       if (ball.trail.length > 24) ball.trail.shift();
     }
   }
-  const partyStillRolling = gates.some((g) => Math.hypot(g.vx, g.vy) > 55);
-  if (ball?.moving && Math.hypot(ball.vx, ball.vy) < 68 && !partyStillRolling)
+  // Call the table settled while everything is still creeping.  Below these
+  // speeds nothing reaches another object before friction stops it, so the
+  // remaining drift only costs the player time — cutting it removes more than
+  // a second and a half from the average shot.  Raise them together: stopping
+  // the meteor while a starkeeper is still rolling would end the shot before
+  // the figure's vertices have settled.
+  const partyStillRolling = gates.some((g) => Math.hypot(g.vx, g.vy) > 110);
+  if (ball?.moving && Math.hypot(ball.vx, ball.vy) < 150 && !partyStillRolling)
     endShot();
 };
 billiardPredict = function (dx, dy) {

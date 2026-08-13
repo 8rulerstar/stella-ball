@@ -34,6 +34,8 @@ New render or feedback behavior must register with `registerRuntimeHook(name, ca
 
 Do not add new assignments such as `draw = function () { ... }` or `updateFeedback = function () { ... }`. A few historical wrappers remain in the combat, feedback, meta, and onboarding scripts; leave their order intact until a dedicated migration replaces them with named hooks.
 
+`game-arena-carve.js` is the narrow rendering exception. It captures and replaces only `drawStageArena()` to draw its per-stage cached floor. Keep it after onboarding, before bootstrap, and presentation-only; do not add collisions, gameplay state, or per-frame canvas allocation there.
+
 ## Adding one stage gimmick
 
 Define a stage's `gimmicks` in `js/game-data.js`; `setupStageGimmicks()` creates the runtime objects when a battle starts. Do not put per-stage coordinates in the collision loop.
@@ -51,6 +53,15 @@ gimmicks: {
 - An `add` is a physical void remnant with HP. Meteor, clone meteor, starkeepers, and existing area attacks can damage it.
 
 The infinite training table is the current reference configuration for all three. Keep campaign stages to a single new gimmick until their player purpose and bot validation are decided.
+
+## Maintaining constellation figures
+
+`js/game-figure.js` is enabled only for the infinite training table. At settlement it uses the meteor and starkeepers that actually moved: two points draw a segment; three or more always select the nearest skeleton in their point-count tier. It then keeps the physical units fixed and animates only the drawn line toward that skeleton.
+
+- Keep the file immediately after `game-combat.js`. It wraps `settleParty`; use the predecessor-capture rule above if that wrapper changes.
+- `FIGURE_SHAPES` owns recognition templates, draw edges, and the optional silhouette texture path. `FIGURE_ABILITIES` owns the outcome. The six current entries deliberately share `encloseDamage`; do not describe them as distinct abilities until that table changes.
+- The five 384×384 silhouette files are coordinate-bound to `FIGURE_SHAPES`. Update `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, and `FIGURE_ART_SPEC.md` in the same change if their points, size, or paths change.
+- Figure damage must continue through `applyBossHit()` and `damageAdd()` so shields and phase rules cannot be bypassed.
 
 ## Performance guardrails
 
@@ -72,7 +83,7 @@ npm run check
 For a changed runtime module, add the focused formatting check and whitespace check:
 
 ```sh
-npx --yes prettier@3.5.3 --check prototypes/js/game-platform.js prototypes/js/game-ui.js prototypes/js/game-data.js prototypes/js/game-session.js prototypes/js/game-meta.js prototypes/js/game-feedback.js scripts/smoke-runtime.mjs scripts/verify-evidence.mjs
+npx --yes prettier@3.5.3 --check prototypes/js/game-platform.js prototypes/js/game-ui.js prototypes/js/game-data.js prototypes/js/game-session.js prototypes/js/game-meta.js prototypes/js/game-combat.js prototypes/js/game-figure.js prototypes/js/game-feedback.js scripts/smoke-runtime.mjs scripts/verify-evidence.mjs
 git diff --check
 ```
 

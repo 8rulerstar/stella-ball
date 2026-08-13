@@ -1,0 +1,341 @@
+// Arena floor pass — "Observatory Ground" (design turn 4a).
+//
+// Replaces the tiled-PNG arena with a fully procedural floor so the table
+// stops carrying the old indigo/violet terrain set while the DOM runs the
+// Dawn Observatory palette.  Nothing here loads an image: the floor is
+// voronoi stone plates, an engraved astrolabe carrying the stage's own
+// constellation, two-pole lighting (void violet at the top, launch apricot
+// at the bottom) and an inner wall shadow.
+//
+// Ownership: this file only replaces `drawStageArena`.  It captures the
+// previous definition first, so `npm run smoke` can still reach the base
+// implementation, and it never touches gameplay state, collisions or the
+// canvas judgement colours of units.
+//
+// Load order: after `js/game-onboarding.js`, before `js/game-bootstrap.js`.
+// Add the same path to `expectedScripts` in `scripts/smoke-runtime.mjs`.
+
+const baseDrawStageArena = drawStageArena;
+
+const CARVE_WALL = 18;
+const CARVE_PLATE_RAMP = [
+  "#0b1519",
+  "#0d181c",
+  "#0f1b1f",
+  "#0a1317",
+  "#101e22",
+];
+const carveLayers = new Map();
+
+// Deterministic hash noise.  Every stage gets the same floor on every run,
+// which matters because the daily seed must not change what the table looks
+// like — only what the boss does.
+function carveNoise(a, b) {
+  const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+// The void gets denser as the campaign moves outward.  This is presentation
+// only; it reads as difficulty without touching a single balance number.
+function carveVioletFor(index) {
+  return Math.min(0.85, 0.28 + index * 0.05);
+}
+
+function carveFigureFor(index) {
+  const worldId = stages[index]?.world;
+  const world = WORLDS.find((entry) => entry.id === worldId);
+  return world?.shape ?? WORLDS[0].shape;
+}
+
+// Voronoi plates baked at 4px.  A tiled PNG repeats every 128px and the seam
+// is visible; a voronoi field has no period at all, so the floor never shows
+// a grid the player can accidentally read as gameplay information.
+function carvePlates(layerX, seed) {
+  const count = 78;
+  const sx = [];
+  const sy = [];
+  const shade = [];
+  for (let i = 0; i < count; i++) {
+    sx.push(carveNoise(i + seed, 1.7) * W);
+    sy.push(carveNoise(i + seed, 4.3) * H);
+    shade.push(
+      CARVE_PLATE_RAMP[
+        Math.floor(carveNoise(i + seed, 9.1) * CARVE_PLATE_RAMP.length) %
+          CARVE_PLATE_RAMP.length
+      ],
+    );
+  }
+  const cols = W / 4;
+  const owner = new Int16Array(cols * (H / 4));
+  for (let py = 0, gy = 0; py < H; py += 4, gy++) {
+    for (let px = 0, gx = 0; px < W; px += 4, gx++) {
+      let best = 1e9;
+      let second = 1e9;
+      let bestIndex = 0;
+      for (let i = 0; i < count; i++) {
+        const dx = px - sx[i];
+        const dy = (py - sy[i]) * 1.14;
+        const d = dx * dx + dy * dy;
+        if (d < best) {
+          second = best;
+          best = d;
+          bestIndex = i;
+        } else if (d < second) second = d;
+      }
+      owner[gy * cols + gx] = bestIndex;
+      const seam = Math.sqrt(second) - Math.sqrt(best);
+      layerX.fillStyle =
+        seam < 3 ? "#060d10" : seam < 7 ? "#081115" : shade[bestIndex];
+      layerX.fillRect(px, py, 4, 4);
+    }
+  }
+  // One highlight row on each plate's upper edge.  This is the whole reason
+  // the floor reads as slabs with thickness instead of flat noise.
+  layerX.fillStyle = "#18292d";
+  for (let gy = 1; gy < H / 4; gy++) {
+    for (let gx = 0; gx < cols; gx++) {
+      if (
+        owner[gy * cols + gx] !== owner[(gy - 1) * cols + gx] &&
+        carveNoise(gx, gy) > 0.45
+      )
+        layerX.fillRect(gx * 4, gy * 4, 4, 1);
+    }
+  }
+}
+
+function carveDotRing(layerX, cx, cy, r, col, gap, size) {
+  layerX.fillStyle = col;
+  const step = gap / r;
+  for (let a = 0; a < Math.PI * 2; a += step)
+    layerX.fillRect(
+      Math.round(cx + Math.cos(a) * r),
+      Math.round(cy + Math.sin(a) * r),
+      size,
+      size,
+    );
+}
+
+// The engraving is the stage's own constellation, so `1-x` and `2-x` are
+// legible as different places without shipping a second terrain set.
+function carveAstrolabe(layerX, cx, cy, r, figure, col, hot) {
+  carveDotRing(layerX, cx, cy, r, col, 9, 2);
+  carveDotRing(layerX, cx, cy, r * 0.62, col, 11, 2);
+  layerX.fillStyle = col;
+  for (let i = 0; i < 48; i++) {
+    const a = (i / 48) * Math.PI * 2;
+    const big = i % 4 === 0;
+    const len = big ? 16 : 8;
+    const x1 = cx + Math.cos(a) * r;
+    const y1 = cy + Math.sin(a) * r;
+    for (let s = 0; s < len; s += 3)
+      layerX.fillRect(
+        Math.round(x1 - Math.cos(a) * s),
+        Math.round(y1 - Math.sin(a) * s),
+        big ? 3 : 2,
+        big ? 3 : 2,
+      );
+  }
+  const points = figure.map(([fx, fy]) => [
+    cx + (fx / 100 - 0.5) * r * 2.1,
+    cy + (fy / 100 - 0.45) * r * 1.6,
+  ]);
+  layerX.strokeStyle = col;
+  layerX.lineWidth = 2;
+  layerX.setLineDash([3, 5]);
+  layerX.beginPath();
+  layerX.moveTo(points[0][0], points[0][1]);
+  for (const [px, py] of points.slice(1)) layerX.lineTo(px, py);
+  layerX.stroke();
+  layerX.setLineDash([]);
+  points.forEach(([px, py], i) => {
+    layerX.fillStyle = i === 0 || i === points.length - 1 ? hot : col;
+    layerX.fillRect(Math.round(px) - 5, Math.round(py) - 1, 10, 3);
+    layerX.fillRect(Math.round(px) - 1, Math.round(py) - 5, 3, 10);
+    layerX.fillRect(Math.round(px) - 3, Math.round(py) - 3, 6, 6);
+  });
+}
+
+function carveDebris(layerX, seed) {
+  for (let i = 0; i < 34; i++) {
+    const px = 40 + carveNoise(i + seed, 2.2) * (W - 80);
+    const py = 40 + carveNoise(i + seed, 6.6) * (H - 80);
+    const s = 3 + Math.floor(carveNoise(i + seed, 8.8) * 3) * 3;
+    layerX.fillStyle = "#0a1215";
+    layerX.fillRect(Math.round(px) - 1, Math.round(py) + 2, s + 2, 3);
+    layerX.fillStyle = "#1a2e33";
+    layerX.fillRect(Math.round(px), Math.round(py), s, s);
+    layerX.fillStyle = "#2b4a4e";
+    layerX.fillRect(Math.round(px), Math.round(py), s, 2);
+  }
+}
+
+// The colossus cracked the ground it stands on.  Drawn over the engraving so
+// the void reads as damage to the observatory, not as another floor pattern.
+function carveBossFracture(layerX, bx, by, violet, seed) {
+  layerX.fillStyle = "#2a1442";
+  for (let a = 0; a < Math.PI * 2; a += Math.PI / 7) {
+    const jitter = carveNoise(a + seed, 5) * 0.3 - 0.15;
+    const len = 120 + carveNoise(a, 2) * 130 * (0.6 + violet);
+    for (let r = 46; r < len; r += 4) {
+      const px = bx + Math.cos(a + jitter + r * 0.0012) * r;
+      const py = by + Math.sin(a + jitter + r * 0.0012) * r * 1.05;
+      if (carveNoise(px, py) > 0.34)
+        layerX.fillRect(Math.round(px / 3) * 3, Math.round(py / 3) * 3, 3, 3);
+    }
+  }
+}
+
+// Two poles, nothing in between: violet where the void stands, apricot at the
+// launch stone.  The middle of the table stays dark so units and the aim
+// guide are the brightest things on screen.
+function carveLighting(layerX, bx, by, violet) {
+  const voidGlow = layerX.createRadialGradient(
+    bx,
+    by + 10,
+    20,
+    bx,
+    by + 10,
+    340 + violet * 170,
+  );
+  voidGlow.addColorStop(0, `rgba(163,96,230,${(0.36 * violet).toFixed(3)})`);
+  voidGlow.addColorStop(0.44, `rgba(112,60,170,${(0.18 * violet).toFixed(3)})`);
+  voidGlow.addColorStop(1, "rgba(70,38,110,0)");
+  layerX.fillStyle = voidGlow;
+  layerX.fillRect(0, 0, W, H);
+  const launchGlow = layerX.createRadialGradient(
+    W / 2,
+    H - 40,
+    20,
+    W / 2,
+    H - 40,
+    300,
+  );
+  launchGlow.addColorStop(0, "rgba(226,150,90,.13)");
+  launchGlow.addColorStop(1, "rgba(226,150,90,0)");
+  layerX.fillStyle = launchGlow;
+  layerX.fillRect(0, 0, W, H);
+}
+
+function carveDust(layerX, seed) {
+  for (let i = 0; i < 130; i++) {
+    const px = carveNoise(i + seed, 11) * W;
+    const py = carveNoise(i + seed, 13) * H;
+    const brightness = carveNoise(i, 17);
+    layerX.fillStyle =
+      brightness > 0.88 ? "#4f7b74" : brightness > 0.6 ? "#2b4449" : "#1d3236";
+    layerX.fillRect(Math.round(px), Math.round(py), 2, 2);
+  }
+}
+
+// The wall is the surface the meteor bounces off, so it is drawn as one, not
+// as a repeated 128px strip: three bevel bands, a 40px reflection tick rule,
+// and 45-degree corner cuts that show where a corner shot goes.
+function carveWall(layerX) {
+  const t = CARVE_WALL;
+  layerX.fillStyle = "#0a1417";
+  layerX.fillRect(0, 0, W, t);
+  layerX.fillRect(0, H - t, W, t);
+  layerX.fillRect(0, 0, t, H);
+  layerX.fillRect(W - t, 0, t, H);
+  layerX.fillStyle = "#24393d";
+  layerX.fillRect(3, 3, W - 6, t - 6);
+  layerX.fillRect(3, H - t + 3, W - 6, t - 6);
+  layerX.fillRect(3, 3, t - 6, H - 6);
+  layerX.fillRect(W - t + 3, 3, t - 6, H - 6);
+  layerX.fillStyle = "#4d7a7a";
+  layerX.fillRect(t, t - 1, W - t * 2, 1);
+  layerX.fillRect(t, H - t, W - t * 2, 1);
+  layerX.fillRect(t - 1, t, 1, H - t * 2);
+  layerX.fillRect(W - t, t, 1, H - t * 2);
+  layerX.fillStyle = "#7cc6bb";
+  for (let px = t + 40; px < W - t; px += 40) {
+    layerX.fillRect(px, t - 5, 2, 4);
+    layerX.fillRect(px, H - t + 1, 2, 4);
+  }
+  for (let py = t + 40; py < H - t; py += 40) {
+    layerX.fillRect(t - 5, py, 4, 2);
+    layerX.fillRect(W - t + 1, py, 4, 2);
+  }
+  layerX.fillStyle = "#0a1417";
+  for (let i = 0; i < 30; i += 3) {
+    layerX.fillRect(t, t + i, 30 - i, 3);
+    layerX.fillRect(W - t - (30 - i), t + i, 30 - i, 3);
+    layerX.fillRect(t, H - t - i - 3, 30 - i, 3);
+    layerX.fillRect(W - t - (30 - i), H - t - i - 3, 30 - i, 3);
+  }
+}
+
+function carveInnerShadow(layerX) {
+  const depth = 46;
+  const t = CARVE_WALL;
+  const sides = [
+    [layerX.createLinearGradient(0, t, 0, t + depth), t, t, W - t * 2, depth],
+    [
+      layerX.createLinearGradient(0, H - t, 0, H - t - depth),
+      t,
+      H - t - depth,
+      W - t * 2,
+      depth,
+    ],
+    [layerX.createLinearGradient(t, 0, t + depth, 0), t, t, depth, H - t * 2],
+    [
+      layerX.createLinearGradient(W - t, 0, W - t - depth, 0),
+      W - t - depth,
+      t,
+      depth,
+      H - t * 2,
+    ],
+  ];
+  for (const [gradient, gx, gy, gw, gh] of sides) {
+    gradient.addColorStop(0, "rgba(3,7,9,.72)");
+    gradient.addColorStop(1, "rgba(3,7,9,0)");
+    layerX.fillStyle = gradient;
+    layerX.fillRect(gx, gy, gw, gh);
+  }
+}
+
+// One cached canvas per stage.  The floor never animates, so this costs a
+// single bake and then one drawImage per frame — cheaper than the previous
+// tile loop it replaces.
+function buildCarveLayer(index) {
+  const key = String(index);
+  if (carveLayers.has(key)) return carveLayers.get(key);
+  const layer = document.createElement("canvas");
+  layer.width = W;
+  layer.height = H;
+  const layerX = layer.getContext("2d");
+  layerX.imageSmoothingEnabled = false;
+  const violet = carveVioletFor(index);
+  const seed = index * 4 + 1;
+  const bx = stages[index]?.boss?.x ?? W / 2;
+  const by = stages[index]?.boss?.y ?? 196;
+  layerX.fillStyle = "#080e11";
+  layerX.fillRect(0, 0, W, H);
+  carvePlates(layerX, seed);
+  carveAstrolabe(
+    layerX,
+    W / 2,
+    462,
+    244,
+    carveFigureFor(index),
+    "#1c383c",
+    "#3f6f5f",
+  );
+  carveDebris(layerX, seed);
+  carveBossFracture(layerX, bx, by, violet, seed);
+  carveLighting(layerX, bx, by, violet);
+  carveDust(layerX, seed);
+  carveInnerShadow(layerX);
+  carveWall(layerX);
+  carveLayers.set(key, layer);
+  return layer;
+}
+
+drawStageArena = function () {
+  const layer = buildCarveLayer(stageIndex);
+  if (!layer) {
+    baseDrawStageArena();
+    return;
+  }
+  x.drawImage(layer, 0, 0);
+};

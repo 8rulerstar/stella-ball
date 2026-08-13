@@ -27,19 +27,20 @@ The files under `js/` load in this exact order and share the browser global scop
 6. `game-core-render.js` — base combat drawing, HUD updates, canvas effects, and shared rendering helpers.
 7. `game-meta.js` — settings, achievements, stage select, replay tutorial, and meta-screen enhancements.
 8. `game-combat.js` — billiards controls and prediction, constellation multiplier, hero abilities, and combat-specific extensions.
-9. `game-figure.js` — the training-table constellation figure experiment: it wraps `settleParty`, so it must load straight after `game-combat.js` and before `game-feedback.js`, or the settle mute lands on the wrong layer. Self-contained so the experiment can be adopted or deleted in one move.
+9. `game-figure.js` — training-table-only constellation figures: it wraps `settleParty`, classifies the meteor plus moved starkeepers, fits the chosen skeleton, and registers the trace/reveal hooks. It must load straight after `game-combat.js` and before `game-feedback.js`, or its settlement layer lands on the wrong predecessor. The five silhouette textures live in `../assets/library/constellations/`; their coordinate contract is in `../ASSET_PLAN.md`.
 10. `game-feedback.js` — impact pauses, particles, layered sample/procedural SFX, combo presentation, ability/finisher/victory effects, and the final animation loop.
 11. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions.
-12. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
+12. `game-arena-carve.js` — final procedural Observatory Ground arena pass. It caches a floor per stage and wraps only `drawStageArena`; it must remain after onboarding and before bootstrap. It must not change physics, collisions, balance, or unit judgement colours.
+13. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
 
 Two presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
 
-12. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
-13. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer.
+14. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
+15. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer.
 
 ## Important maintenance rule
 
-Render and feedback extensions use the explicit `runtimeHooks` registry in `game-data.js`. Register work with `registerRuntimeHook()` rather than replacing `draw`, `drawArena`, `drawSpecial`, or `updateFeedback`. A few older gameplay and menu extensions still use function wrapping; preserve their order until they are migrated to a similarly explicit event. When you do wrap, capture the predecessor first (`const baseX = x;`) and call it — `npm run smoke` fails on a definition a later file overrides without capturing, because nobody can reach it afterwards.
+Render and feedback extensions use the explicit `runtimeHooks` registry in `game-data.js`. Register work with `registerRuntimeHook()` rather than replacing `draw`, `drawArena`, `drawSpecial`, or `updateFeedback`. `game-arena-carve.js` is the documented narrow exception: it replaces only `drawStageArena`, captures `baseDrawStageArena`, and is limited to the cached floor. A few older gameplay and menu extensions still use function wrapping; preserve their order until they are migrated to a similarly explicit event. When you do wrap, capture the predecessor first (`const baseX = x;`) and call it — `npm run smoke` fails on a definition a later file overrides without capturing, because nobody can reach it afterwards.
 
 When adding code:
 
@@ -47,8 +48,8 @@ When adding code:
 - Change base menus and battle flow in `game-session.js`; change settings, achievements, stage selection, or replay tutorial in `game-meta.js`.
 - Change base collision behavior in `game-core-physics.js` and base drawing/HUD behavior in `game-core-render.js`.
 - Change collision rules, aiming, abilities, or damage in `game-combat.js`.
-- Change the constellation figure experiment in `game-figure.js`; nothing else should reach into it.
-- Change screen shake, particles, SFX, combo, or victory presentation in `game-feedback.js`.
+- Change training-table constellation figures in `game-figure.js`; nothing else should reach into its `figureFx` state. Keep its skeleton coordinates, the five silhouette files, `ASSET_PLAN.md`, and `assets/ASSET_MANIFEST.json` in sync.
+- Change screen shake, particles, SFX, combo, or victory presentation in `game-feedback.js`; change only the procedural floor, wall presentation, and stage engraving in `game-arena-carve.js`.
 - Change Luna dialogue, first-run progression, or unlock behavior in `game-onboarding.js`.
 - Keep `game-bootstrap.js` minimal; it should only start the runtime.
 
@@ -60,4 +61,4 @@ When adding code:
 
 ## Verification
 
-With Node.js 20 or newer, run `npm run verify` and `npm run smoke` from the repository root. The verifier reads the ordered runtime files as one logical bundle, checks required gameplay markers and asset references, runs portability checks, and writes `artifacts/verification.json`. `npm run serve` starts the local server at `http://127.0.0.1:4173/`.
+With Node.js 20 or newer, run `npm run verify` and `npm run smoke` from the repository root. The verifier reads the ordered runtime files as one logical bundle, including `game-figure.js` and `game-arena-carve.js`, checks required gameplay markers and asset references, runs portability checks, and writes `artifacts/verification.json`. `npm run serve` starts the local server at `http://127.0.0.1:4173/`.

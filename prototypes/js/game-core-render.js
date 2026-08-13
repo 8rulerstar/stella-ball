@@ -220,6 +220,32 @@ function circle(a, b, r, col, glow = 0) {
   x.fill();
   x.restore();
 }
+
+// A 3px stepped ring. `arc()` with `shadowBlur` antialiases, which reads as a
+// different material from the pixel sprites it sits on.
+function stepRing(cx, cy, r, col, step = 3, thick = 3) {
+  x.fillStyle = col;
+  for (let a = 0; a < Math.PI * 2; a += 0.035) {
+    const px = Math.round((cx + Math.cos(a) * r) / step) * step,
+      py = Math.round((cy + Math.sin(a) * r) / step) * step;
+    x.fillRect(px, py, step, thick);
+  }
+}
+// Pixel diamond shared by the weak-point gem and the meteor core, three-tone.
+// `ramp` runs dark to bright and the radius shrinks with the index, so the
+// widest dark layer has to go down first and the bright core last.  The patch
+// text iterated the other way, which painted the dark layer over everything and
+// flattened the gem to a single #b06a3d blob.
+function pixelGem(cx, cy, r, ramp) {
+  for (let i = 0; i < ramp.length; i++) {
+    const rr = r * (1 - i * 0.28);
+    x.fillStyle = ramp[i];
+    for (let dy = -rr; dy <= rr; dy += 2) {
+      const w = Math.round(((rr - Math.abs(dy)) * 1.15) / 2) * 2;
+      if (w > 0) x.fillRect(Math.round(cx - w), Math.round(cy + dy), w * 2, 2);
+    }
+  }
+}
 function updateSpecial(d) {
   if (ball?.runeBurst) ball.runeBurst = Math.max(0, ball.runeBurst - d);
   momentumHudCooldown -= d;
@@ -644,13 +670,18 @@ function drawArena() {
 function draw() {
   drawArena();
   for (let i = 1; i < ball.trail.length; i++) {
-    x.strokeStyle = "#d6ebe077";
-    x.lineWidth = i / 5;
-    x.beginPath();
-    x.moveTo(ball.trail[i - 1].x, ball.trail[i - 1].y);
-    x.lineTo(ball.trail[i].x, ball.trail[i].y);
-    x.stroke();
+    const age = ball.trail.length - i,
+      sz = age < 6 ? 4 : age < 14 ? 3 : 2;
+    x.globalAlpha = Math.max(0.18, 1 - age * 0.028);
+    x.fillStyle = "#ffd2a0";
+    x.fillRect(
+      Math.round(ball.trail[i].x / 2) * 2 - sz / 2,
+      Math.round(ball.trail[i].y / 2) * 2 - sz / 2,
+      sz,
+      sz,
+    );
   }
+  x.globalAlpha = 1;
   for (const g of gates) {
     const actionFrame = Math.floor(
       (g.animClock || 0) /
@@ -672,21 +703,24 @@ function draw() {
   }
   for (const a of adds) {
     if (a.down > 0) continue;
-    circle(a.x, a.y, a.r + 13, "#10212a", 22);
+    x.fillStyle = "#00000055";
+    x.beginPath();
+    x.ellipse(a.x, a.y + 30, 24, 7, 0, 0, Math.PI * 2);
+    x.fill();
     const hit = a.hitCooldown > 0,
       frame = Math.floor(frameClock / (hit ? 55 : 155));
     if (!drawAnimated(hit ? "wispHit" : "wispIdle", a.x, a.y, 96, frame)) {
       circle(a.x, a.y, a.r, "#a65d57", 18);
       circle(a.x, a.y, a.r - 7, "#3c2529");
     }
-    x.fillStyle = "#f2d6d0";
-    x.fillRect(a.x - 18, a.y + a.r + 8, 36, 4);
-    x.fillStyle = "#cf705c";
-    x.fillRect(a.x - 18, a.y + a.r + 8, 36 * (a.hp / a.maxHp), 4);
-    x.fillStyle = "#e8eee3";
-    x.font = "9px ui-monospace";
-    x.textAlign = "center";
-    x.fillText("잔재", a.x, a.y - 31);
+    // Three segments so "one more hit kills it" reads without a number.
+    const seg = Math.ceil((a.hp / a.maxHp) * 3);
+    for (let i = 0; i < 3; i++) {
+      x.fillStyle = "#0b1418";
+      x.fillRect(a.x - 21 + i * 15, a.y - 44, 13, 6);
+      x.fillStyle = i < seg ? "#b578e8" : "#2b1a40";
+      x.fillRect(a.x - 20 + i * 15, a.y - 43, 11, 4);
+    }
   }
   for (const burst of areaBursts) {
     const t = burst.t / burst.d;
@@ -701,6 +735,11 @@ function draw() {
     x.stroke();
     x.restore();
   }
+  // Ground the colossus so it stops floating over the carved floor.
+  x.fillStyle = "#00000066";
+  x.beginPath();
+  x.ellipse(boss.x, boss.y + 76, 76, 17, 0, 0, Math.PI * 2);
+  x.fill();
   if (
     !drawFrame(
       bossArt,
@@ -712,12 +751,36 @@ function draw() {
     )
   )
     circle(boss.x, boss.y, 58, "#442b72", 16);
+  // Engrave the orbit and trail the gem's heading. With five shots a turn,
+  // "where the gem will be next" is a precondition for aiming at all.
+  for (let a = 0; a < Math.PI * 2; a += 15 / 84) {
+    x.fillStyle = "#5f4a35";
+    x.fillRect(
+      Math.round(boss.x + Math.cos(a) * 84),
+      Math.round(boss.y + Math.sin(a) * 84),
+      2,
+      2,
+    );
+  }
   const wx = boss.x + Math.cos(boss.a) * 84,
     wy = boss.y + Math.sin(boss.a) * 84;
-  circle(wx, wy, 16, "#c763ff", 8);
-  if (!drawStatic("weak", wx, wy, 27)) circle(wx, wy, 9, "#f1a5ff", 10);
-  x.fillStyle = "#e5eee4";
-  x.font = "11px ui-monospace";
+  for (let i = 1; i <= 3; i++) {
+    const a2 = boss.a - i * 0.16;
+    x.globalAlpha = 0.5 - i * 0.13;
+    x.fillStyle = "#eea56f";
+    x.fillRect(
+      Math.round(boss.x + Math.cos(a2) * 84) - 2,
+      Math.round(boss.y + Math.sin(a2) * 84) - 2,
+      4,
+      4,
+    );
+  }
+  x.globalAlpha = 1;
+  // Apricot is reserved on this screen for the one thing worth aiming at.
+  stepRing(wx, wy, 17, "#ffd2a044");
+  pixelGem(wx, wy, 15, ["#b06a3d", "#eea56f", "#ffd2a0"]);
+  x.fillStyle = "#cfdad7";
+  x.font = "700 12px Galmuri11, ui-monospace";
   x.textAlign = "center";
   x.fillText("공허 거상", boss.x, boss.y + 105);
   if (drag && !ball.moving) {
@@ -734,13 +797,12 @@ function draw() {
   // shared orb sprite.  No skin touches radius, speed or damage.
   const skin =
     typeof equippedSkin === "function" ? equippedSkin() : METEOR_SKINS[0];
-  circle(
-    ball.x,
-    ball.y,
-    ball.r + 3,
-    ball.moving ? skin.moving : skin.rest,
-    ball.moving ? 25 : 16,
-  );
+  // Stepped rings instead of a blurred halo, to match the carved floor.  The
+  // patch text pinned this to `skin.rest`; keep the moving/resting colour split
+  // because that is how a player reads whether the meteor is still rolling.
+  const orbCol = ball.moving ? skin.moving : skin.rest;
+  stepRing(ball.x, ball.y, ball.r + 6, orbCol + "33");
+  stepRing(ball.x, ball.y, ball.r + 2, orbCol);
   const tinted = skin.hue !== 0;
   if (tinted) {
     x.save();
