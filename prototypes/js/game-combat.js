@@ -154,7 +154,7 @@ damage = function (weak = false) {
     );
   if (marked)
     areaAttack(
-      "비연 표식 폭발",
+      "미리내 표식 폭발",
       Math.max(12, Math.round(amount * 0.38)),
       "#ef718d",
     );
@@ -401,8 +401,8 @@ function billiardPointerDown(e) {
       col: ball.turnGate?.col || "#bca7ff",
     });
     addPopup(ball.x, ball.y - 34, "90° 전환 +에너지", "#e5c7ff", true);
-    toast("세라 · 90° 전환!");
-    msg = "세라 · 전환 명령으로 운동량을 크게 얻었습니다.";
+    toast("달무리 · 90° 전환!");
+    msg = "달무리 · 전환 명령으로 운동량을 크게 얻었습니다.";
     return;
   }
   if (e.button === 2 && ball.nudgeCooldown <= 0) {
@@ -861,7 +861,7 @@ function queueUnitAssist(g, amount, name, options = {}) {
 // Gaon only strikes inside this radius, so the arena draws the same number as
 // a faint ring.  Both readings must come from one constant.
 const SLASH_RANGE = 205;
-function resolveSlash(g, name = "가온 근접 베기", options = {}) {
+function resolveSlash(g, name = "샛별 근접 베기", options = {}) {
   const range = SLASH_RANGE,
     distance = Math.hypot(g.x - boss.x, g.y - boss.y);
   if (distance <= range) {
@@ -885,7 +885,7 @@ function resolveSlash(g, name = "가온 근접 베기", options = {}) {
     toast(g.s + " · 근접 베기 사거리 밖");
   }
 }
-function resolveLongshot(g, name = "비연 거리 저격", options = {}) {
+function resolveLongshot(g, name = "미리내 거리 저격", options = {}) {
   const distance = Math.hypot(g.x - boss.x, g.y - boss.y),
     amount =
       17 +
@@ -902,7 +902,7 @@ function resolveLongshot(g, name = "비연 거리 저격", options = {}) {
     );
   queueUnitAssist(g, amount, name, options);
 }
-function detonateShockwave(g, name = "태오 충돌 충격파", options = {}) {
+function detonateShockwave(g, name = "모루 충돌 충격파", options = {}) {
   const hits = Math.max(1, g.collisions || 0),
     radius = 94 + hits * 15,
     amount = Math.round((8 + hits * 7) * (ball.blaze?.mult || 1)),
@@ -1121,7 +1121,7 @@ function copyLastUnitAbility(a, b) {
   a.on = 1;
   emitAbilityFx(a, a.x, a.y, 94, 0.62, 0, abilityFx.nyx, "copycat");
   fieldFx.push({ type: "mirror", x: a.x, y: a.y, t: 0, d: 0.62, col: a.col });
-  toast("닉스 · " + b.s + " 능력 모사");
+  toast("그믐 · " + b.s + " 능력 모사");
 }
 function nearestGate(excluded, fromX, fromY) {
   let target = null,
@@ -1159,7 +1159,7 @@ function activateCloneUnit(o, g, incoming) {
       trail: [],
     });
     emitAbilityFx(g, g.x, g.y, 112, 0.54, angle);
-    toast("루미 · 분열체 추가 분열!");
+    toast("별하 · 분열체 추가 분열!");
   } else if (fx === "seek") {
     const target = nearestGate(g, o.x, o.y);
     if (target) {
@@ -1169,7 +1169,7 @@ function activateCloneUnit(o, g, incoming) {
       o.vx = (dx / l) * (speed + 260);
       o.vy = (dy / l) * (speed + 260);
       emitAbilityFx(g, g.x, g.y, 94, 0.42, Math.atan2(dy, dx));
-      toast("하루 · 분열체 강제 중계!");
+      toast("살별 · 분열체 강제 중계!");
     }
   } else if (fx === "turn") {
     const vx = o.vx,
@@ -1180,7 +1180,7 @@ function activateCloneUnit(o, g, incoming) {
     o.vx *= ratio;
     o.vy *= ratio;
     emitAbilityFx(g, g.x, g.y, 92, 0.44, Math.atan2(o.vy, o.vx));
-    toast("세라 · 분열체 90° 전환!");
+    toast("달무리 · 분열체 90° 전환!");
   }
   queueUnitAssist(
     g,
@@ -1870,8 +1870,8 @@ function settleParty() {
         resolveSlash(
           g,
           g.fx === "copycat"
-            ? "닉스 · " + g.copiedName + " 근접 베기"
-            : "가온 근접 베기",
+            ? "그믐 · " + g.copiedName + " 근접 베기"
+            : "샛별 근접 베기",
           { finisher: true },
         );
         continue;
@@ -1883,8 +1883,8 @@ function settleParty() {
         resolveLongshot(
           g,
           g.fx === "copycat"
-            ? "닉스 · " + g.copiedName + " 거리 저격"
-            : "비연 거리 저격",
+            ? "그믐 · " + g.copiedName + " 거리 저격"
+            : "미리내 거리 저격",
           { finisher: true },
         );
         continue;
@@ -1896,15 +1896,15 @@ function settleParty() {
         detonateShockwave(
           g,
           g.fx === "copycat"
-            ? "닉스 · " + g.copiedName + " 충격파"
-            : "태오 충돌 충격파",
+            ? "그믐 · " + g.copiedName + " 충격파"
+            : "모루 충돌 충격파",
           { finisher: true },
         );
         continue;
       }
       if (g.fx === "copycat" && !copied) {
         addPopup(g.x, g.y - 30, "모사 대상 없음", g.col, false);
-        toast("닉스 · 아직 모사한 아군이 없습니다.");
+        toast("그믐 · 아직 모사한 아군이 없습니다.");
       }
       queueUnitAssist(g, base, g.s + " 각성", { finisher: true });
     }

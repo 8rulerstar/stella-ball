@@ -25,7 +25,7 @@ damage = function (weak = false) {
   );
   if (marked)
     areaAttack(
-      "비연 표식 폭발",
+      "미리내 표식 폭발",
       Math.max(9, Math.round(amount * 0.34)),
       "#ef718d",
     );
@@ -1722,8 +1722,8 @@ drawCombatControls = function () {
 };
 
 /* Starkeeper skins ---------------------------------------------------------
-   Cosmetic only, and deliberately per hero: buying a colour for 가온 does not
-   give it to 비연.  Ownership is a flat "hero:skin" list so the save stays a
+   Cosmetic only, and deliberately per hero: buying a colour for 샛별 does not
+   give it to 미리내.  Ownership is a flat "hero:skin" list so the save stays a
    plain array. */
 function ownedHeroSkinKeys() {
   const stored = Array.isArray(progress.heroSkins) ? progress.heroSkins : [];

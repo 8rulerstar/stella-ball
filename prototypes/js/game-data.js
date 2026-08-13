@@ -156,25 +156,25 @@ const ZONE_RULES = [
 ];
 const heroes = {
   gaon: {
-    n: "성벽 기사 가온",
-    s: "가온",
+    n: "여명의 검사 샛별",
+    s: "샛별",
     e: "근접 베기",
     d: "멈춘 자리에서 가까운 보스를 강하게 베어냅니다. 사거리는 짧습니다.",
-    lore: "성문이 무너진 뒤에도 홀로 약속을 지킨, 문지기의 별.",
+    lore: "밤의 끝에서 가장 먼저 떠올라 새벽을 여는, 첫 별.",
     fx: "slash",
     col: "#f2c56b",
     sprite: "../assets/characters/gaon-warrior-idle.png",
     fw: 192,
     fh: 192,
-    frames: 8,
+    frames: 6,
     scale: 0.38,
   },
   biyeon: {
-    n: "추적 사수 비연",
-    s: "비연",
+    n: "은하수 사수 미리내",
+    s: "미리내",
     e: "거리 저격",
     d: "멈춘 자리에서 보스에게 화살을 쏩니다. 멀수록 피해가 커집니다.",
-    lore: "마지막 화살로 어둠을 겨눈, 이름이 지워진 사수의 별.",
+    lore: "잊힌 별들의 강을 홀로 건너며 화살을 줍는, 은하수의 별.",
     fx: "longshot",
     col: "#ef718d",
     sprite: "../assets/characters/biyeon-archer-idle.png",
@@ -184,57 +184,53 @@ const heroes = {
     scale: 0.38,
   },
   lumi: {
-    n: "항로 마녀 루미",
-    s: "루미",
+    n: "쌍성 술사 별하",
+    s: "별하",
     e: "이중 분열",
     d: "유성에 닿으면 이번 발사 동안 한 번, 공을 둘로 복제합니다.",
-    lore: "바다가 마른 뒤 비출 곳을 잃은, 등대의 별.",
+    lore: "혼자가 싫어 스스로를 둘로 나눈, 쌍둥이 별.",
     fx: "split",
     col: "#70dce1",
     sprite: "../assets/characters/lumi-shaman-idle.png",
     fw: 192,
     fh: 192,
-    frames: 8,
+    frames: 6,
     scale: 0.38,
   },
   haru: {
-    n: "연쇄 전령 하루",
-    s: "하루",
+    n: "혜성 전령 살별",
+    s: "살별",
     e: "강제 중계",
     d: "유성에 닿으면 가장 가까운 다른 별지기에게 즉시 재발사합니다.",
-    lore: "전할 사람이 사라진 뒤에도 달리기를 멈추지 않은, 전령의 별.",
+    lore: "긴 꼬리에 전할 말을 매달고 밤하늘을 달리는, 혜성의 별.",
     fx: "seek",
     col: "#9ee477",
     sprite: "../assets/characters/haru-lancer-idle.png",
-    fw: 320,
-    fh: 320,
-    frames: 12,
-    scale: 0.25,
+    fw: 192,
+    fh: 192,
+    frames: 6,
+    scale: 0.38,
   },
   ria: {
-    n: "회전 검사 리아",
-    s: "리아",
+    n: "빛무리 무희 윤슬",
+    s: "윤슬",
     e: "질풍 칼날",
     d: "정산 공격이 없습니다. 이동 중 보스를 관통하며, 속도에 비례해 회전 칼날로 주변 적을 벱니다.",
-    lore: "멈추는 순간 패배한다고 믿는, 바람개비 검술의 별.",
+    lore: "물 위에 부서진 별빛처럼, 멈추면 사라지는 반짝임의 별.",
     fx: "bladewheel",
     col: "#5fe0cf",
     sprite: "../assets/characters/ria-bladewheel-idle.png",
-    fw: 256,
-    fh: 256,
-    frames: 1,
-    // The generated source has more transparent padding than the legacy
-    // sheets. Keep the collision radius unchanged, but normalize both the
-    // arena and UI portrait scale to the other starkeepers.
-    scale: 0.64,
-    portraitScale: 1.34,
+    fw: 192,
+    fh: 192,
+    frames: 6,
+    scale: 0.38,
   },
   sera: {
-    n: "궤도 사제 세라",
-    s: "세라",
+    n: "궤도 사제 달무리",
+    s: "달무리",
     e: "전환 명령",
     d: "유성에 닿으면 클릭 한 번으로 90도 전환하며 에너지를 얻습니다.",
-    lore: "궤도를 다 돈 뒤에도 춤을 멈추지 않은, 고리의 별.",
+    lore: "달을 지키는 고리가 되어 궤도를 다스리는, 고리의 별.",
     fx: "turn",
     col: "#bca7ff",
     sprite: "../assets/characters/sera-monk-idle.png",
@@ -244,16 +240,16 @@ const heroes = {
     scale: 0.38,
   },
   taeo: {
-    n: "폭파 광부 태오",
-    s: "태오",
+    n: "별불 대장장이 모루",
+    s: "모루",
     e: "충돌 충격파",
     d: "모든 충돌 수에 비례해 멈춘 자리 주변에 강한 충격파를 일으킵니다.",
-    lore: "꺼진 화로에 마지막 불씨를 묻어둔, 대장장이의 별.",
+    lore: "떨어진 별을 두드려 다시 하늘로 벼려 올리는, 대장간의 별.",
     fx: "shockwave",
     col: "#ffac67",
-    // Bronze-restyled Tiny RPG orc; the old Pawn sheet reads as a labourer
-    // between the knight and the archer.  Regenerate with
-    // scripts/generate_taeo_orc_restyle.py.
+    // The filename still says orc from the sheet this replaced.  Do NOT run
+    // scripts/generate_taeo_orc_restyle.py against it: that script rebuilds the
+    // old bronze Tiny RPG orc and would overwrite the roster art.
     sprite: "../assets/characters/taeo-orc-idle.png",
     fw: 192,
     fh: 192,
@@ -261,17 +257,17 @@ const heroes = {
     scale: 0.38,
   },
   nyx: {
-    n: "성위 관측자 닉스",
-    s: "닉스",
+    n: "밤의 관측자 그믐",
+    s: "그믐",
     e: "마지막 모사",
     d: "마지막으로 부딪힌 아군의 능력을 이번 샷에 그대로 복제합니다.",
-    lore: "모두가 하늘을 잊었을 때 홀로 기록을 계속한, 관측자의 별.",
+    lore: "빛나기를 그만두고 다른 별의 빛을 기록하는, 어두운 달.",
     fx: "copycat",
     col: "#9f83ff",
     sprite: "../assets/characters/nyx-oracle-idle.png",
     fw: 192,
     fh: 192,
-    frames: 8,
+    frames: 6,
     scale: 0.38,
   },
 };
@@ -313,13 +309,7 @@ const combatUnitSize = {
 };
 for (const [id, size] of Object.entries(combatUnitSize))
   heroes[id].combatSize = size;
-const cuteUnitArt = {
-  haru: { sprite: "../assets/characters/cute/haru-cute.png" },
-  ria: { sprite: "../assets/characters/ria-bladewheel-idle.png" },
-  sera: { sprite: "../assets/characters/cute/sera-cute.png" },
-  taeo: { sprite: "../assets/characters/cute/taeo-orc-token.png" },
-  nyx: { sprite: "../assets/characters/cute/nyx-cute.png" },
-};
+const cuteUnitArt = {}; // 신규 로스터: idle 시트가 토큰을 겸한다
 for (const [id, art] of Object.entries(cuteUnitArt))
   Object.assign(heroes[id], { cuteSprite: art.sprite });
 // Action sheets recoloured from the same source frames as each hero: the

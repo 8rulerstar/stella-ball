@@ -23,7 +23,7 @@ function damage(weak = false) {
   );
   if (marked)
     areaAttack(
-      "비연 표식 폭발",
+      "미리내 표식 폭발",
       Math.max(9, Math.round(amount * 0.34)),
       "#ef718d",
     );
