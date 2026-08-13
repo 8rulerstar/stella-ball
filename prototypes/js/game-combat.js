@@ -2108,18 +2108,37 @@ drawAimGuide = function () {
     p = cuePull(raw),
     guide = billiardPredict(ball.x - p.x, ball.y - p.y);
   x.save();
-  x.setLineDash([7, 5]);
-  x.lineWidth = 2;
-  x.strokeStyle = "#d8ece5";
-  x.beginPath();
-  x.moveTo(guide.points[0].x, guide.points[0].y);
-  for (const q of guide.points.slice(1)) x.lineTo(q.x, q.y);
-  x.stroke();
+  // A dot chain rather than a dashed line: the carved floor and the stepped
+  // rings are all hard pixels, and an antialiased stroke reads as a different
+  // material laid over them.  Bounce points get a cross so the turn is legible
+  // without following the dots.
+  x.fillStyle = "#d8ece5";
+  for (let i = 1; i < guide.points.length; i++) {
+    const from = guide.points[i - 1],
+      to = guide.points[i],
+      span = Math.hypot(to.x - from.x, to.y - from.y),
+      steps = Math.max(1, Math.round(span / 11));
+    for (let k = 0; k <= steps; k++) {
+      const t = k / steps;
+      x.fillRect(
+        Math.round(from.x + (to.x - from.x) * t) - 1,
+        Math.round(from.y + (to.y - from.y) * t) - 1,
+        3,
+        3,
+      );
+    }
+    if (i < guide.points.length - 1) {
+      x.fillRect(Math.round(to.x) - 7, Math.round(to.y) - 1, 15, 3);
+      x.fillRect(Math.round(to.x) - 1, Math.round(to.y) - 7, 3, 15);
+    }
+  }
   x.setLineDash([4, 4]);
+  x.lineWidth = 2;
   for (const path of guide.unitPaths) {
     x.strokeStyle = path.target.col;
-    x.shadowBlur = 12;
-    x.shadowColor = path.target.col;
+    // No glow: it softens the edge against the pixel floor.  The starkeeper's
+    // own colour is contrast enough.
+    x.shadowBlur = 0;
     x.beginPath();
     x.moveTo(path.from.x, path.from.y);
     x.lineTo(path.to.x, path.to.y);

@@ -1013,11 +1013,10 @@ function primeCombatTextures() {
     loadTexture(path);
   for (const path of Object.values(abilityFx)) loadTexture(path);
   for (const path of Object.values(abilityFxSheets)) loadTexture(path);
-  const stageArt = stageArtFor();
+  // `tile` / `frame` / `props` stopped reaching the arena when the floor became
+  // procedural, so priming them only slowed the first entry.  `emblem` stays,
+  // because the hub cards still read it through `stageArtFor()`.
   for (const path of [
-    stageArt.tile,
-    ...stageArt.frame,
-    ...stageArt.props.map((prop) => prop[0]),
     ...Object.values(libraryArt.tutorial),
     ...Object.values(libraryArt.projectile),
   ])
