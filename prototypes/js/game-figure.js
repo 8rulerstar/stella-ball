@@ -62,6 +62,32 @@ const FIGURE_PARRY = {
   minNodes: 3,
   maxNodes: 7,
 };
+// Parry presentation only. Three outcomes have to differ in SHAPE, not in
+// brightness: the old ring drew window/success/late through one path and only
+// changed alpha, which is unreadable in a crowded corner. Colours stay inside
+// the Dawn Observatory tokens; failures fall to the neutral --mist/--line pair.
+// These effects carry their own clock (advanced in `afterFeedbackUpdate`) and
+// deliberately do NOT live in `fieldFx`: that array only advances inside
+// `simulatePhysics`, so anything queued after the meteor stops would freeze on
+// screen until the next launch — and node loss can happen exactly there.
+const PARRY_FX = {
+  budget: 6, // separate from the 12-slot fieldFx budget
+  hit: 0.5,
+  miss: 0.42,
+  scatter: 0.9,
+  close: 0.5,
+  nodeBorn: 0.3,
+  core: "#cfdad7", // --moon: one fixed bright core for all eight unit colours
+  fail: "#8ba39f", // --mist
+  failLine: "#34494d", // --line
+  window: "#ffd2a0", // --star
+};
+let parryFx = [];
+function pushParryFx(fx) {
+  parryFx.push({ t: 0, ...fx });
+  if (parryFx.length > PARRY_FX.budget)
+    parryFx.splice(0, parryFx.length - PARRY_FX.budget);
+}
 let figureFx = null;
 let figureShotBattle = null;
 let figureShot = null;
@@ -71,6 +97,7 @@ function figureActive() {
 function currentFigureShot() {
   if (figureShotBattle !== battle) {
     figureShotBattle = battle;
+    parryFx.length = 0;
     figureShot = {
       nodes: [],
       parry: 0,
@@ -109,12 +136,16 @@ function consumeTrainingParry(g, contact = null, remembered = false) {
   const x = contact?.x ?? (ball.x + g.x) / 2,
     y = contact?.y ?? (ball.y + g.y) / 2;
   fieldFx.push({ type: "relay", x, y, t: 0, d: 0.48, col: g.col });
+  // Success bursts outward from the contact and lands on the node it just
+  // created, so the cause reads without any text.
+  pushParryFx({ kind: "hit", x, y, col: g.col, d: PARRY_FX.hit });
   if (state.nodes.length < FIGURE_PARRY.maxNodes) {
     state.nodes.push({
       x,
       y,
       col: g.col,
       label: g.s,
+      born: PARRY_FX.nodeBorn,
     });
     addPopup(
       g.x,
@@ -123,6 +154,14 @@ function consumeTrainingParry(g, contact = null, remembered = false) {
       g.col,
       true,
     );
+    // The moment the chain becomes castable is announced by the figure
+    // closing, now that the `별빛 n/7 · 3점부터 발동` label is gone.
+    if (state.nodes.length === FIGURE_PARRY.minNodes)
+      pushParryFx({
+        kind: "close",
+        ring: figureRing(state.nodes).map((n) => ({ x: n.x, y: n.y })),
+        d: PARRY_FX.close,
+      });
   }
   return true;
 }
@@ -134,9 +173,15 @@ function rememberTrainingParryContact(g, contact) {
   const state = currentFigureShot();
   if (state.parry > 0 || state.cooldown > 0) return;
   if (state.nearMiss > 0) {
-    const lostNodes = finishFigureShot({ missed: true });
+    // Positions have to be copied before the shot is cleared: the scatter is
+    // the only thing that shows WHERE the starlight was lost.
+    const lost = state.nodes.map((n) => ({ x: n.x, y: n.y, col: n.col })),
+      lostNodes = finishFigureShot({ missed: true });
     state.cooldown = FIGURE_PARRY.missCooldown;
     state.flash = 0.2;
+    pushParryFx({ kind: "miss", x: contact.x, y: contact.y, d: PARRY_FX.miss });
+    if (lost.length)
+      pushParryFx({ kind: "scatter", nodes: lost, d: PARRY_FX.scatter });
     fieldFx.push({
       type: "relay",
       x: contact.x,
@@ -194,6 +239,8 @@ function advanceFigureShot(d) {
   const state = currentFigureShot();
   state.cooldown = Math.max(0, state.cooldown - d);
   state.flash = Math.max(0, state.flash - d);
+  for (const node of state.nodes)
+    if (node.born > 0) node.born = Math.max(0, node.born - d);
   if (state.contact) {
     state.contact.t = Math.max(0, state.contact.t - d);
     if (state.contact.t === 0) state.contact = null;
@@ -1072,6 +1119,146 @@ function figureCorrection(t) {
     Math.max(0, Math.min(1, (t - FIGURE_CORRECT_AT) / FIGURE.correctTime)),
   );
 }
+// --- node and parry outcome shapes ---------------------------------------
+// One bright fixed core plus a unit-coloured halo. The core is what lifts the
+// contrast: at 0.4 alpha in unit colour alone the eight roster colours all
+// landed between 2.5 and 3.4 against the floor, with 봇새기 pink and 그즘 purple
+// worst. The halo keeps `node.col` doing its job — saying who made the node.
+function drawStarNode(cx, cy, col, born = 0) {
+  const pop = born > 0 ? born / PARRY_FX.nodeBorn : 0,
+    halo = 7 + pop * 3;
+  x.save();
+  x.globalAlpha = 0.5 + pop * 0.32;
+  x.fillStyle = col || PARRY_FX.core;
+  x.shadowBlur = 10 + pop * 8;
+  x.shadowColor = col || PARRY_FX.core;
+  x.beginPath();
+  x.arc(cx, cy, halo, 0, Math.PI * 2);
+  x.fill();
+  x.shadowBlur = 0;
+  x.globalAlpha = 1;
+  x.fillStyle = PARRY_FX.core;
+  x.beginPath();
+  x.arc(cx, cy, 3 + pop * 1.6, 0, Math.PI * 2);
+  x.fill();
+  if (pop > 0) {
+    x.globalAlpha = pop * 0.55;
+    x.strokeStyle = col || PARRY_FX.core;
+    x.lineWidth = 2;
+    x.beginPath();
+    x.arc(cx, cy, halo + 5 + (1 - pop) * 10, 0, Math.PI * 2);
+    x.stroke();
+  }
+  x.restore();
+}
+function drawParryFxLayer() {
+  if (!parryFx.length) return;
+  for (const fx of parryFx) {
+    const p = Math.max(0, Math.min(1, fx.t / fx.d)),
+      life = 1 - p;
+    x.save();
+    if (fx.kind === "hit") {
+      // Outward: a ring leaving the contact plus six spokes thrown clear.
+      x.strokeStyle = fx.col || PARRY_FX.core;
+      x.shadowBlur = 12;
+      x.shadowColor = fx.col || PARRY_FX.core;
+      x.globalAlpha = life * 0.9;
+      x.lineWidth = 1 + life * 3;
+      x.beginPath();
+      x.arc(fx.x, fx.y, 7 + p * 30, 0, Math.PI * 2);
+      x.stroke();
+      x.lineWidth = 2;
+      x.globalAlpha = life * 0.8;
+      for (let i = 0; i < 6; i++) {
+        const a = (i * Math.PI) / 3 + 0.2,
+          from = 9 + p * 26;
+        x.beginPath();
+        x.moveTo(fx.x + Math.cos(a) * from, fx.y + Math.sin(a) * from);
+        x.lineTo(
+          fx.x + Math.cos(a) * (from + 9 * life),
+          fx.y + Math.sin(a) * (from + 9 * life),
+        );
+        x.stroke();
+      }
+    } else if (fx.kind === "miss") {
+      // Inward rhythm reversed: a ring already broken into three pieces that
+      // slide apart and drop. Neutral, never red, never shaken.
+      x.strokeStyle = PARRY_FX.fail;
+      x.globalAlpha = life * 0.75;
+      x.lineWidth = 2;
+      const r = 13 + p * 9;
+      for (let i = 0; i < 3; i++) {
+        const a = ((i * Math.PI) / 1.5) * 1 + p * 0.5;
+        x.beginPath();
+        x.arc(fx.x, fx.y + p * 8, r, a, a + 0.72);
+        x.stroke();
+      }
+      x.globalAlpha = life * 0.6;
+      for (let i = 0; i < 4; i++) {
+        const a = 0.5 + (i * Math.PI) / 2,
+          from = 8 + p * 22;
+        x.beginPath();
+        x.moveTo(fx.x + Math.cos(a) * from, fx.y + Math.sin(a) * from + p * 10);
+        x.lineTo(
+          fx.x + Math.cos(a) * (from + 6),
+          fx.y + Math.sin(a) * (from + 6) + p * 10,
+        );
+        x.stroke();
+      }
+    } else if (fx.kind === "scatter") {
+      // The most expensive failure in the game, so it is the biggest picture:
+      // every node that was collected breaks apart where it stood.
+      const c = figureCentroid(fx.nodes);
+      x.globalAlpha = life * 0.34;
+      x.strokeStyle = PARRY_FX.failLine;
+      x.lineWidth = 2;
+      x.setLineDash([4, 7]);
+      x.beginPath();
+      for (let i = 0; i < fx.nodes.length; i++) {
+        const n = fx.nodes[i];
+        if (i === 0) x.moveTo(n.x, n.y);
+        else x.lineTo(n.x, n.y);
+      }
+      x.stroke();
+      x.setLineDash([]);
+      for (const n of fx.nodes) {
+        const a = Math.atan2(n.y - c.y, n.x - c.x),
+          dx = n.x + Math.cos(a) * p * 34,
+          dy = n.y + Math.sin(a) * p * 34 + p * p * 14;
+        x.globalAlpha = life * 0.85;
+        x.fillStyle = PARRY_FX.fail;
+        x.beginPath();
+        x.arc(dx, dy, 4 * life + 1, 0, Math.PI * 2);
+        x.fill();
+        x.globalAlpha = life * 0.5;
+        x.strokeStyle = PARRY_FX.fail;
+        x.lineWidth = 1.5;
+        const arm = 5 + p * 9;
+        x.beginPath();
+        x.moveTo(dx - arm, dy);
+        x.lineTo(dx - arm + 4, dy);
+        x.moveTo(dx + arm - 4, dy);
+        x.lineTo(dx + arm, dy);
+        x.stroke();
+      }
+    } else if (fx.kind === "close") {
+      // Third node: the figure closes for the first time. This is what tells a
+      // new player the chain can now fire, in place of the deleted label.
+      x.globalAlpha = life * 0.85;
+      x.strokeStyle = PARRY_FX.core;
+      x.lineWidth = 1 + life * 2;
+      x.shadowBlur = 12;
+      x.shadowColor = PARRY_FX.window;
+      x.beginPath();
+      fx.ring.forEach((n, i) =>
+        i ? x.lineTo(n.x, n.y) : x.moveTo(n.x, n.y),
+      );
+      x.closePath();
+      x.stroke();
+    }
+    x.restore();
+  }
+}
 // The shot preview is intentionally raw: its stars stay at the contact
 // positions until the table settles. Only the resolved constellation is
 // corrected into the chosen sky skeleton.
@@ -1079,17 +1266,42 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
   if (!figureActive()) return;
   const state = currentFigureShot(),
     nodes = state.nodes;
-  if (state.parry > 0 || state.flash > 0) {
-    const pulse = state.parry > 0 ? 1 : state.flash / 0.44;
+  drawParryFxLayer();
+  // Window open: "you can press now". The arc's remaining sweep is the
+  // remaining time, and the four ticks travel inward as it closes, so the cue
+  // gathers where the success will burst outward from.
+  if (state.parry > 0) {
+    const remain = state.parry / FIGURE_PARRY.parryWindow,
+      reach = 14 + remain * 18;
     x.save();
-    x.globalAlpha = 0.38 + pulse * 0.45;
-    x.strokeStyle = "#fff1bd";
-    x.lineWidth = 2.5;
-    x.shadowBlur = 18;
-    x.shadowColor = "#ffd27f";
+    x.globalAlpha = 0.4 + remain * 0.45;
+    x.strokeStyle = PARRY_FX.window;
+    x.lineWidth = 1.5 + remain * 3;
+    x.shadowBlur = 16;
+    x.shadowColor = PARRY_FX.window;
     x.beginPath();
-    x.arc(ball.x, ball.y, ball.r + 13 + pulse * 5, 0, Math.PI * 2);
+    x.arc(
+      ball.x,
+      ball.y,
+      ball.r + 13,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * remain,
+    );
     x.stroke();
+    x.lineWidth = 2;
+    for (let i = 0; i < 4; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI) / 2;
+      x.beginPath();
+      x.moveTo(
+        ball.x + Math.cos(a) * (ball.r + reach),
+        ball.y + Math.sin(a) * (ball.r + reach),
+      );
+      x.lineTo(
+        ball.x + Math.cos(a) * (ball.r + reach - 7),
+        ball.y + Math.sin(a) * (ball.r + reach - 7),
+      );
+      x.stroke();
+    }
     x.restore();
   }
   // The post-contact echo is deliberately local and short. It tells the
@@ -1132,7 +1344,8 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
         ])
       : nodes.slice(1).map((node, i) => [nodes[i], node]);
   x.save();
-  x.globalAlpha = 0.4;
+  // Edges stay quieter than the nodes: the points are the subject.
+  x.globalAlpha = 0.26;
   x.strokeStyle = "#9adfc9";
   x.lineWidth = 2;
   x.setLineDash([5, 6]);
@@ -1145,28 +1358,29 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
     x.stroke();
   }
   x.setLineDash([]);
-  for (const node of nodes) {
-    x.fillStyle = node.col || "#dff3ea";
-    x.beginPath();
-    x.arc(node.x, node.y, 5, 0, Math.PI * 2);
-    x.fill();
-  }
-  x.globalAlpha = 0.9;
-  x.fillStyle = "#fff3d6";
-  x.textAlign = "center";
-  x.font = "bold 12px ui-monospace";
-  const label =
-    "별빛 " +
-    nodes.length +
-    "/" +
-    FIGURE_PARRY.maxNodes +
-    (match ? " · " + match.shape.name : " · 3점부터 발동");
-  x.fillText(label, ball.x, ball.y - ball.r - 25);
   x.restore();
+  for (const node of nodes)
+    drawStarNode(node.x, node.y, node.col, node.born || 0);
+  if (match) {
+    x.save();
+    x.globalAlpha = 0.9;
+    x.fillStyle = "#fff3d6";
+    x.textAlign = "center";
+    x.font = "bold 12px ui-monospace";
+    x.fillText(match.shape.name, ball.x, ball.y - ball.r - 25);
+    x.restore();
+  }
 });
 /* --- drawing (RuneCast RuneTracer: wide faint glow + thin bright core) --- */
 registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
   advanceFigureShot(d);
+  // Parry shapes run on this clock, not on `fieldFx`'s physics clock, so a
+  // node loss that happens after the meteor stops still plays out and clears.
+  if (parryFx.length) {
+    for (const fx of parryFx) fx.t += d;
+    for (let i = parryFx.length - 1; i >= 0; i--)
+      if (parryFx[i].t >= parryFx[i].d) parryFx.splice(i, 1);
+  }
   if (!figureFx) return;
   figureFx.t += d;
   // The pentagram pays off once the corrected star is standing, not at the

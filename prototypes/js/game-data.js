@@ -1464,62 +1464,6 @@ function primeCombatTextures() {
     loadTexture(path);
   for (const id of deployed) loadSpec(heroes[id]);
 }
-const upgrades = [
-  {
-    id: "lens",
-    tag: "약점",
-    title: "균열 렌즈",
-    text: "약점 피해가 +7 증가합니다.",
-    accent: "#ffd36d",
-    icon: "../assets/library/icons/upgrade-lens.png",
-    apply: (b) => (b.weakFlat += 7),
-  },
-  {
-    id: "chorus",
-    tag: "연계",
-    title: "공명 코일",
-    text: "별지기 한 명당 연계 배율이 +16% 증가합니다.",
-    accent: "#83e8f5",
-    icon: "../assets/library/icons/upgrade-chorus.png",
-    apply: (b) => (b.chainStep += 0.16),
-  },
-  {
-    id: "reserve",
-    tag: "발사",
-    title: "예비 탄창",
-    text: "이후 단계의 발사 횟수가 +1 증가합니다.",
-    accent: "#f6a6ce",
-    icon: "../assets/library/icons/upgrade-reserve.png",
-    apply: (b) => (b.extraShots += 1),
-  },
-  {
-    id: "kinetic",
-    tag: "반사",
-    title: "운동량 프레임",
-    text: "벽 반사마다 피해가 +8% 증가합니다.",
-    accent: "#9ee477",
-    icon: "../assets/library/icons/upgrade-kinetic.png",
-    apply: (b) => (b.bounceStep += 0.08),
-  },
-  {
-    id: "mark",
-    tag: "표식",
-    title: "사냥꾼의 눈",
-    text: "표식 룬의 약점 피해 배율이 1.38 → 1.70이 됩니다.",
-    accent: "#ef718d",
-    icon: "../assets/library/icons/upgrade-mark.png",
-    apply: (b) => (b.markMultiplier = 1.7),
-  },
-  {
-    id: "battery",
-    tag: "공명",
-    title: "위상 공명기",
-    text: "모든 보스 피해가 +9 증가합니다.",
-    accent: "#bca7ff",
-    icon: "../assets/library/icons/upgrade-battery.png",
-    apply: (b) => (b.weakFlat += 9),
-  },
-];
 let selected = [],
   deployed = [],
   stageIndex = 0,
