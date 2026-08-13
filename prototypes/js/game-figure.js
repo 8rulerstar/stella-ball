@@ -787,25 +787,82 @@ function classifyFigure(points) {
 // The bonus damage the figure used to deal unconditionally.  It is still the
 // PLACEHOLDER every constellation runs, so behaviour is unchanged until each
 // entry below is given its own ability.
-function encloseDamage(ctx) {
-  const caught = [];
-  if (boss && boss.hp > 0 && ctx.covers(boss.x, boss.y, 66)) {
+// The payout every constellation makes, wherever anything happens to stand.
+//
+// Position used to decide this: the drawn figure had to enclose a target for
+// the damage to land.  That made the most common outcome "포위 실패" and zero,
+// because a three- or four-point ring is small and the colossus is usually
+// outside it — a constellation could be recognised, named, drawn and revealed
+// and then pay nothing.  The figure is earned by the parries that built it, so
+// it now always pays, and what each constellation adds on top is what tells
+// them apart.
+function figureFieldDamage(ctx, label = "별자리") {
+  const hit = [];
+  if (boss && boss.hp > 0) {
     const dealt = applyBossHit(ctx.bonus);
     if (dealt > 0) {
-      addPopup(boss.x, boss.y - 92, "별자리 -" + dealt, "#ffd2a0", true);
-      caught.push("공허 거상");
+      addPopup(boss.x, boss.y - 92, label + " -" + dealt, "#ffd2a0", true);
+      hit.push("공허 거상");
     }
   }
   for (const a of adds) {
-    if (a.down > 0 || !ctx.covers(a.x, a.y, a.r)) continue;
-    damageAdd(a, ctx.bonus, "별자리", "#ffd2a0");
-    caught.push("공허 잔재");
+    if (a.down > 0) continue;
+    damageAdd(a, ctx.bonus, label, "#ffd2a0");
+    hit.push("공허 잔재");
   }
-  return caught.length ? caught.length + "체 포위" : "포위 실패";
+  areaBursts.push({
+    x: boss?.x ?? W / 2,
+    y: boss?.y ?? H / 2,
+    r: 230,
+    col: "#ffd2a0",
+    t: 0,
+    d: 0.5,
+  });
+  if (boss && boss.hp <= 0) scheduleWin();
+  return hit.length;
 }
+// Kept as the plain baseline: the tier that adds nothing of its own.
+function encloseDamage(ctx) {
+  const hit = figureFieldDamage(ctx);
+  return hit ? hit + "체 타격" : "피해 없음";
+}
+/* --- effects that land on the next shot --------------------------------- */
+// `startShot` builds a fresh `ball`, so a constellation cannot simply write its
+// promise onto the current one and expect it to survive the settle.  These are
+// held here instead and applied by the wrapper below, once, on the next shot.
+let figureBoon = null;
+function grantFigureBoon(boon) {
+  figureBoon = { ...(figureBoon || {}), ...boon };
+}
+const figureBoonStartShot = startShot;
+startShot = function (restingPoint = null) {
+  figureBoonStartShot(restingPoint);
+  if (!figureBoon || !ball) return;
+  if (figureBoon.mark) {
+    ball.mark = true;
+    toast("까마귀의 표식 · 이번 샷의 약점 명중이 강해집니다");
+  }
+  if (figureBoon.glide) {
+    ball.glide = figureBoon.glide;
+    toast("백조의 비행 · 이번 샷은 유성이 오래 굽니다");
+  }
+  if (figureBoon.aim) {
+    ball.trueAim = true;
+    toast("북두의 길잡이 · 이번 샷은 항로가 끝까지 보입니다");
+  }
+  figureBoon = null;
+};
 // How far off the shaft a target can stand and still be run through, on top of
 // its own radius.  The meteor's own width, matching the two-point segment.
 const FIGURE_PIERCE_WIDTH = 26;
+// Cygnus' coast, as a multiplier on the friction the meteor sheds each frame.
+// Measured on a fixed shot: the ordinary run covers 1117px over 4.1 seconds,
+// and this keeps roughly half again as much — 1744px over 5.6.  The first
+// attempt used 0.35 and produced 4026px over 13.1 seconds, which is not a
+// longer shot but a different game, so the value is deliberately shy.
+const FIGURE_GLIDE = 0.85;
+// Refunds per battle. One is a reward; unbounded is a battle that cannot end.
+const FIGURE_REFUND_LIMIT = 1;
 // Seconds the fired line stays on the table, measured on the figure's clock.
 const FIGURE_PIERCE_FADE = 0.5;
 // 화살자리 · 관통 사격.  The arrow is the one constellation whose recognised
@@ -838,6 +895,11 @@ function piercingShot(ctx) {
     to = { x: from.x + (dx / len) * reach, y: from.y + (dy / len) * reach },
     crosses = (tx, ty, tr) =>
       distanceToSegment(tx, ty, from, to) <= tr + FIGURE_PIERCE_WIDTH;
+  // The field damage lands first, as it does for every constellation.  The
+  // shaft is what the arrow adds: a second helping for anything standing on the
+  // line, so pointing the arrowhead at the colossus is worth doing and pointing
+  // it away is not.
+  figureFieldDamage(ctx);
   const run = [];
   if (boss && boss.hp > 0 && crosses(boss.x, boss.y, 66)) {
     const dealt = applyBossHit(ctx.bonus);
@@ -862,7 +924,118 @@ function piercingShot(ctx) {
   // dropped with it.  That is correct — the player has already launched again,
   // and the damage above has been paid.
   if (figureFx) figureFx.beam = { from, to, at: figureFx.t };
-  return run.length ? run.length + "체 관통" : "빗나감";
+  return run.length ? run.length + "체 관통" : "화살은 빗나감";
+}
+// 까마귀자리 · 약점 노출.  The crow that lied to Apollo and was left thirsty;
+// here it goes ahead and marks what to aim for.  The payout is deliberately not
+// damage — it lands on the NEXT shot, so a four-point figure is worth building
+// even when the colossus is already low.
+function markWeakpoint(ctx) {
+  const hit = figureFieldDamage(ctx, "까마귀");
+  grantFigureBoon({ mark: true });
+  return hit ? hit + "체 타격 · 다음 샷 표식" : "다음 샷 표식";
+}
+// 카시오페이아 · 껍질 파괴.  The queen chained to her throne, so the
+// constellation that answers being held: it takes every layer off at once.
+// "껍질이 막았다" is a real dead end — the shield eats a whole hit and returns
+// zero — and this is the one thing in the game that clears it outright.
+function breakShell(ctx) {
+  const layers = bossShield?.hits ?? 0;
+  if (layers > 0) {
+    bossShield.hits = 0;
+    bossShield.flash = 0.6;
+    areaBursts.push({
+      x: boss.x,
+      y: boss.y,
+      r: 150,
+      col: "#9adfc9",
+      t: 0,
+      d: 0.5,
+    });
+    addPopup(boss.x, boss.y - 66, "껍질 " + layers + "겹 파괴", "#9adfc9", true);
+    combatSfx?.("unlock", 0.9);
+  }
+  const hit = figureFieldDamage(ctx, "카시오페이아");
+  return layers > 0
+    ? "껍질 " + layers + "겹 파괴"
+    : hit
+      ? hit + "체 타격"
+      : "깨뜨릴 껍질 없음";
+}
+// 백조자리 · 비행.  The only one that pays in future opportunity rather than in
+// damage: a longer coast is more contacts, and more contacts is a bigger figure
+// next time.  It is the single compounding entry in the set.
+function grantGlide(ctx) {
+  const hit = figureFieldDamage(ctx, "백조");
+  grantFigureBoon({ glide: FIGURE_GLIDE });
+  return hit ? hit + "체 타격 · 다음 샷 비행" : "다음 샷 비행";
+}
+// 오망성 · 전원 각성.  Not a constellation but a rune, and the only entry that
+// touches the party rather than the colossus: every starkeeper wakes where it
+// stands, whatever it did or did not do this shot.
+function wakeEveryone(ctx) {
+  const hit = figureFieldDamage(ctx, "오망성");
+  let woken = 0;
+  for (const g of gates) {
+    if (g.awake) continue;
+    wakeUnit(g);
+    woken += 1;
+  }
+  if (woken) {
+    screenFlash = Math.max(screenFlash, 0.36);
+    combatSfx?.("unlock", 1);
+  }
+  return woken
+    ? woken + "명 각성"
+    : hit
+      ? hit + "체 타격 · 전원 이미 각성"
+      : "전원 이미 각성";
+}
+// 오리온자리 · 삼연격 처형.  The hunter, and the belt of three.  The first two
+// strikes are flat; the third is the execution, scaling with how much health
+// the colossus has already lost, so six points pays most when it finishes a
+// fight rather than when it opens one.
+function huntersVolley(ctx) {
+  figureFieldDamage(ctx, "오리온");
+  if (!boss || boss.hp <= 0) return "사냥할 표적 없음";
+  const belt = Math.round(ctx.bonus * 0.5);
+  let total = 0;
+  for (let i = 0; i < 2; i++) total += applyBossHit(belt);
+  // The finisher reads the wound, not the health bar: at full health it is the
+  // same as a belt strike, and at a sliver it is worth three of them.
+  const missing = boss.maxHp > 0 ? 1 - boss.hp / boss.maxHp : 0,
+    finisher = Math.round(ctx.bonus * (0.6 + missing * 1.6));
+  total += applyBossHit(finisher);
+  if (total > 0) {
+    addPopup(boss.x, boss.y - 92, "삼연격 -" + total, "#ffd2a0", true);
+    areaBursts.push({
+      x: boss.x,
+      y: boss.y,
+      r: 170,
+      col: "#ffd2a0",
+      t: 0,
+      d: 0.52,
+    });
+    screenShake = Math.max(screenShake, 11);
+  }
+  if (boss.hp <= 0) scheduleWin();
+  return "삼연격 -" + total;
+}
+// 북두칠성 · 되찾은 한 발.  Seven points is the top of the ladder and pays in
+// tempo rather than damage: the ladle scoops a shot back, and the pole star it
+// points at shows the way for the one after.  Capped per battle, because a
+// refund that can refund itself is not a reward, it is an unlimited game.
+function polestarBoon(ctx) {
+  const hit = figureFieldDamage(ctx, "북두칠성");
+  grantFigureBoon({ aim: true });
+  const state = currentFigureShot();
+  if ((state.refunds || 0) >= FIGURE_REFUND_LIMIT)
+    return hit ? hit + "체 타격 · 되돌릴 발사 없음" : "되돌릴 발사 없음";
+  state.refunds = (state.refunds || 0) + 1;
+  battle.shots += 1;
+  sync();
+  addPopup(ball.x, ball.y - 58, "유성 +1", "#fff1bd", true);
+  return "유성 +1 · 다음 샷 항로";
 }
 // One entry per `FIGURE_SHAPES` id.  Replace them one at a time — the
 // classification, the trace and the on-table label already tell the
@@ -884,15 +1057,18 @@ function piercingShot(ctx) {
 // Available without new assets: `applyBossHit`, `areaAttack`, `damageAdd`,
 // `earnBlaze`, `addPopup`, `areaBursts`, `fieldFx`.  Anything needing dedicated
 // art or SFX goes to ASSET_BACKLOG.md first.
+// Measured shares, from feeding uniform random scatter through the recogniser
+// 200 times per tier — not the old settle-position numbers, which were taken
+// under a model that no longer exists and had the pentagram at 2%.
 const FIGURE_ABILITIES = {
-  aries: encloseDamage, // 3점 · 한 샷당 19%
-  sagitta: piercingShot, // 4점 · 11% — 화살대 방향 관통
-  corvus: encloseDamage, // 4점 · 7%
-  cassiopeia: encloseDamage, // 5점 · 8%
-  cygnus: encloseDamage, // 5점 · 5% — 버프 예정
-  pentagram: encloseDamage, // 5점 · 2% — 최상급 예정
-  orion: encloseDamage, // 6점 · 출현 비율 측정 전
-  bigdipper: encloseDamage, // 7점 · 출현 비율 측정 전
+  aries: encloseDamage, // 3점 · 3점의 100% — 기준선
+  sagitta: piercingShot, // 4점 · 4점의 55% — 화살대 방향 이중 타격
+  corvus: markWeakpoint, // 4점 · 4점의 45% — 다음 샷 약점 표식
+  cassiopeia: breakShell, // 5점 · 5점의 54% — 굳은 껍질 전 겹 파괴
+  cygnus: grantGlide, // 5점 · 5점의 35% — 다음 샷 비행
+  pentagram: wakeEveryone, // 5점 · 5점의 12% — 전원 각성
+  orion: huntersVolley, // 6점 · 6점의 100% — 삼연격 처형
+  bigdipper: polestarBoon, // 7점 · 7점의 100% — 유성 +1 · 다음 샷 항로
 };
 /* --- settlement --------------------------------------------------------- */
 // Nothing stops the player launching again while a figure is still revealing,
