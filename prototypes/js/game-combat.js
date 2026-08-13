@@ -526,10 +526,6 @@ function billiardPointerDown(e) {
     msg = "세라 · 전환 명령으로 운동량을 크게 얻었습니다.";
     return;
   }
-  if (e.button === 0 && labTurnCommand(p.x, p.y)) {
-    e.preventDefault();
-    return;
-  }
   if (e.button === 2 && ball.nudgeCooldown <= 0) {
     e.preventDefault();
     const dx = ball.x - p.x,
@@ -585,7 +581,7 @@ function billiardPointerUp(e) {
   }
   const force = clamp(l / 260, 0.28, 1),
     aim = billiardAim(dx, dy),
-    speed = LAB.launchBase + force * LAB.launchScale;
+    speed = 750 + force * 975;
   ball.launchPower = force;
   ball.vx = aim.x * speed;
   ball.vy = aim.y * speed;
@@ -850,9 +846,10 @@ function drawAbilityFx() {
   for (const burst of abilityBursts) {
     const p = Math.max(0, 1 - burst.t / burst.d),
       sheet = textures[abilityFxSheets?.[burst.kind]],
-      // A failed load reports 0x0, and 0 === 0 * 4 would pass the sheet
-      // check and crash drawImage — require a real width first.
       sheetReady =
+        // A failed load reports 0x0, and 0 === 0 * 4 would pass the sheet
+        // check, so the width has to be positive before the ratio means
+        // anything.  Kept from the reverted lab pass: it is a real fix.
         sheet?.complete &&
         sheet.naturalWidth > 0 &&
         sheet.naturalWidth === sheet.naturalHeight * 4;
@@ -1600,12 +1597,12 @@ function mobileWall(o, r, unit = null) {
   let hit = false;
   if (o.x < r || o.x > W - r) {
     o.x = clamp(o.x, r, W - r);
-    o.vx *= -LAB.wallRest;
+    o.vx *= -0.94;
     hit = true;
   }
   if (o.y < r || o.y > H - r) {
     o.y = clamp(o.y, r, H - r);
-    o.vy *= -LAB.wallRest;
+    o.vy *= -0.94;
     hit = true;
   }
   if (hit) {
@@ -2079,7 +2076,7 @@ simulatePhysics = function (d) {
     }
     ball.x += ball.vx * step;
     ball.y += ball.vy * step;
-    const cueDrag = Math.pow(LAB.ballFriction, step * 60);
+    const cueDrag = Math.pow(0.9915, step * 60);
     ball.vx *= cueDrag;
     ball.vy *= cueDrag;
     tickGimmickCooldowns(ball, step);
@@ -2121,16 +2118,16 @@ simulatePhysics = function (d) {
           uy = incoming.y / speed,
           ballDrive = 495 + Math.min(450, impactSpeed * 0.63),
           unitDrive = 310 + Math.min(270, impactSpeed * 0.38),
-          ballDx = -nx * ballDrive + ux * LAB.ballSlide,
-          ballDy = -ny * ballDrive + uy * LAB.ballSlide,
-          unitDx = nx * unitDrive + ux * LAB.unitSlide,
-          unitDy = ny * unitDrive + uy * LAB.unitSlide;
+          ballDx = -nx * ballDrive + ux * 225,
+          ballDy = -ny * ballDrive + uy * 225,
+          unitDx = nx * unitDrive + ux * 135,
+          unitDy = ny * unitDrive + uy * 135;
         ball.vx += ballDx;
         ball.vy += ballDy;
         g.vx += unitDx;
         g.vy += unitDy;
-        guaranteeMomentum(ball, ballDx, ballDy, LAB.ballFloor, LAB.ballCap);
-        guaranteeMomentum(g, unitDx, unitDy, LAB.unitFloor, LAB.unitCap);
+        guaranteeMomentum(ball, ballDx, ballDy, 915, 2220);
+        guaranteeMomentum(g, unitDx, unitDy, 410, 1080);
         ball.power += 0.48;
         ball.bounces++;
         wakeUnit(g);
@@ -2352,299 +2349,3 @@ drawAimGuide = function () {
   x.restore();
 };
 registerRuntimeHook("afterDraw", drawCloneBalls);
-// --- Training physics lab (prototype, 2026-08-12) -------------------------
-// The infinite training table doubles as a tuning lab: keys 1/2/3 there swap
-// between the live numbers and two softer sets where weak shots stay weak,
-// and the meteor gains a two-charge steering boost (unused charges pay out as
-// constellation multiplier at settlement).  Normal battles always reset to
-// the live set, so the campaign is untouched until a set is promoted.
-const LAB_SETS = {
-  base: {
-    name: "기준(현행)",
-    launchBase: 750,
-    launchScale: 975,
-    ballFloor: 915,
-    ballCap: 2220,
-    unitFloor: 410,
-    unitCap: 1080,
-    ballSlide: 225,
-    unitSlide: 135,
-    wallRest: 0.94,
-    ballFriction: 0.9915,
-  },
-  A: {
-    name: "A안 · 보수",
-    launchBase: 620,
-    launchScale: 1180,
-    ballFloor: 700,
-    ballCap: 1900,
-    unitFloor: 320,
-    unitCap: 1080,
-    ballSlide: 150,
-    unitSlide: 95,
-    wallRest: 0.9,
-    ballFriction: 0.9901,
-  },
-  B: {
-    name: "B안 · 과감",
-    launchBase: 520,
-    launchScale: 1330,
-    ballFloor: 560,
-    ballCap: 1750,
-    unitFloor: 260,
-    unitCap: 1080,
-    ballSlide: 90,
-    unitSlide: 60,
-    wallRest: 0.86,
-    ballFriction: 0.9878,
-  },
-};
-let labSetId = "base";
-const LAB = { ...LAB_SETS.base };
-function applyLabSet(id, silent = false) {
-  if (!LAB_SETS[id]) return;
-  labSetId = id;
-  Object.assign(LAB, LAB_SETS[id]);
-  if (silent) return;
-  toast("실험 세트 · " + LAB.name);
-  sync();
-}
-// --- Rule experiment: shared turn command + conditional finishers ----------
-// Sera's click-turn moves out of her kit and becomes a stage budget: two
-// 90-degree turns per training battle (three with Sera deployed), bending
-// toward whichever side of the flight line the cursor sits on.  Every
-// finisher hero still fires a weakened base awakening, and meeting a
-// per-hero condition upgrades it to a full awakening.  Key 4 toggles this
-// layer; the campaign never sees it.
-let labRules = true;
-function labRulesActive() {
-  return Boolean(battle?.training && labRules);
-}
-const LAB_CONDITIONS = {
-  slash: { text: "보스 몸통 충돌", check: (g) => Boolean(g.bossHit) },
-  longshot: { text: "벽 반사 1회+", check: (g) => (g.wallHits || 0) >= 1 },
-  shockwave: { text: "충돌 3회+", check: (g) => (g.collisions || 0) >= 3 },
-  split: { text: "유성 분열", check: () => Boolean(ball?.splitUsed) },
-  seek: { text: "중계 발동", check: (g) => Boolean(g.labRelayed) },
-  turn: { text: "전환 사용", check: () => Boolean(ball?.labTurnUsed) },
-  copycat: { text: "모사 성공", check: (g) => Boolean(g.copiedFx) },
-};
-function labConditionFor(g) {
-  return LAB_CONDITIONS[g.fx === "copycat" ? "copycat" : g.fx] || null;
-}
-function labConditionMet(g) {
-  const rule = labConditionFor(g);
-  return rule ? Boolean(rule.check(g)) : true;
-}
-function labTurnCommand(px, py) {
-  if (!labRulesActive() || !ball?.moving) return false;
-  if ((battle.labTurns || 0) <= 0) return true;
-  const speed = Math.hypot(ball.vx, ball.vy) || 1,
-    dx = px - ball.x,
-    dy = py - ball.y,
-    clockwise = ball.vx * dy - ball.vy * dx > 0,
-    nvx = clockwise ? -ball.vy : ball.vy,
-    nvy = clockwise ? ball.vx : -ball.vx,
-    scale = Math.min(LAB.ballCap, speed + 240) / speed;
-  ball.vx = nvx * scale;
-  ball.vy = nvy * scale;
-  battle.labTurns--;
-  ball.labTurnUsed = true;
-  ball.power += 0.6;
-  ball.runeBurst = 0.7;
-  impactStop = Math.max(impactStop, 0.06);
-  emitAbilityFx(
-    { id: "sera", col: "#bca7ff", fx: "turn" },
-    ball.x,
-    ball.y,
-    112,
-    0.44,
-    Math.atan2(ball.vy, ball.vx),
-  );
-  combatSfx?.("launch", 0.5);
-  sync();
-  return true;
-}
-// Sera stops arming her personal turn in the experiment; her value moves to
-// the +1 stage charge granted at battle start.
-const labArmTurnCommand = armTurnCommand;
-armTurnCommand = function (g) {
-  if (labRulesActive()) return;
-  labArmTurnCommand(g);
-};
-const labRedirectToNearestUnit = redirectToNearestUnit;
-redirectToNearestUnit = function (g) {
-  g.labRelayed = true;
-  labRedirectToNearestUnit(g);
-};
-// Finisher tiering: weakened base awakening always fires, the met condition
-// upgrades it.  Damage flows through queueUnitAssist for every finisher, so
-// one wrapper covers slash, longshot, shockwave and the generic awakening.
-const labQueueUnitAssist = queueUnitAssist;
-queueUnitAssist = function (g, amount, name, options = {}) {
-  if (labRulesActive() && options.finisher) {
-    const full = labConditionMet(g);
-    amount = Math.max(1, Math.round(amount * (full ? 1.8 : 0.55)));
-    if (full) {
-      name = "완전 각성 · " + name;
-      earnBlaze(0.3, g.s + " 완전 각성 +0.3");
-    }
-  }
-  labQueueUnitAssist(g, amount, name, options);
-};
-const labEndShot = endShot;
-endShot = function () {
-  labEndShot();
-  for (const g of gates) g.labRelayed = false;
-};
-// The fill moment is the visible point: the instant a hero's condition turns
-// true mid-flight, its gem pops a gold ring and chimes once.
-registerRuntimeHook("afterFeedbackUpdate", function trackLabConditions(d) {
-  if (!labRulesActive() || !run) return;
-  for (const g of gates) {
-    if (!labConditionFor(g)) continue;
-    const met = labConditionMet(g);
-    if (met && !g.labCondMet) {
-      g.labCondFlash = 0.5;
-      areaBursts.push({
-        x: g.x,
-        y: g.y - 78,
-        r: 30,
-        col: "#ffe2a0",
-        t: 0,
-        d: 0.4,
-      });
-      combatSfx?.("unlock", 0.4);
-    }
-    g.labCondMet = met;
-    g.labCondFlash = Math.max(0, (g.labCondFlash || 0) - d);
-  }
-});
-const labSetupBattle = setupBattle;
-setupBattle = function () {
-  labSetupBattle();
-  if (!battle?.training) applyLabSet("base", true);
-  else {
-    applyLabSet(labSetId, true);
-    // Stage budget for the shared turn command; Sera's redesigned value is
-    // one extra charge instead of her personal click-turn.
-    battle.labTurns = 2 + (deployed.includes("sera") ? 1 : 0);
-  }
-};
-function enterTrainingLab() {
-  const trainingIndex = stages.findIndex((stage) => stage.training);
-  if (trainingIndex < 0) return;
-  stageIndex = trainingIndex;
-  const owned =
-    typeof ownedHeroIds === "function" ? ownedHeroIds() : Object.keys(heroes);
-  deployed = deployed.filter((id) => owned.includes(id)).slice(0, 3);
-  for (const id of owned) {
-    if (deployed.length >= 3) break;
-    if (!deployed.includes(id)) deployed.push(id);
-  }
-  selected = [...deployed];
-  resetBuild();
-  primeCombatTextures();
-  setupBattle();
-  toast("훈련장 물리 실험 · 1/2/3 키로 세트 전환");
-}
-addEventListener("keydown", (e) => {
-  if (typeof paused !== "undefined" && paused) return;
-  if (
-    typeof isOnboardingSessionActive === "function" &&
-    isOnboardingSessionActive()
-  )
-    return;
-  if (battle?.training && run) {
-    if (e.key === "1") return applyLabSet("base");
-    if (e.key === "2") return applyLabSet("A");
-    if (e.key === "3") return applyLabSet("B");
-    if (e.key === "4") {
-      labRules = !labRules;
-      if (labRules && battle.labTurns === undefined)
-        battle.labTurns = 2 + (deployed.includes("sera") ? 1 : 0);
-      toast(
-        labRules
-          ? "규칙 실험 켜짐 · 전환 " + battle.labTurns + "회 + 조건 정산"
-          : "규칙 실험 꺼짐 · 현행 규칙",
-      );
-      sync();
-      return;
-    }
-  } else if (
-    e.key.toLowerCase() === "t" &&
-    !run &&
-    (isRuntimeScene("meta") || isRuntimeScene("title") || isRuntimeScene("menu"))
-  ) {
-    enterTrainingLab();
-  }
-});
-registerRuntimeHook("afterSpecialDraw", function drawLabHud() {
-  if (!battle?.training) return;
-  x.save();
-  x.font = "bold 10px ui-monospace";
-  x.textAlign = "left";
-  x.fillStyle = "#9adfc9";
-  x.fillText(
-    "물리 실험 · " + LAB.name + " — [1]기준 [2]A안 [3]B안",
-    14,
-    20,
-  );
-  x.fillStyle = labRules ? "#e5c7ff" : "#5d6b84";
-  x.fillText(
-    labRules
-      ? "규칙 실험 켜짐 · 전환 " +
-          (battle.labTurns ?? 0) +
-          "회 · 조건 정산 — [4]끄기"
-      : "규칙 실험 꺼짐 — [4]켜기",
-    14,
-    34,
-  );
-  if (labRulesActive()) {
-    // Per-hero awakening gem above the head: hollow and dim while the
-    // finisher condition is unmet, filled gold with a pulse once secured.
-    for (const g of gates) {
-      if (!labConditionFor(g)) continue;
-      const met = Boolean(g.labCondMet),
-        flash = g.labCondFlash || 0,
-        pulse = met ? 1 + Math.sin(frameClock / 150) * 0.15 : 1,
-        s = (met ? 8 : 5.5) * pulse + flash * 8;
-      x.save();
-      x.translate(g.x, g.y - 78);
-      x.beginPath();
-      x.moveTo(0, -s);
-      x.lineTo(s * 0.72, 0);
-      x.lineTo(0, s);
-      x.lineTo(-s * 0.72, 0);
-      x.closePath();
-      if (met) {
-        x.shadowBlur = 14 + flash * 22;
-        x.shadowColor = "#ffe2a0";
-        x.fillStyle = "#ffe2a0";
-        x.fill();
-        x.shadowBlur = 0;
-        x.fillStyle = "#fff8e2";
-        x.beginPath();
-        x.arc(0, 0, Math.max(1.5, s * 0.28), 0, Math.PI * 2);
-        x.fill();
-      } else {
-        x.globalAlpha = 0.75;
-        x.strokeStyle = "#5d6b84";
-        x.lineWidth = 1.5;
-        x.stroke();
-      }
-      x.restore();
-    }
-    if (ball?.moving && (battle.labTurns || 0) > 0) {
-      x.font = "bold 10px ui-monospace";
-      x.fillStyle = "#e5c7ff";
-      x.fillText("클릭 · 90° 전환", ball.x, ball.y + 42);
-      for (let i = 0; i < battle.labTurns; i++) {
-        x.beginPath();
-        x.arc(ball.x - 8 + i * 16, ball.y + 26, 4, 0, Math.PI * 2);
-        x.fill();
-      }
-    }
-  }
-  x.restore();
-});
