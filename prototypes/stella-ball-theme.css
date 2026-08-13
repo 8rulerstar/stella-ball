@@ -310,6 +310,51 @@ button:hover {
 @keyframes gachaSweep { 42%, 100% { transform: translateX(100%); } }
 @keyframes gachaRolling { 25% { transform: scale(.88) rotate(-5deg); filter: brightness(1.5); } 70% { transform: scale(1.14) rotate(6deg); filter: brightness(2); } }
 @keyframes gachaReveal { from { opacity: 0; transform: scale(.55); filter: brightness(2.4); } to { opacity: 1; transform: scale(1); filter: brightness(1); } }
+/* --- summon sequence (about 10s) --------------------------------------
+   Phases come from [data-phase] on .summon-stage; game-meta.js owns the
+   clock. Palette is the Dawn Observatory set only: --star #ffd2a0,
+   --gold #c97a45, --moon #cfdad7, --mist #8ba39f over --night-0 #0a0f12. */
+.gacha-ritual.summoning::after { animation: none; }
+.gacha-ritual.summoning .gacha-orbit { opacity: .1; }
+.gacha-ritual.summoning .gacha-reveal.revealed { z-index: 2; }
+.gacha-ritual.summoning .gacha-reveal:not(.revealed) { opacity: 0; }
+.summon-stage { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; pointer-events: none; }
+.summon-stage::before { position: absolute; content: ""; inset: 0; background: #0a0f12; opacity: 0; transition: opacity .9s ease; }
+.summon-stage[data-phase="call"]::before, .summon-stage[data-phase="observe"]::before { opacity: .74; }
+.summon-stage[data-phase="answer"]::before { opacity: .52; }
+.summon-circle { position: absolute; width: 64px; height: 64px; border: 1px solid #c97a4588; border-radius: 50%; opacity: 0; transition: width 1.4s cubic-bezier(.2,.7,.2,1), height 1.4s cubic-bezier(.2,.7,.2,1), opacity .6s ease, border-color .6s ease, box-shadow .6s ease; }
+.summon-stage[data-phase="call"] .summon-circle { width: 196px; height: 196px; opacity: 1; }
+.summon-stage[data-phase="observe"] .summon-circle { width: 172px; height: 172px; opacity: 1; border-color: #ffd2a099; }
+.summon-stage[data-phase="answer"] .summon-circle { width: 94px; height: 94px; opacity: 1; border-color: #ffd2a0; box-shadow: 0 0 26px #ffd2a044; }
+.summon-stage[data-phase="manifest"] .summon-circle, .summon-stage[data-phase="intro"] .summon-circle { width: 244px; height: 244px; opacity: 0; }
+.summon-motes { position: absolute; inset: 0; }
+.summon-motes i { position: absolute; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px; background: #ffe6c4; box-shadow: 0 0 6px #ffd2a0; opacity: 0; }
+.summon-stage[data-phase="observe"] .summon-motes i { animation: summonGather 2.3s cubic-bezier(.4,0,.7,1) infinite; animation-delay: calc(var(--i) * -.19s); }
+.summon-stage[data-phase="answer"] .summon-motes i { animation: summonGather .95s cubic-bezier(.4,0,.7,1) infinite; animation-delay: calc(var(--i) * -.07s); }
+.summon-answer { position: absolute; width: 6px; height: 6px; background: #cfdad7; box-shadow: 0 0 16px #ffd2a0; opacity: 0; }
+.summon-stage[data-phase="answer"] .summon-answer { opacity: 1; animation: summonAnswer 1.5s ease-out both; }
+.summon-stage[data-phase="manifest"] .summon-answer, .summon-stage[data-phase="intro"] .summon-answer { opacity: 0; transition: opacity .4s ease; }
+.summon-lines { position: absolute; width: 212px; height: 212px; opacity: 0; transition: opacity .8s ease; }
+.summon-lines polyline { fill: none; stroke: #ffd2a0; stroke-width: 1.5; stroke-linejoin: round; stroke-dasharray: 560; stroke-dashoffset: 560; }
+.summon-stage[data-phase="manifest"] .summon-lines { opacity: 1; }
+.summon-stage[data-phase="manifest"] .summon-lines polyline { animation: summonTrace 1.2s ease-in-out forwards; }
+.summon-stage[data-phase="intro"] .summon-lines { opacity: .3; }
+.summon-stage[data-phase="intro"] .summon-lines polyline { stroke-dashoffset: 0; }
+.summon-caption { position: absolute; bottom: 11px; color: #ffd2a0; font: 900 11px/1 ui-monospace, monospace; letter-spacing: .34em; opacity: .92; transition: opacity .4s ease; }
+.summon-stage[data-phase="intro"] .summon-caption { opacity: 0; }
+.summon-skip { position: absolute; top: 9px; right: 11px; color: #8ba39f; font: 700 8px ui-monospace, monospace; letter-spacing: .1em; opacity: .75; }
+.summon-cost { position: absolute; top: 46%; color: #ffd2a0; font: 900 13px ui-monospace, monospace; font-style: normal; opacity: 0; animation: summonCost 1.9s ease-out forwards; }
+.summon-lore { display: block; max-width: 250px; margin: 3px auto 0; color: #cfdad7; font: 700 10px/1.55 ui-monospace, monospace; font-style: normal; text-align: center; text-wrap: pretty; opacity: 0; animation: summonLore .6s ease-out forwards; }
+.summon-lore span { display: block; margin-top: 2px; color: #8ba39f; font-weight: 400; }
+@keyframes summonGather {
+  0% { opacity: 0; transform: rotate(calc(var(--i) * 30deg)) translateY(-104px) scale(1); }
+  22% { opacity: .95; }
+  100% { opacity: 0; transform: rotate(calc(var(--i) * 30deg)) translateY(-10px) scale(.4); }
+}
+@keyframes summonAnswer { 0% { transform: scale(.2); } 28% { transform: scale(2.7); } 58% { transform: scale(1); } 100% { transform: scale(1.7); } }
+@keyframes summonTrace { to { stroke-dashoffset: 0; } }
+@keyframes summonCost { 0% { opacity: 0; transform: translateY(8px); } 18% { opacity: 1; } 100% { opacity: 0; transform: translateY(-42px); } }
+@keyframes summonLore { to { opacity: 1; } }
 @media (max-width: 680px) {
   .survivor-hub { gap: 7px; padding: 10px !important; }
   .hub-battle-play { grid-column: 1 / -1; width: 100%; min-width: 0; padding: 10px !important; }
@@ -325,6 +370,10 @@ button:hover {
 }
 @media (prefers-reduced-motion: reduce) {
   .gacha-ritual::after, .gacha-orbit, .gacha-reveal.rolling, .gacha-reveal.revealed { animation: none; }
+  .summon-motes i, .summon-answer, .summon-cost { animation: none !important; opacity: 0 !important; }
+  .summon-circle { transition: none !important; }
+  .summon-lines polyline { animation: none !important; stroke-dashoffset: 0 !important; }
+  .summon-lore { animation: none !important; opacity: 1 !important; }
 }
 
 /* ---------------------------------------------------------------------

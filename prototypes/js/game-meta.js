@@ -1042,6 +1042,129 @@ function showShop() {
       showShop();
     };
 }
+// --- summon presentation ---------------------------------------------------
+// About ten seconds, staged so the anticipation has somewhere to arrive. This
+// is presentation only: `pullGachaHero()` has already picked the starkeeper,
+// taken the gold and saved. Nothing here may imply a rarity or a roll — the
+// summon is one guaranteed unlock for 100 gold, and hinting at a system the
+// game does not have would be a lie told in animation.
+const SUMMON = {
+  full: [
+    [0, "call", "부름"],
+    [2000, "observe", "관웑"],
+    [5500, "answer", "상답"],
+    [7000, "manifest", "현현"],
+    [8500, "intro", null],
+  ],
+  fullEnd: 10000,
+  short: [
+    [0, "manifest", "현현"],
+    [520, "intro", null],
+  ],
+  shortEnd: 1100,
+  reduced: [
+    [0, "manifest", null],
+    [200, "intro", null],
+  ],
+  reducedEnd: 420,
+};
+// "First summon" used to gate the full sequence, but in practice that meant
+// almost nobody ever saw it and there was no way to see it again — so the full
+// sequence now plays on every summon and is always skippable.
+function summonStageMarkup(cost) {
+  const motes = Array.from(
+    { length: 12 },
+    (unused, i) => '<i style="--i:' + i + '"></i>',
+  ).join("");
+  return (
+    '<div class="summon-stage" data-phase="call" aria-hidden="true">' +
+    '<div class="summon-circle"></div>' +
+    '<div class="summon-motes">' +
+    motes +
+    "</div>" +
+    '<div class="summon-answer"></div>' +
+    '<svg class="summon-lines" viewBox="0 0 200 200"><polyline points="100,28 158,70 136,142 64,142 42,70 100,28"></polyline></svg>' +
+    (cost ? '<em class="summon-cost">−' + cost + " 골드</em>" : "") +
+    '<b class="summon-caption">부름</b>' +
+    '<small class="summon-skip"></small>' +
+    "</div>"
+  );
+}
+function runSummonSequence(ritual, reveal, drawButton, result) {
+  const h = heroes[result.id],
+    reduced = matchMedia("(prefers-reduced-motion: reduce)").matches,
+    script = reduced ? SUMMON.reduced : SUMMON.full,
+    endAt = reduced ? SUMMON.reducedEnd : SUMMON.fullEnd,
+    timers = [];
+  ritual.classList.add("summoning");
+  ritual.insertAdjacentHTML("afterbegin", summonStageMarkup(result.cost));
+  const stage = ritual.querySelector(".summon-stage"),
+    caption = stage.querySelector(".summon-caption"),
+    skipHint = stage.querySelector(".summon-skip");
+  // Leaving the screen mid-sequence must not leave a half-built reveal behind,
+  // so every step re-checks that the nodes it is about to touch are still live.
+  const alive = () => document.body.contains(reveal) && stage.isConnected;
+  let settled = false;
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const stop = () => timers.splice(0).forEach(clearTimeout);
+  const manifest = () => {
+    if (!alive()) return;
+    reveal.className = "gacha-reveal revealed";
+    reveal.innerHTML =
+      '<span class="portrait" id="gachaHeroReveal"></span><small>새 별지기 해금</small><b>' +
+      h.s +
+      " · " +
+      h.e +
+      "</b>";
+    setPortrait(document.querySelector("#gachaHeroReveal"), h, 96);
+    playSfx("unlock");
+  };
+  const intro = () => {
+    if (!alive()) return;
+    reveal.insertAdjacentHTML(
+      "beforeend",
+      '<i class="summon-lore">' + h.n + "<span>" + h.lore + "</span></i>",
+    );
+  };
+  const finish = () => {
+    if (settled) return;
+    settled = true;
+    stop();
+    removeEventListener("keydown", onSkip);
+    removeEventListener("pointerdown", onSkip);
+    if (!alive()) return;
+    ritual.classList.remove("summoning");
+    stage.remove();
+    drawButton.textContent = "소환 목록으로 돌아가기";
+    drawButton.disabled = false;
+    drawButton.onclick = () => showGacha();
+  };
+  function onSkip(e) {
+    if (e.type === "keydown" && (e.repeat || e.key === "Tab")) return;
+    stop();
+    play(SUMMON.short, SUMMON.shortEnd, false);
+  }
+  function play(steps, end, allowSkip) {
+    for (const [ms, phase, label] of steps)
+      at(ms, () => {
+        if (!alive()) return;
+        stage.dataset.phase = phase;
+        if (label) {
+          caption.textContent = label;
+          if (phase !== "call") playSfx("unlock");
+        } else caption.textContent = "";
+        if (phase === "manifest") manifest();
+        if (phase === "intro") intro();
+      });
+    at(end, finish);
+    if (allowSkip) {
+      skipHint.textContent = "아무 키나 눌러 건너뛰기";
+      addEventListener("keydown", onSkip);
+      addEventListener("pointerdown", onSkip);
+    }
+  }
+  play(script, endAt, !reduced);
+}
 function showGacha() {
   run = false;
   drag = null;
@@ -1104,24 +1227,10 @@ function showGacha() {
     if (result.reason === "complete") return;
     playSfx("unlock");
     const reveal = document.querySelector("#gachaReveal"),
+      ritual = document.querySelector(".gacha-ritual"),
       drawButton = document.querySelector("#gachaDraw");
-    reveal.classList.add("rolling");
     drawButton.disabled = true;
-    setTimeout(() => {
-      if (!document.body.contains(reveal)) return;
-      const h = heroes[result.id];
-      reveal.className = "gacha-reveal revealed";
-      reveal.innerHTML =
-        '<span class="portrait" id="gachaHeroReveal"></span><small>새 별지기 해금</small><b>' +
-        h.s +
-        " · " +
-        h.e +
-        "</b>";
-      setPortrait(document.querySelector("#gachaHeroReveal"), h, 96);
-      drawButton.textContent = "소환 목록으로 돌아가기";
-      drawButton.disabled = false;
-      drawButton.onclick = () => showGacha();
-    }, 920);
+    runSummonSequence(ritual, reveal, drawButton, result);
   };
 }
 const originalRegisterBossHit = registerBossHit;
