@@ -128,7 +128,7 @@ function renderTitlePresentation() {
     metaArt.wordmark +
     '" alt="STELLA BALL"><small class="title-kicker">CONSTELLATION RESTORATION PROJECT</small><button class="title-enter" id="enterHub"><img src="' +
     metaArt.play +
-    '" alt="">게임 시작!</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button></div></section>';
+    '" alt="">게임 시작!</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button><small class="title-credit">MADE BY <b>8RULERSTAR</b></small></div></section>';
   const enter = document.querySelector("#enterHub");
   document.querySelector("#titleHelp").onclick = () => {
     playSfx?.("confirm");

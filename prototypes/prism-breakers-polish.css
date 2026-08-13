@@ -454,6 +454,30 @@
   color: #f0f4ff !important;
   transform: translateY(-1px);
 }
+/* Signature. It arrives last, after the CTA and the tutorial line, so it reads
+   as the closing beat of the entry sequence rather than as another thing to
+   look at. Wide letter-spacing at a small size and low contrast keeps it in
+   the same register as the kicker above the wordmark. */
+.title-credit {
+  display: block;
+  margin-top: 22px;
+  color: var(--mist, #8ba39f);
+  opacity: 0;
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  animation: titleFade 0.5s ease 1.85s forwards;
+}
+.title-credit b {
+  color: #c9b489;
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-credit {
+    animation: none;
+    opacity: 0.72;
+  }
+}
 @media (max-width: 720px) {
   .title-mode main {
     width: calc(100vw - 12px);
