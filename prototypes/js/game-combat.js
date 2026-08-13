@@ -2370,9 +2370,11 @@ const FIGURE = {
   reject: 0.13,
   perfect: 0.04,
   bonusPerPoint: 14, // damage per enclosed target, per figure vertex
-  drawTime: 0.55,
-  holdTime: 0.9,
-  fadeTime: 0.45,
+  // Long enough to actually be looked at.  At 0.55/0.9/0.45 the figure was
+  // gone before the settle slow-motion finished, so it read as "nothing drew".
+  drawTime: 0.8,
+  holdTime: 3.2,
+  fadeTime: 0.8,
 };
 let figureFx = null;
 function figureActive() {
@@ -2555,7 +2557,11 @@ function figureStarOrder(ring) {
 }
 const figureSettleParty = settleParty;
 settleParty = function () {
-  figureSettleParty();
+  // Prototype: the training table judges the figure on its own, so the settle
+  // awakenings are muted there.  Their damage, slow-motion and flash were
+  // burying the figure that shares the same beat, which is why it read as
+  // never being drawn.  Campaign settles are untouched.
+  if (!figureActive()) figureSettleParty();
   resolveFigure();
 };
 /* --- drawing (RuneCast RuneTracer: wide faint glow + thin bright core) --- */
