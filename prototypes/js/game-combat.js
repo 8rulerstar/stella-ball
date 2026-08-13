@@ -1935,7 +1935,11 @@ simulatePhysics = function (d) {
     // cut at 0.972 made a contact that had visibly bounced read as if it lost
     // all momentum immediately; the training parry now supplies the skill gate
     // instead of this passive decay.
-    const cueDrag = Math.pow(0.9915, step * 60);
+    // Cygnus' flight scales the loss, not the speed: at 0.35 the meteor sheds a
+    // third of the friction it normally would, so the shot coasts much further
+    // without ever starting faster or becoming frictionless.
+    const baseDrag = Math.pow(0.9915, step * 60),
+      cueDrag = ball.glide ? 1 - (1 - baseDrag) * ball.glide : baseDrag;
     ball.vx *= cueDrag;
     ball.vy *= cueDrag;
     tickGimmickCooldowns(ball, step);
@@ -2147,9 +2151,15 @@ billiardPredict = function (dx, dy) {
       to: { x: px + unitV.x * travel, y: py + unitV.y * travel },
       target: first.target,
     });
-    points.push({ x: px + cueV.x * 150, y: py + cueV.y * 150 });
+    // The Big Dipper points at the pole star, and the boon it leaves shows the
+    // line further than the guide normally admits to knowing.
+    const after = ball.trueAim ? 520 : 150;
+    points.push({ x: px + cueV.x * after, y: py + cueV.y * after });
   } else {
-    points.push({ x: px + vx * 340, y: py + vy * 340 });
+    points.push({
+      x: px + vx * (ball.trueAim ? 620 : 340),
+      y: py + vy * (ball.trueAim ? 620 : 340),
+    });
   }
   return {
     points,
