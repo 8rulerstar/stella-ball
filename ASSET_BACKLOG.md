@@ -43,17 +43,17 @@
 
 ## 현재 후보
 
-### [반입 완료] P1 — 태오 오크 리스타일 본체
+### [반입 완료] P1 — 모루 오크 리스타일 본체
 
-- 화면 / 트리거: 전투 유닛 토큰·구르기·정산 공격, 편성 트레이와 상세 카드의 태오 전신.
-- 플레이 목적: 유일하게 잡부(Pawn) 실루엣이던 태오를 기사·사수 옆에서도 구분되는 브루트 실루엣으로 교체한다. Warrior 전환안은 가온·닉스와 겹쳐 폐기됐고, 사람이 Tiny RPG Orc 리스타일 안을 승인했다 (2026-08-12).
+- 화면 / 트리거: 전투 유닛 토큰·구르기·정산 공격, 편성 트레이와 상세 카드의 모루 전신.
+- 플레이 목적: 유일하게 잡부(Pawn) 실루엣이던 모루를 기사·사수 옆에서도 구분되는 브루트 실루엣으로 교체한다. Warrior 전환안은 샛별·그믐과 겹쳐 폐기됐고, 사람이 Tiny RPG Orc 리스타일 안을 승인했다 (2026-08-12).
 - 필요한 형태: 애니메이션 (idle 6프레임, roll 4, attack 4) + 정지 토큰 1.
 - 규격: 192px 셀. 원본은 100px 셀 초소형 스프라이트라 4배 무손실 확대 후 고정 윈도우로 발 기준선 y=136 정렬.
-- 화풍·색 규칙: 고블린 녹색 피부 → 황동 브론즈 램프, 갑주·도끼는 강철 유지, 참격 이펙트는 잔불 크림. Ink & Brass 안에서 태오 고유색(#ffac67)은 링·이름에만.
+- 화풍·색 규칙: 고블린 녹색 피부 → 황동 브론즈 램프, 갑주·도끼는 강철 유지, 참격 이펙트는 잔불 크림. Ink & Brass 안에서 모루 고유색(#ffac67)은 링·이름에만.
 - 반입 경로: `characters/taeo-orc-idle.png`, `characters/anim/taeo-roll.png`·`taeo-attack.png`, `characters/cute/taeo-orc-token.png`. 재생성은 `scripts/generate_taeo_orc_restyle.py`.
 - 코드 연결 지점: `heroes.taeo`(frames 6)·`cuteUnitArt.taeo`·`combatUnitSize.taeo`(118), 기존 `heroAnimArt` 경로 그대로.
 - 결정·검수 메모: 구 Pawn 시트(`taeo-miner-idle.png`)와 구 큐트 토큰은 롤백 대비로 보존. 출처는 `ATTRIBUTION.md`의 Tiny RPG 항목.
-- **종료 (2026-08-13)**: 신규 로스터 패치가 태오를 모루로 바꾸면서 `taeo-orc-idle.png`·`anim/taeo-roll.png`·`anim/taeo-attack.png`를 전부 덮어썼다. 이 항목의 오크 리스타일은 더 이상 화면에 없고, `scripts/generate_taeo_orc_restyle.py`를 돌리면 새 아트가 지워진다. Tiny RPG 출처가 남은 파일은 `characters/cute/taeo-orc-token.png` 하나뿐이다.
+- **종료 (2026-08-13)**: 신규 로스터 패치가 이 자리의 별지기를 모루로 바꾸면서 `taeo-orc-idle.png`·`anim/taeo-roll.png`·`anim/taeo-attack.png`를 전부 덮어썼다. 이 항목의 오크 리스타일은 더 이상 화면에 없고, `scripts/generate_taeo_orc_restyle.py`를 돌리면 새 아트가 지워진다. Tiny RPG 출처가 남은 파일은 `characters/cute/taeo-orc-token.png` 하나뿐이다.
 
 ### [명세 필요] P1 — 편성 트레이 카드 전술 정보 레이어
 

@@ -48,13 +48,13 @@ export const STAGES = Object.freeze([
 ]);
 
 export const HEROES = Object.freeze({
-  gaon: { name: "가온", gate: 9, rebound: 1.16 },
-  biyeon: { name: "비연", gate: 12, weakMult: 1.28 },
-  lumi: { name: "루미", gate: 11, pulse: 7 },
-  haru: { name: "하루", gate: 10, relay: 8 },
-  sera: { name: "세라", gate: 13, orbit: 10 },
-  taeo: { name: "태오", gate: 8, wall: 8 },
-  nyx: { name: "닉스", gate: 14, mark: 9 },
+  gaon: { name: "샛별", gate: 9, rebound: 1.16 },
+  biyeon: { name: "미리내", gate: 12, weakMult: 1.28 },
+  lumi: { name: "별하", gate: 11, pulse: 7 },
+  haru: { name: "살별", gate: 10, relay: 8 },
+  sera: { name: "달무리", gate: 13, orbit: 10 },
+  taeo: { name: "모루", gate: 8, wall: 8 },
+  nyx: { name: "그믐", gate: 14, mark: 9 },
   rio: { name: "리오", gate: 12, turn: 7 },
 });
 
