@@ -52,7 +52,12 @@ const FIGURE = {
   silhouetteAlpha: 0.3,
 };
 const FIGURE_PARRY = {
-  parryWindow: 0.32,
+  // A charge can be placed just before a collision, but the contact itself is
+  // also remembered briefly so the player can react to what they saw.
+  parryWindow: 0.4,
+  contactMemory: 0.18,
+  nearMissWindow: 0.14,
+  falseStartCooldown: 0.3,
   missCooldown: 0.72,
   minNodes: 3,
   maxNodes: 7,
@@ -66,7 +71,14 @@ function figureActive() {
 function currentFigureShot() {
   if (figureShotBattle !== battle) {
     figureShotBattle = battle;
-    figureShot = { nodes: [], parry: 0, cooldown: 0, flash: 0 };
+    figureShot = {
+      nodes: [],
+      parry: 0,
+      cooldown: 0,
+      flash: 0,
+      contact: null,
+      nearMiss: 0,
+    };
   }
   return figureShot;
 }
@@ -74,21 +86,33 @@ function clearFigureShot() {
   const state = currentFigureShot();
   state.nodes = [];
   state.parry = 0;
+  state.contact = null;
+  state.nearMiss = 0;
 }
 // Called by the combat collision pass. `mobilePair` has already left the
 // ordinary bounce in place; this consumes only the additional powered contact.
-function consumeTrainingParry(g) {
+function consumeTrainingParry(g, contact = null, remembered = false) {
   if (!figureActive()) return false;
   const state = currentFigureShot();
-  if (state.parry <= 0 || state.cooldown > 0) return false;
+  if (
+    state.cooldown > 0 ||
+    (remembered
+      ? !state.contact || state.contact !== contact || contact.t <= 0
+      : state.parry <= 0)
+  )
+    return false;
   state.parry = 0;
+  state.contact = null;
+  state.nearMiss = 0;
   state.flash = 0.44;
   ball.runeBurst = Math.max(ball.runeBurst || 0, 0.92);
-  fieldFx.push({ type: "relay", x: g.x, y: g.y, t: 0, d: 0.48, col: g.col });
+  const x = contact?.x ?? (ball.x + g.x) / 2,
+    y = contact?.y ?? (ball.y + g.y) / 2;
+  fieldFx.push({ type: "relay", x, y, t: 0, d: 0.48, col: g.col });
   if (state.nodes.length < FIGURE_PARRY.maxNodes) {
     state.nodes.push({
-      x: (ball.x + g.x) / 2,
-      y: (ball.y + g.y) / 2,
+      x,
+      y,
       col: g.col,
       label: g.s,
     });
@@ -102,10 +126,48 @@ function consumeTrainingParry(g) {
   }
   return true;
 }
+// A real collision leaves a short, single-use echo. It stores the pre-bounce
+// direction so a late input can apply the same powered release without ever
+// rewinding the visible physics.
+function rememberTrainingParryContact(g, contact) {
+  if (!figureActive()) return;
+  const state = currentFigureShot();
+  if (state.parry > 0 || state.cooldown > 0) return;
+  if (state.nearMiss > 0) {
+    const lostNodes = finishFigureShot({ missed: true });
+    state.cooldown = FIGURE_PARRY.missCooldown;
+    state.flash = 0.2;
+    fieldFx.push({
+      type: "relay",
+      x: contact.x,
+      y: contact.y,
+      t: 0,
+      d: 0.26,
+      col: "#7e7b91",
+    });
+    addPopup(contact.x, contact.y - 32, "공명 놓침", "#c3bcd8", false);
+    if (!lostNodes) toast("패링 지연 · 공명 재정비");
+    return;
+  }
+  state.contact = {
+    ...contact,
+    g,
+    t: FIGURE_PARRY.contactMemory,
+  };
+}
 function requestTrainingParry() {
   if (!figureActive() || !ball?.moving) return false;
   const state = currentFigureShot();
-  if (state.cooldown > 0 || state.parry > 0) return false;
+  if (state.cooldown > 0 || state.parry > 0 || state.nearMiss > 0) return false;
+  // Pressing just after a real contact upgrades that collision. The combat
+  // resolver uses the saved normal and incoming velocity, so no object jumps
+  // backwards and the success still has exactly one physical source.
+  if (state.contact?.t > 0) {
+    const contact = state.contact;
+    if (!consumeTrainingParry(contact.g, contact, true)) return false;
+    resolveMeteorParryContact?.(contact.g, contact);
+    return true;
+  }
   state.parry = FIGURE_PARRY.parryWindow;
   ball.runeBurst = Math.max(ball.runeBurst || 0, 0.54);
   return true;
@@ -132,12 +194,27 @@ function advanceFigureShot(d) {
   const state = currentFigureShot();
   state.cooldown = Math.max(0, state.cooldown - d);
   state.flash = Math.max(0, state.flash - d);
+  if (state.contact) {
+    state.contact.t = Math.max(0, state.contact.t - d);
+    if (state.contact.t === 0) state.contact = null;
+  }
   if (state.parry > 0) {
     state.parry = Math.max(0, state.parry - d);
     if (state.parry === 0) {
-      const lostNodes = finishFigureShot({ missed: true });
-      state.cooldown = FIGURE_PARRY.missCooldown;
-      if (!lostNodes) toast("패링 실패 · 관측 공명 재정비");
+      // Do not erase a chain merely for arming in open space. A contact that
+      // follows immediately still counts as a genuine late miss; otherwise
+      // this settles into a short, harmless false-start cooldown.
+      state.nearMiss = FIGURE_PARRY.nearMissWindow;
+    }
+  }
+  if (state.nearMiss > 0) {
+    state.nearMiss = Math.max(0, state.nearMiss - d);
+    if (state.nearMiss === 0) {
+      state.cooldown = Math.max(
+        state.cooldown,
+        FIGURE_PARRY.falseStartCooldown,
+      );
+      toast("공명 비움 · 다음 접점을 기다리세요");
     }
   }
 }
@@ -837,6 +914,35 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
     x.beginPath();
     x.arc(ball.x, ball.y, ball.r + 13 + pulse * 5, 0, Math.PI * 2);
     x.stroke();
+    x.restore();
+  }
+  // The post-contact echo is deliberately local and short. It tells the
+  // player which bounce can still be answered without predicting a future
+  // route or asking them to select a target in a crowded corner.
+  if (state.contact?.t > 0) {
+    const contact = state.contact,
+      pulse = contact.t / FIGURE_PARRY.contactMemory,
+      g = contact.g;
+    x.save();
+    x.globalAlpha = 0.2 + pulse * 0.55;
+    x.strokeStyle = g.col || "#fff1bd";
+    x.lineWidth = 2 + pulse * 2;
+    x.shadowBlur = 14;
+    x.shadowColor = g.col || "#fff1bd";
+    x.beginPath();
+    x.arc(
+      contact.x,
+      contact.y,
+      ball.r + g.r + 4 + (1 - pulse) * 9,
+      0,
+      Math.PI * 2,
+    );
+    x.stroke();
+    x.globalAlpha = 0.86;
+    x.fillStyle = "#fff3d6";
+    x.textAlign = "center";
+    x.font = "bold 11px ui-monospace";
+    x.fillText("Space · 공명", contact.x, contact.y - ball.r - g.r - 13);
     x.restore();
   }
   if (!nodes.length) return;

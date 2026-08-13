@@ -1788,6 +1788,47 @@ hitGate = function (g) {
 // Zone labels belonged to the former static-board version, where hitting a
 // labelled tile fired the hero standing on it.  A hero now wakes only by real
 // movement, so the whole `triggerZone` concept and its call sites are gone.
+function resolveMeteorParryContact(g, contact) {
+  const { nx, ny, impactSpeed, incoming } = contact,
+    speed = Math.hypot(incoming.x, incoming.y) || 1,
+    ux = incoming.x / speed,
+    uy = incoming.y / speed,
+    ballDrive = 495 + Math.min(450, impactSpeed * 0.63),
+    unitDrive = 310 + Math.min(270, impactSpeed * 0.38),
+    ballDx = -nx * ballDrive + ux * 225,
+    ballDy = -ny * ballDrive + uy * 225,
+    unitDx = nx * unitDrive + ux * 135,
+    unitDy = ny * unitDrive + uy * 135;
+  ball.vx += ballDx;
+  ball.vy += ballDy;
+  g.vx += unitDx;
+  g.vy += unitDy;
+  // A successful parry should release into a readable next line, not push an
+  // already fast meteor straight back to the maximum chain speed.
+  guaranteeMomentum(ball, ballDx, ballDy, 760, 1720);
+  guaranteeMomentum(g, unitDx, unitDy, 410, 1080);
+  ball.power += 0.48;
+  ball.bounces++;
+  wakeUnit(g, { subtle: true });
+  g.collisions++;
+  trackBlazeUnit(g);
+  const special = applyContactAbility(g, incoming);
+  ball.runeBurst = 0.92;
+  impact?.(false, contact.x ?? g.x, contact.y ?? g.y, "contact");
+  if (g.feedbackContactCooldown <= 0) {
+    g.feedbackContactCooldown = 0.12;
+    fieldFx.push({
+      type: "relay",
+      x: contact.x ?? g.x,
+      y: contact.y ?? g.y,
+      t: 0,
+      d: 0.48,
+      col: g.col,
+    });
+    addPopup(g.x, g.y - 34, "공명 충돌!", g.col, true);
+    if (!special) toast(g.s + " 충돌 · 유성과 별지기 동시 가속!");
+  }
+}
 simulatePhysics = function (d) {
   const slices = Math.min(3, Math.max(1, Math.ceil(d / (1 / 90)))),
     step = d / slices;
@@ -1855,46 +1896,25 @@ simulatePhysics = function (d) {
     for (const g of gates)
       mobilePair(ball, ball.r, g, g.r, (nx, ny, impactSpeed, incoming) => {
         // `mobilePair` has already performed the ordinary elastic response.
-        // Only an armed Space parry turns an ordinary elastic contact into a
-        // high-energy resonance, ability activation, and starlight node.
+        // An armed Space parry turns this contact into a high-energy resonance.
+        // Otherwise retain it briefly, so a player can answer what they saw
+        // just after the billiards bounce without rewinding the table.
+        const contact = {
+          nx,
+          ny,
+          impactSpeed,
+          incoming,
+          x: (ball.x + g.x) / 2,
+          y: (ball.y + g.y) / 2,
+        };
         const parried =
-          typeof consumeTrainingParry === "function" && consumeTrainingParry(g);
-        if (!parried) return;
-        const speed = Math.hypot(incoming.x, incoming.y) || 1,
-          ux = incoming.x / speed,
-          uy = incoming.y / speed,
-          ballDrive = 495 + Math.min(450, impactSpeed * 0.63),
-          unitDrive = 310 + Math.min(270, impactSpeed * 0.38),
-          ballDx = -nx * ballDrive + ux * 225,
-          ballDy = -ny * ballDrive + uy * 225,
-          unitDx = nx * unitDrive + ux * 135,
-          unitDy = ny * unitDrive + uy * 135;
-        ball.vx += ballDx;
-        ball.vy += ballDy;
-        g.vx += unitDx;
-        g.vy += unitDy;
-        guaranteeMomentum(ball, ballDx, ballDy, 915, 2220);
-        guaranteeMomentum(g, unitDx, unitDy, 410, 1080);
-        ball.power += 0.48;
-        ball.bounces++;
-        wakeUnit(g, { subtle: true });
-        g.collisions++;
-        trackBlazeUnit(g);
-        const special = applyContactAbility(g, incoming);
-        ball.runeBurst = 0.92;
-        if (g.feedbackContactCooldown <= 0) {
-          g.feedbackContactCooldown = 0.12;
-          fieldFx.push({
-            type: "relay",
-            x: g.x,
-            y: g.y,
-            t: 0,
-            d: 0.48,
-            col: g.col,
-          });
-          addPopup(g.x, g.y - 34, "공명 충돌!", g.col, true);
-          if (!special) toast(g.s + " 충돌 · 유성과 별지기 동시 가속!");
+          typeof consumeTrainingParry === "function" &&
+          consumeTrainingParry(g, contact);
+        if (!parried) {
+          rememberTrainingParryContact?.(g, contact);
+          return;
         }
+        resolveMeteorParryContact(g, contact);
       });
     for (let a = 0; a < gates.length; a++)
       for (let b = a + 1; b < gates.length; b++) {
