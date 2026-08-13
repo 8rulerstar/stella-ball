@@ -558,12 +558,22 @@ queueUnitAssist = function (g, amount, name, options = {}) {
       shot.focusT = 0;
     } else {
       shot.delay = Math.min(0.32, queued * 0.085);
-      shot.dur = Math.max(0.3, shot.dur + 0.1);
+      shot.dur = Math.max(
+        options.parry ? 0.22 : 0.3,
+        shot.dur + (options.parry ? 0.02 : 0.1),
+      );
     }
   }
   if (!shot?.finisher) {
-    feedbackBeat("awaken", g.x, g.y, g.col, 1.08, g.s + " 각성");
-    combatSfx("awaken", 0.9);
+    feedbackBeat(
+      "awaken",
+      g.x,
+      g.y,
+      g.col,
+      options.parry ? 0.54 : 1.08,
+      g.s + (options.parry ? " 공명" : " 각성"),
+    );
+    combatSfx("awaken", options.parry ? 0.52 : 0.9);
   }
 };
 const baseFeedbackSettleParty = settleParty;
@@ -573,10 +583,9 @@ settleParty = function () {
       const fx = gate.fx === "copycat" ? gate.copiedFx : gate.fx;
       return fx !== "bladewheel";
     });
-  // The figure prototype mutes the training-table settle, but it does so a
-  // layer below this one, so the banner and its slow-motion kept playing over
-  // the figure they were supposed to leave alone.  The `typeof` guard keeps
-  // this line harmless if the prototype is ever removed.
+  // The figure system owns every active combat's settle, but it does so a layer
+  // below this one, so the banner and its slow-motion must stay muted. The
+  // `typeof` guard keeps this line harmless if the system is ever removed.
   const figureOwnsSettle = typeof figureActive === "function" && figureActive();
   if (awakened.length && !figureOwnsSettle) {
     settlementBeat = {

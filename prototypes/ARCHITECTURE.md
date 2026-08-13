@@ -27,7 +27,7 @@ The files under `js/` load in this exact order and share the browser global scop
 6. `game-core-render.js` — base combat drawing, HUD updates, canvas effects, and shared rendering helpers.
 7. `game-meta.js` — settings, achievements, stage select, replay tutorial, and meta-screen enhancements.
 8. `game-combat.js` — billiards controls and prediction, constellation multiplier, hero abilities, and combat-specific extensions.
-9. `game-figure.js` — training-table-only parry constellation figures: it owns Space parry-chain state, records fixed starlight nodes from successful meteor-to-starkeeper contacts, resolves 3–5 nodes into the nearest skeleton, and registers preview/trace/reveal hooks. It wraps `settleParty` only to close an unfinished chain. It must load straight after `game-combat.js` and before `game-feedback.js`, or its settlement layer lands on the wrong predecessor. The five silhouette textures live in `../assets/library/constellations/`; their coordinate contract is in `../ASSET_PLAN.md`.
+9. `game-figure.js` — all-combat parry constellation figures: it owns one-shot Space parry state, records up to seven fixed starlight nodes from successful meteor-to-starkeeper contacts, resolves the 3–7 nodes into the nearest skeleton when the shot settles, and registers preview/trace/reveal hooks. It wraps `settleParty` for that one-shot resolution, so no table runs the former regular settlement attack. The five current silhouette textures live in `../assets/library/constellations/`; 6·7점 뼈대는 동작하지만 실루엣은 아직 없다. Their coordinate contract is in `../ASSET_PLAN.md`.
 10. `game-feedback.js` — impact pauses, particles, layered sample/procedural SFX, combo presentation, ability/finisher/victory effects, and the final animation loop.
 11. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions.
 12. `game-arena-carve.js` — final procedural Observatory Ground arena pass. It caches a floor per stage and wraps only `drawStageArena`; it must remain after onboarding and before bootstrap. It must not change physics, collisions, balance, or unit judgement colours.
@@ -48,7 +48,7 @@ When adding code:
 - Change base menus and battle flow in `game-session.js`; change settings, achievements, stage selection, or replay tutorial in `game-meta.js`.
 - Change base collision behavior in `game-core-physics.js` and base drawing/HUD behavior in `game-core-render.js`.
 - Change collision rules, aiming, abilities, or damage in `game-combat.js`.
-- Change training-table constellation figures in `game-figure.js`; nothing else should reach into its `figureFx` state. Keep its skeleton coordinates, the five silhouette files, `ASSET_PLAN.md`, and `assets/ASSET_MANIFEST.json` in sync.
+- Change all-combat constellation figures in `game-figure.js`; nothing else should reach into its `figureFx` state. Keep its skeleton coordinates, silhouette files, `ASSET_PLAN.md`, and `assets/ASSET_MANIFEST.json` in sync.
 - Change screen shake, particles, SFX, combo, or victory presentation in `game-feedback.js`; change only the procedural floor, wall presentation, and stage engraving in `game-arena-carve.js`.
 - Change Luna dialogue, first-run progression, or unlock behavior in `game-onboarding.js`.
 - Keep `game-bootstrap.js` minimal; it should only start the runtime.
