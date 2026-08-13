@@ -119,44 +119,16 @@ function renderTitlePresentation() {
       ((i % 7) * 0.31).toFixed(2) +
       's"></i>',
   ).join("");
-  const guardians = [
-    ["biyeon", "left"],
-    ["ria", "center"],
-    ["gaon", "right"],
-  ]
-    .map(([id, position], i) => {
-      const h = heroes[id];
-      return (
-        '<div class="title-guardian title-guardian-' +
-        position +
-        '" style="--unit:' +
-        h.col +
-        ";--arrival:" +
-        (0.52 + i * 0.12).toFixed(2) +
-        's"><span class="title-guardian-art" data-hero="' +
-        id +
-        '"></span><b>' +
-        h.s +
-        "</b></div>"
-      );
-    })
-    .join("");
   U.over.className = "overlay title-scene";
   U.over.innerHTML =
     '<section class="title-sequence" aria-label="STELLA BALL 시작 화면"><div class="title-stars" aria-hidden="true">' +
     stars +
-    '</div><div class="title-dawn" aria-hidden="true"></div><div class="title-constellation" aria-hidden="true"><svg class="title-sky-map" viewBox="0 0 720 410" preserveAspectRatio="xMidYMid meet"><path class="title-constellation-line line-main" d="M92 265 L205 145 L360 78 L515 145 L628 265"></path><path class="title-constellation-line line-cross" d="M205 145 L360 250 L515 145"></path><path class="title-constellation-line line-spine" d="M360 78 L360 250"></path><g class="title-constellation-nodes"><circle cx="92" cy="265" r="5"></circle><circle cx="205" cy="145" r="6"></circle><circle cx="360" cy="78" r="8"></circle><circle cx="515" cy="145" r="6"></circle><circle cx="628" cy="265" r="5"></circle><circle cx="360" cy="250" r="7"></circle></g></svg><span class="title-shooting-star"></span><img class="title-orb" src="' +
-    staticArt.orb +
-    '" alt=""><div class="title-hope">별은 다시 이어진다</div>' +
-    guardians +
-    '<div class="title-route"><small>관측 항로</small><span class="done"><i>✓</i><b>1-1</b><em>첫 충돌</em></span><span class="current"><i>✦</i><b>1-2</b><em>균열 회랑</em></span><span class="locked"><i>?</i><b>1-3</b><em>미관측</em></span></div></div><div class="title-copy"><img class="title-wordmark" src="' +
+    '</div><div class="title-dawn" aria-hidden="true"></div><div class="title-constellation" aria-hidden="true"><svg class="title-sky-map" viewBox="0 0 720 410" preserveAspectRatio="xMidYMid meet"><defs><radialGradient id="titleNebula"><stop offset="0%" stop-color="#ffd9ea" stop-opacity=".5"></stop><stop offset="45%" stop-color="#9aa8ff" stop-opacity=".26"></stop><stop offset="100%" stop-color="#9aa8ff" stop-opacity="0"></stop></radialGradient><radialGradient id="titleSkyGlow"><stop offset="0%" stop-color="#8fa4ff" stop-opacity=".2"></stop><stop offset="100%" stop-color="#8fa4ff" stop-opacity="0"></stop></radialGradient></defs><ellipse class="title-sky-halo" cx="352" cy="212" rx="290" ry="200" fill="url(#titleSkyGlow)"></ellipse><g class="title-sky-dome"><path class="title-dome-arc" d="M16 126 Q360 -26 704 126"></path><g class="title-dome-ticks"><line x1="16.0" y1="126.0" x2="20.4" y2="136.1"></line><line x1="59.0" y1="108.2" x2="61.2" y2="113.8"></line><line x1="102.0" y1="92.8" x2="103.9" y2="98.4"></line><line x1="145.0" y1="79.7" x2="146.6" y2="85.5"></line><line x1="188.0" y1="69.0" x2="190.4" y2="79.7"></line><line x1="231.0" y1="60.7" x2="232.0" y2="66.6"></line><line x1="274.0" y1="54.8" x2="274.7" y2="60.7"></line><line x1="317.0" y1="51.2" x2="317.3" y2="57.2"></line><line x1="360.0" y1="50.0" x2="360.0" y2="61.0"></line><line x1="403.0" y1="51.2" x2="402.7" y2="57.2"></line><line x1="446.0" y1="54.8" x2="445.3" y2="60.7"></line><line x1="489.0" y1="60.7" x2="488.0" y2="66.6"></line><line x1="532.0" y1="69.0" x2="529.6" y2="79.7"></line><line x1="575.0" y1="79.7" x2="573.4" y2="85.5"></line><line x1="618.0" y1="92.8" x2="616.1" y2="98.4"></line><line x1="661.0" y1="108.2" x2="658.8" y2="113.8"></line><line x1="704.0" y1="126.0" x2="699.6" y2="136.1"></line></g></g><g class="title-sky-dust"><circle cx="42" cy="152" r="1.4" style="--td:0.00s"></circle><circle cx="86" cy="96" r="1.2" style="--td:0.29s"></circle><circle cx="148" cy="64" r="1.5" style="--td:0.58s"></circle><circle cx="212" cy="116" r="1.2" style="--td:0.87s"></circle><circle cx="252" cy="42" r="1.3" style="--td:1.16s"></circle><circle cx="300" cy="104" r="1.2" style="--td:1.45s"></circle><circle cx="330" cy="152" r="1.1" style="--td:1.74s"></circle><circle cx="404" cy="52" r="1.4" style="--td:2.03s"></circle><circle cx="430" cy="118" r="1.2" style="--td:2.32s"></circle><circle cx="476" cy="86" r="1.3" style="--td:2.61s"></circle><circle cx="524" cy="128" r="1.2" style="--td:2.90s"></circle><circle cx="580" cy="74" r="1.4" style="--td:3.19s"></circle><circle cx="622" cy="142" r="1.2" style="--td:0.28s"></circle><circle cx="664" cy="96" r="1.3" style="--td:0.57s"></circle><circle cx="688" cy="52" r="1.2" style="--td:0.86s"></circle><circle cx="112" cy="196" r="1.2" style="--td:1.15s"></circle><circle cx="600" cy="220" r="1.3" style="--td:1.44s"></circle><circle cx="62" cy="58" r="1.6" style="--td:0.00s"></circle><circle cx="124" cy="132" r="1.3" style="--td:0.37s"></circle><circle cx="92" cy="318" r="1.5" style="--td:0.74s"></circle><circle cx="168" cy="214" r="1.2" style="--td:1.11s"></circle><circle cx="318" cy="68" r="1.4" style="--td:1.48s"></circle><circle cx="286" cy="140" r="1.2" style="--td:1.85s"></circle><circle cx="398" cy="96" r="1.3" style="--td:2.22s"></circle><circle cx="452" cy="140" r="1.2" style="--td:2.59s"></circle><circle cx="560" cy="190" r="1.5" style="--td:2.96s"></circle><circle cx="608" cy="110" r="1.3" style="--td:3.33s"></circle><circle cx="636" cy="290" r="1.4" style="--td:0.30s"></circle><circle cx="542" cy="330" r="1.2" style="--td:0.67s"></circle><circle cx="398" cy="344" r="1.3" style="--td:1.04s"></circle><circle cx="160" cy="388" r="1.2" style="--td:1.41s"></circle><circle cx="672" cy="206" r="1.4" style="--td:1.78s"></circle></g><ellipse class="title-sky-nebula" cx="350" cy="296" rx="62" ry="44" fill="url(#titleNebula)"></ellipse><path class="title-constellation-line line-main" d="M236 352 L286 238 L360 226 L434 214 L488 366"></path><path class="title-constellation-line line-cross" d="M196 84 L286 238"></path><path class="title-constellation-line line-cross line-cross-b" d="M508 66 L434 214"></path><path class="title-constellation-line line-spine" d="M196 84 L508 66"></path><path class="title-constellation-line line-head" d="M196 84 L350 22 L508 66"></path><path class="title-constellation-line line-sword" d="M360 226 L352 282 L347 308 L343 330"></path><g class="title-constellation-nodes"><circle cx="350" cy="22" r="5" style="--sd:0.4s;--td:2.9s"></circle><circle cx="196" cy="84" r="9.5" style="--sd:0.5s;--td:2s"></circle><circle cx="508" cy="66" r="7" style="--sd:0.62s;--td:2.2s"></circle><circle cx="286" cy="238" r="7.5" style="--sd:0.86s;--td:2.4s"></circle><circle cx="360" cy="226" r="7.5" style="--sd:0.98s;--td:2.6s"></circle><circle cx="434" cy="214" r="6.5" style="--sd:1.1s;--td:2.8s"></circle><circle cx="236" cy="352" r="6" style="--sd:1.24s;--td:3s"></circle><circle cx="488" cy="366" r="9.5" style="--sd:1.36s;--td:2.1s"></circle><circle cx="352" cy="282" r="4" style="--sd:1.5s;--td:3.2s"></circle><circle cx="347" cy="308" r="3.4" style="--sd:1.58s;--td:3.4s"></circle><circle cx="343" cy="330" r="3" style="--sd:1.66s;--td:3.6s"></circle></g></svg><span class="title-shooting-star"></span>' +
+    '</div><div class="title-copy"><div class="title-chart" aria-hidden="true"><i></i><small>ORION · 오리온</small><i></i></div><img class="title-wordmark" src="' +
     metaArt.wordmark +
-    '" alt="STELLA BALL"><small class="title-kicker">CONSTELLATION RESTORATION PROJECT</small><section class="title-mission"><small>오늘의 관측</small><b>1-2 · 균열 회랑</b><span>공명 범퍼로 반사각을 만들고 잠든 별지기를 깨우세요.</span></section><div class="title-play-loop" aria-label="게임 방법"><span><i>1</i><b>유성을 끌어<br>발사</b></span><span><i>2</i><b>별지기를<br>깨우기</b></span><span><i>3</i><b>별자리를<br>완성</b></span></div><button class="title-enter" id="enterHub"><img src="' +
+    '" alt="STELLA BALL"><small class="title-kicker">CONSTELLATION RESTORATION PROJECT</small><button class="title-enter" id="enterHub"><img src="' +
     metaArt.play +
     '" alt="">게임 시작!</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button></div></section>';
-  document.querySelectorAll(".title-guardian-art").forEach((art) => {
-    setPortrait(art, heroes[art.dataset.hero], 116);
-  });
   const enter = document.querySelector("#enterHub");
   document.querySelector("#titleHelp").onclick = () => {
     playSfx?.("confirm");
