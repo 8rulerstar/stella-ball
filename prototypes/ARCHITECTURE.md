@@ -27,9 +27,10 @@ The files under `js/` load in this exact order and share the browser global scop
 6. `game-core-render.js` — base combat drawing, HUD updates, canvas effects, and shared rendering helpers.
 7. `game-meta.js` — settings, achievements, stage select, replay tutorial, and meta-screen enhancements.
 8. `game-combat.js` — billiards controls and prediction, constellation multiplier, hero abilities, and combat-specific extensions.
-9. `game-feedback.js` — impact pauses, particles, layered sample/procedural SFX, combo presentation, ability/finisher/victory effects, and the final animation loop.
-10. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions.
-11. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
+9. `game-figure.js` — the training-table constellation figure experiment: it wraps `settleParty`, so it must load straight after `game-combat.js` and before `game-feedback.js`, or the settle mute lands on the wrong layer. Self-contained so the experiment can be adopted or deleted in one move.
+10. `game-feedback.js` — impact pauses, particles, layered sample/procedural SFX, combo presentation, ability/finisher/victory effects, and the final animation loop.
+11. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions.
+12. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
 
 Two presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
 
@@ -38,7 +39,7 @@ Two presentation-only scripts load after that chain and stay outside `js/` becau
 
 ## Important maintenance rule
 
-Render and feedback extensions use the explicit `runtimeHooks` registry in `game-data.js`. Register work with `registerRuntimeHook()` rather than replacing `draw`, `drawArena`, `drawSpecial`, or `updateFeedback`. A few older gameplay and menu extensions still use function wrapping; preserve their order until they are migrated to a similarly explicit event.
+Render and feedback extensions use the explicit `runtimeHooks` registry in `game-data.js`. Register work with `registerRuntimeHook()` rather than replacing `draw`, `drawArena`, `drawSpecial`, or `updateFeedback`. A few older gameplay and menu extensions still use function wrapping; preserve their order until they are migrated to a similarly explicit event. When you do wrap, capture the predecessor first (`const baseX = x;`) and call it — `npm run smoke` fails on a definition a later file overrides without capturing, because nobody can reach it afterwards.
 
 When adding code:
 
@@ -46,6 +47,7 @@ When adding code:
 - Change base menus and battle flow in `game-session.js`; change settings, achievements, stage selection, or replay tutorial in `game-meta.js`.
 - Change base collision behavior in `game-core-physics.js` and base drawing/HUD behavior in `game-core-render.js`.
 - Change collision rules, aiming, abilities, or damage in `game-combat.js`.
+- Change the constellation figure experiment in `game-figure.js`; nothing else should reach into it.
 - Change screen shake, particles, SFX, combo, or victory presentation in `game-feedback.js`.
 - Change Luna dialogue, first-run progression, or unlock behavior in `game-onboarding.js`.
 - Keep `game-bootstrap.js` minimal; it should only start the runtime.

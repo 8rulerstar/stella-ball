@@ -2,7 +2,23 @@
 
 ## Safe edit route
 
-The browser build is intentionally a set of ordered classic scripts, not a bundled application. This keeps the GitHub Pages build and `PLAY_WINDOWS.cmd` launch path simple. Treat the order in `prism-breakers.html` as a public dependency contract; `npm run smoke` enforces it.
+The browser build is intentionally a set of ordered classic scripts, not a bundled application. This keeps the GitHub Pages build and `PLAY_WINDOWS.cmd` launch path simple. Treat the order in `prism-breakers.html` as a public dependency contract; `npm run smoke` enforces it, along with a second rule about how later scripts extend earlier ones.
+
+### Overriding a global
+
+Later scripts layer behaviour by reassigning globals. Capture the predecessor before you replace it and call it:
+
+```js
+const baseSettleParty = settleParty;
+settleParty = function () {
+  baseSettleParty();
+  // your addition
+};
+```
+
+Replacing without capturing strands the earlier definition — it stays in the file, reads as live code, and never runs. `npm run smoke` fails on that and names the file and line. An empty body is exempt, because that is how a file declares a binding for a later file to fill in. Prefer `registerRuntimeHook()` over wrapping wherever a hook already exists.
+
+A wrapper's position in the chain is load order, so a change that only covers one layer is a real failure mode: muting an effect from `game-figure.js` does nothing about the copy `game-feedback.js` queues a layer above it.
 
 Start a change in the smallest owner module listed in [ARCHITECTURE.md](./ARCHITECTURE.md). Shared browser concerns have dedicated boundaries:
 

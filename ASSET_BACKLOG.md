@@ -51,7 +51,7 @@
 - 규격: 192px 셀. 원본은 100px 셀 초소형 스프라이트라 4배 무손실 확대 후 고정 윈도우로 발 기준선 y=136 정렬.
 - 화풍·색 규칙: 고블린 녹색 피부 → 황동 브론즈 램프, 갑주·도끼는 강철 유지, 참격 이펙트는 잔불 크림. Ink & Brass 안에서 모루 고유색(#ffac67)은 링·이름에만.
 - 반입 경로: `characters/taeo-orc-idle.png`, `characters/anim/taeo-roll.png`·`taeo-attack.png`, `characters/cute/taeo-orc-token.png`. 재생성은 `scripts/generate_taeo_orc_restyle.py`.
-- 코드 연결 지점: `heroes.taeo`(frames 6)·`cuteUnitArt.taeo`·`combatUnitSize.taeo`(118), 기존 `heroAnimArt` 경로 그대로.
+- 코드 연결 지점: `heroes.taeo`(frames 6)·`combatUnitSize.taeo`(118). `cuteUnitArt`와 `heroAnimArt`는 2026-08-13에 제거됐다.
 - 결정·검수 메모: 구 Pawn 시트(`taeo-miner-idle.png`)와 구 큐트 토큰은 롤백 대비로 보존. 출처는 `ATTRIBUTION.md`의 Tiny RPG 항목.
 - **종료 (2026-08-13)**: 신규 로스터 패치가 이 자리의 별지기를 모루로 바꾸면서 `taeo-orc-idle.png`·`anim/taeo-roll.png`·`anim/taeo-attack.png`를 전부 덮어썼다. 이 항목의 오크 리스타일은 더 이상 화면에 없고, `scripts/generate_taeo_orc_restyle.py`를 돌리면 새 아트가 지워진다. Tiny RPG 출처가 남은 파일은 `characters/cute/taeo-orc-token.png` 하나뿐이다.
 
@@ -69,12 +69,12 @@
 ### [후보] P2 — 전장 자리 역할 아이콘
 
 - 화면 / 트리거: 편성 화면 전장 미니맵의 자리 1~3, 그리고 상세 카드의 역할 줄.
-- 플레이 목적: 자리마다 발동 조건이 다르다(경유 / 공명 / 마무리)는 것을 글자를 읽지 않고 구분한다.
-- 필요한 형태: UI 아이콘 3종(유성 충돌 / 범퍼 연계 / 보스 명중).
+- 플레이 목적: 자리마다 거상과의 거리가 다르다(근접 / 중거리 / 원거리)는 것을 글자를 읽지 않고 구분한다.
+- 필요한 형태: UI 아이콘 3종(근접 / 중거리 / 원거리).
 - 희망 규격·프레임: 16×16 또는 20×20. 확정 아님.
 - 화풍·색 규칙: 새벽 관측소. 자리 번호 배지의 살구색과 겹치지 않게 청록 계열로 둔다.
-- 기존 후보·재사용 경로: 현재는 `ZONE_RULES`의 한글 라벨을 마커 아래 텍스트로만 표시한다.
-- 코드 연결 지점: `ZONE_RULES`(`game-data.js`), `showRoster()`의 `.slot-zone`·`.squad-detail-zone`.
+- 기존 후보·재사용 경로: 현재는 `slotRole()`이 돌려주는 한글 라벨을 마커 아래 텍스트로만 표시한다.
+- 코드 연결 지점: `SLOT_BANDS`·`slotRole()`(`game-data.js`), `showRoster()`의 `.slot-zone`·`.squad-detail-zone`.
 - 결정·검수 메모: 라벨 텍스트만으로 충분한지 실제 플레이에서 먼저 확인한다.
 
 ### [명세 필요] P1 — 전장 별지기 스킬 식별 배지
