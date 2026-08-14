@@ -460,12 +460,6 @@ function trackBlazeUnit(g) {
     earnBlaze(3, "전원 각성 +3.0");
   } else renderBlaze();
 }
-function trackBlazeBossUnit(g) {
-  const b = ball?.blaze;
-  if (!b || b.bossUnits.has(g.id)) return;
-  b.bossUnits.add(g.id);
-  earnBlaze(0.5, g.s + " 보스 직격 +0.5");
-}
 function trackBlazeDirect() {
   const b = ball?.blaze;
   if (!b || b.directBoss) return;
@@ -1032,17 +1026,6 @@ function applyContactAbility(g, incoming) {
     return true;
   }
   return false;
-}
-function copyLastUnitAbility(a, b) {
-  if (a.fx !== "copycat" || b.fx === "copycat") return;
-  a.copiedFx = b.fx;
-  a.copiedName = b.s;
-  a.copiedColor = b.col;
-  a.copiedAsset = abilityFx[b.id];
-  a.on = 1;
-  emitAbilityFx(a, a.x, a.y, 94, 0.62, 0, abilityFx.nyx, "copycat");
-  fieldFx.push({ type: "mirror", x: a.x, y: a.y, t: 0, d: 0.62, col: a.col });
-  toast("그믐 · " + b.s + " 능력 모사");
 }
 function nearestGate(excluded, fromX, fromY) {
   let target = null,

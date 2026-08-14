@@ -333,37 +333,6 @@ function guaranteeMomentum(o, dx, dy, minSpeed, maxSpeed) {
     o.vy *= maxSpeed / speed;
   }
 }
-function unitImpactDamage(g, target) {
-  if (g.enemyHitCooldown > 0 || battleComplete) return false;
-  g.enemyHitCooldown = 0.34;
-  const speed = Math.hypot(g.vx, g.vy),
-    isBoss = target === boss;
-  const amount =
-    (isBoss ? 18 : 12) +
-    Math.min(isBoss ? 28 : 20, Math.round(speed / (isBoss ? 72 : 88)));
-  const label = g.s + " 충돌";
-  g.on = Math.max(g.on, 0.62);
-  g.animState = "hit";
-  areaBursts.push({
-    x: g.x,
-    y: g.y,
-    r: isBoss ? 52 : 38,
-    col: g.col,
-    t: 0,
-    d: 0.3,
-  });
-  if (!isBoss)
-    fieldFx.push({ type: "assist", x: g.x, y: g.y, t: 0, d: 0.34, col: g.col });
-  if (isBoss) {
-    const dealt = applyBossHit(amount);
-    registerBossHit(false);
-    impact(false, g.x, g.y, "contact");
-    if (dealt > 0)
-      addPopup(boss.x, boss.y - 76, label + " -" + dealt, g.col, dealt >= 36);
-    if (boss.hp <= 0) scheduleWin();
-  } else damageAdd(target, amount, label, g.col);
-  return true;
-}
 function settleParty() {
   const context = {
     awakened: gates.filter((g) => g.moved && g.travel > 10),

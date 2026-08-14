@@ -1544,12 +1544,6 @@ const runeStone = (id) =>
   ["gaon", "biyeon", "lumi", "haru", "sera", "taeo", "nyx"].includes(id)
     ? "../assets/library/runes/rune-stone-" + id + ".png"
     : heroes[id].sprite;
-const skillIcon = (id) =>
-  ["gaon", "biyeon", "lumi", "haru", "sera", "taeo", "nyx"].includes(id)
-    ? "../assets/library/skills/skill-" + id + ".png"
-    : id === "ria"
-      ? "../assets/library/icons/skill-ready.png"
-      : "";
 const textures = {};
 function loadTexture(path) {
   if (!path) return null;

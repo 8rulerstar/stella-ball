@@ -228,17 +228,6 @@ function mailboxEntries() {
 function saveMailbox(items) {
   appStorage.writeRecord(MAILBOX_STORAGE, { items });
 }
-function pushMail(title, body, gold = 0) {
-  const items = mailboxEntries();
-  items.unshift({
-    id: "mail-" + (items.length + 1) + "-" + title,
-    title,
-    body,
-    gold,
-    read: false,
-  });
-  saveMailbox(items.slice(0, 20));
-}
 function unreadMailCount() {
   return mailboxEntries().filter((m) => !m.read).length;
 }
