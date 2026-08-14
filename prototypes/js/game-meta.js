@@ -46,6 +46,8 @@ function showSettings(onBack) {
     volume("sfx", tr("sfx"), "PINBALL FX") +
     '</div><div class="settings-actions"><button id="settingsReset">' +
     tr("reset") +
+    '</button><button id="settingsFirstRun">' +
+    tr("firstRun") +
     '</button><button id="settingsBack">' +
     tr("back") +
     "</button></div></section></div>";
@@ -66,6 +68,21 @@ function showSettings(onBack) {
       saveSettings();
     };
   }
+  /* 「기본값으로」는 음량·언어만 되돌린다. 이 버튼은 저장된 것을 전부 지워
+     처음 켠 브라우저와 같은 상태로 만든다 — 프롤로그와 온보딩을 다시 보려면
+     진행도뿐 아니라 온보딩 완료·세 번째 슬롯·인트로 세션 표식까지 함께
+     지워져야 한다. 되돌릴 수 없으므로 확인을 받는다. */
+  document.querySelector("#settingsFirstRun").onclick = () => {
+    playSfx("confirm");
+    showConfirm({
+      kicker: tr("settings"),
+      title: tr("firstRunTitle"),
+      body: tr("firstRunBody"),
+      confirmLabel: tr("firstRunYes"),
+      onConfirm: resetToFirstRun,
+      onCancel: () => showSettings(back),
+    });
+  };
   document.querySelector("#settingsReset").onclick = () => {
     settings = { language: "ko", master: 0.7, bgm: 0.28, sfx: 0.65 };
     saveSettings();

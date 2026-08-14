@@ -20,6 +20,11 @@ const META_COPY = {
     bgm: "배경음",
     sfx: "효과음",
     reset: "기본값으로",
+    firstRun: "첫 실행 상태로",
+    firstRunTitle: "처음 켠 상태로 되돌릴까요?",
+    firstRunBody:
+      "이 브라우저에 저장된 진행도·골드·해금·업적·출석이 모두 지워지고, 프롤로그와 6단계 온보딩이 처음부터 다시 재생됩니다. 되돌릴 수 없습니다.",
+    firstRunYes: "지우고 다시 시작",
     saveNote: "변경 사항은 이 브라우저에 자동 저장됩니다.",
     records: "관측 기록",
     clears: "되찾은 별",
@@ -48,6 +53,11 @@ const META_COPY = {
     bgm: "BGM",
     sfx: "SFX",
     reset: "RESET DEFAULTS",
+    firstRun: "RESET TO FIRST RUN",
+    firstRunTitle: "Reset to a fresh install?",
+    firstRunBody:
+      "Progress, gold, unlocks, achievements and attendance saved in this browser are erased, and the prologue and six-card onboarding play again from the start. This cannot be undone.",
+    firstRunYes: "ERASE AND RESTART",
     saveNote: "Changes are saved automatically in this browser.",
     records: "OBSERVATION RECORD",
     clears: "RETURNED STARS",
