@@ -175,11 +175,45 @@
     Object.keys(move).forEach(function (name) {
       var el = sky.querySelector('[data-dawn-prop="' + name + '"]');
       if (!el) return;
+      // 원래 값을 남겨 둔다. dawn.js가 떠다니는 애니메이션을 인라인으로
+      // 걸어 두므로, 그냥 지우면 타이틀을 떠난 뒤 영영 돌아오지 않는다.
+      if (el.dataset.ooRestore == null)
+        el.dataset.ooRestore = JSON.stringify({
+          animation: el.style.animation || "",
+          transition: el.style.transition || "",
+          transform: el.style.transform || "",
+          opacity: el.style.opacity || "",
+        });
       // 기존 떠다니는 애니메이션이 transform을 계속 덮어쓰므로 멈춘다.
       el.style.animation = "none";
       el.style.transition = "transform 2.6s cubic-bezier(.22,.9,.3,1)";
       el.style.transform = move[name];
       if (name === "rabbit") el.style.opacity = "0";
+    });
+  }
+
+  /* 흩어진 소품은 타이틀에 머무는 동안만 그대로 둔다(명세 5절). 허브·편성·
+     전투까지 넘어가면 그 화면들이 방금 있지도 않은 일의 잔해를 이고 간다. */
+  function restoreProps() {
+    // dataset.ooRestore는 실제로 data-oo-restore 속성이다. 카멜케이스로
+    // 셀렉터를 쓰면 하나도 잡히지 않는다.
+    document.querySelectorAll("[data-oo-restore]").forEach(function (el) {
+      var saved;
+      try {
+        saved = JSON.parse(el.dataset.ooRestore);
+      } catch (e) {
+        saved = null;
+      }
+      delete el.dataset.ooRestore;
+      if (!saved) return;
+      // 전부 동기로 되돌린다. rAF에 미루면 탭이 가려진 채 타이틀을 떠났을 때
+      // 콜백이 영영 오지 않아 소품이 멈춘 상태로 남는다.
+      el.style.transition = "none";
+      el.style.transform = saved.transform;
+      el.style.opacity = saved.opacity;
+      el.style.animation = saved.animation;
+      void el.offsetWidth; // 되돌린 자리를 확정해 트랜지션이 되짚지 않게 한다
+      el.style.transition = saved.transition;
     });
   }
 
@@ -291,6 +325,7 @@
     if (claw) claw.remove();
     var main = document.querySelector("main");
     if (main) main.classList.remove("oo-grabbed");
+    restoreProps();
   }
 
   /* 타이틀이 DOM에 나타날 때만 재생한다. 게임 코드에 훅을 걸지 않으므로
