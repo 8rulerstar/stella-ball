@@ -1,8 +1,8 @@
 /* Stella Ball — 관측창 밖의 존재 · 인트로 컷신 (2026-08-14)
 
-   명세: ../OUTER_OBSERVER_INTRO_SPEC.md 5절. 5비트 8.0초.
+   명세: ../OUTER_OBSERVER_INTRO_SPEC.md 5절. 6비트 9.8초.
      1 정적 0.0–1.1s · 2 이상 1.1–2.4s · 3 통과 2.4–5.6s
-     4 정지 5.6–7.0s · 5 점등 6.4–8.0s
+     4 정지 5.6–7.0s · 5 붙잡음 7.0–8.6s · 6 점등 8.2–9.8s
 
    표현 전용이다. 게임 상태를 읽지도 쓰지도 않고, 전투·입력·보상 경로에
    손대지 않는다. 타이틀 화면이 DOM에 나타나는 것만 보고 재생한다.
@@ -119,7 +119,47 @@
       being: being,
       anomaly: anomaly,
       tight: bakeBeing(0.42),
+      claw: null,
     };
+  }
+
+  /* 비트 5 · 관측창을 짚는 발톱.
+     몸통은 계속 `main` 뒤에 있고 이 마디 하나만 앞(z-index 2)으로 올라온다.
+     그래서 `#dawn-sky` 안에 둘 수 없다 — 그 레이어는 z-index 0이라 관측창
+     뒤에 갇힌다. body 직계로 붙이는 대신 두 가지를 직접 책임진다:
+       · 모션 감소는 `#dawn-sky *` 규칙이 덮지 않으므로 이 비트를 통째로 뺀다
+       · 타이틀을 벗어날 때 teardown()이 반드시 제거한다
+     `pointer-events: none`이라 CTA는 흔들리는 동안에도 계속 눌린다. */
+  var CLAW_BAKE = 300;
+  function buildClaw() {
+    var img = document.createElement("img");
+    var c = document.createElement("canvas");
+    c.width = CLAW_BAKE;
+    c.height = CLAW_BAKE;
+    window.StellaBossArt.draw(c.getContext("2d"), "claw", { size: CLAW_BAKE });
+    img.src = c.toDataURL("image/png");
+    img.alt = "";
+    img.setAttribute("aria-hidden", "true");
+    img.className = "oo-claw";
+    img.style.cssText =
+      "position:fixed;z-index:2;width:34vh;height:auto;pointer-events:none;" +
+      "image-rendering:pixelated;opacity:0;will-change:transform;" +
+      "transition:transform .5s cubic-bezier(.2,.8,.3,1),opacity .4s ease-out";
+    document.body.appendChild(img);
+    return img;
+  }
+
+  // 관측창의 오른쪽 위 모서리를 짚는다. 존재가 오른쪽 여백에 서 있으므로
+  // 팔이 건너오는 방향과 짚는 자리가 어긋나지 않는다.
+  function placeClaw(claw, gripped) {
+    var main = document.querySelector("main");
+    if (!main) return;
+    var r = main.getBoundingClientRect();
+    var w = claw.getBoundingClientRect().width || window.innerHeight * 0.34;
+    claw.style.left = Math.round(r.right - w * 0.52) + "px";
+    claw.style.top = Math.round(r.top - w * 0.12) + "px";
+    claw.style.transform = gripped ? "translate(0,0)" : "translate(26vw,-14vh)";
+    claw.style.opacity = gripped ? "0.96" : "0";
   }
 
   /* 비트 3 · 소품이 처음으로 스스로 반응한다.
@@ -181,15 +221,41 @@
       parts.anomaly.style.opacity = "0.35";
     });
 
-    // 비트 5 · 관측창 점등 (6.4 → 8.0s). 존재는 빠져나가고 잔상만 남는다.
-    at(6400, function () {
+    /* 비트 5 · 붙잡는다 (7.0 → 8.6s).
+       알아본 다음에 손이 온다. 발톱이 모서리를 짚는 순간 관측창만 흔들리고,
+       여백의 달·소품은 제자리에 남는다 — 저쪽이 잡은 것이 화면 전체가 아니라
+       이 창이라는 게 그 대비로 읽힌다. */
+    at(7000, function () {
+      var claw = parts.claw;
+      if (!claw) return;
+      placeClaw(claw, false);
+      // 다음 프레임에 짚어야 전환이 걸린다. 같은 프레임에 두 값을 주면
+      // 브라우저가 시작 상태를 못 잡고 즉시 최종값으로 튄다.
+      window.requestAnimationFrame(function () {
+        placeClaw(claw, true);
+      });
+      var main = document.querySelector("main");
+      if (main) {
+        main.classList.remove("oo-grabbed");
+        void main.offsetWidth; // 재생을 위해 애니메이션을 되감는다
+        main.classList.add("oo-grabbed");
+      }
+    });
+
+    /* 비트 6 · 관측창 점등 (8.2 → 9.8s). 발톱이 놓고, 존재는 빠져나가고,
+       흔들림이 잦아든 자리에 CTA가 선명해진다. */
+    at(8200, function () {
+      if (parts.claw) placeClaw(parts.claw, false);
       being.style.transition =
         "transform 1.6s cubic-bezier(.5,0,.7,.4), opacity 1.6s ease-in";
       being.style.transform = "translateX(62vw)";
       being.style.opacity = "0.16";
       parts.anomaly.style.opacity = "0";
     });
-    at(8000, function () {
+    at(9800, function () {
+      // 흔들림 클래스를 반드시 벗긴다. main에 transform이 남으면
+      // position:fixed 전체화면 오버레이가 캔버스 폭에 갇힌다.
+      document.querySelector("main")?.classList.remove("oo-grabbed");
       markPlayed();
     });
 
@@ -202,18 +268,29 @@
     if (document.getElementById(LAYER_ID)) return;
     var parts = buildLayer(sky);
     if (reducedMotion()) {
-      // 움직임 없이 한 장으로. 존재는 이미 여백에 서 있다.
+      // 움직임 없이 한 장으로. 존재는 이미 여백에 서 있고, 붙잡는 비트는
+      // 통째로 뺀다 — 흔들림은 모션 감소에서 남길 수 있는 종류가 아니다.
       parts.being.style.transform = "translateX(0)";
       parts.being.style.opacity = "0.22";
       markPlayed();
       return;
     }
-    play(sky, parts, playedThisSession());
+    var short = playedThisSession();
+    // 약식 재생에는 붙잡는 비트가 없으므로 발톱도 만들지 않는다.
+    if (!short) parts.claw = buildClaw();
+    play(sky, parts, short);
   }
 
   function teardown() {
     var layer = document.getElementById(LAYER_ID);
     if (layer) layer.remove();
+    // 발톱은 body 직계라 레이어와 같이 지워지지 않는다. 흔들림 클래스도
+    // 여기서 확실히 벗긴다 — main에 transform이 남은 채 편성·소환 화면으로
+    // 넘어가면 그 전체화면 오버레이가 캔버스 폭에 갇힌다.
+    var claw = document.querySelector(".oo-claw");
+    if (claw) claw.remove();
+    var main = document.querySelector("main");
+    if (main) main.classList.remove("oo-grabbed");
   }
 
   /* 타이틀이 DOM에 나타날 때만 재생한다. 게임 코드에 훅을 걸지 않으므로

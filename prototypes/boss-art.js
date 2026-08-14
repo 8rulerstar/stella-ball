@@ -421,12 +421,70 @@
     );
   }
 
+  /* ── 프레임을 짚는 발톱 하나 ────────────────────────────────────────
+     인트로 전용이다. 몸통은 계속 관측창 뒤에 있고 이 마디 하나만 앞으로
+     올라와 프레임 모서리를 짚는다. drawStrider의 다리와 같은 마스크·같은
+     램프·같은 광원을 쓰므로, 앞으로 나와도 다른 개체로 읽히지 않는다.
+     오른쪽 위에서 들어와 왼쪽 아래로 꺾이고 끝이 갈고리로 말린다. */
+  function drawClaw(g, S) {
+    var K = S / 180;
+    var m = newMask(S, S);
+    function pts(list) {
+      return list.map(function (p) {
+        return [p[0] * K, p[1] * K];
+      });
+    }
+    function radii(list) {
+      return list.map(function (r) {
+        return r * K;
+      });
+    }
+    // 본체에서 뻗어 나온 큰 마디. 굵은 쪽은 화면 밖으로 잘려 나간다.
+    strut(
+      m,
+      pts([
+        [192, -6],
+        [132, 44],
+        [92, 92],
+      ]),
+      radii([27, 20, 14]),
+    );
+    /* 끝은 갈고리 하나가 아니라 마주 보는 두 갈래다. 벌어졌다 다시 모이는
+       윤곽이 있어야 「짚는다」로 읽힌다 — 하나짜리 갈고리는 그냥 가지다. */
+    strut(
+      m,
+      pts([
+        [92, 92],
+        [60, 114],
+        [42, 146],
+        [58, 163],
+      ]),
+      radii([13, 10, 7, 5]),
+    );
+    strut(
+      m,
+      pts([
+        [92, 92],
+        [80, 134],
+        [92, 168],
+        [112, 174],
+      ]),
+      radii([12, 9, 6, 4]),
+    );
+    // 관절 혹. 매끈한 촉수가 아니라 마디 구조물로 읽히게 한다.
+    disc(m, 132 * K, 44 * K, 24 * K);
+    disc(m, 92 * K, 92 * K, 17 * K);
+    shadeMask(g, m, distField(m), { lx: -0.6, ly: -0.78, deep: 20 * K });
+  }
+
   window.StellaBossArt = {
     draw: function (g, variant, opt) {
       opt = opt || {};
+      if (variant === "claw") return drawClaw(g, opt.size || 180);
       drawStrider(g, opt.size || 180, opt.phase || 1, opt.pupil);
     },
     drawStrider: drawStrider,
+    drawClaw: drawClaw,
     PAL: PAL,
   };
 })();
