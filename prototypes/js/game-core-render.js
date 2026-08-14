@@ -650,6 +650,31 @@ function drawAnimated(name, cx, cy, size, frame) {
   );
   return true;
 }
+// Stage 8-1 has no raster boss: `boss-art.js` draws the walking planet pixel by
+// pixel, which is far too expensive to repeat every frame. Each phase is baked
+// once into an offscreen canvas and then blitted 1:1, so no scaling filter runs
+// and the per-frame cost is a single drawImage. Only four phases exist, so the
+// cache cannot grow beyond that.
+const OUTSIDE_BOSS_SIZE = 264;
+const OUTSIDE_BOSS_LIFT = -22;
+const outsideBossFrames = new Map();
+function outsideBossFrame(size, phase) {
+  const key = size + ":" + phase;
+  const cached = outsideBossFrames.get(key);
+  if (cached) return cached;
+  if (!window.StellaBossArt) return null;
+  const baked = document.createElement("canvas");
+  baked.width = size;
+  baked.height = size;
+  window.StellaBossArt.draw(baked.getContext("2d"), "strider", { size, phase });
+  outsideBossFrames.set(key, baked);
+  return baked;
+}
+// The phase counter is the same one the combat solver already advances, so the
+// silhouette and the health thresholds can never disagree.
+function outsideBossPhase() {
+  return Math.min(4, (stagePhases?.fired ?? 0) + 1);
+}
 function drawArena() {
   drawStageArena();
   drawPinballTable();
@@ -728,7 +753,19 @@ function draw() {
   x.beginPath();
   x.ellipse(boss.x, boss.y + 76, 76, 17, 0, 0, Math.PI * 2);
   x.fill();
-  if (
+  const outsideBoss =
+    currentStage()?.world === "outside"
+      ? outsideBossFrame(OUTSIDE_BOSS_SIZE, outsideBossPhase())
+      : null;
+  if (outsideBoss) {
+    // The baked body centre sits above the canvas centre, so the sprite is
+    // nudged down to stand on the same contact shadow the raster boss uses.
+    x.drawImage(
+      outsideBoss,
+      Math.round(boss.x - OUTSIDE_BOSS_SIZE / 2),
+      Math.round(boss.y - OUTSIDE_BOSS_SIZE / 2 - OUTSIDE_BOSS_LIFT),
+    );
+  } else if (
     !drawFrame(
       bossArt,
       boss.x,
@@ -770,7 +807,7 @@ function draw() {
   x.fillStyle = "#cfdad7";
   x.font = "700 12px Galmuri11, ui-monospace";
   x.textAlign = "center";
-  x.fillText("공허 거상", boss.x, boss.y + 105);
+  x.fillText(bossDisplayName(), boss.x, boss.y + 105);
   if (drag && !ball.moving) {
     x.setLineDash([5, 4]);
     x.strokeStyle = "#ecf4e9";

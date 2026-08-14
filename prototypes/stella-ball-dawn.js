@@ -215,6 +215,7 @@
     );
     rb.title = "달토끼";
     rb.alt = "달토끼";
+    rb.dataset.dawnProp = "rabbit";
     moonWrap.appendChild(rb);
     var pounding = false;
     rb.addEventListener("click", function (e) {
@@ -254,6 +255,7 @@
     );
     var av = spriteImg("astroIdle", "width:72px;display:block");
     av.alt = "우주비행사";
+    aw.dataset.dawnProp = "astronaut";
     aw.appendChild(av);
     var waving = false;
     aw.addEventListener("mouseenter", function () {
@@ -276,6 +278,7 @@
       "tele",
       "position:absolute;right:2%;bottom:5%;width:84px;cursor:grab;touch-action:none",
     );
+    tele.dataset.dawnProp = "telescope";
     S.appendChild(tele);
     drag(tele);
     var comp = spriteImg(
@@ -283,6 +286,7 @@
       "position:absolute;left:3%;top:56%;width:48px;cursor:grab;touch-action:none" +
         (RM ? "" : ";animation:dawnFloat 8s ease-in-out infinite"),
     );
+    comp.dataset.dawnProp = "compass";
     S.appendChild(comp);
     drag(comp);
     function meteor() {

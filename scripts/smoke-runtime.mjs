@@ -40,8 +40,10 @@ const expectedScripts = [
   "./js/game-onboarding.js",
   "./js/game-arena-carve.js",
   "./js/game-bootstrap.js",
+  "./boss-art.js",
   "./stella-ball-pixel-ui.js",
   "./stella-ball-dawn.js",
+  "./outer-observer.js",
 ];
 const actualScripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(
   (match) => match[1],

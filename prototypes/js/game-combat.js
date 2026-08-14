@@ -19,7 +19,8 @@ function finalizeBilliardShot() {
     if (battle.shots <= 0) {
       run = false;
       return fail(
-        "공허 거상이 버텼습니다. 유닛 연쇄와 반사 경로를 바꿔보세요.",
+        bossDisplayName() +
+          "이 버텼습니다. 유닛 연쇄와 반사 경로를 바꿔보세요.",
       );
     }
     // Position play is the point of billiards: the next meteor tees off from

@@ -18,7 +18,7 @@ function figureFieldDamage(ctx, label = "별자리") {
     const dealt = applyBossHit(ctx.bonus);
     if (dealt > 0) {
       addPopup(boss.x, boss.y - 92, label + " -" + dealt, "#ffd2a0", true);
-      hit.push("공허 거상");
+      hit.push(bossDisplayName());
     }
   }
   for (const a of adds) {
@@ -119,7 +119,7 @@ function piercingShot(ctx) {
     const dealt = applyBossHit(ctx.bonus);
     if (dealt > 0) {
       addPopup(boss.x, boss.y - 92, "관통 -" + dealt, "#ffd2a0", true);
-      run.push("공허 거상");
+      run.push(bossDisplayName());
     }
   }
   for (const a of adds) {

@@ -137,6 +137,9 @@ function carveAstrolabe(layerX, cx, cy, r, figure, col, hot) {
     cx + (fx / 100 - 0.5) * r * 2.1,
     cy + (fy / 100 - 0.45) * r * 1.6,
   ]);
+  // Stage 8-1 belongs to a world with no constellation at all, so the dial
+  // keeps its rings and ticks but has no figure to trace.
+  if (!points.length) return;
   layerX.strokeStyle = col;
   layerX.lineWidth = 2;
   layerX.setLineDash([3, 5]);

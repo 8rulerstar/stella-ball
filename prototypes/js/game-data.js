@@ -33,6 +33,7 @@ const U = {
   shotDots: document.querySelector("#shotDots"),
   phase: document.querySelector("#phaseText"),
   hp: document.querySelector("#hpText"),
+  bossName: document.querySelector("#bossName"),
   hpFill: document.querySelector("#hpFill"),
   power: document.querySelector("#powerText"),
   chain: document.querySelector("#chainText"),
@@ -444,6 +445,15 @@ const WORLDS = [
       [84, 58],
       [86, 30],
     ],
+  },
+  // 여덟 번째는 별자리가 아니다. 성도의 어느 그림에도 속하지 않는 점 하나라
+  // `shape`가 비어 있고, 지도와 전장 아스트롤라베는 이을 선 없이 그린다.
+  {
+    id: "outside",
+    name: "관측되지 않은 점",
+    bayer: "∅",
+    lore: "성도 밖의 좌표. 이름이 없고, 이미 이쪽을 보고 있다.",
+    shape: [],
   },
 ];
 // The table is 720x900, and `preview` is the same slot in percent so the
@@ -1129,6 +1139,37 @@ const CAMPAIGN_WORLD_PLANS = [
       ],
     ],
   },
+  // 여덟 번째 월드는 스테이지가 하나뿐이고 별자리를 잇지 않는다. 앞의 34개
+  // 뒤에 붙으므로 기존 순차 해금(`progress.clears`)이 그대로 7-7 클리어를
+  // 조건으로 만든다. 저장 형식은 바뀌지 않는다.
+  {
+    id: "outside",
+    stages: [
+      [
+        "관측되지 않은 점",
+        "∅",
+        "성도 밖",
+        1600,
+        "이름 없는 좌표가 관측을 기다립니다. 이미 이쪽을 보고 있습니다.",
+        {
+          // 네 명이 서는 유일한 캠페인 전장.
+          layout: {
+            slots: [
+              [170, 556],
+              [550, 556],
+              [268, 458],
+              [452, 458],
+            ],
+            boss: [360, 214],
+          },
+          // 체력 70/40/15%에서 형태만 바뀐다. `form`은 `runStagePhase`가
+          // 모르는 값이라 전투에 아무 효과도 주지 않고, `stagePhases.fired`만
+          // 올라가 보스 아트의 페이즈 인자가 된다. 전투 룰은 그대로다.
+          gimmicks: { phases: { at: [0.7, 0.4, 0.15], effect: "form" } },
+        },
+      ],
+    ],
+  },
 ];
 function stagePreview(slots) {
   return slots.map(([x, y]) => [
@@ -1147,11 +1188,15 @@ function buildCampaignStages() {
           subtitle,
           bossHp,
           terrain,
-          { guideStarCharges = 0 } = {},
+          // `layout` and `gimmicks` exist for the single stage that cannot use
+          // the shared three-slot rotation. Every other stage omits them, so
+          // the 34 campaign layouts keep their exact previous assignment.
+          { guideStarCharges = 0, gimmicks = {}, layout: layoutOverride } = {},
         ],
         stageIndex,
       ) => {
         const layout =
+          layoutOverride ??
           CAMPAIGN_LAYOUTS[campaignIndex % CAMPAIGN_LAYOUTS.length];
         campaignIndex += 1;
         return {
@@ -1167,7 +1212,7 @@ function buildCampaignStages() {
           guideStarCharges,
           labels: ["좌측 항로", "우측 항로", "중앙 항로"],
           bumpers: [],
-          gimmicks: {},
+          gimmicks,
           tutorial: worldIndex === 0 && stageIndex === 0,
           art: campaignIndex % 5,
         };
@@ -1183,6 +1228,12 @@ const stages = [...buildCampaignStages(), TRAINING_STAGE];
 const campaignStages = stages.filter((stage) => !stage.training);
 function worldOf(stage) {
   return WORLDS.find((world) => world.id === stage?.world) ?? null;
+}
+// Every campaign colossus is the same void colossus except the stage 8-1
+// occupant, which is deliberately never named. That stage shows its coordinate
+// instead, so no screen has to claim a name the story has not given yet.
+function bossDisplayName(stage = currentStage()) {
+  return stage?.world === "outside" ? stage.star.name : "공허 거상";
 }
 function campaignIndexOf(stage) {
   return campaignStages.indexOf(stage);
@@ -1206,7 +1257,9 @@ function stageGimmickLabels(stage) {
     g.phases &&
       (g.phases.effect === "push"
         ? "페이즈 · 모서리 밀어내기"
-        : "페이즈 · 재수면 " + (g.phases.wakeNeed ?? 2) + "회"),
+        : g.phases.effect === "sleep"
+          ? "페이즈 · 재수면 " + (g.phases.wakeNeed ?? 2) + "회"
+          : "페이즈 · 형태 변화 " + g.phases.at.length + "단"),
   ].filter(Boolean);
 }
 

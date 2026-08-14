@@ -68,7 +68,7 @@
           <section class="boss-panel boss-banner">
             <div class="phase" id="phaseText">전투 · 공허 거상</div>
             <div class="boss-name">
-              <span>공허 거상</span><b id="hpText">체력 240</b>
+              <span id="bossName">공허 거상</span><b id="hpText">체력 240</b>
             </div>
             <div class="meter hp"><i id="hpFill"></i></div>
             <div class="combo-readout" id="comboText">COMBO —</div>
@@ -108,7 +108,12 @@
     <script src="./js/game-onboarding.js"></script>
     <script src="./js/game-arena-carve.js"></script>
     <script src="./js/game-bootstrap.js"></script>
+    <!-- 표현 전용 계층. boss-art.js는 의존성 없는 그리기 라이브러리라 이 계층
+         맨 앞에 온다: 전장 렌더와 stella-ball-dawn.js의 여백 존재 레이어가
+         둘 다 StellaBossArt를 소비하므로 그보다 먼저 로드돼야 한다. -->
+    <script src="./boss-art.js"></script>
     <script src="./stella-ball-pixel-ui.js"></script>
     <script src="./stella-ball-dawn.js"></script>
+    <script src="./outer-observer.js"></script>
   </body>
 </html>

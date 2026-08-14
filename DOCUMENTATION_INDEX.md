@@ -29,6 +29,8 @@
 - [ASSET_BACKLOG.md](ASSET_BACKLOG.md): 기능 작업 중 발견한 신규 디자인·애니메이션·SFX 필요사항의 단일 접수처
 - [ASSET_PLAN.md](ASSET_PLAN.md), [assets/ASSET_MANIFEST.json](assets/ASSET_MANIFEST.json), [assets/ATTRIBUTION.md](assets/ATTRIBUTION.md): 실제 반입 에셋의 계획·목록·출처
 - [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md): 무한 훈련장 전용 별자리 도형·실루엣의 좌표 규약과 현재 제약
+- [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md): 데스크톱 양옆 관측창 밖의 심연, 외부의 관측자, 인트로 컷신의 디자인 요구서와 구현 상태
+- [OUTER_OBSERVER_PALETTE_REPLY.md](OUTER_OBSERVER_PALETTE_REPLY.md): 존재 시안에 대한 채택·보류 회신과 팔레트 교체 근거
 - [HIVE_SETUP.md](HIVE_SETUP.md): 실제 Hive Console 스파이크 절차와 완료 판정
 
 ## 현재 사실 기준선

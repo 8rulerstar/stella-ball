@@ -37,10 +37,12 @@ The files under `js/` load in this exact order and share the browser global scop
 16. `game-arena-carve.js` — final procedural Observatory Ground arena pass. It keeps the four most recently used baked floors in an LRU cache and installs a stage-arena renderer through the `render` module; it must remain after onboarding and before bootstrap. It must not change physics, collisions, balance, or unit judgement colours.
 17. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
 
-Two presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
+Four presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
 
-18. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
-19. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer.
+18. `boss-art.js` — exposes `window.StellaBossArt`; draws the stage 8-1 walking-planet boss procedurally at any size and phase, with no raster asset. It is a pure drawing library with no project dependencies, so it must come first in this tier: both the arena renderer and `stella-ball-dawn.js` consume it.
+19. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
+20. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer. Its margin props carry `data-dawn-prop` names so the intro can startle them without reaching into its locals.
+21. `outer-observer.js` — the five-beat title intro. It attaches its layer as a child of `#dawn-sky`, so the existing `#dawn-sky *` reduced-motion rule covers it, and it watches for `.title-sequence` instead of hooking the runtime. It must load after `stella-ball-dawn.js` because that script creates `#dawn-sky`.
 
 ## Important maintenance rule
 

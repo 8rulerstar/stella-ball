@@ -491,7 +491,9 @@ function win() {
   }).catch(() => {});
   U.over.className = "overlay";
   U.over.innerHTML =
-    '<div class="outcome-cut win"><div class="tag">코어 파괴</div><h2>공허 거상을 무너뜨렸습니다.</h2>' +
+    '<div class="outcome-cut win"><div class="tag">코어 파괴</div><h2>' +
+    bossDisplayName() +
+    "을 무너뜨렸습니다.</h2>" +
     resultCard(shotsUsed, elapsedMs) +
     '<p>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
   U.over.classList.remove("hide");
@@ -590,6 +592,13 @@ function syncBossHealth() {
     U.hp.textContent = label;
     hudState.bossLabel = label;
   }
+  // The name beside the bar used to be static markup, so every stage claimed
+  // the void colossus. Stage 8-1 shows its coordinate instead.
+  const name = bossDisplayName();
+  if (U.bossName && hudState.bossName !== name) {
+    U.bossName.textContent = name;
+    hudState.bossName = name;
+  }
   if (hudState.bossFill !== fill) {
     U.hpFill.style.transform = fill;
     hudState.bossFill = fill;
@@ -597,6 +606,7 @@ function syncBossHealth() {
 }
 const hudState = {
   bossLabel: null,
+  bossName: null,
   bossFill: null,
   shots: null,
   phase: null,
@@ -642,8 +652,8 @@ function sync() {
     ? battle.training
       ? "훈련 · 불멸의 거상"
       : battle.tutorial
-        ? "관측 수업 · 공허 거상"
-        : "전투 · 공허 거상"
+        ? "관측 수업 · " + bossDisplayName()
+        : "전투 · " + bossDisplayName()
     : "전투 준비";
   if (hudState.phase !== phase) {
     U.phase.textContent = phase;
