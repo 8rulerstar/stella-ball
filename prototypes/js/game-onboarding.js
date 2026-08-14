@@ -57,6 +57,13 @@ function isOnboardingSessionActive() {
    정지 중에도 기존 입력 핸들러는 그대로 산다. 여기서는 판을 다시 돌리는 일만
    하고, 조향·패링 자체는 평소와 같은 경로가 처리한다 — 수업에서만 통하는
    두 번째 입력 경로를 만들면 실전에서 배운 것이 달라진다. */
+// 접점까지 남은 시간이 이보다 짧아지면 세운다. 공명 창(0.4초)의 절반 이하라
+// 정지 중 누른 Space가 접점까지 넉넉히 살아 있다.
+const TEACH_PARRY_LEAD = 0.18;
+/* 어떤 이유로든 입력이 오지 않아도 판이 영영 멈추지는 않게 한다. 가르치는
+   장치가 진행을 막는 벽이 되면 안 된다. 충분히 길게 두어 읽고 누를 시간은
+   남기고, 그 뒤에는 조용히 풀어 원래 흐름으로 돌려보낸다. */
+const TEACH_HOLD_GRACE_MS = 9000;
 const TEACH_HOLD = Object.freeze({
   steer: {
     phase: 1,
@@ -72,11 +79,16 @@ function isTeachingHold() {
 }
 function beginTeachingHold(kind) {
   if (!onboarding || onboarding.hold || onboarding.holdDone?.[kind]) return;
-  onboarding.hold = { kind: kind, hint: TEACH_HOLD[kind].hint };
+  const hold = { kind: kind, hint: TEACH_HOLD[kind].hint };
+  hold.timer = setTimeout(() => {
+    if (onboarding?.hold === hold) endTeachingHold();
+  }, TEACH_HOLD_GRACE_MS);
+  onboarding.hold = hold;
   renderTeachingHold();
 }
 function endTeachingHold() {
   if (!onboarding?.hold) return;
+  clearTimeout(onboarding.hold.timer);
   const kind = onboarding.hold.kind;
   onboarding.holdDone = onboarding.holdDone || {};
   // 한 수업에 한 번만 세운다. 같은 샷에서 두 번 멈추면 가르치는 게 아니라
@@ -131,8 +143,13 @@ registerRuntimeHook("afterFeedbackUpdate", () => {
       dy = gate.y - ball.y,
       distance = Math.hypot(dx, dy) || 1;
     const closing = (ball.vx * dx + ball.vy * dy) / distance;
-    if (closing > 0 && distance < gate.r + ball.r + 190)
-      beginTeachingHold("parry");
+    if (closing <= 0) return;
+    /* 거리로 잡으면 안 된다. 공명 창은 0.4초인데 유성 속도는 750~1725px/s에
+       마찰까지 붙어, 같은 거리라도 느린 샷은 창이 먼저 닫힌다 — 시킨 대로
+       눌렀는데 실패하고 별빛까지 흩어진다. 접점까지 남은 시간으로 잡아
+       어떤 속도에서도 누른 뒤가 창 안에 들어오게 한다. */
+    const reach = Math.max(0, distance - (gate.r + ball.r));
+    if (reach / closing < TEACH_PARRY_LEAD) beginTeachingHold("parry");
   }
 });
 // 요구한 입력이 오면 푼다. 입력 자체는 평소 핸들러가 처리하므로 여기서는
@@ -437,6 +454,7 @@ function restoreOnboardingStage() {
 }
 function clearOnboardingRuntime() {
   restoreOnboardingStage();
+  if (onboarding?.hold) clearTimeout(onboarding.hold.timer);
   if (onboarding) onboarding.hold = null;
   renderTeachingHold();
   onboarding = null;

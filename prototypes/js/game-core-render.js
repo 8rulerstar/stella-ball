@@ -753,10 +753,18 @@ function draw() {
   x.beginPath();
   x.ellipse(boss.x, boss.y + 76, 76, 17, 0, 0, Math.PI * 2);
   x.fill();
-  const outsideBoss =
-    currentStage()?.world === "outside"
-      ? outsideBossFrame(OUTSIDE_BOSS_SIZE, outsideBossPhase())
-      : null;
+  /* 8-1과 1-1 수업은 같은 몸이다. 프롤로그에서 창밖을 지나간 것이 첫 수업의
+     상대이고, 34스테이지 뒤 8-1에서 다시 만난다 — 그 연결이 성립하려면 두
+     화면이 같은 그림이어야 한다. 수업에는 페이즈가 없으므로 항상 P1이다. */
+  const stage = currentStage();
+  const outerBody =
+    stage?.world === "outside" || isTutorialOuterObserver(stage);
+  const outsideBoss = outerBody
+    ? outsideBossFrame(
+        OUTSIDE_BOSS_SIZE,
+        stage?.world === "outside" ? outsideBossPhase() : 1,
+      )
+    : null;
   if (outsideBoss) {
     // The baked body centre sits above the canvas centre, so the sprite is
     // nudged down to stand on the same contact shadow the raster boss uses.

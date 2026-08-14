@@ -1232,8 +1232,32 @@ function worldOf(stage) {
 // Every campaign colossus is the same void colossus except the stage 8-1
 // occupant, which is deliberately never named. That stage shows its coordinate
 // instead, so no screen has to claim a name the story has not given yet.
+/* 월드마다 다른 몸을 그리면서 이름만 전부 「공허 거상」이면 화면과 글이
+   어긋난다. 공허 거상은 종족 이름으로 남기고 폴백으로만 쓴다.
+   8-1은 끝까지 이름을 주지 않기로 했으므로 좌표를 쓴다. */
 function bossDisplayName(stage = currentStage()) {
-  return stage?.world === "outside" ? stage.star.name : "공허 거상";
+  if (!stage) return "공허 거상";
+  if (stage.world === "outside") return stage.star.name;
+  if (stage.training) return "불멸의 허수아비";
+  // 1-1 수업의 상대는 최종 보스와 같은 몸이라 이름도 그쪽을 따른다.
+  if (isTutorialOuterObserver(stage)) return outsideStarName();
+  return WORLD_BOSS[stage.world]?.name ?? "공허 거상";
+}
+// 8-1의 별 이름. 수업이 같은 상대를 부를 때 표기가 갈리지 않게 한 곳에서 읽는다.
+function outsideStarName() {
+  return (
+    campaignStages.find((entry) => entry.world === "outside")?.star.name ??
+    "관측되지 않은 점"
+  );
+}
+/* 1-1 수업의 상대를 최종 보스와 같은 개체로 둔다. 프롤로그에서 창밖을
+   지나간 것이 첫 수업의 상대이고, 34스테이지 뒤 8-1에서 다시 만난다.
+   수업 중에는 불멸이라 해칠 수 없고, 마지막 수업만 실제로 눕힌다 —
+   그 화면은 「무너뜨렸다」가 아니라 「첫 관측자의 증명」 업적을 띄운다. */
+function isTutorialOuterObserver(stage = currentStage()) {
+  return Boolean(
+    stage?.tutorial && StellaRuntime.modules.optional("onboarding")?.isActive(),
+  );
 }
 function campaignIndexOf(stage) {
   return campaignStages.indexOf(stage);
@@ -1393,14 +1417,14 @@ const bossPack = {
 /* 팩의 슬러그는 이미 월드 이름으로 지어져 있어 배정이 자명하다. 북두칠성은
    Big Dipper라 `dipper-crawler`가 그 자리다. 8-1은 여백과 전장을 같은 절차적
    코드로 그리므로 여기 없다 — 이 표는 래스터 보스만 다룬다. */
-const WORLD_BOSS_SLUG = Object.freeze({
-  aries: "aries-horngate",
-  sagitta: "sagitta-archon",
-  corvus: "corvus-swarm",
-  cass: "cassiopeia-throne",
-  cygnus: "cygnus-drifter",
-  orion: "orion-hunter",
-  ursa: "dipper-crawler",
+const WORLD_BOSS = Object.freeze({
+  aries: { slug: "aries-horngate", name: "뿔문의 거상" },
+  sagitta: { slug: "sagitta-archon", name: "화살의 집정관" },
+  corvus: { slug: "corvus-swarm", name: "까마귀 군체" },
+  cass: { slug: "cassiopeia-throne", name: "기울어진 왕좌" },
+  cygnus: { slug: "cygnus-drifter", name: "백조자리 표류자" },
+  orion: { slug: "orion-hunter", name: "사냥꾼의 잔영" },
+  ursa: { slug: "dipper-crawler", name: "국자를 끄는 것" },
 });
 /* 스테이지가 실제로 그릴 보스. 훈련장은 전용 허수아비를 쓰고, 표에 없는
    월드는 기존 공허 거상으로 떨어진다. 1-1 수업도 양자리라 같은 보스를
@@ -1409,8 +1433,8 @@ function stageBossArt(stage) {
   const target = stage ?? currentStage();
   if (!target) return bossArt;
   if (target.training) return bossArtFor("training-effigy");
-  const slug = WORLD_BOSS_SLUG[target.world];
-  return slug ? bossArtFor(slug) : bossArt;
+  const entry = WORLD_BOSS[target.world];
+  return entry ? bossArtFor(entry.slug) : bossArt;
 }
 function bossArtFor(slug) {
   const meta = bossPack[slug];

@@ -69,7 +69,7 @@ function setupBattle() {
         : s.name + " · Space 패링 접점을 모아 별자리를 그리세요.";
   toast(
     s.training
-      ? "훈련 시작 · 불멸의 거상"
+      ? "훈련 시작 · " + bossDisplayName()
       : tutorial
         ? "1-1 · 첫 관측 시작"
         : s.guideStarCharges
@@ -660,7 +660,7 @@ function sync() {
   }
   const phase = battle
     ? battle.training
-      ? "훈련 · 불멸의 거상"
+      ? "훈련 · " + bossDisplayName()
       : battle.tutorial
         ? "관측 수업 · " + bossDisplayName()
         : "전투 · " + bossDisplayName()

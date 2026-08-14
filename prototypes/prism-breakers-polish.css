@@ -1852,19 +1852,24 @@ body.onboarding-locked canvas {
     monospace;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  /* 기본값이 보이는 상태여야 한다. 등장 애니메이션의 끝값에 기대면 탭이
+     가려져 있거나 애니메이션이 중간에 끊긴 순간에 신호가 통째로 사라지고,
+     판만 멈춘 화면이 남는다. */
+  opacity: 1;
   animation: teachHoldIn 0.16s steps(2) 1;
 }
 .teach-hold b {
   color: #ffd2a0;
 }
 /* 지금 눌러야 한다는 것만 전한다. 계속 깜빡이면 읽는 대신 기다리게 된다. */
+/* 등장은 위치만 움직인다. 불투명도를 애니메이션에 넣으면 진행 중인 값이
+   기본값을 덮어, 프레임이 멈춘 순간(가려진 탭 등)에 0%에 갇혀 신호가
+   통째로 사라진다. 판만 멈춘 화면이 남으면 그건 안내가 아니라 고장이다. */
 @keyframes teachHoldIn {
   0% {
-    opacity: 0;
     transform: translateX(-50%) translateY(4px);
   }
   100% {
-    opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
 }
