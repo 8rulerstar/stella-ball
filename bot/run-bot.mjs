@@ -8,7 +8,11 @@ const failures = report.filter((entry) => !entry.cleared);
 const summary = {
   generatedAt: new Date().toISOString(),
   model: "runtime-harness-v1",
-  scenario: "plain arena / no gimmicks / 5 shots / manual steer excluded",
+  scenario:
+    "plain arena / no gimmicks / 5 shots / manual steer excluded / " +
+    "constellations never fire: the aim policies top out at 2 parry nodes " +
+    "and FIGURE_PARRY.minNodes is 3, so clearRate is the ceiling for a " +
+    "player who never lands one, not a balance signal",
   cases: report.length,
   clearRate: Number(((cleared.length / report.length) * 100).toFixed(1)),
   averageRemainingHp: Number(
