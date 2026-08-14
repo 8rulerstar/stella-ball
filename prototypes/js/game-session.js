@@ -422,8 +422,7 @@ function fail() {
   U.over.classList.remove("hide");
 }
 function scheduleWin() {
-  const id = battle?.id;
-  if (!id || battleComplete || battle?.victory) return;
+  if (!battle || battleComplete || battle.victory) return;
   battleComplete = true;
   ball.moving = false;
   cloneBalls = [];
@@ -455,10 +454,21 @@ function scheduleWin() {
   combatSfx?.("victory", 1.18);
   toast("별이 하늘로 돌아갑니다.");
   if (navigator.vibrate) navigator.vibrate([20, 38, 22, 38, 55]);
-  setTimeout(() => {
-    if (battle?.id === id && battle?.victory) win();
-  }, 2550);
 }
+// The victory verdict rides the same clock as the victory presentation.
+// `battle.victory.t` is advanced by the frame loop, which already stops for a
+// pause, a menu and a hidden tab, so the cut and the verdict can never drift
+// apart. A wall-clock timer used to own this and could resolve the win while
+// the table was frozen; it also died outright in one headless environment,
+// leaving a dead boss on an unfinished run.
+registerRuntimeHook(
+  "afterFeedbackUpdate",
+  () => {
+    const victory = battle?.victory;
+    if (victory && victory.t >= victory.d) win();
+  },
+  { priority: -10 },
+);
 function resultGoldReward(amount) {
   if (!amount) return "";
   return (
