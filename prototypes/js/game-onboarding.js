@@ -48,6 +48,111 @@ function isOnboardingInputLocked() {
 function isOnboardingSessionActive() {
   return Boolean(onboarding);
 }
+
+/* ── 수업용 정지 ───────────────────────────────────────────────────────
+   조향과 패링은 「읽고 나서 누르는」 것이 아니라 「지금 눌러야 하는」 것이라,
+   설명 카드를 읽은 뒤 실전에 들어가면 결정 순간이 이미 지나가 있다. 유성이
+   결정 지점에 닿으면 판을 세우고, 요구한 입력이 올 때까지 기다린다.
+
+   정지 중에도 기존 입력 핸들러는 그대로 산다. 여기서는 판을 다시 돌리는 일만
+   하고, 조향·패링 자체는 평소와 같은 경로가 처리한다 — 수업에서만 통하는
+   두 번째 입력 경로를 만들면 실전에서 배운 것이 달라진다. */
+const TEACH_HOLD = Object.freeze({
+  steer: {
+    phase: 1,
+    hint: "지금이에요 — <b>좌클릭</b>은 왼쪽, <b>우클릭</b>은 오른쪽",
+  },
+  parry: { phase: 2, hint: "지금이에요 — <b>Space</b>" },
+});
+function teachingHold() {
+  return onboarding?.hold ?? null;
+}
+function isTeachingHold() {
+  return Boolean(onboarding?.hold);
+}
+function beginTeachingHold(kind) {
+  if (!onboarding || onboarding.hold || onboarding.holdDone?.[kind]) return;
+  onboarding.hold = { kind: kind, hint: TEACH_HOLD[kind].hint };
+  renderTeachingHold();
+}
+function endTeachingHold() {
+  if (!onboarding?.hold) return;
+  const kind = onboarding.hold.kind;
+  onboarding.holdDone = onboarding.holdDone || {};
+  // 한 수업에 한 번만 세운다. 같은 샷에서 두 번 멈추면 가르치는 게 아니라
+  // 조작을 막는 것이 된다.
+  onboarding.holdDone[kind] = true;
+  onboarding.hold = null;
+  renderTeachingHold();
+}
+function renderTeachingHold() {
+  const dock = document.querySelector("#onboardingDock");
+  if (!dock) return;
+  let cue = dock.querySelector(".teach-hold");
+  const hold = teachingHold();
+  if (!hold) {
+    if (cue) cue.remove();
+    document.body.classList.remove("teaching-hold");
+    return;
+  }
+  if (!cue) {
+    cue = document.createElement("div");
+    cue.className = "teach-hold";
+    cue.setAttribute("role", "status");
+    dock.appendChild(cue);
+  }
+  cue.innerHTML = "<span>" + hold.hint + "</span>";
+  document.body.classList.add("teaching-hold");
+}
+/* 정지에 걸릴 순간을 매 프레임 살핀다. 조향은 유성이 발사석을 충분히 벗어난
+   뒤, 패링은 루나가 고정한 접점에 닿기 직전이다. */
+registerRuntimeHook("afterFeedbackUpdate", () => {
+  if (!onboarding || onboarding.hold || onboarding.panelVisible !== false)
+    return;
+  if (!ball?.moving || !run) return;
+  if (onboarding.phase === TEACH_HOLD.steer.phase) {
+    // 이미 꺾었으면 가르칠 것이 없다.
+    if (ball.steerUsed || onboarding.steered) return;
+    /* 발사석(H-152)에서 곧장 세우면 아직 아무것도 안 일어난 화면이라
+       무엇을 꺾는 건지 보이지 않는다. 판의 1/4쯤 올라와 궤도가 생기고,
+       그러면서도 꺾인 뒤를 보여 줄 자리가 충분히 남는 높이에서 세운다. */
+    if (ball.y < H - 380) beginTeachingHold("steer");
+    return;
+  }
+  if (onboarding.phase === TEACH_HOLD.parry.phase) {
+    /* 이 수업의 문구는 「발사한 뒤 Space를 한 번 누르세요」라, 접점보다 먼저
+       누르는 것이 정상 경로다. 그렇게 누른 사람에게 접점 직전에 또 판을
+       세우면 이미 한 일을 다시 요구하게 되고, 두 번째 입력이 오지 않으면
+       판이 영영 멈춘다. 눌러 둔 것이 있으면 세우지 않는다. */
+    if (onboarding.parryQueued || onboarding.parrySuccess) return;
+    const gate = gates?.[0];
+    if (!gate || currentFigureShot?.()?.parry > 0) return;
+    const dx = gate.x - ball.x,
+      dy = gate.y - ball.y,
+      distance = Math.hypot(dx, dy) || 1;
+    const closing = (ball.vx * dx + ball.vy * dy) / distance;
+    if (closing > 0 && distance < gate.r + ball.r + 190)
+      beginTeachingHold("parry");
+  }
+});
+// 요구한 입력이 오면 푼다. 입력 자체는 평소 핸들러가 처리하므로 여기서는
+// 판을 다시 돌리기만 한다. 캡처 단계에서 먼저 받아 정지를 즉시 걷는다.
+addEventListener(
+  "pointerdown",
+  (e) => {
+    if (teachingHold()?.kind === "steer" && (e.button === 0 || e.button === 2))
+      endTeachingHold();
+  },
+  true,
+);
+addEventListener(
+  "keydown",
+  (e) => {
+    if (e.code === "Space" && !e.repeat && teachingHold()?.kind === "parry")
+      endTeachingHold();
+  },
+  true,
+);
 // Lessons 1-3 teach against an immortal colossus. Lesson 4 is the real kill,
 // so the battle setup asks this before it decides the boss pool.
 const ONBOARDING_FINAL_PHASE = 3;
@@ -332,6 +437,8 @@ function restoreOnboardingStage() {
 }
 function clearOnboardingRuntime() {
   restoreOnboardingStage();
+  if (onboarding) onboarding.hold = null;
+  renderTeachingHold();
   onboarding = null;
   constellationReveal = null;
   run = false;
@@ -1066,6 +1173,7 @@ registerRuntimeHook("afterArenaDraw", drawObservatoryAtmosphere);
 const OnboardingModule = StellaRuntime.modules.register("onboarding", {
   isActive: isOnboardingSessionActive,
   isInputLocked: isOnboardingInputLocked,
+  isTeachingHold: isTeachingHold,
   isFinalLesson: isOnboardingFinalLesson,
   hasClear: hasOnboardingClear,
   showTutorial: showOnboardingTutorial,

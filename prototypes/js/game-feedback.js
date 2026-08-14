@@ -1231,6 +1231,15 @@ function loop(t) {
     requestAnimationFrame(loop);
     return;
   }
+  // The tutorial stops the table on the frame the player has to decide, so the
+  // steer and the parry are taught at the moment they are used instead of one
+  // card earlier. Same freeze as a pause: the canvas keeps its last frame and
+  // nothing advances, so no delayed assist lands while the board is held.
+  if (StellaRuntime.modules.optional("onboarding")?.isTeachingHold()) {
+    resetInactiveCanvasFeedback();
+    requestAnimationFrame(loop);
+    return;
+  }
   if (impactStop > 0) impactStop -= d;
   else {
     // A continuous time scale reads as smooth slow motion.  Hit-stop remains

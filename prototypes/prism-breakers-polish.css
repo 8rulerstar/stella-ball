@@ -1827,3 +1827,49 @@ body.onboarding-locked canvas {
     opacity: 0.62;
   }
 }
+
+/* 수업용 정지 신호. 유성이 결정 지점에 닿으면 판이 멈추고 이 한 줄이 뜬다.
+   독은 flex-end라 카드와 같은 자리에 쌓이므로, 카드가 없는 실습 중에만
+   보이는 이 신호는 판 가운데 아래쪽에 따로 세운다. */
+.teach-hold {
+  position: absolute;
+  left: 50%;
+  bottom: 20%;
+  transform: translateX(-50%);
+  z-index: 9;
+  pointer-events: none;
+  padding: 9px 16px;
+  border: 1px solid #3f6669;
+  border-radius: 3px;
+  background: #070b0deb;
+  box-shadow:
+    0 0 0 1px #0a0f12,
+    0 6px 18px #04080a99;
+  color: #cfdad7;
+  font:
+    700 13px/1.5 "Galmuri11",
+    ui-monospace,
+    monospace;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  animation: teachHoldIn 0.16s steps(2) 1;
+}
+.teach-hold b {
+  color: #ffd2a0;
+}
+/* 지금 눌러야 한다는 것만 전한다. 계속 깜빡이면 읽는 대신 기다리게 된다. */
+@keyframes teachHoldIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .teach-hold {
+    animation: none;
+  }
+}
