@@ -767,7 +767,7 @@ function draw() {
     );
   } else if (
     !drawFrame(
-      bossArt,
+      stageBossArt(),
       boss.x,
       boss.y,
       Math.floor(frameClock / (boss.hitCooldown > 0 ? 70 : 145)),

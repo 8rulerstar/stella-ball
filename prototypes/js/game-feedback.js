@@ -37,6 +37,21 @@ function feedbackBeat(kind, px, py, col = "#fff1a6", power = 1, label = "") {
   if (feedbackBeats.length > 8)
     feedbackBeats.splice(0, feedbackBeats.length - 8);
 }
+/* 새 전투는 빈 판에서 시작한다. 이 배열들에는 전투 식별자가 없어서, 치우지
+   않으면 이전 판의 팝업·타격 링·정산 연출이 다음 판 위에서 계속 재생된다.
+   온보딩은 수업마다 setupBattle을 다시 부르므로 여기가 가장 잘 드러났다. */
+registerRuntimeHook("afterBattleSetup", () => {
+  feedbackBeats = [];
+  finisherImpacts = [];
+  finisherFocus = null;
+  settlementBeat = null;
+  feedbackCooldown = 0;
+  screenShake = 0;
+  screenFlash = 0;
+  impactStop = 0;
+  comboPulse = 0;
+  popups.length = 0;
+});
 function combatSfx(kind = "hit", strength = 1, heroId = "") {
   if (settings.sfx <= 0) return;
   // Project samples are the primary path.  Synthesis remains a fallback for

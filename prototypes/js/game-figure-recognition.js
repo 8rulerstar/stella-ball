@@ -84,6 +84,10 @@ const PARRY_FX = {
   window: "#ffd2a0", // --star
 };
 let parryFx = [];
+// 패링 잔광도 마찬가지다. 수업이 넘어가면 이전 접점의 빛이 남지 않는다.
+registerRuntimeHook("afterBattleSetup", () => {
+  parryFx = [];
+});
 function pushParryFx(fx) {
   parryFx.push({ t: 0, ...fx });
   if (parryFx.length > PARRY_FX.budget)

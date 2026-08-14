@@ -1390,6 +1390,28 @@ const bossPack = {
   "pentacle-core": { weakCount: 5, tier: "void" },
   "erosion-warden": { weakCount: 2, tier: "teal" },
 };
+/* 팩의 슬러그는 이미 월드 이름으로 지어져 있어 배정이 자명하다. 북두칠성은
+   Big Dipper라 `dipper-crawler`가 그 자리다. 8-1은 여백과 전장을 같은 절차적
+   코드로 그리므로 여기 없다 — 이 표는 래스터 보스만 다룬다. */
+const WORLD_BOSS_SLUG = Object.freeze({
+  aries: "aries-horngate",
+  sagitta: "sagitta-archon",
+  corvus: "corvus-swarm",
+  cass: "cassiopeia-throne",
+  cygnus: "cygnus-drifter",
+  orion: "orion-hunter",
+  ursa: "dipper-crawler",
+});
+/* 스테이지가 실제로 그릴 보스. 훈련장은 전용 허수아비를 쓰고, 표에 없는
+   월드는 기존 공허 거상으로 떨어진다. 1-1 수업도 양자리라 같은 보스를
+   보게 되므로, 수업에서 만난 적과 캠페인 첫 판의 적이 어긋나지 않는다. */
+function stageBossArt(stage) {
+  const target = stage ?? currentStage();
+  if (!target) return bossArt;
+  if (target.training) return bossArtFor("training-effigy");
+  const slug = WORLD_BOSS_SLUG[target.world];
+  return slug ? bossArtFor(slug) : bossArt;
+}
 function bossArtFor(slug) {
   const meta = bossPack[slug];
   // Falls back to the void colossus rather than throwing, so a stage naming a
@@ -1559,8 +1581,14 @@ function loadSpec(spec) {
   loadTexture(spec.sprite);
   for (const path of Object.values(spec.animations ?? {})) loadTexture(path);
 }
-function primeCombatTextures() {
+/* `stage`는 전투 진입 때만 넘어온다. 이 함수는 모듈 로드 시점에도 한 번
+   불리는데, 그때는 `currentStage`가 아직 초기화 전이라 스스로 알아낼 수 없다. */
+function primeCombatTextures(stage = null) {
   loadSpec(bossArt);
+  // 지금 들어갈 판의 보스도 함께 읽는다. 기본값만 예열하면 월드 보스가
+  // 첫 프레임에 비어 폴백 원으로 한 번 깜빡인다.
+  const staged = stage ? stageBossArt(stage) : bossArt;
+  if (staged !== bossArt) loadSpec(staged);
   for (const path of [
     ...Object.values(staticArt),
     ...Object.values(feedbackArt),

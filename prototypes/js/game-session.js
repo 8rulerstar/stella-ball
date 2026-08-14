@@ -25,7 +25,7 @@ function setupBattle() {
     tutorial,
   };
   battleComplete = false;
-  primeCombatTextures();
+  primeCombatTextures(s);
   // The tutorial keeps the colossus immortal while Luna is teaching, then
   // hands the player a real, winnable fight for the closing lesson.
   const finalLesson = tutorial && onboardingApi?.isFinalLesson();

@@ -477,6 +477,11 @@ let cloneBalls = [];
 // separate from the older field feedback so they can finish fading even while
 // the table is waiting for the next shot.
 let abilityBursts = [];
+// 능력 연출과 분열한 유성은 그 전투의 것이다. 다음 판으로 넘기지 않는다.
+registerRuntimeHook("afterBattleSetup", () => {
+  abilityBursts = [];
+  cloneBalls = [];
+});
 function emitAbilityFx(
   g,
   x = g.x,
