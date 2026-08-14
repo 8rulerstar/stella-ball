@@ -489,7 +489,12 @@ function impact(
   py = boss?.y ?? ball?.y,
   profile = "default",
 ) {
-  const force = Math.min(1.9, 1 + (hitCombo - 1) * 0.18),
+  // 페이즈가 있는 거상은 부서질수록 손맛이 무거워진다. 8-1은 형태가 진행도를
+  // 대신하는데(다리 손실·기울기·동공 확장), 타격감이 P1과 P4에서 같으면 눈에
+  // 보이는 변화와 손에 오는 감각이 서로 다른 말을 한다. 기존 세 값을 같은
+  // 배수로 키울 뿐이라 새 파티클 배열도 새 DOM 갱신도 늘지 않는다.
+  const phaseForce = 1 + Math.min(3, stagePhases?.fired ?? 0) * 0.12,
+    force = Math.min(2.3, (1 + (hitCombo - 1) * 0.18) * phaseForce),
     heavy = Boolean(weak) || hitCombo >= 3,
     contact = profile === "contact",
     finisher = profile === "finisher",
