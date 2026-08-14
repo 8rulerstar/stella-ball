@@ -5,15 +5,34 @@ import { sweepPlainArena } from "./runtime-harness.mjs";
 const report = sweepPlainArena();
 const cleared = report.filter((entry) => entry.cleared);
 const failures = report.filter((entry) => !entry.cleared);
+// 정책을 뭉쳐 평균 내면 별자리를 쓰는 판과 못 쓰는 판이 섞여 아무 뜻도
+// 없는 숫자가 된다. 정책별로 따로 낸다.
+const byPolicy = {};
+for (const entry of report) {
+  const slot = (byPolicy[entry.policy] ??= {
+    cases: 0,
+    cleared: 0,
+    constellations: 0,
+  });
+  slot.cases += 1;
+  slot.cleared += entry.cleared ? 1 : 0;
+  slot.constellations += entry.constellations;
+}
+for (const [name, slot] of Object.entries(byPolicy))
+  byPolicy[name] = {
+    ...slot,
+    clearRate: Number(((slot.cleared / slot.cases) * 100).toFixed(1)),
+  };
 const summary = {
   generatedAt: new Date().toISOString(),
   model: "runtime-harness-v1",
   scenario:
     "plain arena / no gimmicks / 5 shots / manual steer excluded / " +
-    "constellations never fire: the aim policies top out at 2 parry nodes " +
-    "and FIGURE_PARRY.minNodes is 3, so clearRate is the ceiling for a " +
-    "player who never lands one, not a balance signal",
+    "three aim policies: direct and contact never reach the 3 parry nodes " +
+    "a constellation needs, chain aims to graze several starkeepers and " +
+    "does. Read clearRate per policy, never pooled.",
   cases: report.length,
+  byPolicy,
   clearRate: Number(((cleared.length / report.length) * 100).toFixed(1)),
   averageRemainingHp: Number(
     (

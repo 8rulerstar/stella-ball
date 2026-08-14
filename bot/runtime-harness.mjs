@@ -267,9 +267,47 @@ function __botLaunch(angle) {
   chain = [];
 }
 function __botAngle(mode, shot, spread) {
+  if (mode === "chain") return __botChainAngle(spread);
   const targets = mode === "direct" ? [boss] : gates;
   const target = targets[shot % targets.length] || boss;
   return Math.atan2(target.y - ball.y, target.x - ball.x) + spread;
+}
+/* 'contact'는 게이트 하나를 직선으로 노리고 끝이라 한 샷에 접점이 2개를
+   넘지 못한다. 별자리는 3개가 있어야 발동하므로 그 정책으로는 이 게임의
+   간판 기믹이 한 번도 측정되지 않는다.
+
+   'chain'은 후보 각도를 훑어 별지기를 가장 많이 스치는 방향을 고른다.
+   물리를 다시 풀지 않고 직선 경로와 각 별지기의 최단 거리만 본다 —
+   벽 반사 뒤의 경로는 무시하므로 상한이 아니라 하한이다. */
+function __botChainAngle(spread) {
+  const reach = ball.r + 26;
+  let best = null;
+  for (let step = 0; step < 96; step++) {
+    const angle = (step / 96) * Math.PI * 2;
+    const dx = Math.cos(angle),
+      dy = Math.sin(angle);
+    let grazed = 0,
+      nearest = Infinity;
+    for (const gate of gates) {
+      const gx = gate.x - ball.x,
+        gy = gate.y - ball.y;
+      const along = gx * dx + gy * dy;
+      if (along <= 0) continue; // 뒤쪽은 세지 않는다
+      const offset = Math.abs(gx * dy - gy * dx);
+      if (offset < gate.r + reach) {
+        grazed += 1;
+        nearest = Math.min(nearest, along);
+      }
+    }
+    // 스치는 별지기가 많은 쪽이 우선, 같으면 첫 접점이 가까운 쪽
+    if (
+      !best ||
+      grazed > best.grazed ||
+      (grazed === best.grazed && nearest < best.nearest)
+    )
+      best = { angle, grazed, nearest };
+  }
+  return (best ? best.angle : Math.atan2(boss.y - ball.y, boss.x - ball.x)) + spread;
 }
 function __botTryParry(mode) {
   const state = currentFigureShot();
@@ -587,7 +625,9 @@ export function sweepPlainArena({
   partySizes = [2, 3, 4],
   bossHp = [180, 260, 340, 420],
   seeds = [11, 29, 47, 83],
-  policies = ["direct", "contact"],
+  // `chain`은 별자리를 실제로 발동시키는 유일한 정책이다. 이게 없으면 이
+  // 스윕은 당구 접촉 피해만 재고, 게임의 간판 기믹은 한 번도 타지 않는다.
+  policies = ["direct", "contact", "chain"],
   steer = false,
 } = {}) {
   const report = [];
