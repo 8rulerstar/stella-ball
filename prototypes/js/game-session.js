@@ -51,6 +51,9 @@ function setupBattle() {
     on: 0,
   }));
   setupStageGimmicks(s);
+  // 대기 상태는 전투마다 새로 시작한다. 남겨 두면 시선과 기울임이 이전 판의
+  // 마지막 자세에서 이어져, 새 전투 첫 프레임에 눈이 엉뚱한 곳을 본다.
+  resetOutsideBossIdle?.();
   areaBursts = [];
   fieldFx = [];
   ball = null;

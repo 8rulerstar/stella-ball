@@ -486,5 +486,29 @@
     drawStrider: drawStrider,
     drawClaw: drawClaw,
     PAL: PAL,
+    /* 눈만 따로 굽기 위한 창구. eye()가 고르는 색은 중심으로부터의 dx·dy·d에만
+       의존하고 절대 좌표를 보지 않으므로, `free: true`로 별도 캔버스의 정수
+       중심에 그리면 몸통 안에 그려진 것과 픽셀 단위로 같은 그림이 나온다.
+       그래서 동공이 바뀔 때마다 264×264 몸통을 통째로(측정 14ms) 다시 굽는
+       대신 96×96 눈만(약 1ms) 다시 구울 수 있다.
+       geometry()는 그 자리와 반지름을 호출자가 되풀이 계산하지 않도록
+       drawStrider와 «같은 식»으로 돌려준다 — 두 곳에 적으면 반드시 어긋난다. */
+    eye: eye,
+    geometry: function (size, phase) {
+      var K = size / 180,
+        P = phase || 1,
+        tilt = [0, 0, 5, 11, 18][P] * K;
+      return {
+        x: Math.round(88 * K),
+        y: Math.round(66 * K + tilt),
+        R0: 31 * K,
+        iris: [0, 21, 23, 25, 27][P] * K,
+        pupil: [0, 7, 12, 17, 23][P] * K,
+        spokes: 15,
+        hot: ["#3f6b6d", "#3f6b6d", "#4d7f80", "#5f9b98", "#74bfc0"][P],
+        rimHot: P >= 3 ? "#a9c6c2" : "#8ba39f",
+        ticks: size >= 140,
+      };
+    },
   };
 })();

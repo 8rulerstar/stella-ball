@@ -691,10 +691,222 @@ const outsideBossFrames = new Map();
    거상이 아예 숨을 쉬지 않았다. 인트로 스펙 자체가 「동공 수축 뒤 느린 호흡,
    정지 상태에서도 프레임이 산다」를 규정하므로, 그 호흡만 여기서도 돌린다.
    페이즈당 몇 장을 더 굽는 것뿐이고 프레임 비용은 여전히 drawImage 한 번이다. */
-const OUTSIDE_BOSS_PUPILS = [1, 0.9, 0.78, 0.9];
-const OUTSIDE_BOSS_BREATH_MS = 420;
-function outsideBossFrame(size, phase, pupilStep = 0) {
-  const key = size + ":" + phase + ":" + pupilStep;
+/* 예전의 동공 호흡은 동공 크기마다 264×264 몸통을 통째로 다시 구웠다 —
+   한 장에 14ms, 60fps 한 프레임을 통째로 먹는 값이라 「눈만 끔뻑거리는」
+   4단계가 낼 수 있는 전부였다.
+   눈이 고르는 색은 중심으로부터의 dx·dy·d에만 의존하고 절대 좌표를 보지
+   않는다(boss-art.js의 eye). 그래서 눈을 별도 캔버스에 구워도 몸통 안에
+   구워진 것과 픽셀 단위로 같은 그림이 나온다 — 네 페이즈 전부 6501픽셀
+   전수 비교에서 차이 0으로 확인했다. 몸통은 페이즈당 한 장만 굽고, 그 위에
+   눈만 얹는다. 96×96 한 장이 약 1ms이므로 동공을 연속 값으로 굴릴 수 있고,
+   홍채를 소켓 안에서 몇 픽셀 옮기면 시선이 된다. */
+const outsideBossSockets = new Map();
+const outsideBossIrises = new Map();
+function outsideBossGeometry(size, phase) {
+  return window.StellaBossArt?.geometry?.(size, phase) ?? null;
+}
+function outsideBossPatchSize(g) {
+  return (Math.ceil(g.R0) + 3) * 2;
+}
+// 소켓: 홍채를 지운 눈. irisR/pupR을 음수로 주면 R0 안쪽이 전부 공막이 된다.
+function outsideBossSocket(size, phase) {
+  const key = size + ":" + phase,
+    hit = outsideBossSockets.get(key);
+  if (hit) return hit;
+  const art = window.StellaBossArt,
+    g = outsideBossGeometry(size, phase);
+  if (!art?.eye || !g) return null;
+  const d = outsideBossPatchSize(g),
+    c = d / 2,
+    made = document.createElement("canvas");
+  made.width = made.height = d;
+  art.eye(made.getContext("2d"), { w: d, h: d, d: null }, c, c, g.R0, -1, -1, {
+    free: true,
+    spokes: g.spokes,
+    hot: g.hot,
+    rimHot: g.rimHot,
+    ticks: false,
+  });
+  outsideBossSockets.set(key, made);
+  return made;
+}
+// 홍채: 눈을 통째로 그린 뒤 irisR 밖을 잘라낸다. 소켓 위에서 이것만 움직인다.
+const OUTSIDE_BOSS_PUPIL_STEP = 0.06;
+function outsideBossIris(size, phase, pupilScale) {
+  const step = Math.round(pupilScale / OUTSIDE_BOSS_PUPIL_STEP),
+    key = size + ":" + phase + ":" + step,
+    hit = outsideBossIrises.get(key);
+  if (hit) return hit;
+  const art = window.StellaBossArt,
+    g = outsideBossGeometry(size, phase);
+  if (!art?.eye || !g) return null;
+  const d = outsideBossPatchSize(g),
+    c = d / 2,
+    made = document.createElement("canvas");
+  made.width = made.height = d;
+  const ig = made.getContext("2d");
+  art.eye(
+    ig,
+    { w: d, h: d, d: null },
+    c,
+    c,
+    g.R0,
+    g.iris,
+    g.pupil * (step * OUTSIDE_BOSS_PUPIL_STEP),
+    {
+      free: true,
+      spokes: g.spokes,
+      hot: g.hot,
+      rimHot: g.rimHot,
+      ticks: false,
+    },
+  );
+  ig.globalCompositeOperation = "destination-in";
+  ig.beginPath();
+  ig.arc(c, c, g.iris, 0, Math.PI * 2);
+  ig.fill();
+  outsideBossIrises.set(key, made);
+  return made;
+}
+/* 거상의 대기 상태. 「눈만 끔뻑거린다」는 지적에 대한 답을 몸의 움직임이
+   아니라 «시선»으로 잡는다 — 가만히 서 있어도 저것이 나를 보고 있으면 살아
+   있는 것으로 읽힌다. 값은 전부 프레임 사이 보간이고, 그리기는 캐시된 패치를
+   옮겨 얹는 것뿐이라 새로 굽는 일이 없다.
+   심사에서 만들지 않기로 한 것: 눈을 축으로 한 회전(발끝이 0.43px 흔들려
+   지각 한계 아래이면서 계단만 생긴다), 몸통 비균일 스케일·전단(행 중복과
+   전단 계단이 동시에 보인다), 대기 중 잔상, 몸통 전체 재합성 「가열」,
+   2px 계단으로 튀는 몸통 흠칫(렌더 버그로 읽힌다). */
+const outsideBossIdle = {
+  clock: 0,
+  gx: 0,
+  gy: 0,
+  lean: 0,
+  blinkNext: 2600,
+  blinkAt: -1,
+  blinkDouble: false,
+  awayNext: 9000,
+  awayAt: -1,
+};
+function resetOutsideBossIdle() {
+  outsideBossIdle.clock = 0;
+  outsideBossIdle.gx = 0;
+  outsideBossIdle.gy = 0;
+  outsideBossIdle.lean = 0;
+  outsideBossIdle.blinkAt = -1;
+  outsideBossIdle.blinkNext = 2600;
+  outsideBossIdle.awayAt = -1;
+  outsideBossIdle.awayNext = 9000;
+}
+// 정수 해시. Math.random을 쓰면 봇 하니스가 기대는 결정론이 깨진다.
+function outsideBossHash(n) {
+  let h = (n | 0) * 374761393;
+  h = (h ^ (h >>> 13)) * 1274126177;
+  return (h ^ (h >>> 16)) >>> 0;
+}
+/* 프레임마다 도는 대기 갱신. 전부 산술이고 캔버스를 만들지 않는다. */
+function updateOutsideBossIdle(phase) {
+  const g = outsideBossGeometry(OUTSIDE_BOSS_SIZE, phase);
+  if (!g) return null;
+  const now = frameClock;
+  const dt = Math.min(0.05, Math.max(0, (now - outsideBossIdle.clock) / 1000));
+  outsideBossIdle.clock = now;
+
+  // 눈의 실제 화면 좌표. 몸통 blit 자리 + 패치 안 눈 중심.
+  const bodyX = Math.round(boss.x - OUTSIDE_BOSS_SIZE / 2),
+    bodyY = Math.round(boss.y - OUTSIDE_BOSS_SIZE / 2 - OUTSIDE_BOSS_LIFT),
+    eyeX = bodyX + g.x,
+    eyeY = bodyY + g.y;
+
+  /* 「다른 것을 본다」 비트. 유성이 멈춰 있을 때만, 9~16초마다 0.76초.
+     그동안 이것은 나를 보고 있지 않다 — 위협은 시선을 거두는 데서 나온다. */
+  if (
+    outsideBossIdle.awayAt < 0 &&
+    !ball?.moving &&
+    now > outsideBossIdle.awayNext
+  ) {
+    outsideBossIdle.awayAt = now;
+    outsideBossIdle.awayNext =
+      now + 9000 + (outsideBossHash(Math.floor(now)) % 7000);
+  }
+  const away =
+    outsideBossIdle.awayAt >= 0 && now - outsideBossIdle.awayAt < 760;
+  if (!away) outsideBossIdle.awayAt = -1;
+
+  // 시선. 목표를 정하고 감쇠로 따라간다.
+  const maxGaze = Math.max(
+    0,
+    Math.min(4, g.R0 - Math.max(2, g.R0 * 0.09) - g.iris - 2),
+  );
+  let tx = 0,
+    ty = 0;
+  if (away) {
+    const side =
+      outsideBossHash(Math.floor(outsideBossIdle.awayAt)) & 1 ? 1 : -1;
+    tx = side * maxGaze;
+    ty = -0.7 * maxGaze;
+  } else if (ball) {
+    const dx = ball.x - eyeX,
+      dy = ball.y - eyeY,
+      len = Math.hypot(dx, dy) || 1;
+    tx = (dx / len) * maxGaze;
+    ty = (dy / len) * maxGaze * 0.78;
+    /* 미세 단속운동. 760ms마다 130ms 동안만 목표를 살짝 흔든다 — 눈은 결코
+       완벽하게 멈춰 있지 않다. 해시라 매 판 같은 리듬이고 재현된다. */
+    const win = Math.floor(now / 760);
+    if (now % 760 < 130) {
+      const h = outsideBossHash(win);
+      tx += ((h & 3) - 1.5) * 1.7;
+      ty += (((h >> 5) & 3) - 1.5) * 1.3;
+    }
+  }
+  const tau = away ? 0.3 : ball?.moving ? 0.08 : 0.19,
+    k = 1 - Math.exp(-dt / tau);
+  outsideBossIdle.gx += (tx - outsideBossIdle.gx) * k;
+  outsideBossIdle.gy += (ty - outsideBossIdle.gy) * k;
+
+  /* 동공은 위협 게이지다. 유성이 멀면 넓고 부드럽고, 다가올수록 조여든다.
+     설명 한 줄 없이 읽히는 정보다. */
+  const dist = ball ? Math.hypot(ball.x - eyeX, ball.y - eyeY) : 999;
+  const prox = Math.max(0, Math.min(1, (430 - dist) / 300));
+  let pupil = 1.16 - 0.44 * prox + 0.05 * Math.sin(now * 0.00115 + 0.9);
+  if (ball?.moving) pupil -= 0.16;
+  if (away) pupil += 0.3;
+  pupil -= 0.22 * Math.min(1, (boss.hitFlash || 0) / 0.26);
+  pupil = Math.max(0.6, Math.min(1.44, pupil));
+
+  // 호흡. 인트로가 정한 5.46초 템포 그대로, 2px 격자에 계단으로 얹는다.
+  const bobY = Math.round((Math.sin(now * 0.00115) * 3) / 2) * 2;
+
+  // 위협 쪽으로 무게가 실린다. 흠칫과 헷갈리지 않게 느리다.
+  const leanTarget = away
+    ? 0
+    : Math.max(-1, Math.min(1, ((ball?.x ?? boss.x) - boss.x) / 210)) * 3;
+  outsideBossIdle.lean +=
+    (leanTarget - outsideBossIdle.lean) * (1 - Math.exp(-dt / 0.55));
+  const leanX = Math.round(outsideBossIdle.lean / 2) * 2;
+
+  // 깜빡임. 3.4~6.8초마다, 여덟 번에 한 번은 두 번 연속.
+  if (outsideBossIdle.blinkAt < 0 && now > outsideBossIdle.blinkNext) {
+    const h = outsideBossHash(Math.floor(now) ^ 0x9e37);
+    outsideBossIdle.blinkAt = now;
+    outsideBossIdle.blinkDouble = (h & 7) === 0;
+    outsideBossIdle.blinkNext = now + 3400 + (h % 3400);
+  }
+  let lid = 0;
+  if (outsideBossIdle.blinkAt >= 0) {
+    const shut = (t) =>
+      t < 60 ? t / 60 : t < 90 ? 1 : t < 190 ? 1 - (t - 90) / 100 : 0;
+    const t = now - outsideBossIdle.blinkAt;
+    lid = shut(t);
+    if (outsideBossIdle.blinkDouble) lid = Math.max(lid, shut(t - 230));
+    if (t > (outsideBossIdle.blinkDouble ? 420 : 190))
+      outsideBossIdle.blinkAt = -1;
+  }
+
+  return { g, eyeX, eyeY, pupil, bobY, leanX, lid, prox };
+}
+function outsideBossFrame(size, phase) {
+  const key = size + ":" + phase;
   const cached = outsideBossFrames.get(key);
   if (cached) return cached;
   if (!window.StellaBossArt) return null;
@@ -704,26 +916,26 @@ function outsideBossFrame(size, phase, pupilStep = 0) {
   window.StellaBossArt.draw(baked.getContext("2d"), "strider", {
     size,
     phase,
-    pupil: OUTSIDE_BOSS_PUPILS[pupilStep] ?? 1,
+    pupil: 1,
   });
   outsideBossFrames.set(key, baked);
-  warmOutsideBossFrames(size, phase);
+  warmOutsideBossEyes(size, phase);
   return baked;
 }
-/* 한 장을 굽는 데 14ms — 60fps 한 프레임을 통째로 먹는다. 그런데 호흡은
-   420ms마다 다음 동공 단계로 넘어가므로, 수업이 열린 뒤 첫 1.7초 동안 네 번
-   연속으로 프레임을 떨궜다. 첫 실패는 피할 수 없지만 나머지 세 장은 브라우저가
-   한가할 때 미리 구워 둔다. 프레임 루프에서는 두 번 다시 굽지 않는다. */
+/* 눈은 한 장이 1ms이라도 수업 첫 순간에 몰아서 구우면 보인다. 실제로 쓰이는
+   범위만 한가할 때 미리 굽는다. 프레임 루프에서는 캐시 적중만 일어난다. */
 const outsideBossWarmed = new Set();
-function warmOutsideBossFrames(size, phase) {
+function warmOutsideBossEyes(size, phase) {
   const tag = size + ":" + phase;
   if (outsideBossWarmed.has(tag)) return;
   outsideBossWarmed.add(tag);
   const whenIdle =
     window.requestIdleCallback?.bind(window) ?? ((fn) => setTimeout(fn, 32));
-  OUTSIDE_BOSS_PUPILS.forEach((_, step) =>
-    whenIdle(() => outsideBossFrame(size, phase, step)),
-  );
+  whenIdle(() => outsideBossSocket(size, phase));
+  for (let p = 0.6; p <= 1.45; p += OUTSIDE_BOSS_PUPIL_STEP) {
+    const scale = p;
+    whenIdle(() => outsideBossIris(size, phase, scale));
+  }
 }
 // The phase counter is the same one the combat solver already advances, so the
 // silhouette and the health thresholds can never disagree.
@@ -803,25 +1015,36 @@ function draw() {
     x.stroke();
     x.restore();
   }
-  // Ground the colossus so it stops floating over the carved floor.
-  x.fillStyle = "#00000066";
-  x.beginPath();
-  x.ellipse(boss.x, boss.y + 76, 76, 17, 0, 0, Math.PI * 2);
-  x.fill();
   /* 8-1과 1-1 수업은 같은 몸이다. 프롤로그에서 창밖을 지나간 것이 첫 수업의
      상대이고, 34스테이지 뒤 8-1에서 다시 만난다 — 그 연결이 성립하려면 두
      화면이 같은 그림이어야 한다. 수업에는 페이즈가 없으므로 항상 P1이다. */
   const stage = currentStage();
   const outerBody =
     stage?.world === "outside" || isTutorialOuterObserver(stage);
+  const outsidePhase = stage?.world === "outside" ? outsideBossPhase() : 1;
   const outsideBoss = outerBody
-    ? outsideBossFrame(
-        OUTSIDE_BOSS_SIZE,
-        stage?.world === "outside" ? outsideBossPhase() : 1,
-        Math.floor(frameClock / OUTSIDE_BOSS_BREATH_MS) %
-          OUTSIDE_BOSS_PUPILS.length,
-      )
+    ? outsideBossFrame(OUTSIDE_BOSS_SIZE, outsidePhase)
     : null;
+  // 그림자보다 먼저 갱신해야 한다 — 그림자가 호흡의 반대 위상을 타야 하므로.
+  const outsideIdle = outsideBoss ? updateOutsideBossIdle(outsidePhase) : null;
+  /* Ground the colossus so it stops floating over the carved floor.
+     무게는 여기서 나온다. 몸이 떠오를 때 그림자가 함께 줄어들고 옅어지지
+     않으면, 위아래로 움직이는 것이 바닥에 붙어 있지 않고 유리 위를 미끄러지는
+     것으로 읽힌다. 타원 하나를 그리는 비용은 그대로다. */
+  const shadowBob = outsideIdle?.bobY ?? 0,
+    shadowLean = outsideIdle?.leanX ?? 0;
+  x.fillStyle = "rgba(0,0,0," + (0.4 + shadowBob * 0.012).toFixed(3) + ")";
+  x.beginPath();
+  x.ellipse(
+    boss.x + shadowLean * 0.5,
+    boss.y + 76,
+    76 + shadowBob * 0.7,
+    17 + shadowBob * 0.22,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  x.fill();
   /* The flinch. Screen shake and hit-stop already exist, but the boss's own
      body showed nothing when hurt - the raster sheet only sped up its frames
      and the baked 8-1 canvas never changed at all, so hits read as landing on
@@ -850,11 +1073,46 @@ function draw() {
   if (outsideBoss) {
     // The baked body centre sits above the canvas centre, so the sprite is
     // nudged down to stand on the same contact shadow the raster boss uses.
-    x.drawImage(
-      outsideBoss,
-      Math.round(boss.x - OUTSIDE_BOSS_SIZE / 2),
-      Math.round(boss.y - OUTSIDE_BOSS_SIZE / 2 - OUTSIDE_BOSS_LIFT),
-    );
+    const bodyX = Math.round(boss.x - OUTSIDE_BOSS_SIZE / 2),
+      bodyY = Math.round(boss.y - OUTSIDE_BOSS_SIZE / 2 - OUTSIDE_BOSS_LIFT),
+      bob = outsideIdle?.bobY ?? 0,
+      lean = outsideIdle?.leanX ?? 0;
+    x.drawImage(outsideBoss, bodyX + lean, bodyY + bob);
+    if (outsideIdle) {
+      /* 소켓은 제자리에 두고 홍채만 그 안에서 옮긴다. 눈알 전체가 미끄러지면
+         안구가 아니라 스티커가 움직이는 것으로 보인다. */
+      const { g, pupil, gx = 0, gy = 0, lid } = outsideIdle,
+        socket = outsideBossSocket(OUTSIDE_BOSS_SIZE, outsidePhase),
+        iris = outsideBossIris(OUTSIDE_BOSS_SIZE, outsidePhase, pupil),
+        half = socket ? socket.width / 2 : 0,
+        ex = bodyX + lean + g.x,
+        ey = bodyY + bob + g.y;
+      if (socket) x.drawImage(socket, ex - half, ey - half);
+      if (iris)
+        x.drawImage(
+          iris,
+          Math.round(ex - half + outsideBossIdle.gx),
+          Math.round(ey - half + outsideBossIdle.gy),
+        );
+      /* 눈꺼풀. 이 아트에 없는 기관이라 그려 넣는다. arc로 clip하면 경계가
+         안티에일리어싱되어 픽셀 아트가 아닌 것이 섞이므로, 2px 격자에 맞춘
+         가로 막대로 덮는다 — stepRing이 같은 이유로 오버샘플링하고 있다. */
+      if (lid > 0) {
+        x.save();
+        x.fillStyle = "#0b1417";
+        const R = g.R0;
+        for (let yy = -R; yy < -R + lid * 2 * R; yy += 2) {
+          const w = Math.sqrt(Math.max(0, R * R - yy * yy));
+          x.fillRect(
+            Math.round(ex - w),
+            Math.round(ey + yy),
+            Math.round(w * 2),
+            2,
+          );
+        }
+        x.restore();
+      }
+    }
   } else if (
     !drawFrame(
       stageBossArt(),
