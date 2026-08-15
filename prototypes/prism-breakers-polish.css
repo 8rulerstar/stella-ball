@@ -565,7 +565,13 @@
 .constellation-map {
   position: relative;
   flex: 1;
-  min-height: 500px;
+  /* 500px was a hard floor, but the head (73) and foot (73) and the shell's
+     padding (32) leave only 450px inside the 628px column at 1280x720.  The
+     shell came out 677px tall, the overlay clips, and the footer's back /
+     training / replay buttons were cut off with no way to scroll to them.
+     `flex: 1` already hands the map every pixel that is actually spare, so
+     the floor only needs to stop it collapsing on very short windows. */
+  min-height: 240px;
   overflow: hidden;
 }
 .constellation-map:before {

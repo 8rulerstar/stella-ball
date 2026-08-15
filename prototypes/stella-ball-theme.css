@@ -1911,8 +1911,10 @@ body.onboarding-locked .pause-button {
    slot that reads as "close to the colossus" really is.  The old
    .roster-shell / .deploy-* rules went with the two-step flow.
    --------------------------------------------------------------------- */
+/* Absolute, not fixed: every menu screen fills the observatory column so the
+   width never jumps between them.  See the MENU TABS block for the reasoning. */
 .overlay.squad-scene {
-  position: fixed !important;
+  position: absolute !important;
   inset: 0 !important;
   z-index: 40;
   padding: 0 !important;
@@ -2592,13 +2594,17 @@ body.onboarding-locked .pause-button {
 }
 
 /* ---------------------------------------------------------------------
-   FULL-WINDOW MENU TABS — summon, shop and profile take the viewport like
-   the roster and deployment steps already do.
+   MENU TABS — summon, shop and profile fill the observatory column, not the
+   window.  They used to be `position: fixed`, which took the whole viewport
+   and made the width jump 502px -> 1280px every time one was opened from the
+   hub.  Measured at 502px none of them overflow, so the column costs nothing
+   and keeps the dawn sky and its scattered props visible on both sides —
+   that framing is what OUTER_OBSERVER_INTRO_SPEC's margin beats depend on.
    --------------------------------------------------------------------- */
 .overlay.gacha-scene,
 .overlay.shop-scene,
 .overlay.profile-scene {
-  position: fixed !important;
+  position: absolute !important;
   inset: 0 !important;
   z-index: 40;
   padding: 0 !important;
@@ -3001,11 +3007,14 @@ body.onboarding-locked .pause-button {
 }
 
 /* ---------------------------------------------------------------------
-   ACHIEVEMENTS — full window, its own scroll region, and a back button
-   that stays reachable instead of being clipped off the bottom.
+   ACHIEVEMENTS — the observatory column, its own scroll region, and a back
+   button that stays reachable instead of being clipped off the bottom.
+   Absolute rather than fixed so the width matches every other menu screen;
+   the scroll region below is what keeps the grid readable in the narrower
+   column, and it is why narrowing does not clip the back button.
    --------------------------------------------------------------------- */
 .overlay.archive-scene {
-  position: fixed !important;
+  position: absolute !important;
   inset: 0 !important;
   z-index: 40;
   padding: 0 !important;
