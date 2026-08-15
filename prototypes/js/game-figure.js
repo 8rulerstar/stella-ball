@@ -13,6 +13,11 @@
 // it now always pays, and what each constellation adds on top is what tells
 // them apart.
 function figureFieldDamage(ctx, label = "별자리") {
+  // Same guard areaAttack opens with. A constellation casts on its own clock
+  // roughly 2.85s after the settle that queued it, and nothing stopped that
+  // clock when the battle ended - so a figure could damage, pop numbers over
+  // and even kill a colossus during the victory cutscene, or after a loss.
+  if (battleComplete) return 0;
   const hit = [];
   if (boss && boss.hp > 0) {
     const dealt = applyBossHit(ctx.bonus);
@@ -48,7 +53,39 @@ function encloseDamage(ctx) {
 // held here instead and applied by the wrapper below, once, on the next shot.
 let figureBoon = null;
 function grantFigureBoon(boon) {
-  figureBoon = { ...(figureBoon || {}), ...boon };
+  /* Timing matters here. A constellation casts on the reveal's clock, roughly
+     2.85s after the settle that queued it - and on the ordinary path (any
+     settle with meteors left) finalizeBilliardShot has already called
+     startShot synchronously at that settle, so `afterShotStart` fired long
+     before this runs. Queuing the boon for the NEXT afterShotStart therefore
+     skipped a shot: the mark the player earned landed on the meteor after the
+     one they were about to fire.
+
+     If the promised meteor is teed up and still waiting, hand the boon to it
+     directly. Only fall back to the queue when there is no such ball - the
+     deferred last-shot path, where the next shot has genuinely not been built
+     yet. */
+  const pending = { ...(figureBoon || {}), ...boon };
+  if (ball && !ball.moving && !battleComplete) {
+    applyFigureBoon(pending);
+    return;
+  }
+  figureBoon = pending;
+}
+function applyFigureBoon(boon) {
+  if (!boon || !ball) return;
+  if (boon.mark) {
+    ball.mark = true;
+    toast("까마귀의 표식 · 이번 샷의 약점 명중이 강해집니다");
+  }
+  if (boon.glide) {
+    ball.glide = boon.glide;
+    toast("백조의 비행 · 이번 샷은 유성이 오래 굽니다");
+  }
+  if (boon.aim) {
+    ball.trueAim = true;
+    toast("북두의 길잡이 · 이번 샷은 항로가 끝까지 보입니다");
+  }
 }
 /* A boon is owed to the next shot OF THIS BATTLE. Without this it was a plain
    module global that nothing reset, so a constellation resolved on the last
@@ -62,18 +99,7 @@ registerRuntimeHook("afterBattleSetup", () => {
 });
 registerRuntimeHook("afterShotStart", () => {
   if (!figureBoon || !ball) return;
-  if (figureBoon.mark) {
-    ball.mark = true;
-    toast("까마귀의 표식 · 이번 샷의 약점 명중이 강해집니다");
-  }
-  if (figureBoon.glide) {
-    ball.glide = figureBoon.glide;
-    toast("백조의 비행 · 이번 샷은 유성이 오래 굽니다");
-  }
-  if (figureBoon.aim) {
-    ball.trueAim = true;
-    toast("북두의 길잡이 · 이번 샷은 항로가 끝까지 보입니다");
-  }
+  applyFigureBoon(figureBoon);
   figureBoon = null;
 });
 // How far off the shaft a target can stand and still be run through, on top of
@@ -752,6 +778,10 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
     figureFx = null;
     return;
   }
+  // Once the battle has resolved the reveal has nothing left to pay out, and
+  // letting its pending cast fire would settle a fight that is already over.
+  // Drop it rather than freezing it, so it cannot surface in the next battle.
+  if (battleComplete && figureFx.cast) figureFx.cast = null;
   figureFx.t += d;
   // The pentagram pays off once the corrected star is standing, not at the
   // settle that queued it: the figure has to arrive before the burst means
