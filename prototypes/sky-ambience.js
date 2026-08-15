@@ -61,19 +61,20 @@
     l2.dataset.skyLayer = "L2";
 
     /* ── L0 먼 배경 ─────────────────────────────────
-       성운 2점 + 은하수 띠. 대비 상한 0.10, 6분 주기 드리프트. */
+       성운 2점 + 은하수 띠. 대비 상한 0.10, 6분 주기 드리프트.
+       filter:blur는 쓰지 않는다 — dpr 2에서 600×480급 표면을 18~20px 커널로
+       상시 재합성하는 비용이 전투 프레임을 실제로 깎았다(2026-08-15 렉 제보).
+       부드러움은 그라데이션 정지점을 넓혀 같은 인상으로 굽는다. */
     el(
       l0,
       "position:absolute;left:2%;top:22%;width:300px;height:240px;border-radius:50%;" +
-        "background:radial-gradient(ellipse at 50% 50%,#7cc6bb66,#47837c22 45%,transparent 70%);" +
-        "filter:blur(18px)" +
+        "background:radial-gradient(ellipse at 50% 50%,#7cc6bb55,#5b9a9026 34%,#47837c14 58%,transparent 82%)" +
         (RM ? "" : ";animation:skyDriftA 360s linear infinite"),
     );
     el(
       l0,
       "position:absolute;right:1%;top:44%;width:260px;height:220px;border-radius:50%;" +
-        "background:radial-gradient(ellipse at 50% 50%,#eea56f4d,#b06a3d1f 48%,transparent 72%);" +
-        "filter:blur(20px)" +
+        "background:radial-gradient(ellipse at 50% 50%,#eea56f40,#c87d4a1d 36%,#b06a3d10 60%,transparent 84%)" +
         (RM ? "" : ";animation:skyDriftB 420s linear infinite"),
     );
     // 먼 별점(1px). 관측소 컬럼 밖 여백에만 뿌린다.
@@ -168,10 +169,11 @@
     layoutBands();
     addEventListener("resize", layoutBands);
 
-    if (!RM) {
-      schedule();
-      requestAnimationFrame(tick);
-    }
+    /* 시안의 rAF 시차 드리프트(±12px, 6분 주기)는 여기서 부르지 않는다.
+       매 프레임 l0·l1의 transform을 새로 쓰면 그 아래 모든 레이어가 프레임마다
+       재합성돼 전투 내내 GPU가 쉬지 못했고, 움직임 자체는 6분에 12px라 눈에
+       보이지도 않았다. 계층감은 성운의 CSS 드리프트가 이미 만든다. */
+    if (!RM) schedule();
   }
 
   /* 걸이 하나 = 되찾은 별자리 한 점. 상태 4종을 대비로만 구분한다. */
@@ -351,7 +353,7 @@
         (left ? "left:-16%" : "right:-16%") +
         ";top:" +
         (10 + Math.random() * 70).toFixed(0) +
-        "%;width:230px;height:70px;border-radius:50%;background:radial-gradient(ellipse,#cfe8e01f,transparent 70%);filter:blur(9px);animation:skyCloud " +
+        "%;width:230px;height:70px;border-radius:50%;background:radial-gradient(ellipse,#cfe8e018,#cfe8e00a 45%,transparent 78%);animation:skyCloud " +
         (16 + Math.random() * 10).toFixed(0) +
         "s linear forwards",
     );
@@ -391,27 +393,6 @@
       c.style.opacity = "1";
     }, 620);
   }
-  function tick() {
-    // 긴 주기: 계층별 시차 드리프트. 사인 1주기 = 6분.
-    var t = performance.now() / 1000;
-    var base = Math.sin(t / 57) * 12;
-    if (l0)
-      l0.style.transform =
-        "translate3d(" +
-        (base * LAYERS[0].par).toFixed(2) +
-        "px," +
-        (base * 0.4 * LAYERS[0].par).toFixed(2) +
-        "px,0)";
-    if (l1)
-      l1.style.transform =
-        "translate3d(" +
-        (-base * LAYERS[1].par).toFixed(2) +
-        "px," +
-        (base * 0.25 * LAYERS[1].par).toFixed(2) +
-        "px,0)";
-    requestAnimationFrame(tick);
-  }
-
   /* ── 이벤트 → 배경 반응 ─────────────────────────
      전역 쿨다운 45초, 동시 1개. 전투 중 대비 상한 0.38. */
   function gate(force) {
@@ -489,15 +470,14 @@
         pick.style.opacity = ".5";
       }, 3300);
     }
-    // 성운 굴절: 렌즈처럼 한 번 휜다
+    // 성운 굴절: 렌즈처럼 한 번 휜다. transform만 쓴다 — blur 반경을 트랜지션
+    // 하면 텍스처 캐시가 깨져 3초 내내 큰 표면을 매 프레임 다시 흐리게 된다.
     var neb = l0.firstElementChild;
     if (neb) {
-      neb.style.transition = "transform 1.4s ease-in-out,filter 1.4s";
+      neb.style.transition = "transform 1.4s ease-in-out";
       neb.style.transform = "skewX(7deg) scaleY(1.08)";
-      neb.style.filter = "blur(11px)";
       setTimeout(function () {
         neb.style.transform = "";
-        neb.style.filter = "blur(18px)";
       }, 1500);
     }
     if (kind === "boss") {

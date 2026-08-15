@@ -177,8 +177,12 @@
     add(
       "position:absolute;inset:0;background:radial-gradient(ellipse 75% 45% at 50% 110%,#e8955f26,#c97a4512 45%,transparent 72%)",
     );
+    /* 은하수 띠에는 filter를 걸지 않는다. 이 띠는 뷰포트 1.5배 폭 × 200px인데
+       안에 반짝이는 별 30개가 살아서, blur(2px)라도 dpr 2에서는 ~3840×400
+       텍스처를 사실상 매 프레임 다시 흐리게 만든다(2026-08-15 렉 제보의 두
+       번째 원인). 띠의 부드러움은 그라데이션 정지점이 이미 만든다. */
     var mw = add(
-      "position:absolute;left:-14%;top:16%;width:150%;height:200px;transform:rotate(-13deg);background:linear-gradient(180deg,transparent,#cfe8e014 30%,#f6e8d518 52%,#cfe8e010 72%,transparent);filter:blur(2px)",
+      "position:absolute;left:-14%;top:16%;width:150%;height:200px;transform:rotate(-13deg);background:linear-gradient(180deg,transparent,#cfe8e010 24%,#cfe8e016 38%,#f6e8d518 52%,#f6e8d512 62%,#cfe8e00c 74%,transparent)",
     );
     add(
       "position:absolute;left:16%;top:-2%;width:56%;height:170px;background:linear-gradient(100deg,transparent,#7cc6bb22 30%,#9adfc932 52%,#eea56f18 72%,transparent);filter:blur(15px);animation:dawnAurora 9s ease-in-out infinite alternate",

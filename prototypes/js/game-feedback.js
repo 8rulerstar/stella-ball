@@ -628,6 +628,9 @@ function updateAssists(d) {
     nextFocus = null;
   for (let index = 0; index < assistShots.length; index++) {
     const shot = assistShots[index];
+    // 훅 등 바깥에서 밀어 넣은 항목이 delay를 빠뜨려도 불멸이 되지 않게
+    // 숫자로 강제한다. undefined는 두 분기 모두에서 거짓이라 영원히 남는다.
+    if (!Number.isFinite(shot.delay)) shot.delay = 0;
     if (shot.delay > 0) {
       const waiting = shot.delay;
       shot.delay = Math.max(0, shot.delay - d);
@@ -1248,10 +1251,17 @@ function loop(t) {
   }
   // The tutorial stops the table on the frame the player has to decide, so the
   // steer and the parry are taught at the moment they are used instead of one
-  // card earlier. Same freeze as a pause: the canvas keeps its last frame and
-  // nothing advances, so no delayed assist lands while the board is held.
-  if (StellaRuntime.modules.optional("onboarding")?.isTeachingHold()) {
+  // card earlier. The simulation halts like a pause - no delayed assist lands
+  // while the board is held - but the canvas must NOT keep its last frame: a
+  // fully static frame right before the promised contact reads as the game
+  // freezing, not as the game waiting. Keep presenting the held state with a
+  // wall-clock pulse around the meteor so the picture stays visibly alive
+  // while zero simulation time passes.
+  const onboardingModule = StellaRuntime.modules.optional("onboarding");
+  if (onboardingModule?.isTeachingHold()) {
     resetInactiveCanvasFeedback();
+    draw();
+    onboardingModule.drawTeachingHoldCue?.();
     requestAnimationFrame(loop);
     return;
   }

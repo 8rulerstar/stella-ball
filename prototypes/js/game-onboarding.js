@@ -102,6 +102,39 @@ function endTeachingHold() {
   onboarding.hold = null;
   renderTeachingHold();
 }
+/* 정지 중에도 캔버스가 살아 있게 하는 벽시계 큐. 판이 멈춘 채 마지막 프레임에
+   박제되면 「기다리는 중」이 아니라 「멈춘 버그」로 읽힌다 — 특히 패링 정지는
+   약속된 접점 0.18초 앞에서 걸리므로 더 그렇다. 시뮬레이션 시간은 0인 채로,
+   유성 둘레에 숨 쉬는 고리와 요구 입력을 그려 화면만 계속 움직인다. */
+function drawTeachingHoldCue() {
+  const hold = teachingHold();
+  if (!hold || !ball) return;
+  const t = performance.now();
+  const pulse = 1 + Math.sin(t / 260) * 0.16;
+  const breathe = 0.55 + Math.sin(t / 340) * 0.3;
+  x.save();
+  // 판 전체를 살짝 가라앉혀 「시간이 멈췄다」를 화면 언어로 말한다.
+  x.fillStyle = "rgba(4, 8, 12, 0.28)";
+  x.fillRect(0, 0, W, H);
+  x.strokeStyle = "#ffe6a1";
+  x.lineWidth = 2;
+  x.globalAlpha = breathe;
+  x.beginPath();
+  x.arc(ball.x, ball.y, (ball.r + 30) * pulse, 0, Math.PI * 2);
+  x.stroke();
+  x.globalAlpha = 1;
+  x.fillStyle = "#fff0bd";
+  x.shadowBlur = 12;
+  x.shadowColor = "#ffd36f";
+  x.textAlign = "center";
+  x.font = "bold 13px Galmuri11, ui-monospace";
+  x.fillText(
+    hold.kind === "steer" ? "좌클릭 ↶ · 우클릭 ↷" : "지금 Space",
+    ball.x,
+    ball.y - ball.r - 40 - Math.sin(t / 300) * 3,
+  );
+  x.restore();
+}
 function renderTeachingHold() {
   const dock = document.querySelector("#onboardingDock");
   if (!dock) return;
@@ -514,12 +547,27 @@ registerRuntimeHook("afterBossDamage", () => {
 registerRuntimeHook("afterMeteorSteer", () => {
   if (onboarding?.phase === 1) onboarding.steered = true;
 });
+/* 조향 수업의 지정 항로. 보스에서 비켜난 점이라 꺾어야 의미가 생긴다. 안내
+   오버레이와 발사 고정이 같은 점을 봐야 하므로 한 곳에서만 정의한다. */
+function steerLessonRouteTarget() {
+  return { x: boss.x + 145, y: boss.y + 85, r: 34, col: "#8ee7ff" };
+}
 registerRuntimeHook(
   "resolveBilliardAim",
   ({ dx, dy }) => {
-    if (onboarding?.phase === 2 && gates[0] && ball) {
-      const tx = gates[0].x - ball.x,
-        ty = gates[0].y - ball.y,
+    /* 항로를 그리는 수업은 항로를 보장한다. 2단계(패링)는 원래 미리내로
+       고정했지만, 1단계(조향)는 「먼저 이 항로로 발사」라고 그려 놓고 강제하지
+       않았다 — 조준 보정(billiardAim)이 보스 쪽으로 휘면 지정 항로를 벗어난
+       채 수업이 진행됐다. 두 수업 모두 안내가 가리키는 점으로 고정한다. */
+    const target =
+      onboarding?.phase === 2
+        ? gates[0]
+        : onboarding?.phase === 1
+          ? steerLessonRouteTarget()
+          : null;
+    if (target && ball) {
+      const tx = target.x - ball.x,
+        ty = target.y - ball.y,
         distance = Math.hypot(tx, ty) || 1;
       return {
         x: tx / distance,
@@ -973,11 +1021,7 @@ function drawOnboardingGuide() {
     return;
   }
   const target =
-    phase === 0
-      ? boss
-      : phase === 1
-        ? { x: boss.x + 145, y: boss.y + 85, r: 34, col: "#8ee7ff" }
-        : gates[0];
+    phase === 0 ? boss : phase === 1 ? steerLessonRouteTarget() : gates[0];
   x.save();
   x.lineWidth = 1.5;
   x.setLineDash([5, 5]);
@@ -1197,6 +1241,7 @@ const OnboardingModule = StellaRuntime.modules.register("onboarding", {
   isActive: isOnboardingSessionActive,
   isInputLocked: isOnboardingInputLocked,
   isTeachingHold: isTeachingHold,
+  drawTeachingHoldCue: drawTeachingHoldCue,
   isFinalLesson: isOnboardingFinalLesson,
   hasClear: hasOnboardingClear,
   showTutorial: showOnboardingTutorial,
