@@ -28,11 +28,16 @@ function hasThirdPartySlot() {
   return appStorage.readText(PARTY_SLOT_STORAGE) === "3";
 }
 function partySlotCount() {
-  // The training table is the prototype bench and seats a fourth starkeeper so
-  // the figure has five points once the meteor joins.  Campaign parties still
-  // cap at the three the story unlocks.
-  if (currentStage()?.training)
-    return Math.min(4, Math.max(1, ownedHeroIds().length));
+  // The board is the authority on how many seats exist: `setupBattle` reads
+  // `stage.slots[i]` per deployed starkeeper, so a party wider than the board
+  // has nowhere to sit.  Only two boards are drawn with four seats — the
+  // training bench, which needs a fourth so the figure has five points once
+  // the meteor joins, and 8-1, whose 1600 HP is balanced for four.  Both
+  // declare that by their geometry, so read it there rather than naming the
+  // stages.  The other thirty-four boards seat three and stay capped at what
+  // the story has unlocked.
+  const seats = currentStage()?.slots?.length ?? 3;
+  if (seats > 3) return Math.min(seats, Math.max(1, ownedHeroIds().length));
   return hasThirdPartySlot() ? 3 : 2;
 }
 function unlockThirdPartySlot() {
