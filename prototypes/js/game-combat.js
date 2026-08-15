@@ -344,9 +344,9 @@ function billiardPointerMove(e) {
   const p = pointer(e);
   drag.x = p.x;
   drag.y = p.y;
-  const pull = cuePull(p);
+  // 미리보기도 발사와 같은 식이어야 한다 — 다르면 표시된 위력이 거짓말이 된다.
   ball.launchPower = clamp(
-    Math.hypot(ball.x - pull.x, ball.y - pull.y) / 260,
+    Math.hypot(ball.x - p.x, ball.y - p.y) / 220,
     0.28,
     1,
   );
@@ -365,13 +365,22 @@ function billiardPointerUp(e) {
     p = cuePull(raw),
     dx = ball.x - p.x,
     dy = ball.y - p.y,
-    l = Math.hypot(dx, dy);
+    l = Math.hypot(dx, dy),
+    /* 위력은 증폭된 벡터가 아니라 «실제로 끈 거리»에서 뽑는다. cuePull이
+       아래로 끈 거리에 4.8을 곱한 값으로 위력을 재고 있었기 때문에, 54px만
+       넘겨 끌면 가로로 어디를 겨누든 위력이 1.00으로 붙박였다 — 60px 끌기
+       기준 681개 조준 위치 전부가 최대 위력이었다. 게다가 곱셈이 세로에만
+       걸려 있어서 «옆으로 겨누면 위력이 올라가는» 결합까지 있었다(아래로
+       20px일 때 dx 0 → 0.37, dx 100 → 0.53).
+       방향은 증폭된 벡터가 그대로 맡고, 위력만 끈 거리로 분리한다. 당구에서
+       세기는 겨냥과 별개로 고르는 것이고, 세게 치려면 그만큼 당겨야 한다. */
+    pullLength = Math.hypot(ball.x - raw.x, ball.y - raw.y);
   drag = null;
   if (l < 18) {
     toast("유성을 더 멀리 끌어 당겨보세요.");
     return;
   }
-  const force = clamp(l / 260, 0.28, 1),
+  const force = clamp(pullLength / 220, 0.28, 1),
     aim = billiardAim(dx, dy),
     speed = 750 + force * 975;
   ball.launchPower = force;

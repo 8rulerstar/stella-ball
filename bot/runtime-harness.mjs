@@ -253,10 +253,24 @@ function __botStart(config) {
     return result;
   };
 }
-function __botLaunch(angle) {
-  const speed = 1725;
-  ball.vx = Math.cos(angle) * speed;
-  ball.vy = Math.sin(angle) * speed;
+// 이 봇은 오랫동안 billiardAim을 한 번도 부르지 않았다. 각도를 그대로 속도로
+// 바꿔 언제나 최대 위력 1725로만 쐈으므로, 조준 보정도 위력 곡선도 하니스에
+// 한 번도 걸린 적이 없다 - 그 두 가지를 바꾼 뒤 스윕이 그대로라는 사실은
+// 「밸런스가 안 변했다」가 아니라 「측정되지 않았다」는 뜻이었다.
+// aimPath를 켜면 사람이 끄는 것과 같은 경로(보정 포함)를 타고, launchForce로
+// 위력을 고를 수 있다. 기본값은 예전 그대로라 과거 리포트와 비교가 유지된다.
+// (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
+function __botLaunch(angle, config) {
+  let ux = Math.cos(angle), uy = Math.sin(angle);
+  if (config && config.aimPath) {
+    const aim = billiardAim(ux, uy);
+    ux = aim.x;
+    uy = aim.y;
+  }
+  const force = config && typeof config.launchForce === "number" ? config.launchForce : 1;
+  const speed = 750 + force * 975;
+  ball.vx = ux * speed;
+  ball.vy = uy * speed;
   ball.moving = true;
   ball.steerUsed = false;
   ball.steerFlash = 0;
@@ -348,7 +362,7 @@ function __botRun(config) {
         typeof config.aimSigma === "number"
           ? (Math.random() * 2 - 1) * config.aimSigma
           : config.spread[shot % config.spread.length];
-      __botLaunch(__botAngle(config.policy, shot, jitter));
+      __botLaunch(__botAngle(config.policy, shot, jitter), config);
       shot += 1;
       shotFrames = 0;
     }
@@ -480,11 +494,13 @@ function __botAimProbe(config, pullDown) {
     const len = Math.hypot(dx, dy);
     if (len < 18) continue;
     const aim = billiardAim(dx, dy);
+    // 위력은 발사 경로와 같은 식이어야 한다 - 끈 거리 기준이다.
+    const pullLength = Math.hypot(originX - raw.x, originY - raw.y);
     samples.push({
       px: px - originX,
       deg: Math.atan2(aim.y, aim.x) * 180 / Math.PI,
       assisted: Boolean(aim.assisted),
-      force: Math.min(1, Math.max(0.28, len / 260)),
+      force: Math.min(1, Math.max(0.28, pullLength / 220)),
     });
   }
   return {
@@ -678,6 +694,8 @@ export function runCampaignStage({
   steer = false,
   aim = "loose",
   bossHpOverride = null,
+  aimPath = false,
+  launchForce = 1,
 } = {}) {
   const party = PARTY_POOLS[partySize];
   if (!party) throw new Error("partySize must be 2, 3, or 4");
@@ -696,6 +714,8 @@ export function runCampaignStage({
       frameLimit: 7200,
       aimSigma,
       bossHpOverride,
+      aimPath,
+      launchForce,
       spread: [0, 0, 0, 0],
     },
     "__botCampaignRun",
