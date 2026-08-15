@@ -1279,10 +1279,23 @@ function heroSkinPreviewFilter(skin) {
     ? "hue-rotate(" + skin.hue + "deg) saturate(" + (skin.sat ?? 1) + ")"
     : "none";
 }
+/* drawFrame asks for this once per starkeeper per frame, and the uncached path
+   walked HERO_SKINS re-resolving the worn id inside the predicate, rebuilt the
+   owned-key array and concatenated the filter string every time. Skins only
+   change in the shop, so the answer is cached until something writes one.
+   The cache itself lives in game-meta-state.js because that file loads first
+   and owns the other half of the invalidation. */
 function heroSkinFilter(heroId) {
-  const skin = heroId ? equippedHeroSkin(heroId) : null;
-  if (!skin || !skin.hue) return "none";
-  return "hue-rotate(" + skin.hue + "deg) saturate(" + (skin.sat ?? 1) + ")";
+  if (!heroId) return "none";
+  const cached = heroSkinFilterCache.get(heroId);
+  if (cached !== undefined) return cached;
+  const skin = equippedHeroSkin(heroId);
+  const filter =
+    !skin || !skin.hue
+      ? "none"
+      : "hue-rotate(" + skin.hue + "deg) saturate(" + (skin.sat ?? 1) + ")";
+  heroSkinFilterCache.set(heroId, filter);
+  return filter;
 }
 function buyHeroSkin(heroId, skinId) {
   if (!heroes[heroId] || !HERO_SKINS.some((skin) => skin.id === skinId))
@@ -1295,6 +1308,7 @@ function buyHeroSkin(heroId, skinId) {
     ...(progress.wornHeroSkins ?? {}),
     [heroId]: skinId,
   };
+  invalidateSkinCaches();
   saveProgress();
   return { heroId, skinId, cost: ECONOMY.heroSkinCost };
 }
@@ -1304,6 +1318,7 @@ function equipHeroSkin(heroId, skinId) {
     ...(progress.wornHeroSkins ?? {}),
     [heroId]: skinId,
   };
+  invalidateSkinCaches();
   saveProgress();
   return true;
 }

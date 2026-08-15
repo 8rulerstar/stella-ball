@@ -573,6 +573,28 @@ function drawParryFxLayer() {
     x.restore();
   }
 }
+/* Memo for the preview recogniser. Keyed on the node array identity and its
+   length: within one shot the array is appended to, and between shots
+   currentFigureShot() installs a brand new array, so those two together change
+   exactly when the classification can change. Holding the array reference is
+   safe because it is replaced, never retained past its shot. */
+let figurePreviewMemo = { nodes: null, count: -1, match: null, fit: null };
+function figurePreviewFor(nodes) {
+  if (
+    figurePreviewMemo.nodes === nodes &&
+    figurePreviewMemo.count === nodes.length
+  )
+    return figurePreviewMemo;
+  const match =
+    nodes.length >= FIGURE_PARRY.minNodes ? classifyFigure(nodes) : null;
+  figurePreviewMemo = {
+    nodes,
+    count: nodes.length,
+    match,
+    fit: match ? figureFit(nodes, match.shape) : null,
+  };
+  return figurePreviewMemo;
+}
 // The shot preview is intentionally raw: its stars stay at the contact
 // positions until the table settles. Only the resolved constellation is
 // corrected into the chosen sky skeleton.
@@ -648,9 +670,18 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
     x.restore();
   }
   if (!nodes.length) return;
-  const match =
-      nodes.length >= FIGURE_PARRY.minNodes ? classifyFigure(nodes) : null,
-    fit = match ? figureFit(nodes, match.shape) : null,
+  /* classifyFigure + figureFit are the shape recogniser, and it is expensive:
+     for each template it walks every rotation x every start offset, and its
+     inner cloud distance is O(n^2) with a fresh boolean array per call - a few
+     thousand hypot calls and well over a hundred allocations at five nodes.
+     This runs from `afterDraw`, so it was paying that every frame from the
+     third parry node until the shot settled, on a node array that only changes
+     when a new parry lands. Cache it against the node count, which is exactly
+     when the answer can change (nodes are only ever appended within a shot,
+     and currentFigureShot rebuilds the array wholesale between shots). */
+  const preview = figurePreviewFor(nodes);
+  const match = preview.match,
+    fit = preview.fit,
     edges = match
       ? match.shape.edges.map(([a, b]) => [
           nodes[fit.order[a]],

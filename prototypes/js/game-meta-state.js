@@ -267,13 +267,26 @@ function ownedSkinIds() {
     METEOR_SKINS.some((skin) => skin.id === id),
   );
 }
+/* Both skin lookups sit on the per-frame draw path - the meteor's once, the
+   hero filter once per starkeeper - and both rebuilt arrays, a Set and a
+   filter string on every call. Skins only change when the shop writes one, so
+   the results are cached and every mutation site calls invalidateSkinCaches().
+   The hero map is declared here rather than in game-meta.js because this file
+   loads first and both files' equip paths have to reach the same cache. */
+const heroSkinFilterCache = new Map();
+let equippedSkinCache = null;
+function invalidateSkinCaches() {
+  heroSkinFilterCache.clear();
+  equippedSkinCache = null;
+}
 function equippedSkin() {
+  if (equippedSkinCache) return equippedSkinCache;
   const id = progress.skin;
-  return (
+  equippedSkinCache =
     METEOR_SKINS.find(
       (skin) => skin.id === id && ownedSkinIds().includes(id),
-    ) ?? METEOR_SKINS[0]
-  );
+    ) ?? METEOR_SKINS[0];
+  return equippedSkinCache;
 }
 function buySkin(id) {
   const skin = METEOR_SKINS.find((entry) => entry.id === id);
@@ -283,12 +296,14 @@ function buySkin(id) {
   progress.gold = goldBalance() - ECONOMY.skinCost;
   progress.ownedSkins = [...ownedSkinIds(), id];
   progress.skin = id;
+  invalidateSkinCaches();
   saveProgress();
   return { id, cost: ECONOMY.skinCost };
 }
 function equipSkin(id) {
   if (!ownedSkinIds().includes(id)) return false;
   progress.skin = id;
+  invalidateSkinCaches();
   saveProgress();
   return true;
 }

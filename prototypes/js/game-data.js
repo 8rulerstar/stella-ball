@@ -10,6 +10,7 @@ const c = document.querySelector("#game"),
   H = c.height;
 const LAUNCH_Y = H - 152;
 x.imageSmoothingEnabled = false;
+const UI_MONOSPACE_PATTERN = /\bui-monospace\b/g;
 const canvasFontDescriptor = Object.getOwnPropertyDescriptor(
   CanvasRenderingContext2D.prototype,
   "font",
@@ -22,9 +23,12 @@ if (canvasFontDescriptor?.get && canvasFontDescriptor?.set)
       return canvasFontDescriptor.get.call(this);
     },
     set(value) {
+      // The pattern is hoisted: this setter sits on the hot draw path (gate
+      // labels, popups, combo, aim guide - roughly eight assignments a frame)
+      // and a literal here rebuilt a RegExp on every one of them.
       canvasFontDescriptor.set.call(
         this,
-        String(value).replace(/\bui-monospace\b/g, "Galmuri11"),
+        String(value).replace(UI_MONOSPACE_PATTERN, "Galmuri11"),
       );
     },
   });
@@ -1436,7 +1440,21 @@ function stageBossArt(stage) {
   const entry = WORLD_BOSS[target.world];
   return entry ? bossArtFor(entry.slug) : bossArt;
 }
+// Memoised by slug: draw() calls stageBossArt() -> bossArtFor() inline in its
+// drawFrame arguments every frame, and each miss allocated the merged spec, the
+// nested animations object and six fresh template strings. The pack is a fixed
+// seven-entry table and the specs are immutable, so one object per slug for the
+// session is enough - and the paths become interned, so the texture cache can
+// compare keys by pointer instead of hashing a new string each frame.
+const bossArtSpecs = new Map();
 function bossArtFor(slug) {
+  const cached = bossArtSpecs.get(slug);
+  if (cached) return cached;
+  const spec = buildBossArtSpec(slug);
+  bossArtSpecs.set(slug, spec);
+  return spec;
+}
+function buildBossArtSpec(slug) {
   const meta = bossPack[slug];
   // Falls back to the void colossus rather than throwing, so a stage naming a
   // boss that does not exist yet still opens.

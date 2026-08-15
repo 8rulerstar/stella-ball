@@ -152,12 +152,16 @@ function registerBossHit(weak) {
   }
   runRuntimeHooks("afterBossHitRegistered", { weak, combo: hitCombo, riposte });
 }
+/* This used to decide "did the colossus just get hit?" by looking for 몸체 or
+   약점 inside the popup's own text, and then fire registerBossHit + impact off
+   that. Two things were wrong with reading damage out of a label. The direct
+   meteor labels 직격 and 첫 직격 match neither word, so an unrouted direct hit
+   dealt its damage with no shake, no flash, no hit-stop and no combo at all -
+   measured 0/0/0/0 against 5.5/0.58/0.034/1 for the routed 몸체 hit. And the
+   clone's 분열 약점 label matched, so a clone weak hit registered twice on top
+   of cloneDamage's own explicit call, double-counting the combo and inflating
+   the persisted best-combo record. Damage sites now say so themselves. */
 function addPopup(px, py, text, col, big = false) {
-  const bossHit = text.includes("몸체") || text.includes("약점");
-  if (bossHit) {
-    registerBossHit(text.includes("약점"));
-    impact(text.includes("약점"));
-  }
   popups.push({
     x: px,
     y: py,
@@ -218,6 +222,18 @@ function circle(a, b, r, col, glow = 0) {
 
 // A 3px stepped ring. `arc()` with `shadowBlur` antialiases, which reads as a
 // different material from the pixel sprites it sits on.
+//
+// This oversamples on purpose and must keep doing so. 180 angles paint only
+// ~36 distinct grid cells at r=19, and it is measurably the largest single
+// cost in draw() - 540 of a frame's 632 fillRect calls, about 150us of a 224us
+// draw. Every cheaper form was measured and every one changes the picture:
+// a wider angular step lands on a different set of cells; baking the ring once
+// and blitting it at a grid-snapped centre shifts the whole ring (78-134% of
+// painted pixels differ); and batching the cells into one path removes the
+// repeat paints, which two of the three callers depend on - they pass 0x44 and
+// 0x33 alpha, so ~5 overlapping fills per cell are what make those rings read
+// as solid. Since draw() is ~1.3% of a 16.7ms frame, none of that is worth a
+// visual regression. Leave it alone.
 function stepRing(cx, cy, r, col, step = 3, thick = 3) {
   x.fillStyle = col;
   for (let a = 0; a < Math.PI * 2; a += 0.035) {

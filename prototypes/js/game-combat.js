@@ -112,7 +112,12 @@ function damage(weak = false) {
         ? "직격"
         : "몸체";
   const dealt = applyBossHit(amount);
-  if (dealt > 0)
+  if (dealt > 0) {
+    // Said explicitly rather than inferred from the popup's wording: every
+    // direct meteor hit shakes, flashes and extends the combo, including the
+    // unrouted 직격 and 첫 직격 that the old label test silently skipped.
+    registerBossHit(weak);
+    impact(weak);
     addPopup(
       ball.x,
       ball.y - 28,
@@ -120,6 +125,7 @@ function damage(weak = false) {
       weak ? "#ffe59a" : "#e6f7ef",
       crit,
     );
+  }
   if (marked)
     areaAttack(
       "미리내 표식 폭발",

@@ -14,7 +14,14 @@ function mobileWall(o, r, unit = null) {
   if (hit) {
     if (!unit && o === ball) ball.firstImpact ??= "rail";
     // Rails keep their physical bounce but never count as a parry awakening.
-    if (!unit) tableWall();
+    // The `o === ball` test matters as much as `!unit`: clone meteors also
+    // come through here (updateCloneBalls), and tableWall() tallies the
+    // PLAYER's meteor - `ball.bounces`, which multiplies its damage, and the
+    // afterTableWall hook, which grants blaze and plays the wall beat at the
+    // main meteor's position. Without this a split clone bouncing off a
+    // cushion paid the player for a bounce their own meteor never made.
+    // The stageWall path below already had this guard; the rails did not.
+    if (!unit && o === ball) tableWall();
   }
   return hit;
 }
