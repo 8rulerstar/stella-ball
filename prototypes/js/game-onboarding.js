@@ -1146,7 +1146,12 @@ registerRuntimeHook("beforeBattleWin", (context) => {
   if (shouldRecord) {
     battle.storyRecorded = true;
     progress.clears++;
-    progress.bestShots = Math.min(progress.bestShots, shotsUsed);
+    // Guard the write as well as the load: shotsUsed comes from
+    // `battle.shotMax - battle.shots`, and Math.min with anything non-numeric
+    // yields NaN, which JSON stores as null and readRecord will not repair
+    // because the key exists.
+    if (Number.isFinite(shotsUsed))
+      progress.bestShots = Math.min(progress.bestShots, shotsUsed);
     progress.bestTime = !progress.bestTime
       ? elapsedMs
       : Math.min(progress.bestTime, elapsedMs);

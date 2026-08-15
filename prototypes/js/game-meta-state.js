@@ -104,6 +104,34 @@ let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   bestShots: 99,
   bestCombo: 0,
 });
+/* readRecord merges the stored record over the defaults, so a key that EXISTS
+   but holds a broken value keeps that value - the default never applies. That
+   matters because JSON.stringify writes NaN as null, and a single bad write
+   sticks forever: `bestShots` null makes `null <= 1` true, permanently
+   granting the 400-gold one-shot achievement while the profile prints
+   "null발"; `clears` null re-locks every stage but the first, with no in-game
+   way back short of a full reset. Repair the numeric fields once at load, in
+   the one place they are all named. */
+for (const [key, fallback, min] of [
+  ["clears", 0, 0],
+  ["gold", 0, 0],
+  ["freeSummons", 0, 0],
+  ["pendingGold", 0, 0],
+  ["pendingRewardSerial", 0, 0],
+  ["bestTime", 0, 0],
+  // A clear takes at least one meteor, so 0 is not a better record - it is a
+  // broken one, and `0 <= 1` would hand out the one-shot achievement.
+  ["bestShots", 99, 1],
+  ["bestCombo", 0, 0],
+]) {
+  const value = progress[key];
+  // Check the raw value, not a coercion: Number(null) is 0, which is finite,
+  // so coercing first would quietly accept a null as a legitimate record.
+  progress[key] =
+    typeof value === "number" && Number.isFinite(value) && value >= min
+      ? value
+      : fallback;
+}
 const tr = (key) =>
   META_COPY[settings.language]?.[key] ?? META_COPY.ko[key] ?? key;
 function saveSettings() {
@@ -189,7 +217,20 @@ function accrueGold(amount, title = "스테이지 클리어") {
     ...(Array.isArray(progress.pendingRewards) ? progress.pendingRewards : []),
     { id: "clear-" + serial, title, gold: earned },
   ];
-  progress.pendingGold = 0;
+  // `pendingGold` is the pre-migration single-number pool, and
+  // pendingRewardEntries deliberately surfaces it as a claimable legacy entry
+  // rather than crediting it silently. Zeroing it here destroyed it: it was
+  // not credited, not moved into pendingRewards, just deleted on the next
+  // clear. An old save with 450 unclaimed gold lost all of it the first time
+  // the player finished a stage. Migrate it into a real entry instead, once.
+  const legacy = Math.max(0, Math.floor(Number(progress.pendingGold) || 0));
+  if (legacy) {
+    progress.pendingRewards = [
+      { id: "legacy-pending-gold", title: "이전 관측 보상", gold: legacy },
+      ...progress.pendingRewards,
+    ];
+    progress.pendingGold = 0;
+  }
   return earned;
 }
 function claimedAchievementIds() {
@@ -220,11 +261,25 @@ function claimAchievement(id) {
 function claimPendingGold(id) {
   const entry = pendingRewardEntries().find((item) => item.id === id);
   if (!entry) return null;
+  // Two places can hold the claimed entry, and both have to give it up. The
+  // legacy pool is the bare `pendingGold` number on pre-migration saves, but
+  // accrueGold now migrates that pool into a real pendingRewards entry under
+  // the same id - so clearing only the number left the migrated entry sitting
+  // there, claimable again and again. Clear the number when it applies, and
+  // remove the array entry unconditionally.
   if (id === "legacy-pending-gold") progress.pendingGold = 0;
-  else
-    progress.pendingRewards = (progress.pendingRewards || []).filter(
-      (item) => item.id !== id,
-    );
+  // pendingRewardEntries normalises ids with String(), so the id handed back
+  // here is always a string while the stored one may not be. A strict !==
+  // matched nothing and the entry survived every claim - a save holding
+  // {id: 1} could be collected indefinitely. Compare in the same normalised
+  // space, and drop only the first match so two entries sharing an id (which a
+  // stale serial can mint) are not both deleted for one payout.
+  const stored = Array.isArray(progress.pendingRewards)
+    ? [...progress.pendingRewards]
+    : [];
+  const at = stored.findIndex((item) => String(item?.id) === id);
+  if (at >= 0) stored.splice(at, 1);
+  progress.pendingRewards = stored;
   progress.gold = goldBalance() + entry.gold;
   saveProgress();
   return entry;
