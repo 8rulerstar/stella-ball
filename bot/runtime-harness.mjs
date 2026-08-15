@@ -459,6 +459,43 @@ function __botSteerProbe(config, side) {
   const secondUse = steerMeteor(-side);
   return { firstUse, secondUse, lateralVelocity };
 }
+// 조준 전달 함수를 실제 런타임에서 잰다. 마우스 x를 한 픽셀씩 쓸면서 실제
+// cuePull + billiardAim이 내놓는 발사각을 기록한다 - 재구현하면 보정 원뿔과
+// 4.8배 세로 과장이 미묘하게 어긋나므로 반드시 진짜 함수를 부른다.
+// (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
+function __botAimProbe(config, pullDown) {
+  const source = stages[config.campaignIndex];
+  if (!source || source.training) throw new Error("campaign stage is unavailable");
+  __botStart({
+    ...config,
+    arena: { ...source, tutorial: false, bossHp: source.bossHp },
+    bossHp: source.bossHp,
+  });
+  const samples = [];
+  const originX = ball.x, originY = ball.y;
+  for (let px = originX - 340; px <= originX + 340; px += 1) {
+    const raw = { x: px, y: originY + pullDown };
+    const pull = cuePull(raw);
+    const dx = originX - pull.x, dy = originY - pull.y;
+    const len = Math.hypot(dx, dy);
+    if (len < 18) continue;
+    const aim = billiardAim(dx, dy);
+    samples.push({
+      px: px - originX,
+      deg: Math.atan2(aim.y, aim.x) * 180 / Math.PI,
+      assisted: Boolean(aim.assisted),
+      force: Math.min(1, Math.max(0.28, len / 260)),
+    });
+  }
+  return {
+    pullDown,
+    ballX: originX,
+    ballY: originY,
+    gateCount: gates.length,
+    bumperCount: bumpers.length,
+    samples,
+  };
+}
 function __botRuntimeModuleProbe() {
   const priorityOrder = [];
   const removeLow = registerRuntimeHook(
@@ -595,6 +632,27 @@ export function probeSteerDirection(side) {
       spread: [0],
     },
     `__botSteerProbe.bind(null, __botConfig, ${side})`,
+  );
+}
+
+/* 조준 해상도 측정. pullDown은 유성 아래로 끈 픽셀 수다. 반환값은 마우스
+   가로 위치 1px당 발사각이 어떻게 변하는지의 전체 곡선이라, 불연속(보정
+   원뿔 경계에서의 각도 점프)과 도달 가능한 각도 범위를 함께 볼 수 있다. */
+export function probeAimTransfer({ campaignIndex = 0, pullDown = 60 } = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy: "contact",
+      seed: 1,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 1,
+      aimSigma: 0,
+      spread: [0, 0, 0, 0],
+    },
+    "__botAimProbe.bind(null, __botConfig, " + pullDown + ")",
   );
 }
 

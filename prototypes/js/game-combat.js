@@ -71,7 +71,16 @@ function billiardAim(dx, dy) {
   for (const bumper of bumpers) consider(bumper);
   consider(boss);
   if (!best) return { x: dx / len, y: dy / len, assisted: false };
-  const angle = base + best.delta * 0.58;
+  /* 보정이 원뿔 경계에서 뚝 끊겨 있었다. 안에서는 각도를 0.58만큼 끌어당기고
+     바깥에서는 그대로 두니, 경계를 한 픽셀 넘는 순간 발사각이
+     0.15rad × 0.58 = 4.98도 튀었다 — 실측 5.05~5.12도, 그리고 튀는 자리가
+     전부 보정 켜짐/꺼짐 경계였다. 겨눈 곳이 한 픽셀 차이로 5도씩 달라지면
+     세밀한 조준 자체가 불가능하다.
+     경계로 갈수록 보정을 0으로 데워 없앤다. 안쪽에서 도와주는 힘은 거의
+     그대로 남고(중심부 손실은 제곱 감쇠라 작다), 불연속만 사라진다. */
+  const edge = Math.abs(best.delta) / 0.15,
+    falloff = 1 - edge * edge;
+  const angle = base + best.delta * 0.58 * falloff;
   return {
     x: Math.cos(angle),
     y: Math.sin(angle),
