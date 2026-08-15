@@ -703,6 +703,8 @@
       return;
     }
     if (mode === "short") return playShort(P);
+    // 전체 연출일 때만 잠근다. 약식은 짧고, 이미 본 사람이다.
+    holdStart();
     playV2(P, sky);
   }
 
@@ -930,6 +932,8 @@
         shake("oo2-shake");
         chips(P, 14, "tr");
         jolt(P);
+        // 여기까지가 이 연출이 하려는 말이다. 흔드는 순간 시작 버튼을 푼다.
+        releaseStart();
       });
       at(460, function () {
         claw(P, "bite", 1);
@@ -1082,6 +1086,7 @@
     });
     var m = document.querySelector("main");
     if (m) m.classList.remove("oo2-shake", "oo2-squeeze", "oo2-kick");
+    releaseStart();
     // 발톱은 body 직계라 레이어와 같이 지워지지 않는다.
     document.querySelectorAll(".oo2-claw").forEach(function (n) {
       n.remove();
@@ -1124,18 +1129,59 @@
   /* 게임에 드롭인할 때를 위한 자동 재생. 원본과 같이 타이틀이 DOM에
      나타나는 것만 보고 재생하고 런타임 훅은 걸지 않는다.
      QA용으로는 window.StellaIntroObserver.play() / .stop()을 쓴다. */
+  /* 「첫 실행 때만」이 되려면 저장소가 세션이 아니라 설치 단위여야 한다.
+     sessionStorage는 탭을 새로 열 때마다 비므로, 이 연출은 첫 실행 한정이
+     아니라 «탭마다 한 번»이었다. 두 번째부터는 지금처럼 약식(short)이 돈다. */
   var SESSION_KEY = "stella-ball.outer-observer.played";
   function played() {
     try {
-      return sessionStorage.getItem(SESSION_KEY) === "1";
+      return (
+        localStorage.getItem(SESSION_KEY) === "1" ||
+        sessionStorage.getItem(SESSION_KEY) === "1"
+      );
     } catch (e) {
       return false;
     }
   }
   function markPlayed() {
     try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-    } catch (e) {}
+      localStorage.setItem(SESSION_KEY, "1");
+    } catch (e) {
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch (e2) {}
+    }
+  }
+
+  /* 시작 버튼을 연출이 끝날 때까지 잠근다. 처음 온 사람이 가장 먼저 하는
+     행동이 「버튼을 찾아 누르기」인데, 그 버튼이 살아 있으면 그 행동이 곧
+     연출을 건너뛰는 행동이 된다 — 보라고 만든 것을 보지 못한다.
+     푸는 시점은 발톱이 관측창을 붙잡고 흔드는 순간(7700+280ms)이다. 그때까지가
+     이 연출이 하려는 말이고, 그 뒤로는 퇴장이라 기다리게 할 이유가 없다.
+     안전장치를 함께 둔다: 무슨 일이 있어도 9.5초 뒤에는 풀린다. 연출이 실패해도
+     플레이어가 갇히면 안 된다. 튜토리얼 버튼은 잠그지 않는다 — 그쪽을 누르는
+     사람은 건너뛰는 게 아니라 참여하는 것이다. */
+  var holdTimer = 0;
+  function startButton() {
+    return document.getElementById("enterHub");
+  }
+  function holdStart() {
+    var b = startButton();
+    if (b) {
+      b.disabled = true;
+      b.setAttribute("aria-disabled", "true");
+    }
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(releaseStart, 9500);
+  }
+  function releaseStart() {
+    clearTimeout(holdTimer);
+    holdTimer = 0;
+    var b = startButton();
+    if (b) {
+      b.disabled = false;
+      b.removeAttribute("aria-disabled");
+    }
   }
   function watch() {
     var seen = false;
