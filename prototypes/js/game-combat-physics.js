@@ -148,7 +148,15 @@ function applyBossHit(amount) {
   const before = boss.hp;
   boss.hp = Math.max(0, boss.hp - amount);
   checkStagePhases();
-  return before - boss.hp;
+  const dealt = before - boss.hp;
+  // Every damage source routes through here (MAINTENANCE.md's one choke
+  // point), so this is the single place the boss's own body can learn it was
+  // hurt. `hitCooldown` only marks direct meteor contact; `hitFlash` marks
+  // any real damage - assists, area bursts, clones, blade ticks - and drives
+  // the red flinch in draw(). Blocked hits (dealt 0) keep the shield's own
+  // flash instead.
+  if (dealt > 0) boss.hitFlash = Math.max(boss.hitFlash || 0, 0.26);
+  return dealt;
 }
 // Phase rules fire once each time the colossus drops past a health ratio.
 function checkStagePhases() {

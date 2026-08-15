@@ -729,6 +729,13 @@ function queueUnitAssist(g, amount, name, options = {}) {
     fromX: g.x,
     fromY: g.y,
     t: 0,
+    // `delay`는 반드시 숫자로 시작해야 한다. 빠뜨리면 정리 루프의 두 분기
+    // (`delay > 0`도, `delay <= 0`도) 모두 undefined 비교로 거짓이 되어,
+    // 빔이 보스에 영원히 박제되고 resolveAssist가 끝내 불리지 않아 지원
+    // 피해·임팩트·팝업까지 통째로 사라진다. 정산 슬로모션의 finisherFocus도
+    // 이 정리 루프로만 풀리므로, 각성 한 번 뒤 게임 전체가 0.82배속으로
+    // 굳는 원인이기도 했다.
+    delay: 0,
     dur: 0.18 + Math.min(0.16, g.travel / 900),
     amount,
     name,
@@ -746,6 +753,18 @@ function queueUnitAssist(g, amount, name, options = {}) {
   // spike and let later heroes' effects expire before their turn.
   if (!options.finisher)
     fieldFx.push({ type: "assist", x: g.x, y: g.y, t: 0, d: 0.5, col: g.col });
+  /* 이 훅은 여기서, 큐에 넣은 모든 어시스트에 대해 울려야 한다. 소비자
+     (game-feedback.js)가 delay·dur 배정과 각성 연출을 전부 여기 걸어 두었는데,
+     발화가 detonateShockwave 한 곳에만 남아 있어서 검기·저격·각성 피니셔는
+     delay가 배정되지 않은 채 큐에 들어갔다. 그 결과가 위 delay 주석의 불멸
+     빔이고, 각성 피니셔가 불멸이 되면 finisherFocus가 영영 풀리지 않아 첫
+     각성 정산 뒤 전투 전체가 0.82배속으로 굳었다. */
+  runRuntimeHooks("afterUnitAssistQueued", {
+    gate: g,
+    shot: assistShots.at(-1),
+    queued: assistShots.length - 1,
+    options,
+  });
 }
 // Gaon's sword wave always reaches the colossus. This range only defines the
 // distance band that converts a close parry into the stronger hit.
@@ -804,12 +823,20 @@ function detonateShockwave(g, name = "모루 충돌 충격파", options = {}) {
       d: parry ? 0.38 : 0.62,
       col: g.col,
     });
-    runRuntimeHooks("afterUnitAssistQueued", {
-      gate: g,
-      shot: assistShots.at(-1),
-      queued: assistShots.length - 1,
-      options,
-    });
+    /* 충격파의 비피니셔 경로는 어시스트를 큐에 넣지 않고 즉시 광역 정산한다.
+       예전에는 여기서 afterUnitAssistQueued를 직접 울렸는데, 그 페이로드의
+       shot이 이전 발의 무관한 어시스트(assistShots.at(-1))를 가리켜 그
+       delay·dur를 덮어썼다. 훅 발화는 queueUnitAssist 안으로 옮겼고, 여기는
+       소비자가 만들던 각성 비트·효과음만 직접 남긴다. */
+    feedbackBeat(
+      "awaken",
+      g.x,
+      g.y,
+      g.col,
+      parry ? 0.54 : 1.08,
+      g.s + (parry ? " 공명" : " 각성"),
+    );
+    combatSfx("awaken", parry ? 0.52 : 0.9);
   }
   if (options.finisher) {
     queueUnitAssist(g, amount, name, { ...options, areaRadius: radius });

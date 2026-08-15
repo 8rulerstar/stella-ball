@@ -765,6 +765,31 @@ function draw() {
         stage?.world === "outside" ? outsideBossPhase() : 1,
       )
     : null;
+  /* The flinch. Screen shake and hit-stop already exist, but the boss's own
+     body showed nothing when hurt - the raster sheet only sped up its frames
+     and the baked 8-1 canvas never changed at all, so hits read as landing on
+     the UI rather than on the creature. While `hitFlash` runs (any damage,
+     set in applyBossHit) the body reddens, jerks off its footing in 2px
+     steps, and squashes toward the contact shadow. ctx.filter tints both the
+     sprite-sheet draw and the baked-canvas blit without any re-bake; the
+     wrapper stays outside drawFrame's own save/restore, which only sets a
+     filter for hero skins and bosses have none. */
+  const flinch = Math.min(1, (boss.hitFlash || 0) / 0.26);
+  if (flinch > 0) {
+    x.save();
+    const jx = Math.round((Math.sin(frameClock * 0.11) * 3 * flinch) / 2) * 2,
+      jy = Math.round((Math.cos(frameClock * 0.13) * 2 * flinch) / 2) * 2,
+      foot = boss.y + 76;
+    x.translate(boss.x + jx, foot + jy);
+    x.scale(1 + 0.07 * flinch, 1 - 0.06 * flinch);
+    x.translate(-boss.x, -foot);
+    // Measured against the aries sprite: this reads as R132/G54/B26 versus
+    // R58/G39/B81 untinted - unmistakably red - while grayscale(0.7) keeps
+    // enough of the original shading that the silhouette stays readable.
+    // A gentler sepia-only mix came out as warm brightening, not a hit.
+    x.filter =
+      "grayscale(0.7) sepia(1) saturate(5.5) hue-rotate(-28deg) brightness(1.2)";
+  }
   if (outsideBoss) {
     // The baked body centre sits above the canvas centre, so the sprite is
     // nudged down to stand on the same contact shadow the raster boss uses.
@@ -784,6 +809,7 @@ function draw() {
     )
   )
     circle(boss.x, boss.y, 58, "#442b72", 16);
+  if (flinch > 0) x.restore();
   // Engrave the orbit and trail the gem's heading. With five shots a turn,
   // "where the gem will be next" is a precondition for aiming at all.
   for (let a = 0; a < Math.PI * 2; a += 15 / 84) {
@@ -910,12 +936,30 @@ function update(d) {
   battle.slow = Math.max(0, (battle.slow || 0) - d);
   boss.a += d * 0.62 * (battle.slow > 0 ? 0.24 : 1);
   boss.hitCooldown = Math.max(0, boss.hitCooldown - d);
+  boss.hitFlash = Math.max(0, (boss.hitFlash || 0) - d);
   for (const g of gates) {
     g.on = Math.max(0, g.on - d);
     g.wakeFlash = Math.max(0, (g.wakeFlash || 0) - d);
     g.animClock = (g.animClock || 0) + d;
   }
   for (const b of bumpers) b.on = Math.max(0, b.on - d);
-  if (!ball.moving) return;
+  if (!ball.moving) {
+    /* 시각 감쇠는 유성과 함께 멈추면 안 된다. fieldFx와 발광 하이라이트의
+       시계는 simulatePhysics 안에만 있어서, 정지 직전에 태어난 이펙트가
+       (특히 정산 뒤 큐에 들어오는 지원·피니셔 장식이) 다음 발사 때까지 최대
+       알파로 화면에 박제됐다 — 보스 옆에 이펙트가 「계속 남아 있다」는 제보의
+       원인 중 하나다. 판이 쉬는 동안에도 장식은 마저 꺼지게 한다. 궤도 장벽의
+       위치는 여전히 유성이 구를 때만 도는 규칙 그대로 두고, 빛만 끈다. */
+    updateExpanded(d);
+    for (const wall of stageWalls) wall.on = Math.max(0, wall.on - d);
+    for (const pad of boostPads) pad.on = Math.max(0, pad.on - d);
+    for (const pad of dragPads) pad.on = Math.max(0, pad.on - d);
+    if (bossShield) bossShield.flash = Math.max(0, bossShield.flash - d);
+    for (const orbit of orbitals) {
+      orbit.hitCooldown = Math.max(0, orbit.hitCooldown - d);
+      if (orbit.down > 0) orbit.down = Math.max(0, orbit.down - d);
+    }
+    return;
+  }
   simulatePhysics(d);
 }
