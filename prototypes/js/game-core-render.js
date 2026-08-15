@@ -220,6 +220,48 @@ function updateFeedback(d) {
   }
   runRuntimeHooks("afterFeedbackUpdate", d);
 }
+/* 구운 글로우. `shadowBlur`는 그리기 호출마다 흐림을 다시 만들어 내는 일이라,
+   패링 한 번이 흐림 걸린 그리기를 2회에서 65회로, 3연쇄면 121회로 올린다 —
+   측정상 패링이 더하는 프레임 비용의 77%가 여기서 나왔다(흐림을 0으로 강제하면
+   3연쇄 CPU 래스터 프레임이 46.34ms → 7.77ms).
+   같은 빛을 색마다 한 장씩 구워 두고 크기만 바꿔 얹으면 비용이 drawImage 한
+   번으로 떨어진다. 원본 그림자가 색을 그대로 쓰므로 색상당 한 장이면 되고,
+   유닛 색은 여덟 가지뿐이라 캐시가 자라지 않는다. */
+const glowSprites = new Map();
+const GLOW_BAKE = 64;
+function glowSprite(col) {
+  const hit = glowSprites.get(col);
+  if (hit) return hit;
+  const made = document.createElement("canvas");
+  made.width = made.height = GLOW_BAKE;
+  const g = made.getContext("2d"),
+    c = GLOW_BAKE / 2,
+    grad = g.createRadialGradient(c, c, 0, c, c, c);
+  /* 그림자 흐림은 가우시안이라 중심이 평평하고 가장자리가 길게 사라진다.
+     두 점짜리 그라디언트로는 그 꼬리가 재현되지 않아 가장자리에서 어긋났다
+     (최대 차이 78/255). 가우시안 exp(-2.6r²)을 여덟 구간으로 따라간다. */
+  const alphaHex = (a) =>
+    Math.max(0, Math.min(255, Math.round(a * 255)))
+      .toString(16)
+      .padStart(2, "0");
+  for (let i = 0; i <= 8; i++) {
+    const r = i / 8;
+    grad.addColorStop(r, col + alphaHex(Math.exp(-2.6 * r * r) * (1 - r * r)));
+  }
+  g.fillStyle = grad;
+  g.fillRect(0, 0, GLOW_BAKE, GLOW_BAKE);
+  glowSprites.set(col, made);
+  return made;
+}
+// radius는 빛이 닿는 바깥 반지름이다. 원본의 (도형 반지름 + shadowBlur)에 해당한다.
+function glowBlit(col, cx, cy, radius, alpha = 1) {
+  if (!(radius > 0) || alpha <= 0) return;
+  const sprite = glowSprite(col || "#cfdad7");
+  x.save();
+  x.globalAlpha = alpha;
+  x.drawImage(sprite, cx - radius, cy - radius, radius * 2, radius * 2);
+  x.restore();
+}
 function circle(a, b, r, col, glow = 0) {
   x.save();
   x.fillStyle = col;

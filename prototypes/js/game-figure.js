@@ -465,14 +465,22 @@ function drawStarNode(cx, cy, col, born = 0, guide = false) {
   const pop = born > 0 ? born / PARRY_FX.nodeBorn : 0,
     halo = 7 + pop * 3;
   x.save();
+  /* 예전에는 헤일로를 `shadowBlur`로 냈다. 별빛은 한 샷에 최대 일곱 개가 동시에
+     떠 있고 별자리 연출 내내 유지되므로, 프레임마다 흐림 걸린 그리기가 일곱 번
+     반복됐다. 같은 빛을 구운 스프라이트로 얹는다 — 비용은 drawImage 한 번이고,
+     바깥 반지름은 원본의 (도형 반지름 + shadowBlur)와 같게 맞춘다. */
+  glowBlit(
+    col || PARRY_FX.core,
+    cx,
+    cy,
+    halo + 10 + pop * 8,
+    (0.5 + pop * 0.32) * 0.85,
+  );
   x.globalAlpha = 0.5 + pop * 0.32;
   x.fillStyle = col || PARRY_FX.core;
-  x.shadowBlur = 10 + pop * 8;
-  x.shadowColor = col || PARRY_FX.core;
   x.beginPath();
   x.arc(cx, cy, halo, 0, Math.PI * 2);
   x.fill();
-  x.shadowBlur = 0;
   x.globalAlpha = 1;
   x.fillStyle = PARRY_FX.core;
   x.beginPath();
