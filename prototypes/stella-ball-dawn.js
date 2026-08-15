@@ -184,8 +184,12 @@
     var mw = add(
       "position:absolute;left:-14%;top:16%;width:150%;height:200px;transform:rotate(-13deg);background:linear-gradient(180deg,transparent,#cfe8e010 24%,#cfe8e016 38%,#f6e8d518 52%,#f6e8d512 62%,#cfe8e00c 74%,transparent)",
     );
+    /* 오로라도 filter를 걸지 않는다. 747×170에 blur(15px)이 걸린 채 9초 주기
+       변형 애니메이션까지 도는 조합이라, 커널 패딩까지 포함한 큰 중간 표면을
+       쉬지 않고 다시 흐리게 만든다 — 은하수·성운의 blur를 걷은 뒤 남아 있던
+       마지막이자 가장 비싼 하나였다. 부드러움은 정지점을 넓혀 대신한다. */
     add(
-      "position:absolute;left:16%;top:-2%;width:56%;height:170px;background:linear-gradient(100deg,transparent,#7cc6bb22 30%,#9adfc932 52%,#eea56f18 72%,transparent);filter:blur(15px);animation:dawnAurora 9s ease-in-out infinite alternate",
+      "position:absolute;left:16%;top:-2%;width:56%;height:170px;background:linear-gradient(100deg,transparent,#7cc6bb14 22%,#9adfc924 40%,#9adfc92e 52%,#c9b48a1e 64%,#eea56f12 78%,transparent);animation:dawnAurora 9s ease-in-out infinite alternate",
     );
     for (var i = 0; i < 90; i++) {
       var s = document.createElement("div");
@@ -196,11 +200,19 @@
         (Math.random() * 100).toFixed(1) +
         "%;width:2px;height:2px;background:" +
         (Math.random() < 0.15 ? "#ffd2a0" : "#cfe8e0") +
-        ";opacity:.6;animation:dawnTwinkle " +
-        (2 + Math.random() * 3).toFixed(1) +
-        "s " +
-        (Math.random() * 3).toFixed(1) +
-        "s infinite";
+        ";opacity:.6" +
+        /* 별의 밀도는 그대로 두고 「반짝이는 별」만 골라 준다. 90개 전부에
+           무한 애니메이션을 걸면 sky-ambience의 70개까지 합쳐 160개의 개별
+           합성 레이어가 세션 내내 살아 있게 되고, 그것이 저사양 GPU에서 이
+           화면의 가장 큰 상시 부하였다. 하늘은 같아 보이되 움직이는 점만
+           1/3로 줄인다. */
+        (i % 3 === 0
+          ? ";animation:dawnTwinkle " +
+            (2 + Math.random() * 3).toFixed(1) +
+            "s " +
+            (Math.random() * 3).toFixed(1) +
+            "s infinite"
+          : "");
       (i < 60 ? S : mw).appendChild(s);
     }
     var moonWrap = add(

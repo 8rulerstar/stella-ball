@@ -1140,7 +1140,12 @@
   function watch() {
     var seen = false;
     function check() {
-      var on = !!document.querySelector(".title-sequence");
+      /* 존재 여부만으로는 부족하다. 타이틀을 떠나도 마크업은 오버레이 안에
+         `display:none`으로 남아 있어서 이 셀렉터가 계속 맞고, 그래서 stop()이
+         한 번도 불리지 않았다 — 인트로 레이어와 눈금 고리 두 개가 전투 내내
+         #dawn-sky에서 계속 합성됐다. 보이는지까지 확인한다. */
+      var node = document.querySelector(".title-sequence");
+      var on = !!(node && node.offsetParent !== null);
       if (on === seen) return;
       seen = on;
       if (!on) return stop();

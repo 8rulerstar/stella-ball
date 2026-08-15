@@ -659,8 +659,17 @@ function showStoryIntro() {
     playSfx?.("confirm");
     showOnboardingTutorial();
   };
-  U.over.onclick = close;
-  addEventListener("keydown", skipStoryIntro);
+  /* Arm the dismiss handlers on the NEXT turn, not this one. The 게임 시작!
+     button lives inside U.over, so the very click that opens the prologue is
+     still bubbling when this runs - binding synchronously meant close() fired
+     on that same click, the card was marked seen and the tutorial started
+     before a single frame had been painted. The prologue was being built and
+     destroyed by one press, which is why a first run never showed it. */
+  setTimeout(() => {
+    if (!document.querySelector(".story-intro-card")) return;
+    U.over.onclick = close;
+    addEventListener("keydown", skipStoryIntro);
+  }, 0);
 }
 function showTitle() {
   run = false;

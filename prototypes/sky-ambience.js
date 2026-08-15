@@ -98,7 +98,11 @@
           "%;width:1px;height:1px;background:" +
           COL.mid +
           ";opacity:.5" +
-          (RM
+          /* 먼 별점도 밀도는 그대로 두고 움직이는 것만 1/3로 줄인다. 여기 70개와
+             stella-ball-dawn.js의 90개를 합치면 세션 내내 살아 있는 개별 합성
+             레이어가 160개였고, 저사양 GPU에서 이 화면의 상시 부하 대부분이
+             거기서 나왔다. */
+          (RM || i % 3 !== 0
             ? ""
             : ";animation:dawnTwinkle " +
               (2.6 + Math.random() * 3.4).toFixed(1) +

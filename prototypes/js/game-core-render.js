@@ -674,15 +674,26 @@ function drawAnimated(name, cx, cy, size, frame) {
 const OUTSIDE_BOSS_SIZE = 264;
 const OUTSIDE_BOSS_LIFT = -22;
 const outsideBossFrames = new Map();
-function outsideBossFrame(size, phase) {
-  const key = size + ":" + phase;
+/* 동공 호흡. 이 몸은 래스터 시트가 없어 한 장을 blit하기 때문에, 페이즈가
+   바뀌기 전까지 완전히 정지해 있었다 — 튜토리얼 보스가 이 몸이라 첫 전투의
+   거상이 아예 숨을 쉬지 않았다. 인트로 스펙 자체가 「동공 수축 뒤 느린 호흡,
+   정지 상태에서도 프레임이 산다」를 규정하므로, 그 호흡만 여기서도 돌린다.
+   페이즈당 몇 장을 더 굽는 것뿐이고 프레임 비용은 여전히 drawImage 한 번이다. */
+const OUTSIDE_BOSS_PUPILS = [1, 0.9, 0.78, 0.9];
+const OUTSIDE_BOSS_BREATH_MS = 420;
+function outsideBossFrame(size, phase, pupilStep = 0) {
+  const key = size + ":" + phase + ":" + pupilStep;
   const cached = outsideBossFrames.get(key);
   if (cached) return cached;
   if (!window.StellaBossArt) return null;
   const baked = document.createElement("canvas");
   baked.width = size;
   baked.height = size;
-  window.StellaBossArt.draw(baked.getContext("2d"), "strider", { size, phase });
+  window.StellaBossArt.draw(baked.getContext("2d"), "strider", {
+    size,
+    phase,
+    pupil: OUTSIDE_BOSS_PUPILS[pupilStep] ?? 1,
+  });
   outsideBossFrames.set(key, baked);
   return baked;
 }
@@ -779,6 +790,8 @@ function draw() {
     ? outsideBossFrame(
         OUTSIDE_BOSS_SIZE,
         stage?.world === "outside" ? outsideBossPhase() : 1,
+        Math.floor(frameClock / OUTSIDE_BOSS_BREATH_MS) %
+          OUTSIDE_BOSS_PUPILS.length,
       )
     : null;
   /* The flinch. Screen shake and hit-stop already exist, but the boss's own
