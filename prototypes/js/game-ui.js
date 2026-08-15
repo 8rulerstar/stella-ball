@@ -7,7 +7,12 @@ function setPortrait(el, h, size = 56) {
   el.style.backgroundPosition = "0 0";
 }
 
+/* Deferred UI callbacks (a claim burst finishing 620ms after the button was
+   pressed) compare against this to see whether the screen they meant to
+   refresh is still on display. Every screen transition passes through here. */
+let sceneSequence = 0;
 function setScene(scene) {
+  sceneSequence += 1;
   setRuntimeScene(scene);
   document.body.classList.toggle("title-mode", scene === "title");
   document.body.classList.toggle("meta-mode", scene === "meta");

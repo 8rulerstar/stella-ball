@@ -298,7 +298,15 @@ function playClaimBurst(card, amount, done) {
     card.append(spark);
   }
   if (navigator.vibrate) navigator.vibrate([10, 26, 14]);
-  setTimeout(() => done?.(), 620);
+  /* The callbacks passed here re-render a whole screen. Without a liveness
+     token a claim followed by an immediate 뒤로 (or a tab switch) had its
+     620ms timer fire afterwards and put the archive back over the hub. Every
+     other deferred re-render in this file already carries one - the summon
+     sequence has alive(), the title has its sequence counter. */
+  const scene = sceneSequence;
+  setTimeout(() => {
+    if (scene === sceneSequence) done?.();
+  }, 620);
 }
 /* Profile icon ------------------------------------------------------------
    The observatory ID had no face at all.  Rather than commission portraits,
@@ -797,6 +805,7 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
     removeEventListener("keydown", onSkip);
     removeEventListener("pointerdown", onSkip);
     if (!alive()) return;
+    // (the listener teardown above intentionally runs before the alive() bail)
     ritual.classList.remove("summoning");
     stage.remove();
     drawButton.textContent = "소환 목록으로 돌아가기";
@@ -804,6 +813,17 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
     drawButton.onclick = () => showGacha();
   };
   function onSkip(e) {
+    /* The screen can be left while the 10s sequence is still running - 뒤로 is
+       never disabled - and until this returned, the skip handlers stayed bound
+       to the window for the rest of that window, eating the first click or
+       keypress made anywhere else in the app (hub, shop, pause). Releasing on
+       a dead screen also stops a second summon from stacking another pair. */
+    if (!alive()) {
+      stop();
+      removeEventListener("keydown", onSkip);
+      removeEventListener("pointerdown", onSkip);
+      return;
+    }
     if (skipping || (e.type === "keydown" && (e.repeat || e.key === "Tab")))
       return;
     skipping = true;

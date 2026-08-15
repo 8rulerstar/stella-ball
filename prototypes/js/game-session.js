@@ -413,12 +413,21 @@ function resultCard(shotsUsed, elapsedMs) {
     "</b></span></span></div></div>"
   );
 }
-function fail() {
+// The colossus-specific line its caller composes is the useful half of this
+// card - it names what survived and why. The parameter was missing, so that
+// line was built and thrown away on every loss and the player read the same
+// generic sentence whatever they had been fighting.
+function fail(reason = "다른 별지기와 다른 궤적으로 다시 관측하세요.") {
   battleComplete = true;
   assistShots = [];
+  // The win path clears these; the fail path left split meteors alive on a
+  // board nobody is playing any more.
+  cloneBalls = [];
   U.over.className = "overlay";
   U.over.innerHTML =
-    '<div class="outcome-cut fail"><div class="outcome-constellation" aria-hidden="true"><i>·</i><i>✧</i><i>·</i></div><div class="tag">관측 실패</div><h2>별빛이 닿지 않았습니다.</h2><p>다른 별지기와 다른 궤적으로 다시 관측하세요.</p><button onclick="showRoster()">다시 관측하기</button></div>';
+    '<div class="outcome-cut fail"><div class="outcome-constellation" aria-hidden="true"><i>·</i><i>✧</i><i>·</i></div><div class="tag">관측 실패</div><h2>별빛이 닿지 않았습니다.</h2><p>' +
+    reason +
+    '</p><button onclick="showRoster()">다시 관측하기</button></div>';
   U.over.classList.remove("hide");
 }
 function scheduleWin() {
@@ -757,6 +766,13 @@ function showPauseMenu() {
   };
   document.querySelector("#pauseExit").onclick = () => {
     playSfx?.();
+    // Leaving means the battle is over. Without this the abandoned fight stayed
+    // live behind every menu - `battle` non-null with battleComplete false -
+    // and its toast banner kept its `show` class over the hub, the shop and the
+    // summon screen, because the toast timer only ticks inside update() and the
+    // frame loop stops running it once the scene is no longer the game.
+    battleComplete = true;
+    clearToastQueue();
     paused = false;
     showMeta();
   };

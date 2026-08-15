@@ -642,23 +642,25 @@ function showStoryIntro() {
   U.over.className = "overlay story-intro-scene";
   U.over.innerHTML =
     '<section class="story-intro-card" aria-label="잊힌 별의 관측자 프롤로그"><small class="story-intro-kicker">THE LAST OBSERVATORY</small><h2>잊힌 별의 관측자</h2><div class="story-intro-lines"><p>어느 밤부터, 별이 하나씩 꺼졌다.</p><p>이야기가 잊힐 때마다 별이 지고, 그 자리에 공허가 고였다.</p><p>땅에 떨어져 잠든 별지기를 깨우는 방법은 단 하나 — 부딪히는 것.</p><p>관측자여, 유성을 굴려라. 별자리가 기억을 되찾을 것이다.</p></div><small class="story-intro-skip">클릭하여 계속</small></section>';
+  // `once` tears the key listener down on the first KEYPRESS, not when the
+  // prologue closes - so closing it with a click left the listener bound for
+  // the rest of the session, and every showStoryIntro added another. Release
+  // it from close() instead, whichever way the card was dismissed.
+  const skipStoryIntro = () => {
+    if (document.querySelector(".story-intro-card")) close();
+  };
   const close = () => {
     // The overlay element is reused by every later screen, so this handler has
     // to be released.  Leaving it attached made any click on the hub, gacha,
     // achievements or settings restart the tutorial underneath them.
     U.over.onclick = null;
+    removeEventListener("keydown", skipStoryIntro);
     markStoryIntroSeen();
     playSfx?.("confirm");
     showOnboardingTutorial();
   };
   U.over.onclick = close;
-  addEventListener(
-    "keydown",
-    function skipStoryIntro() {
-      if (document.querySelector(".story-intro-card")) close();
-    },
-    { once: true },
-  );
+  addEventListener("keydown", skipStoryIntro);
 }
 function showTitle() {
   run = false;
