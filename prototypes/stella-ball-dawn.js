@@ -191,69 +191,83 @@
     add(
       "position:absolute;left:16%;top:-2%;width:56%;height:170px;background:linear-gradient(100deg,transparent,#7cc6bb14 22%,#9adfc924 40%,#9adfc92e 52%,#c9b48a1e 64%,#eea56f12 78%,transparent);animation:dawnAurora 9s ease-in-out infinite alternate",
     );
-    /* 별밭은 DOM이 아니라 캔버스 세 장이다.
+    /* 별밭은 DOM이 아니라 캔버스 한 장이다.
 
        측정으로 확정한 것: 애니메이션이 걸린 하늘 요소는 하나하나가 자기 합성
        레이어가 된다. 온보딩 화면의 합성 레이어 117개 중 102개가 #dawn-sky의
        것이었고 그중 48개가 이 별점들이었다 — 게임 캔버스 자체는 5개뿐이다.
 
-       두 번의 시행착오를 거쳐 지금 형태가 됐다. 캔버스 한 장을 주기적으로 다시
-       그리면 전체 화면 텍스처를 계속 올려보내게 되어 레이어 면적이 9.4→12.3Mpx로
-       늘었고, 별을 세 벌로 나눠 엇갈리게 깜빡이려 하자 전체 화면 캔버스가 다섯
-       장이 되어 17.0Mpx까지 올라갔다. 전체 화면 캔버스는 장수가 곧 비용이다.
-       그래서 한 장에 모두 그려 한 번만 올리고, 반짝임은 그 캔버스의 opacity
-       애니메이션 하나로 낸다 — 별이 제각각 깜빡이지는 않고 하늘이 함께 숨쉬지만,
-       재그리기 0에 레이어 1장이다. */
-    var STAR_SETS = 1;
-    var starCanvases = [];
-    for (var sIdx = 0; sIdx < STAR_SETS; sIdx++) {
-      var sc = document.createElement("canvas");
-      // 애니메이션을 걸지 않는다. 캔버스에 opacity 애니메이션을 주면 이 한
-      // 장이 매 프레임 재합성 대상이 되어, 레이어 수를 줄여 아낀 것을 전체
-      // 화면 크기의 상시 재합성으로 되돌려준다. 정적 레이어는 합성기가 그대로
-      // 재사용한다. 하늘의 움직임은 유성·오로라·구름이 이미 맡고 있다.
-      sc.style.cssText =
-        "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
-      S.appendChild(sc);
-      starCanvases.push(sc);
-    }
+       반짝임을 되살리면서 그 비용을 다시 부르지 않는 방법이 부분 갱신이다.
+       버린 대안 셋: 요소마다 CSS 애니메이션(레이어 160장), 전체 캔버스를 8fps로
+       재그리기(레이어 면적 9.4→12.3Mpx), 엇갈린 주기를 위해 캔버스를 다섯 장으로
+       나누기(17.0Mpx). 지금은 별을 한 번만 그려 두고, 반짝이는 소수의 별만 자기
+       4×4 상자를 지우고 다시 그린다 — 더럽혀지는 면적이 tile 한두 개라 텍스처가
+       사실상 다시 올라가지 않고, 레이어는 여전히 한 장이다. */
+    var starCanvas = document.createElement("canvas");
+    starCanvas.style.cssText =
+      "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+    S.appendChild(starCanvas);
+    var starCtx = starCanvas.getContext("2d");
     var stars = [];
-    for (var i = 0; i < 90; i++)
+    /* sky-ambience가 따로 뿌리던 여백 별 70개를 걷어냈으므로(전체 화면 텍스처가
+       한 장 더 늘어나서) 밀도는 이쪽에서 맞춘다. */
+    for (var i = 0; i < 130; i++)
       stars.push({
-        // 60개는 하늘 전면, 30개는 은하수 띠를 따라 눕힌다(원래 배치와 같다).
-        band: i >= 60,
+        // 앞의 2/3는 하늘 전면, 나머지는 은하수 띠를 따라 눕힌다.
+        band: i >= 87,
         u: Math.random(),
         v: Math.random(),
         warm: Math.random() < 0.15,
-        set: i % STAR_SETS,
+        // 반짝이는 별은 1/5만. 전부 깜빡이면 갱신 면적이 화면 전체가 된다.
+        twinkles: i % 5 === 0,
+        phase: Math.random() * 6.28,
+        period: 1.6 + Math.random() * 2.6,
+        x: 0,
+        y: 0,
       });
-    function paintStars() {
-      var w = S.clientWidth || window.innerWidth,
-        h = S.clientHeight || window.innerHeight;
-      var ctxs = starCanvases.map(function (c) {
-        c.width = w;
-        c.height = h;
-        return c.getContext("2d");
-      });
-      for (var k = 0; k < stars.length; k++) {
-        var st = stars[k],
-          px,
-          py;
-        if (st.band) {
-          // 띠의 국소 좌표(길이 1.5w, 두께 200px)를 -13도 회전시켜 얹는다.
-          var bx = (st.u - 0.14) * w * 1.5,
-            by = h * 0.16 + st.v * 200;
-          px = bx * 0.974 + by * 0.225;
-          py = -bx * 0.225 + by * 0.974;
-        } else {
-          px = st.u * w;
-          py = st.v * h;
-        }
-        var g = ctxs[st.set];
-        g.globalAlpha = 0.6;
-        g.fillStyle = st.warm ? "#ffd2a0" : "#cfe8e0";
-        g.fillRect(Math.round(px), Math.round(py), 2, 2);
+    function starPosition(st, w, h) {
+      if (!st.band) {
+        st.x = Math.round(st.u * w);
+        st.y = Math.round(st.v * h);
+        return;
       }
+      // 띠의 국소 좌표(길이 1.5w, 두께 200px)를 -13도 회전시켜 얹는다.
+      var bx = (st.u - 0.14) * w * 1.5,
+        by = h * 0.16 + st.v * 200;
+      st.x = Math.round(bx * 0.974 + by * 0.225);
+      st.y = Math.round(-bx * 0.225 + by * 0.974);
+    }
+    function starAlpha(st, t) {
+      if (!st.twinkles || RM) return 0.6;
+      return 0.24 + 0.5 * (0.5 + 0.5 * Math.sin(t / st.period + st.phase));
+    }
+    function drawStar(st, t) {
+      starCtx.globalAlpha = starAlpha(st, t);
+      starCtx.fillStyle = st.warm ? "#ffd2a0" : "#cfe8e0";
+      starCtx.fillRect(st.x, st.y, 2, 2);
+    }
+    function paintStars() {
+      var w = (starCanvas.width = S.clientWidth || window.innerWidth),
+        h = (starCanvas.height = S.clientHeight || window.innerHeight);
+      starCtx.clearRect(0, 0, w, h);
+      var t = performance.now() / 1000;
+      for (var k = 0; k < stars.length; k++) {
+        starPosition(stars[k], w, h);
+        drawStar(stars[k], t);
+      }
+      starCtx.globalAlpha = 1;
+    }
+    // 반짝이는 별만 자기 자리를 지우고 다시 그린다. 130개 중 26개, 각 4×4다.
+    function twinkleStars() {
+      if (document.hidden) return;
+      var t = performance.now() / 1000;
+      for (var k = 0; k < stars.length; k++) {
+        var st = stars[k];
+        if (!st.twinkles) continue;
+        starCtx.clearRect(st.x - 1, st.y - 1, 4, 4);
+        drawStar(st, t);
+      }
+      starCtx.globalAlpha = 1;
     }
     paintStars();
     var starResizeTimer;
@@ -261,6 +275,9 @@
       clearTimeout(starResizeTimer);
       starResizeTimer = setTimeout(paintStars, 200);
     });
+    // 12fps. 반짝임에 이보다 촘촘한 해상도는 눈에 보이지 않고, rAF로 돌리면
+    // 전투 프레임과 같은 예산을 두고 다투게 된다.
+    if (!RM) setInterval(twinkleStars, 84);
     var moonWrap = add(
       "position:absolute;left:1.5%;top:4%;width:150px;height:150px",
     );

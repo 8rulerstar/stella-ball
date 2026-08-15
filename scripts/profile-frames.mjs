@@ -363,6 +363,32 @@ async function main() {
   report.scenes.title = await sampleFrames(3000);
   report.layersTitle = await layerStats();
 
+  /* 별 반짝임은 부분 갱신으로 구현돼 있어 CSS 애니메이션 목록에 나타나지
+     않는다. 캔버스 픽셀을 시간차로 두 번 읽어 실제로 변하는지 확인한다. */
+  report.starTwinkle = await evaluate(`(async () => {
+    const sky = document.getElementById('dawn-sky');
+    const cv = sky && [...sky.children].find((e) => e.tagName === 'CANVAS');
+    if (!cv) return { error: 'no star canvas' };
+    const g = cv.getContext('2d');
+    const snap = () => {
+      const d = g.getImageData(0, 0, cv.width, cv.height).data;
+      let lit = 0, sum = 0;
+      for (let i = 3; i < d.length; i += 4) if (d[i] > 0) { lit++; sum += d[i]; }
+      return { lit, sum };
+    };
+    const a = snap();
+    await new Promise((r) => setTimeout(r, 500));
+    const b = snap();
+    await new Promise((r) => setTimeout(r, 500));
+    const c = snap();
+    return {
+      litStars: a.lit,
+      alphaSum: [a.sum, b.sum, c.sum],
+      twinkling: !(a.sum === b.sum && b.sum === c.sum),
+      hidden: document.hidden,
+    };
+  })()`);
+
   await gotoOnboarding();
   report.scenes.onboarding = await sampleFrames(4000);
   report.layersOnboarding = await layerStats();
