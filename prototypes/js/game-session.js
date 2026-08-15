@@ -413,6 +413,46 @@ function resultCard(shotsUsed, elapsedMs) {
     "</b></span></span></div></div>"
   );
 }
+/* 8-1은 캠페인의 끝이라 일반 승리 카드로 닫으면 안 된다. 「다른 파티로 더
+   짧은 발사를 노려보세요」는 다음 판이 있을 때 할 말이고, 여기서는 다음 판이
+   없다. 스펙의 금지선을 그대로 지킨다 — 이 개체에는 끝까지 이름을 주지 않고
+   좌표로만 부르며, 살구빛은 되찾은 별자리에만 쓰고 존재 쪽에는 청록-잿빛만
+   남긴다. 기록은 지우지 않고 관측 결과로 남긴다는 톤이다. */
+const CAMPAIGN_COMPLETE_STORAGE = "stella-ball.campaign-clear.v1";
+function isFinalStage() {
+  return currentStage()?.world === "outside";
+}
+function hasCampaignComplete() {
+  return appStorage.readText(CAMPAIGN_COMPLETE_STORAGE) === "1";
+}
+function markCampaignComplete() {
+  appStorage.writeText(CAMPAIGN_COMPLETE_STORAGE, "1");
+}
+function endingCard(shotsUsed, elapsedMs) {
+  const seconds = (elapsedMs / 1000).toFixed(1),
+    worlds = WORLDS.filter((world) => world.id !== "outside").length,
+    replay = hasCampaignComplete();
+  return (
+    '<div class="outcome-cut ending"><div class="tag">관측 종료</div><h2>' +
+    (replay
+      ? "다시, 그 점을 마주 보았습니다."
+      : "관측되지 않은 점을 관측했습니다.") +
+    "</h2>" +
+    '<div class="ending-lines"><p>' +
+    worlds +
+    "개의 별자리가 제자리로 돌아갔습니다.</p>" +
+    "<p>성도 밖에서 이쪽을 보고 있던 것은, 이제 성도 안에 기록되었습니다.</p>" +
+    "<p>이름은 끝내 알 수 없었습니다. 좌표만 남깁니다 — <b>∅</b></p></div>" +
+    '<div class="ending-metrics"><span>마지막 관측<b>' +
+    seconds +
+    "초</b></span><span>사용 유성<b>" +
+    shotsUsed +
+    "개</b></span><span>되찾은 별<b>" +
+    (progress.clears || 0) +
+    "</b></span></div>" +
+    '<button onclick="showMeta()">관측소로 돌아가기</button></div>'
+  );
+}
 // The colossus-specific line its caller composes is the useful half of this
 // card - it names what survived and why. The parameter was missing, so that
 // line was built and thrown away on every loss and the player read the same
@@ -517,13 +557,15 @@ function win() {
     source: "browser",
   }).catch(() => {});
   U.over.className = "overlay";
-  U.over.innerHTML =
-    '<div class="outcome-cut win"><div class="tag">코어 파괴</div><h2>' +
-    bossDisplayName() +
-    "을 무너뜨렸습니다.</h2>" +
-    resultCard(shotsUsed, elapsedMs) +
-    '<p>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
+  U.over.innerHTML = isFinalStage()
+    ? endingCard(shotsUsed, elapsedMs)
+    : '<div class="outcome-cut win"><div class="tag">코어 파괴</div><h2>' +
+      bossDisplayName() +
+      "을 무너뜨렸습니다.</h2>" +
+      resultCard(shotsUsed, elapsedMs) +
+      '<p>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
   U.over.classList.remove("hide");
+  if (isFinalStage()) markCampaignComplete();
   runRuntimeHooks("afterBattleWin", {
     ...winContext,
     shotsUsed,

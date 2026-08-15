@@ -1884,3 +1884,58 @@ body.onboarding-locked canvas {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------
+   ENDING — 8-1 closes the campaign, so it does not get the ordinary win
+   card. The palette follows OUTER_OBSERVER_INTRO_SPEC section 4: the
+   entity stays teal-ash and low contrast, and the one warm accent is the
+   apricot the reclaimed constellations already own, used on the count of
+   stars returned rather than on the thing outside the window.
+   --------------------------------------------------------------------- */
+.outcome-cut.ending {
+  border-color: #4e6f72;
+  background-color: #050d12f2;
+  background-image: radial-gradient(
+    ellipse 70% 50% at 50% 0%,
+    #2c4a4e5c,
+    transparent 70%
+  );
+}
+.outcome-cut.ending h2 {
+  color: #cfdad7;
+}
+.ending-lines {
+  margin: 14px auto 18px;
+  max-width: 44ch;
+  display: grid;
+  gap: 7px;
+}
+.ending-lines p {
+  color: #9fb3b0;
+  line-height: 1.7;
+}
+.ending-lines b {
+  color: #cfdad7;
+  letter-spacing: 0.08em;
+}
+.ending-metrics {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin-bottom: 18px;
+}
+.ending-metrics span {
+  display: grid;
+  gap: 2px;
+  min-width: 92px;
+  padding: 8px 12px;
+  border: 1px solid #3a5457;
+  background: #08161bcc;
+  color: #7f9996;
+  font-size: 11px;
+}
+.ending-metrics b {
+  color: #ffd2a0;
+  font-size: 15px;
+}

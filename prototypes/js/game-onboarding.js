@@ -1177,7 +1177,10 @@ registerRuntimeHook("afterBattleWin", (context) => {
       "+" + goldEarned + " 골드",
       "업적 탭에서 수령하세요",
     );
-  if (shouldRecord) {
+  // 8-1은 캠페인의 끝이라 win()이 전용 엔딩을 이미 그려 두었다. 이 훅은 win()
+  // 다음에 돌면서 오버레이를 통째로 다시 쓰므로, 최종 스테이지에서는 그 카드를
+  // 덮지 않는다. 보상 토스트와 업적 안내는 그대로 준다.
+  if (shouldRecord && !isFinalStage()) {
     U.over.className = "overlay";
     U.over.innerHTML =
       '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">별 해방</div><h2>별이 하늘로 돌아갔습니다.</h2>' +
@@ -1187,8 +1190,8 @@ registerRuntimeHook("afterBattleWin", (context) => {
       partyNames +
       '</p><button onclick="showStageSelect()">다음 관측</button></div>';
     U.over.classList.remove("hide");
-    announceNewAchievements();
   }
+  if (shouldRecord) announceNewAchievements();
 });
 let observatoryGlowLayer = null,
   observatoryGlowBossX = -1,
