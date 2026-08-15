@@ -379,15 +379,20 @@ function __botRun(config) {
 function __botCampaignRun(config) {
   const source = stages[config.campaignIndex];
   if (!source || source.training) throw new Error("campaign stage is unavailable");
+  // 체력 덮어쓰기는 밸런스 측정용이다. 실제 체력으로 재면 피해가 체력에서
+  // 잘려 「몇 대 때릴 수 있었는가」를 알 수 없다 - 클리어한 판은 전부 피해 =
+  // 체력으로 보인다. 아주 큰 값을 주면 그 배치에서 5발이 실제로 낼 수 있는
+  // 피해 용량이 나오고, 그것이 체력을 정하는 근거가 된다.
+  const bossHp = config.bossHpOverride ?? source.bossHp;
   // 리포트가 스스로를 설명하게 스테이지 정체를 함께 돌려준다. 인덱스만으로는
   // 나중에 스테이지가 추가·재배열되면 과거 리포트를 읽을 수 없다.
   return {
     stageId: source.id,
-    bossHp: source.bossHp,
+    bossHp,
     ...__botRun({
       ...config,
-      arena: { ...source, tutorial: false },
-      bossHp: source.bossHp,
+      arena: { ...source, tutorial: false, bossHp },
+      bossHp,
     }),
   };
 }
@@ -604,6 +609,7 @@ export function runCampaignStage({
   seed = 1,
   steer = false,
   aim = "loose",
+  bossHpOverride = null,
 } = {}) {
   const party = PARTY_POOLS[partySize];
   if (!party) throw new Error("partySize must be 2, 3, or 4");
@@ -621,6 +627,7 @@ export function runCampaignStage({
       steerAt: 26,
       frameLimit: 7200,
       aimSigma,
+      bossHpOverride,
       spread: [0, 0, 0, 0],
     },
     "__botCampaignRun",
