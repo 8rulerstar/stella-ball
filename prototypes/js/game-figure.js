@@ -383,10 +383,21 @@ registerRuntimeHook(
     // Every combat resolves this shot's starlight nodes instead of judging where
     // the moving bodies happened to rest. Normal settle awakenings stay muted so
     // they cannot hide the constellation reveal.
+    //
+    // `handled` must follow whether a constellation ACTUALLY resolved, not
+    // merely whether the figure system is live. `figureActive()` is true for
+    // every settle in a running battle, so claiming the settle unconditionally
+    // muted the awakening finishers on every shot - including shots with zero
+    // parry nodes, where there is no reveal to protect. That made the whole
+    // awakened branch of settleParty dead code: rolling the meteor through
+    // three starkeepers woke all three, queued no assists and dealt no
+    // settlement damage at all. Measured before this change: awakened 3,
+    // queued 0, boss health unchanged.
     if (!figureActive()) return;
     context.figureActive = true;
-    context.handled = true;
-    context.result = finishFigureShot();
+    const resolved = finishFigureShot();
+    context.result = resolved;
+    context.handled = resolved;
   },
   { priority: 100 },
 );
