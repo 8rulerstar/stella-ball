@@ -286,9 +286,16 @@
   justify-content: center;
   text-align: left;
   overflow: hidden;
+  /* 여기에도 옛 키아트가 깔려 있었다 — 프롤로그 컷신 카드 뒤로 「PRISM
+     BREAKERS」가 비쳤다. 관측소 그라디언트로 바꾼다. */
   background:
     linear-gradient(90deg, #041017e8 0%, #07131bd9 62%, #07131b96),
-    url("../assets/library/brand/video-title-card.png") center/cover;
+    radial-gradient(
+      ellipse at 68% 26%,
+      #22343899 0%,
+      #101a1eee 48%,
+      #0a0f12 88%
+    );
 }
 .story-intro-card:before {
   content: "";
@@ -770,7 +777,12 @@ button:hover {
 .story-intro-card {
   background:
     linear-gradient(90deg, #070919ec, #111634df 62%, #171b4299),
-    url("../assets/library/brand/video-title-card.png") center/cover !important;
+    radial-gradient(
+      ellipse at 68% 26%,
+      #2a3a6b99 0%,
+      #131a3aee 48%,
+      #070a1b 88%
+    ) !important;
 }
 .story-intro-card:before {
   background:

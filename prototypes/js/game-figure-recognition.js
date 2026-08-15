@@ -27,10 +27,13 @@ const FIGURE = {
   reject: 0.19,
   perfect: 0.04,
   bonusPerPoint: 14, // damage per enclosed target, per figure vertex
-  // 5.6 seconds end to end, with the trace itself slow enough to watch being
-  // drawn. At 0.55/0.9/0.45 the whole thing was over before the settle
-  // slow-motion finished, so it read as "nothing drew".
-  drawTime: 1.4,
+  /* 발동까지 2.85초였다 — drawTime 1.4 + correctTime 0.8 + revealDelay 0.35
+     + castDelay 0.3. 유성이 멈추고 나서 그만큼을 더 기다려야 능력이 나가니
+     「도착했는데 아무 일도 안 일어난다」로 읽혔다. 궤적은 여전히 그려지는
+     것이 보이되(0.7초), 그 뒤 단계는 바짝 붙여 1.12초에 발동한다.
+     0.55/0.9/0.45로 한꺼번에 줄였던 예전 시도가 실패한 이유는 궤적까지 같이
+     사라져서였으므로, 줄이는 것은 궤적 이후의 뜸들이는 구간이다. */
+  drawTime: 0.7,
   // 2.6 was set when the whole sequence was 5s and a shot took ~7s to settle.
   // The correction and reveal steps added 1.6s on top, and the meteor now
   // settles in ~3s, so the hold was the one beat outlasting the shot itself.
@@ -40,10 +43,10 @@ const FIGURE = {
   // the crooked figure the player actually made is corrected into the real
   // constellation, the creature fades in over it, and only then does the
   // ability fire.  See FIGURE_ART_SPEC.md §2.
-  correctTime: 0.8, // ease-in-out from drawn vertices to the fitted skeleton
-  revealDelay: 0.35, // silhouette starts fading in this long after correction
-  revealTime: 0.45,
-  castDelay: 0.3, // ability fires this long after the silhouette appears
+  correctTime: 0.28, // ease-in-out from drawn vertices to the fitted skeleton
+  revealDelay: 0.08, // silhouette starts fading in this long after correction
+  revealTime: 0.22,
+  castDelay: 0.06, // ability fires this long after the silhouette appears
   // The delivery specified 0.13, matching the pentagram's inner wash.  On the
   // real table that is invisible: the arena floor is dark purple and the
   // silhouettes are pale, so at 0.13 the swan cannot be made out at all.  0.30

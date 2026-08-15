@@ -989,15 +989,10 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.fillStyle = rune ? "#fff3d6" : "#dff3ea";
     x.font = "bold " + (rune ? 22 : 15) + "px ui-monospace";
     x.fillText(figureFx.shape.name, centre.x, centre.y - (rune ? 4 : 1));
-    if (rune) {
-      x.fillStyle = "#ffd2a0";
-      x.font = "bold 12px ui-monospace";
-      x.fillText(
-        "정확도 " + Math.round(figureFx.score * 100) + "%",
-        centre.x,
-        centre.y + 14,
-      );
-    }
+    /* 오망성만 「정확도 N%」를 찍고 있었는데, 그런 시스템이 없다. `score`는
+       모든 별자리 능력에 ctx.score로 넘어가지만 읽는 능력이 하나도 없고,
+       피해량은 bonusPerPoint × 꼭짓점 수로만 정해진다. 아무것도 바꾸지 않는
+       숫자를 결과처럼 보여 주고 있었다. */
     x.restore();
   }
 });

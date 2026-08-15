@@ -249,10 +249,13 @@ header button:hover {
   background: #07131bf4;
   place-content: stretch;
 }
+/* 옛 키아트(video-title-card.png)에는 「PRISM BREAKERS」가 픽셀 글씨로 크게
+   박혀 있다. stella-ball-theme.css가 .title-sequence:before만 덮어 놓아서
+   이 컨테이너는 그대로 옛 제목을 깔고 있었고, blend-mode: screen이라 오히려
+   글씨가 더 밝게 떴다. 이 화면의 배경은 .title-sequence가 가지고 있으므로
+   여기서는 바탕색만 남긴다. */
 .title-scene {
-  background: #07131b url("../assets/library/brand/video-title-card.png")
-    center/cover no-repeat !important;
-  background-blend-mode: screen;
+  background: #07131b !important;
 }
 .title-wordmark {
   width: min(440px, 80%);

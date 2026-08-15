@@ -1236,7 +1236,7 @@ function showTutorial(step = 0) {
   U.over.innerHTML =
     '<div class="tutorial-shell"><div class="meta-brand"><img src="' +
     metaArt.wordmark +
-    '" alt="Prism Breakers"><span class="meta-profile">TUTORIAL<b>REPLAY</b></span></div><section class="tutorial-card"><div class="tutorial-visual"><img src="' +
+    '" alt="STELLA BALL"><span class="meta-profile">TUTORIAL<b>REPLAY</b></span></div><section class="tutorial-card"><div class="tutorial-visual"><img src="' +
     guide.art +
     '" alt=""></div><div class="tutorial-copy"><small>' +
     guide.tag +

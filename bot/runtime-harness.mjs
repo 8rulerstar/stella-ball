@@ -331,7 +331,7 @@ function __botTryParry(mode) {
 function __botRun(config) {
   __botStart(config);
   const duration = [];
-  let shot = 0, frames = 0, shotFrames = 0;
+  let shot = 0, frames = 0, shotFrames = 0, longestShotFrames = 0;
   // 샷을 다 썼다는 이유로 루프를 끊으면 마지막 발이 발사 직후 한 프레임만 돌고
   // 버려진다 — 피해도 별자리도 정산되지 않고 그 발의 체공 시간도 기록되지 않아,
   // shots: 5가 실제로는 4발이 된다. 마지막 유성이 멈춘 뒤에 끝낸다.
@@ -361,9 +361,19 @@ function __botRun(config) {
     updateFeedback(1 / 60);
     shotFrames += 1;
     frames += 1;
+    if (shotFrames > longestShotFrames) longestShotFrames = shotFrames;
     if (!ball.moving && shotFrames) duration.push(shotFrames / 60);
   }
+  // frameLimit에 걸려 빠져나온 것과 정상 종료를 구분한다. 예전에는 둘 다
+  // 같은 모양의 결과로 나왔고, duration은 유성이 멈춘 프레임에만 쌓이므로
+  // 끝나지 않은 샷은 shotDuration에 아예 기록되지 않았다 — 영원히 도는 샷이
+  // 지표상으로는 그냥 「클리어 실패」로 보였다.
+  // (이 주석도 VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
+  const stalled = frames >= config.frameLimit && run && !battleComplete;
   return {
+    stalled: stalled,
+    longestShotSeconds: longestShotFrames / 60,
+    framesUsed: frames,
     cleared: boss.hp <= 0,
     remainingHp: Math.round(boss.hp),
     shotsUsed: shot,
