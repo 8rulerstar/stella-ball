@@ -269,6 +269,10 @@ function drawPinballTable() {
 }
 function steerMeteor(side) {
   if (!ball?.moving || ball.steerUsed || battleComplete) return false;
+  // 조준이 강제된 수업에서는 항로를 바꿀 수 없다. 훅이 아니라 여기에 두어야
+  // 마우스와 키보드 두 경로가 함께 막힌다.
+  if (StellaRuntime.modules.optional("onboarding")?.blocksSteer?.())
+    return false;
   const speed = Math.hypot(ball.vx, ball.vy);
   if (speed < 1) return false;
   const ux = ball.vx / speed,

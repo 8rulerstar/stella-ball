@@ -623,6 +623,16 @@ function showNextToast() {
   U.toast.classList.add("show");
   toastTimer = toastQueue.length ? TOAST_QUEUED_TIME : TOAST_SOLO_TIME;
 }
+/* 배너 카운트다운. 원래 update() 안에 인라인으로 있었는데, 수업의 teaching
+   hold는 시뮬레이션을 통째로 멈추면서 화면은 계속 그린다 — 그래서 발사 직후
+   뜬 배너가 정지 내내 그 자리에 굳어 있었다. 살아 있는 「지금 누르세요」 큐
+   옆에서 멈춘 배너는 「기다리는 중」이 아니라 「멈춘 버그」로 읽힌다.
+   정지 분기에서도 이것만 따로 돌린다. 정지 밖에서는 예전과 완전히 같다. */
+function advanceToastQueue(d) {
+  if (toastTimer <= 0) return;
+  toastTimer -= d;
+  if (toastTimer <= 0) showNextToast();
+}
 function clearToastQueue() {
   toastQueue.length = 0;
   currentToastText = "";

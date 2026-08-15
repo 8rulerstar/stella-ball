@@ -1292,10 +1292,7 @@ function drawCombo() {
   x.restore();
 }
 function update(d) {
-  if (toastTimer > 0) {
-    toastTimer -= d;
-    if (toastTimer <= 0) showNextToast();
-  }
+  advanceToastQueue(d);
   advanceTimed(popups, d);
   for (const a of adds) {
     a.hitCooldown = Math.max(0, a.hitCooldown - d);

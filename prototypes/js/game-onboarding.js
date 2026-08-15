@@ -50,6 +50,14 @@ function isOnboardingInputLocked() {
       (onboarding.panelVisible !== false || onboarding.transitioning),
   );
 }
+/* 패링 수업(2단계)은 발사각을 미리내에 «강제»한다. 그런데 조향은 열려 있어서,
+   안내가 「이 접점으로 간다」고 말해 놓고 플레이어가 클릭 한 번으로 그 항로를
+   버릴 수 있었다 — 그러면 가르치려던 접점이 오지 않고 수업이 조용히 어긋난다.
+   항로를 강제하는 동안에는 항로를 바꾸는 입력도 막는다. 1단계(조향 수업)는
+   당연히 열어 둔다. 그게 그 수업의 내용이다. */
+function isOnboardingSteerBlocked() {
+  return Boolean(onboarding && onboarding.phase === TEACH_HOLD.parry.phase);
+}
 function isOnboardingSessionActive() {
   return Boolean(onboarding);
 }
@@ -1355,6 +1363,7 @@ const OnboardingModule = StellaRuntime.modules.register("onboarding", {
   isActive: isOnboardingSessionActive,
   isInputLocked: isOnboardingInputLocked,
   isTeachingHold: isTeachingHold,
+  blocksSteer: isOnboardingSteerBlocked,
   drawTeachingHoldCue: drawTeachingHoldCue,
   tickTeachingHold: tickTeachingHold,
   isFinalLesson: isOnboardingFinalLesson,

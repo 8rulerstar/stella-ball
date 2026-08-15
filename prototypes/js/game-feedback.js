@@ -1279,6 +1279,9 @@ function loop(t) {
   const onboardingModule = StellaRuntime.modules.optional("onboarding");
   if (onboardingModule?.isTeachingHold()) {
     resetInactiveCanvasFeedback();
+    // 판은 멈춰도 배너는 계속 세어야 한다. 멈춘 배너가 살아 있는 큐 옆에
+    // 굳어 있으면 「기다리는 중」이 아니라 「멈춘 버그」로 읽힌다.
+    advanceToastQueue(d);
     // The safety grace is counted here rather than on a wall clock, so it
     // stops while the pause dialog is up - the `paused` branch above returns
     // before this one ever runs.
