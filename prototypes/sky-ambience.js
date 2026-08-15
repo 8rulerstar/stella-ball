@@ -77,40 +77,10 @@
         "background:radial-gradient(ellipse at 50% 50%,#eea56f40,#c87d4a1d 36%,#b06a3d10 60%,transparent 84%)" +
         (RM ? "" : ";animation:skyDriftB 420s linear infinite"),
     );
-    // 먼 별점(1px). 관측소 컬럼 밖 여백에만 뿌린다.
-    var mr = (
-      document.querySelector("main") || document.body
-    ).getBoundingClientRect();
-    var bands = [
-      [4, Math.max(12, mr.left - 6)],
-      [Math.min(window.innerWidth - 12, mr.right + 6), window.innerWidth - 4],
-    ];
-    for (var i = 0; i < 70; i++) {
-      var bd = bands[i % 2];
-      var side =
-        ((bd[0] + Math.random() * (bd[1] - bd[0])) / window.innerWidth) * 100;
-      el(
-        l0,
-        "position:absolute;left:" +
-          side.toFixed(1) +
-          "%;top:" +
-          (Math.random() * 100).toFixed(1) +
-          "%;width:1px;height:1px;background:" +
-          COL.mid +
-          ";opacity:.5" +
-          /* 먼 별점도 밀도는 그대로 두고 움직이는 것만 1/3로 줄인다. 여기 70개와
-             stella-ball-dawn.js의 90개를 합치면 세션 내내 살아 있는 개별 합성
-             레이어가 160개였고, 저사양 GPU에서 이 화면의 상시 부하 대부분이
-             거기서 나왔다. */
-          (RM || i % 3 !== 0
-            ? ""
-            : ";animation:dawnTwinkle " +
-              (2.6 + Math.random() * 3.4).toFixed(1) +
-              "s " +
-              (Math.random() * 4).toFixed(1) +
-              "s infinite"),
-      );
-    }
+    /* 먼 별점은 여기서 만들지 않는다. stella-ball-dawn.js의 별밭이 이미 전체
+       화면에 뿌려져 여백까지 덮고, 두 벌을 각자 캔버스로 두면 전체 화면 텍스처가
+       한 장 더 늘어난다 — 레이어 수를 줄이려다 면적을 늘리는 맞바꿈이 된다.
+       밀도가 모자라면 그쪽 별 개수를 올린다. */
 
     /* ── L1 중간 천체 ───────────────────────────────
        되찾은 별자리 걸이 7점(META_UI_REQUEST 1-2의 노드 상태 4종과 같은 데이터).

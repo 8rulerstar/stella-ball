@@ -181,7 +181,7 @@
        안에 반짝이는 별 30개가 살아서, blur(2px)라도 dpr 2에서는 ~3840×400
        텍스처를 사실상 매 프레임 다시 흐리게 만든다(2026-08-15 렉 제보의 두
        번째 원인). 띠의 부드러움은 그라데이션 정지점이 이미 만든다. */
-    var mw = add(
+    add(
       "position:absolute;left:-14%;top:16%;width:150%;height:200px;transform:rotate(-13deg);background:linear-gradient(180deg,transparent,#cfe8e010 24%,#cfe8e016 38%,#f6e8d518 52%,#f6e8d512 62%,#cfe8e00c 74%,transparent)",
     );
     /* 오로라도 filter를 걸지 않는다. 747×170에 blur(15px)이 걸린 채 9초 주기
@@ -191,30 +191,76 @@
     add(
       "position:absolute;left:16%;top:-2%;width:56%;height:170px;background:linear-gradient(100deg,transparent,#7cc6bb14 22%,#9adfc924 40%,#9adfc92e 52%,#c9b48a1e 64%,#eea56f12 78%,transparent);animation:dawnAurora 9s ease-in-out infinite alternate",
     );
-    for (var i = 0; i < 90; i++) {
-      var s = document.createElement("div");
-      s.style.cssText =
-        "position:absolute;left:" +
-        (Math.random() * 100).toFixed(1) +
-        "%;top:" +
-        (Math.random() * 100).toFixed(1) +
-        "%;width:2px;height:2px;background:" +
-        (Math.random() < 0.15 ? "#ffd2a0" : "#cfe8e0") +
-        ";opacity:.6" +
-        /* 별의 밀도는 그대로 두고 「반짝이는 별」만 골라 준다. 90개 전부에
-           무한 애니메이션을 걸면 sky-ambience의 70개까지 합쳐 160개의 개별
-           합성 레이어가 세션 내내 살아 있게 되고, 그것이 저사양 GPU에서 이
-           화면의 가장 큰 상시 부하였다. 하늘은 같아 보이되 움직이는 점만
-           1/3로 줄인다. */
-        (i % 3 === 0
-          ? ";animation:dawnTwinkle " +
-            (2 + Math.random() * 3).toFixed(1) +
-            "s " +
-            (Math.random() * 3).toFixed(1) +
-            "s infinite"
-          : "");
-      (i < 60 ? S : mw).appendChild(s);
+    /* 별밭은 DOM이 아니라 캔버스 세 장이다.
+
+       측정으로 확정한 것: 애니메이션이 걸린 하늘 요소는 하나하나가 자기 합성
+       레이어가 된다. 온보딩 화면의 합성 레이어 117개 중 102개가 #dawn-sky의
+       것이었고 그중 48개가 이 별점들이었다 — 게임 캔버스 자체는 5개뿐이다.
+
+       두 번의 시행착오를 거쳐 지금 형태가 됐다. 캔버스 한 장을 주기적으로 다시
+       그리면 전체 화면 텍스처를 계속 올려보내게 되어 레이어 면적이 9.4→12.3Mpx로
+       늘었고, 별을 세 벌로 나눠 엇갈리게 깜빡이려 하자 전체 화면 캔버스가 다섯
+       장이 되어 17.0Mpx까지 올라갔다. 전체 화면 캔버스는 장수가 곧 비용이다.
+       그래서 한 장에 모두 그려 한 번만 올리고, 반짝임은 그 캔버스의 opacity
+       애니메이션 하나로 낸다 — 별이 제각각 깜빡이지는 않고 하늘이 함께 숨쉬지만,
+       재그리기 0에 레이어 1장이다. */
+    var STAR_SETS = 1;
+    var starCanvases = [];
+    for (var sIdx = 0; sIdx < STAR_SETS; sIdx++) {
+      var sc = document.createElement("canvas");
+      // 애니메이션을 걸지 않는다. 캔버스에 opacity 애니메이션을 주면 이 한
+      // 장이 매 프레임 재합성 대상이 되어, 레이어 수를 줄여 아낀 것을 전체
+      // 화면 크기의 상시 재합성으로 되돌려준다. 정적 레이어는 합성기가 그대로
+      // 재사용한다. 하늘의 움직임은 유성·오로라·구름이 이미 맡고 있다.
+      sc.style.cssText =
+        "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+      S.appendChild(sc);
+      starCanvases.push(sc);
     }
+    var stars = [];
+    for (var i = 0; i < 90; i++)
+      stars.push({
+        // 60개는 하늘 전면, 30개는 은하수 띠를 따라 눕힌다(원래 배치와 같다).
+        band: i >= 60,
+        u: Math.random(),
+        v: Math.random(),
+        warm: Math.random() < 0.15,
+        set: i % STAR_SETS,
+      });
+    function paintStars() {
+      var w = S.clientWidth || window.innerWidth,
+        h = S.clientHeight || window.innerHeight;
+      var ctxs = starCanvases.map(function (c) {
+        c.width = w;
+        c.height = h;
+        return c.getContext("2d");
+      });
+      for (var k = 0; k < stars.length; k++) {
+        var st = stars[k],
+          px,
+          py;
+        if (st.band) {
+          // 띠의 국소 좌표(길이 1.5w, 두께 200px)를 -13도 회전시켜 얹는다.
+          var bx = (st.u - 0.14) * w * 1.5,
+            by = h * 0.16 + st.v * 200;
+          px = bx * 0.974 + by * 0.225;
+          py = -bx * 0.225 + by * 0.974;
+        } else {
+          px = st.u * w;
+          py = st.v * h;
+        }
+        var g = ctxs[st.set];
+        g.globalAlpha = 0.6;
+        g.fillStyle = st.warm ? "#ffd2a0" : "#cfe8e0";
+        g.fillRect(Math.round(px), Math.round(py), 2, 2);
+      }
+    }
+    paintStars();
+    var starResizeTimer;
+    addEventListener("resize", function () {
+      clearTimeout(starResizeTimer);
+      starResizeTimer = setTimeout(paintStars, 200);
+    });
     var moonWrap = add(
       "position:absolute;left:1.5%;top:4%;width:150px;height:150px",
     );

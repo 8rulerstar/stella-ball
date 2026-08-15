@@ -1,0 +1,420 @@
+/**
+ * Real frame-time profiler.
+ *
+ * The preview pane this project is usually inspected through reports
+ * `document.hidden === true`, so requestAnimationFrame never fires there and
+ * frame pacing cannot be measured at all - only proxies like "how many CSS
+ * animations are running". Those proxies were what earlier performance passes
+ * were tuned against, and they are not the thing the player feels.
+ *
+ * This drives a real Chromium over CDP the same way the onboarding E2E does,
+ * lets the game run, and records the actual gap between animation frames. It
+ * reports percentiles and long-frame counts per scene, and can attribute cost
+ * by disabling one suspect at a time.
+ *
+ *   node scripts/profile-frames.mjs                 # title, hub, onboarding
+ *   node scripts/profile-frames.mjs --ablate        # also re-measure with
+ *                                                   # individual layers off
+ */
+import { spawn } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { createServer } from "node:net";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
+import { fileURLToPath } from "node:url";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+/* A navigation invalidates every in-flight CDP call, and those rejections
+   arrive asynchronously on the socket rather than at an await point we own.
+   Swallow exactly that one so a reload cannot abort the profiling run. */
+process.on("unhandledRejection", (reason) => {
+  const text = String(reason?.message ?? reason);
+  if (text.includes("Execution context was destroyed")) return;
+  console.error(text);
+  process.exitCode = 1;
+});
+const ABLATE = process.argv.includes("--ablate");
+let browserProcess = null;
+let serverProcess = null;
+let profileDirectory = null;
+let cdp = null;
+
+async function freePort() {
+  return new Promise((res, rej) => {
+    const server = createServer();
+    server.once("error", rej);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      server.close(() => res(address.port));
+    });
+  });
+}
+
+async function waitUntil(label, check, timeoutMs = 20000, intervalMs = 60) {
+  const deadline = Date.now() + timeoutMs;
+  let last;
+  while (Date.now() < deadline) {
+    last = await check();
+    if (last) return last;
+    await delay(intervalMs);
+  }
+  throw new Error(
+    `${label} timed out (${timeoutMs}ms); last=${JSON.stringify(last)}`,
+  );
+}
+
+function browserPath() {
+  for (const key of ["STELLA_BROWSER_PATH", "CHROME_PATH"]) {
+    const value = process.env[key];
+    if (value && existsSync(value)) return value;
+  }
+  const candidates =
+    process.platform === "win32"
+      ? [
+          "C:/Program Files/Google/Chrome/Application/chrome.exe",
+          "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+          "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+          "C:/Program Files/Microsoft/Edge/Application/msedge.exe",
+        ]
+      : process.platform === "darwin"
+        ? [
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+          ]
+        : [
+            "/usr/bin/google-chrome",
+            "/usr/bin/chromium",
+            "/usr/bin/chromium-browser",
+          ];
+  const found = candidates.find((path) => existsSync(path));
+  if (!found) throw new Error("No Chrome/Edge found; set STELLA_BROWSER_PATH");
+  return found;
+}
+
+class CdpClient {
+  constructor(url) {
+    this.url = url;
+    this.serial = 0;
+    this.pending = new Map();
+    this.listeners = new Map();
+    this.socket = null;
+  }
+  on(method, listener) {
+    const list = this.listeners.get(method) ?? [];
+    list.push(listener);
+    this.listeners.set(method, list);
+  }
+  async connect() {
+    this.socket = new WebSocket(this.url);
+    this.socket.addEventListener("message", (event) => {
+      const message = JSON.parse(String(event.data));
+      if (!message.id) {
+        for (const listener of this.listeners.get(message.method) ?? [])
+          listener(message.params ?? {});
+        return;
+      }
+      const pending = this.pending.get(message.id);
+      if (!pending) return;
+      this.pending.delete(message.id);
+      if (message.error) pending.reject(new Error(message.error.message));
+      else pending.resolve(message.result ?? {});
+    });
+    await new Promise((res, rej) => {
+      this.socket.addEventListener("open", res, { once: true });
+      this.socket.addEventListener("error", rej, { once: true });
+    });
+  }
+  send(method, params = {}) {
+    const id = ++this.serial;
+    return new Promise((res, rej) => {
+      const timeout = setTimeout(() => {
+        this.pending.delete(id);
+        rej(new Error(`CDP ${method} timed out`));
+      }, 30000);
+      this.pending.set(id, {
+        resolve: (v) => {
+          clearTimeout(timeout);
+          res(v);
+        },
+        reject: (e) => {
+          clearTimeout(timeout);
+          rej(e);
+        },
+      });
+      this.socket.send(JSON.stringify({ id, method, params }));
+    });
+  }
+  close() {
+    this.socket?.close();
+  }
+}
+
+async function evaluate(expression) {
+  /* Any poll that straddles a navigation hits a destroyed context. That is
+     expected during reloads, not a failure, so it reads as "no answer yet"
+     and the caller's waitUntil keeps polling. */
+  let response;
+  try {
+    response = await sendEvaluate(expression);
+  } catch (error) {
+    if (String(error?.message).includes("Execution context was destroyed"))
+      return undefined;
+    throw error;
+  }
+  if (response.exceptionDetails)
+    throw new Error(
+      response.exceptionDetails.exception?.description ??
+        response.exceptionDetails.text ??
+        "evaluation failed",
+    );
+  return response.result?.value;
+}
+async function sendEvaluate(expression) {
+  const response = await cdp.send("Runtime.evaluate", {
+    expression,
+    awaitPromise: true,
+    returnByValue: true,
+    userGesture: true,
+  });
+  if (response.exceptionDetails)
+    throw new Error(
+      response.exceptionDetails.exception?.description ??
+        response.exceptionDetails.text ??
+        "evaluation failed",
+    );
+  return response;
+}
+
+/* Sampling runs inside the page: a plain rAF chain recording the delta between
+   consecutive frames. Percentiles are computed here rather than shipping every
+   sample back over CDP. */
+async function sampleFrames(ms) {
+  return evaluate(`new Promise((done) => {
+    const gaps = [];
+    let last = performance.now();
+    const stopAt = last + ${ms};
+    requestAnimationFrame(function tick(t) {
+      gaps.push(t - last);
+      last = t;
+      if (t < stopAt) return requestAnimationFrame(tick);
+      const sorted = gaps.slice(1).sort((a, b) => a - b);
+      const at = (p) => sorted.length ? +sorted[Math.floor(sorted.length * p)].toFixed(1) : 0;
+      done({
+        frames: sorted.length,
+        fps: sorted.length ? +(1000 / (sorted.reduce((s, v) => s + v, 0) / sorted.length)).toFixed(1) : 0,
+        p50: at(0.5), p95: at(0.95), p99: at(0.99),
+        worst: sorted.length ? +sorted[sorted.length - 1].toFixed(1) : 0,
+        over20ms: sorted.filter((v) => v > 20).length,
+        over33ms: sorted.filter((v) => v > 33).length,
+      });
+    });
+  })`);
+}
+
+const SEED_SAVE = `(() => {
+  localStorage.clear(); sessionStorage.clear();
+  localStorage.setItem("prism-breakers.story-intro.v1", "1");
+  return true;
+})()`;
+
+async function gotoOnboarding() {
+  await evaluate(SEED_SAVE);
+  // The reload tears down the execution context, so this call always rejects
+  // with "Execution context was destroyed" - that is the success case here.
+  await evaluate("location.reload(); true").catch(() => {});
+  await delay(1800);
+  await waitUntil("title", async () =>
+    evaluate("!!document.getElementById('enterHub')"),
+  );
+  await evaluate("document.getElementById('enterHub').click(); true");
+  await waitUntil("onboarding", async () =>
+    evaluate("document.body.classList.contains('game-mode')"),
+  );
+  // Dismiss the lesson card so the table is actually running.
+  await evaluate(
+    "if (typeof onboarding !== 'undefined' && onboarding) { onboarding.panelVisible = false; renderOnboarding && renderOnboarding(); } true",
+  );
+  await delay(600);
+}
+
+async function main() {
+  const port = await freePort();
+  serverProcess = spawn(process.execPath, ["scripts/serve.mjs"], {
+    cwd: root,
+    env: { ...process.env, PORT: String(port) },
+    stdio: ["ignore", "pipe", "pipe"],
+    windowsHide: true,
+  });
+  await waitUntil(
+    "server",
+    async () => {
+      try {
+        return (await fetch(`http://127.0.0.1:${port}/`)).ok;
+      } catch {
+        return false;
+      }
+    },
+    10000,
+  );
+
+  profileDirectory = mkdtempSync(join(tmpdir(), "stella-frame-profile-"));
+  const url = `http://127.0.0.1:${port}/prototypes/prism-breakers.html`;
+  browserProcess = spawn(
+    browserPath(),
+    [
+      "--headless=new",
+      "--disable-background-networking",
+      "--disable-extensions",
+      "--hide-scrollbars",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--remote-debugging-address=127.0.0.1",
+      "--remote-debugging-port=0",
+      `--user-data-dir=${profileDirectory}`,
+      "--window-size=1280,720",
+      url,
+    ],
+    { stdio: ["ignore", "pipe", "pipe"], windowsHide: true },
+  );
+
+  const portFile = join(profileDirectory, "DevToolsActivePort");
+  const debugPort = await waitUntil(
+    "devtools port",
+    async () => {
+      if (!existsSync(portFile)) return false;
+      const [line] = readFileSync(portFile, "utf8").split("\n");
+      return line ? Number(line) : false;
+    },
+    15000,
+  );
+
+  const target = await waitUntil(
+    "page target",
+    async () => {
+      try {
+        const list = await (
+          await fetch(`http://127.0.0.1:${debugPort}/json/list`)
+        ).json();
+        return list.find(
+          (t) => t.type === "page" && t.url.includes("prism-breakers.html"),
+        );
+      } catch {
+        return false;
+      }
+    },
+    15000,
+  );
+
+  cdp = new CdpClient(target.webSocketDebuggerUrl);
+  await cdp.connect();
+  await cdp.send("Runtime.enable");
+  await cdp.send("Page.enable");
+  await waitUntil("document ready", async () =>
+    evaluate("document.readyState === 'complete'"),
+  );
+
+  const report = { url, scenes: {}, ablation: {} };
+
+  // rAF has to actually be running, or every number below is meaningless.
+  const alive = await evaluate(
+    "new Promise((r) => requestAnimationFrame(() => r(!document.hidden)))",
+  );
+  report.rafRunning = alive;
+  if (!alive) {
+    console.log(
+      JSON.stringify({ error: "rAF not running - cannot profile" }, null, 2),
+    );
+    return report;
+  }
+
+  /* Headless Chromium has no vsync and composites in software, so the frame
+     TIMES above are not comparable to a real machine. What does transfer is
+     the structure of the compositing work: how many layers the page promotes
+     and how much surface they cover. A layer count in the hundreds is a
+     problem on any GPU. */
+  async function layerStats() {
+    await cdp.send("LayerTree.enable");
+    const seen = await new Promise((res) => {
+      const timer = setTimeout(() => res(null), 4000);
+      cdp.on("LayerTree.layerTreeDidChange", (params) => {
+        clearTimeout(timer);
+        res(params.layers ?? []);
+      });
+      evaluate("document.body.getBoundingClientRect().width").catch(() => {});
+      // Some builds only emit the tree after a forced update.
+      cdp.send("LayerTree.enable").catch(() => {});
+    });
+    await cdp.send("LayerTree.disable");
+    if (!seen) return { layers: null, note: "no layer tree event" };
+    let area = 0;
+    for (const l of seen) area += (l.width || 0) * (l.height || 0);
+    return {
+      layers: seen.length,
+      totalLayerAreaMpx: +(area / 1e6).toFixed(2),
+      largest: seen
+        .map((l) => Math.round(((l.width || 0) * (l.height || 0)) / 1000))
+        .sort((a, b) => b - a)
+        .slice(0, 5),
+    };
+  }
+
+  await delay(1200);
+  report.scenes.title = await sampleFrames(3000);
+  report.layersTitle = await layerStats();
+
+  await gotoOnboarding();
+  report.scenes.onboarding = await sampleFrames(4000);
+  report.layersOnboarding = await layerStats();
+
+  if (ABLATE) {
+    /* Attribute the cost: switch one layer off at a time and re-measure the
+       same scene. Each is reversed before the next so the comparisons stay
+       independent. */
+    const cases = {
+      noAmbienceLayer: `document.getElementById('sky-ambience').style.display='none'; true`,
+      noGaugeRing: `document.getElementById('sky-gauge-ring').style.display='none'; true`,
+      noSkyAnimations: `document.querySelectorAll('#dawn-sky *').forEach(e => e.style.animation = 'none'); true`,
+      noSkyAtAll: `document.getElementById('dawn-sky').style.display = 'none'; true`,
+      noCanvasDraw: `window.__realDraw = draw; window.draw = () => {}; true`,
+    };
+    const undo = {
+      noAmbienceLayer: `document.getElementById('sky-ambience').style.display=''; true`,
+      noGaugeRing: `document.getElementById('sky-gauge-ring').style.display=''; true`,
+      noSkyAnimations: `location.reload(); true`,
+      noSkyAtAll: `document.getElementById('dawn-sky').style.display = ''; true`,
+      noCanvasDraw: `window.draw = window.__realDraw; true`,
+    };
+    for (const [name, apply] of Object.entries(cases)) {
+      if (name === "noSkyAnimations") await gotoOnboarding();
+      await evaluate(apply);
+      await delay(500);
+      report.ablation[name] = {
+        frames: await sampleFrames(2000),
+        layers: await layerStats(),
+      };
+      await evaluate(undo[name]);
+      if (undo[name].includes("reload")) await gotoOnboarding();
+      await delay(300);
+    }
+  }
+
+  console.log(JSON.stringify(report, null, 2));
+  return report;
+}
+
+main()
+  .catch((error) => {
+    console.error(String(error?.stack ?? error));
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    cdp?.close();
+    browserProcess?.kill();
+    serverProcess?.kill();
+    if (profileDirectory) {
+      try {
+        rmSync(profileDirectory, { recursive: true, force: true });
+      } catch {}
+    }
+  });
