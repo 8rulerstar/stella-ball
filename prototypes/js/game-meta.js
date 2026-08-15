@@ -1147,10 +1147,17 @@ function showStageSelect() {
       playSfx();
       showRoster();
     };
-  document.querySelector("[data-onboarding]").onclick = () => {
-    playSfx();
-    StellaRuntime.modules.require("onboarding").showTutorial(true);
-  };
+  // The tutorial node is drawn on one map only — the world that owns stage 1-1
+  // — and it is replaced by a plain stage node once the lesson is cleared.  An
+  // unguarded query here threw on every other world, and because these handler
+  // registrations run in a row, the throw took the replay, training and back
+  // buttons with it: the map rendered with a dead footer and no way out.
+  const onboardingNode = document.querySelector("[data-onboarding]");
+  if (onboardingNode)
+    onboardingNode.onclick = () => {
+      playSfx();
+      StellaRuntime.modules.require("onboarding").showTutorial(true);
+    };
   document.querySelector("#replayOnboarding").onclick = () => {
     playSfx();
     StellaRuntime.modules.require("onboarding").showTutorial(true);
