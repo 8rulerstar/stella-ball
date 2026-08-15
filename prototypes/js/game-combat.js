@@ -981,7 +981,13 @@ function updateBladeWheel(g, speed, step) {
   // It used to fade out at speed 82, so the wheel vanished while she was still
   // clearly rolling.  It now stays lit until she is nearly still; damage still
   // needs real speed (the 105 gate below), so this is readability only.
-  const targetStrength = speed > 10 ? Math.min(1, 0.2 + (speed - 10) / 700) : 0;
+  /* 각성 여부가 이 목표값에 들어와야 한다. 아래 `if (!g.bladeAwake) return`은
+     피해만 막고 있었고, 세기는 그 앞에서 순수 속도로 올라갔다 — 패링 없이
+     그냥 부딪혀 굴러가기만 해도(속도 10 초과) 한 프레임 만에 0.05가 되어
+     그리기 문턱 0.025를 넘겼다. 능력 설명이 「패링 공명 뒤에만」이라고
+     적어 둔 그대로, 깨어나기 전에는 목표가 0이고 램프가 알아서 꺼진다. */
+  const targetStrength =
+    g.bladeAwake && speed > 10 ? Math.min(1, 0.2 + (speed - 10) / 700) : 0;
   g.bladeStrength =
     (g.bladeStrength || 0) +
     (targetStrength - (g.bladeStrength || 0)) * Math.min(1, step * 15);

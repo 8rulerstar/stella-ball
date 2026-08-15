@@ -1012,6 +1012,12 @@ function update(d) {
     for (const pad of boostPads) pad.on = Math.max(0, pad.on - d);
     for (const pad of dragPads) pad.on = Math.max(0, pad.on - d);
     if (bossShield) bossShield.flash = Math.max(0, bossShield.flash - d);
+    /* 칼날돔도 같은 이유로 박제됐다. 세기는 simulatePhysics 안에서만 줄어드는데
+       그리기 훅은 유성이 멈춰도 계속 도니, 조준하는 내내 최대 세기로 켜져
+       있었다. 위 목록과 같은 규칙으로 여기서도 꺼 준다. */
+    for (const g of gates)
+      if (g.bladeStrength)
+        g.bladeStrength = Math.max(0, g.bladeStrength - d * 3.2);
     for (const orbit of orbitals) {
       orbit.hitCooldown = Math.max(0, orbit.hitCooldown - d);
       if (orbit.down > 0) orbit.down = Math.max(0, orbit.down - d);

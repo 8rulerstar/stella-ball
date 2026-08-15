@@ -69,6 +69,15 @@ const TEACH_PARRY_LEAD = 0.18;
    장치가 진행을 막는 벽이 되면 안 된다. 충분히 길게 두어 읽고 누를 시간은
    남기고, 그 뒤에는 조용히 풀어 원래 흐름으로 돌려보낸다. */
 const TEACH_HOLD_GRACE_MS = 9000;
+/* 정지 지점을 「판 높이」가 아니라 「그려 준 항로의 진행률」로 잡는다. 예전
+   기준 `ball.y < H - 380`은 520px 고정인데 지정 구역은 275px이라, 어떤 출력으로
+   쏘든 항로의 48.6~52.5% 지점에서 멈췄다 — 가리킨 자리에 끝내 닿지 못한다는
+   제보 그대로다. 두 값을 잇는 것이 아무것도 없어서 보스 좌표만 바뀌어도 둘이
+   따로 놀았다. 이제 한쪽만 고치면 다른 쪽이 따라온다.
+   그리고 값 자체도 뒤로 옮겼다. 기준을 항로에 묶기만 하고 0.48로 두면 예전과
+   같은 자리(48%)라 제보가 그대로 남는다. 0.62면 표식에 눈에 띄게 가까워진
+   뒤 멈추고, 꺾인 뒤를 보여 줄 항로가 아직 188px 남는다. */
+const TEACH_STEER_ROUTE_FRACTION = 0.62;
 const TEACH_HOLD = Object.freeze({
   steer: {
     phase: 1,
@@ -175,10 +184,15 @@ registerRuntimeHook("afterFeedbackUpdate", () => {
   if (onboarding.phase === TEACH_HOLD.steer.phase) {
     // 이미 꺾었으면 가르칠 것이 없다.
     if (ball.steerUsed || onboarding.steered) return;
-    /* 발사석(H-152)에서 곧장 세우면 아직 아무것도 안 일어난 화면이라
-       무엇을 꺾는 건지 보이지 않는다. 판의 1/4쯤 올라와 궤도가 생기고,
-       그러면서도 꺾인 뒤를 보여 줄 자리가 충분히 남는 높이에서 세운다. */
-    if (ball.y < H - 380) beginTeachingHold("steer");
+    /* 발사석에서 곧장 세우면 아직 아무것도 안 일어난 화면이라 무엇을 꺾는
+       건지 보이지 않는다. 항로의 절반쯤 올라와 궤도가 생기고, 그러면서도
+       꺾인 뒤를 보여 줄 자리가 남는 지점에서 세운다. */
+    const routeTarget = steerLessonRouteTarget();
+    if (
+      LAUNCH_Y - ball.y >
+      (LAUNCH_Y - routeTarget.y) * TEACH_STEER_ROUTE_FRACTION
+    )
+      beginTeachingHold("steer");
     return;
   }
   if (onboarding.phase === TEACH_HOLD.parry.phase) {
@@ -308,6 +322,11 @@ function setOnboardingPhase(phase) {
 }
 function beginOnboardingPractice() {
   if (!onboarding) return;
+  /* 정지는 「한 샷에 한 번」이지 「한 수업에 한 번」이 아니다. 걸쇠를 시도마다
+     비워야 재시도에서도 같은 자리에서 멈춘다 — 한 번만 멈추면 규칙이 아니라
+     우연으로 읽힌다. 샷이 도는 중에는 비우지 않으므로 같은 샷에서 두 번
+     멈추는 일은 여전히 없다. */
+  onboarding.holdDone = null;
   onboarding.panelVisible = false;
   onboarding.launched = true;
   onboarding.parryQueued = false;
@@ -1010,6 +1029,55 @@ function drawOnboardingGuide() {
   const phase = onboarding.phase;
   if (ball.moving) {
     if (phase === 1 && !ball.steerUsed) {
+      /* 쏘라고 그려 준 항로 링이 발사되는 순간 사라졌다. 그래서 판이 멈춘
+         시점에는 화면에 목표가 아예 없고, 「왜 여기서 멈췄지」만 남는다.
+         비행 중에도 같은 점을 계속 보여 준다 — 정의는 한 곳(steerLessonRouteTarget)뿐이다. */
+      const route = steerLessonRouteTarget();
+      x.save();
+      x.globalAlpha = 0.85;
+      x.strokeStyle = route.col;
+      x.shadowBlur = 11;
+      x.shadowColor = route.col;
+      x.lineWidth = 2;
+      x.setLineDash([6, 5]);
+      x.beginPath();
+      x.arc(route.x, route.y, route.r + 1, 0, Math.PI * 2);
+      x.stroke();
+      x.restore();
+
+      /* 좌·우 클릭이 무엇을 하는지 글자로만 말하고 있었다 — 눈에 띄지 않는다.
+         실제 조향 계산(전진 170 + 옆 430)을 그대로 써서 두 방향을 미리 그린다.
+         화살표 색은 조향이 남기는 잔광과 같은 색이라, 누른 뒤 나오는 빛과
+         누르기 전 안내가 같은 말을 한다. */
+      const sp = Math.hypot(ball.vx, ball.vy) || 1,
+        ux = ball.vx / sp,
+        uy = ball.vy / sp;
+      for (const side of [-1, 1]) {
+        const dx = ux * 170 + -uy * side * 430,
+          dy = uy * 170 + ux * side * 430,
+          dl = Math.hypot(dx, dy) || 1,
+          tipX = ball.x + (dx / dl) * 62,
+          tipY = ball.y + (dy / dl) * 62;
+        x.save();
+        x.strokeStyle = side < 0 ? "#8ee7ff" : "#ffd18d";
+        x.fillStyle = side < 0 ? "#8ee7ff" : "#ffd18d";
+        x.shadowBlur = 10;
+        x.shadowColor = x.strokeStyle;
+        x.lineWidth = 3;
+        x.beginPath();
+        x.moveTo(ball.x + (dx / dl) * 20, ball.y + (dy / dl) * 20);
+        x.lineTo(tipX, tipY);
+        x.stroke();
+        x.translate(tipX, tipY);
+        x.rotate(Math.atan2(dy, dx));
+        x.beginPath();
+        x.moveTo(9, 0);
+        x.lineTo(-6, -6);
+        x.lineTo(-6, 6);
+        x.fill();
+        x.restore();
+      }
+
       x.save();
       x.strokeStyle = "#ffe6a1";
       x.fillStyle = "#fff0bd";
