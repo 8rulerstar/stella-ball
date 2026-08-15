@@ -779,8 +779,22 @@ function showPauseMenu() {
   document.querySelector("#pauseResume").focus({ preventScroll: true });
 }
 function showPauseMenuFromSettings() {
-  paused = false;
+  /* Returning from settings has to re-open the pause card, and showPauseMenu
+     refuses while `paused` is still set. The old order dropped the freeze flag
+     and switched the body class back to game-mode BEFORE finding out whether
+     the menu would actually open - if it refused, the battle was left
+     unfrozen but not running with the settings markup still on screen. Ask
+     first, and only give up the flag when the card is really going to appear;
+     otherwise fall back to the hub rather than stranding the player. */
+  // The scene has to go back first - canPauseBattle() checks it - but the
+  // freeze flag must not be dropped until the card is certain to appear.
   setScene("game");
+  if (!canPauseBattle() || isCombatInputLocked()) {
+    paused = false;
+    showMeta();
+    return;
+  }
+  paused = false;
   showPauseMenu();
 }
 function resumeBattle() {

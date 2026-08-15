@@ -212,7 +212,6 @@ function runStagePhase(effect) {
     };
     for (const g of gates) throwTo(g);
     if (ball) throwTo(ball);
-    for (const s of seeds ?? []) throwTo(s);
     screenShake = Math.max(screenShake, 16);
     toast("거상의 파동 · 모두 모서리로 밀려났습니다");
   } else if (effect === "sleep") {
