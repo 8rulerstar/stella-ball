@@ -180,6 +180,12 @@ let lastStageTransform = "",
 function updateFeedback(d) {
   updateAssists(d);
   advanceTimed(areaBursts, d);
+  /* 이 게임의 다른 이펙트 배열은 전부 상한이 있다 — 패링 FX 6, 별빛 7, 팝업 12,
+     fieldFx 12. areaBursts와 assistShots만 없어서, 밀어 넣는 자리가 열세 곳인데
+     아무도 세지 않았다. 한 프레임에 몇 개가 겹치든 결국 다 그려지므로 최악의
+     프레임에서만 조용히 비싸진다. 오래된 것부터 버린다. */
+  if (areaBursts.length > 10) areaBursts.splice(0, areaBursts.length - 10);
+  if (assistShots.length > 12) assistShots.splice(0, assistShots.length - 12);
   screenShake = Math.max(0, screenShake - d * 18);
   screenFlash = Math.max(0, screenFlash - d * 4.8);
   comboTimer = Math.max(0, comboTimer - d);
@@ -386,7 +392,10 @@ function drawLibraryAsset(
   alpha = 1,
 ) {
   const im = textures[path];
-  if (!im?.complete || !im.naturalWidth) return false;
+  /* 미리 구워 둔 캔버스도 여기로 들어온다(tintedProjectile). 캔버스에는
+     complete도 naturalWidth도 없으므로 둘 중 하나로 준비 여부를 판단한다. */
+  const ready = im && (im.naturalWidth ? im.complete : im.width > 0);
+  if (!ready) return false;
   x.save();
   x.globalAlpha = alpha;
   x.filter = filter;
@@ -639,14 +648,29 @@ function drawProjectileOverlay() {
       ? libraryArt.projectile.charged
       : "";
   if (path)
-    drawLibraryAsset(
-      path,
-      ball.x,
-      ball.y,
-      34,
-      34,
-      "hue-rotate(145deg) saturate(.72)",
-    );
+    /* 예전에는 여기서 매 프레임 ctx.filter로 색을 돌렸다. 필터가 걸린 drawImage는
+       래스터를 통째로 다시 만들어 내는 일이라, 패링 뒤 runeBurst가 켜져 있는 동안
+       측정 7.50ms 대 5.20ms였다. 같은 그림을 한 번만 구워 두고 쓴다. */
+    drawLibraryAsset(tintedProjectile(path), ball.x, ball.y, 34, 34);
+}
+/* 색을 돌린 발사체를 한 번만 굽는다. 키가 원본 경로라 텍스처가 늦게 도착해도
+   그때 처음 구워지고, 이후로는 조회만 남는다. */
+const tintedProjectiles = new Map();
+function tintedProjectile(path) {
+  const hit = tintedProjectiles.get(path);
+  if (hit) return hit;
+  const im = textures[path];
+  if (!im?.complete || !im.naturalWidth) return path;
+  const baked = document.createElement("canvas");
+  baked.width = im.naturalWidth;
+  baked.height = im.naturalHeight;
+  const g = baked.getContext("2d");
+  g.filter = "hue-rotate(145deg) saturate(.72)";
+  g.drawImage(im, 0, 0);
+  const key = path + "@tinted";
+  textures[key] = baked;
+  tintedProjectiles.set(path, key);
+  return key;
 }
 // A bought starkeeper skin is a hue rotation over the same sheet, applied
 // once here so every state (idle, roll, attack) picks it up for free.

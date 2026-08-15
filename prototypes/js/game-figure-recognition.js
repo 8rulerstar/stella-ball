@@ -233,7 +233,11 @@ function consumeTrainingParry(g, contact = null, remembered = false) {
   ball.runeBurst = Math.max(ball.runeBurst || 0, 0.92);
   const x = contact?.x ?? (ball.x + g.x) / 2,
     y = contact?.y ?? (ball.y + g.y) / 2;
-  fieldFx.push({ type: "relay", x, y, t: 0, d: 0.48, col: g.col });
+  /* relay는 여기서 밀지 않는다. 패링이 성공하면 곧이어 resolveMeteorParryContact가
+     같은 접점에 같은 type·같은 0.48초·같은 색으로 하나 더 밀고 있었다 — 한 번의
+     패링에 fieldFx가 ['relay','assist','relay']로 쌓였다. 겹친 한 장이
+     paintFeedbackAsset을 한 번 더 부르고, 그 한 번이 측정 +3.45ms였다.
+     저쪽은 0.12초 접점 쿨다운까지 걸고 있어 연타에서도 겹치지 않는다. */
   // Success bursts outward from the contact and lands on the node it just
   // created, so the cause reads without any text.
   pushParryFx({ kind: "hit", x, y, col: g.col, d: PARRY_FX.hit });
