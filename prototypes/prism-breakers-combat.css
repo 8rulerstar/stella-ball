@@ -149,7 +149,10 @@
   border-color: #668b89;
   background: #0a151dcc;
   text-align: center;
-  backdrop-filter: blur(7px);
+  /* backdrop-filter는 뒤에 그려진 것을 되읽어 흐리는데, 이 배너의 배경은
+     stella-ball-theme.css에서 #111b20f4(96% 불투명)로 !important 덮어쓰기
+     되므로 흐려진 결과가 사실상 보이지 않는다. 매 프레임 갱신되는 스테이지
+     바로 위에서 그 되읽기를 하고 있었다. */
   box-shadow: 0 3px 14px #0009;
 }
 .game-mode .boss-banner .phase {

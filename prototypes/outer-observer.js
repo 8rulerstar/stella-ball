@@ -1139,23 +1139,38 @@
   }
   function watch() {
     var seen = false;
+    var observer = null;
+    var pending = 0;
     function check() {
       /* 존재 여부만으로는 부족하다. 타이틀을 떠나도 마크업은 오버레이 안에
          `display:none`으로 남아 있어서 이 셀렉터가 계속 맞고, 그래서 stop()이
          한 번도 불리지 않았다 — 인트로 레이어와 눈금 고리 두 개가 전투 내내
          #dawn-sky에서 계속 합성됐다. 보이는지까지 확인한다. */
+      pending = 0;
       var node = document.querySelector(".title-sequence");
       var on = !!(node && node.offsetParent !== null);
       if (on === seen) return;
       seen = on;
-      if (!on) return stop();
+      if (!on) {
+        /* 타이틀은 다시 돌아오지 않는다. 감시를 끊지 않으면 이 옵저버가 남은
+           세션 내내 body의 모든 childList 변경마다 깨어난다. */
+        if (observer) observer.disconnect();
+        observer = null;
+        return stop();
+      }
       play(played() ? "short" : "v2");
       markPlayed();
     }
-    new MutationObserver(check).observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+    /* `offsetParent` 읽기는 문서 전체의 강제 동기 레이아웃이다. 이걸 옵저버
+       콜백에서 곧바로 하면 body 아래 어디서든 노드가 하나 붙고 떨어질 때마다
+       레이아웃이 한 번씩 돈다. 타이틀이 나타나고 사라지는 건 초 단위 사건이니
+       프레임 뒤로 미뤄 한 번만 재도 결과는 같다. */
+    function scheduleCheck() {
+      if (pending) return;
+      pending = setTimeout(check, 150);
+    }
+    observer = new MutationObserver(scheduleCheck);
+    observer.observe(document.body, { childList: true, subtree: true });
     check();
   }
 

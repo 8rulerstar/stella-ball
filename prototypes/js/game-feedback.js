@@ -1225,6 +1225,7 @@ function resetInactiveCanvasFeedback() {
   }
   if (U.flash && lastFlashOpacity !== "0") {
     U.flash.style.opacity = "0";
+    U.flash.style.display = "none";
     lastFlashOpacity = "0";
   }
 }

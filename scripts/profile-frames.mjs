@@ -35,6 +35,13 @@ process.on("unhandledRejection", (reason) => {
   process.exitCode = 1;
 });
 const ABLATE = process.argv.includes("--ablate");
+/* Headless Chromium has no vsync and composites in software: it reports 240fps
+   for a page that stutters on a real machine, so it can rank compositing
+   STRUCTURE but never frame pacing. --headed opens an actual window on this
+   machine, where rAF is vsync-locked and the GPU does the compositing, which
+   is the only way to see the thing a player feels. It shows a browser window
+   for the duration of the run and closes it afterwards. */
+const HEADED = process.argv.includes("--headed");
 let browserProcess = null;
 let serverProcess = null;
 let profileDirectory = null;
@@ -263,8 +270,23 @@ async function main() {
   browserProcess = spawn(
     browserPath(),
     [
-      "--headless=new",
+      ...(HEADED ? [] : ["--headless=new"]),
       "--disable-background-networking",
+      // Without these an occluded or unfocused window reports document.hidden
+      // and throttles rAF, which is indistinguishable from "the game is fine".
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding",
+      "--disable-background-timer-throttling",
+      /* A fully occluded window on Windows flips document.visibilityState to
+         hidden and stops rAF, which is why the first headed attempts looked
+         like a dead page. This is the flag that turns that detection off. */
+      ...(HEADED
+        ? [
+            "--window-position=0,0",
+            "--window-size=1280,900",
+            "--disable-features=CalculateNativeWinOcclusion",
+          ]
+        : []),
       "--disable-extensions",
       "--hide-scrollbars",
       "--no-first-run",
@@ -314,6 +336,122 @@ async function main() {
     evaluate("document.readyState === 'complete'"),
   );
 
+  if (HEADED) {
+    // A window launched from a background process lands behind the terminal on
+    // Windows, and an occluded window still reports document.hidden. Both of
+    // these are best-effort; the rAF check below is what actually gates.
+    await cdp.send("Page.bringToFront").catch(() => {});
+    await cdp
+      .send("Page.setWebLifecycleState", { state: "active" })
+      .catch(() => {});
+  }
+
+  await cdp.send("Performance.enable", { timeDomain: "timeTicks" });
+  /* Frame TIMES need vsync, but main-thread WORK does not: Performance
+     .getMetrics returns cumulative seconds the renderer spent in script,
+     style recalc, layout and paint. Sampling the delta over a window tells us
+     how many milliseconds of real work each second of wall clock costs, and
+     which of the four it is - which is the thing a fix has to target. */
+  async function budget(ms, label) {
+    const keys = [
+      "ScriptDuration",
+      "RecalcStyleDuration",
+      "LayoutDuration",
+      "TaskDuration",
+      "LayoutCount",
+      "RecalcStyleCount",
+      "Timestamp",
+    ];
+    const read = async () => {
+      const { metrics } = await cdp.send("Performance.getMetrics");
+      const o = {};
+      for (const m of metrics) if (keys.includes(m.name)) o[m.name] = m.value;
+      return o;
+    };
+    const a = await read();
+    await new Promise((r) => setTimeout(r, ms));
+    const b = await read();
+    const wall = (b.Timestamp - a.Timestamp) * 1000;
+    const pct = (k) => +(((b[k] - a[k]) * 1000 * 100) / wall).toFixed(1);
+    return {
+      label,
+      wallMs: Math.round(wall),
+      scriptPct: pct("ScriptDuration"),
+      stylePct: pct("RecalcStyleDuration"),
+      layoutPct: pct("LayoutDuration"),
+      taskPct: pct("TaskDuration"),
+      layoutsPerSec: Math.round(
+        ((b.LayoutCount - a.LayoutCount) * 1000) / wall,
+      ),
+      styleRecalcsPerSec: Math.round(
+        ((b.RecalcStyleCount - a.RecalcStyleCount) * 1000) / wall,
+      ),
+    };
+  }
+
+  /* 129-239 style recalcs per second means something re-resolves CSS every
+     frame. getAnimations() names every running animation and its element, and
+     the keyframe rules say which properties it moves: anything other than
+     transform/opacity/filter cannot run on the compositor, so it drags the
+     main thread through style+layout on every single frame. */
+  const animationCensus = () =>
+    evaluate(`(() => {
+      const props = {};
+      for (const sheet of document.styleSheets) {
+        let rules; try { rules = sheet.cssRules } catch { continue }
+        for (const r of rules || []) {
+          if (r.type !== CSSRule.KEYFRAMES_RULE) continue;
+          const seen = new Set();
+          for (const kf of r.cssRules)
+            for (let i = 0; i < kf.style.length; i++) seen.add(kf.style[i]);
+          props[r.name] = [...seen];
+        }
+      }
+      const SAFE = new Set(['transform','opacity']);
+      const out = {};
+      for (const a of document.getAnimations()) {
+        const name = a.animationName || 'transition';
+        const moved = props[name] || [];
+        const key = name + ' [' + moved.join(',') + ']';
+        out[key] = out[key] || { count: 0, compositorSafe: moved.length > 0 && moved.every((p) => SAFE.has(p)), sample: '' };
+        out[key].count++;
+        const el = a.effect && a.effect.target;
+        if (el && !out[key].sample)
+          out[key].sample = el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : '');
+      }
+      return JSON.stringify(out);
+    })()`);
+
+  /* "script is 14.5% of wall clock" is a symptom, not an address. A CPU
+     profile names the functions and their file:line, so a fix targets the
+     thing that is actually hot instead of the thing that looks expensive. */
+  async function cpuProfile(ms, top = 14) {
+    await cdp.send("Profiler.enable");
+    await cdp.send("Profiler.setSamplingInterval", { interval: 200 });
+    await cdp.send("Profiler.start");
+    await new Promise((r) => setTimeout(r, ms));
+    const { profile } = await cdp.send("Profiler.stop");
+    const self = new Map();
+    const byId = new Map(profile.nodes.map((n) => [n.id, n]));
+    for (const n of profile.nodes) self.set(n.id, 0);
+    for (const id of profile.samples || [])
+      self.set(id, (self.get(id) || 0) + 1);
+    const total = (profile.samples || []).length || 1;
+    const rows = [];
+    for (const [id, hits] of self) {
+      if (!hits) continue;
+      const n = byId.get(id);
+      const f = n.callFrame;
+      const file = (f.url || "").split("/").pop();
+      rows.push({
+        fn: f.functionName || "(anonymous)",
+        at: file ? `${file}:${f.lineNumber + 1}` : "(native)",
+        pct: +((hits * 100) / total).toFixed(1),
+      });
+    }
+    return rows.sort((a, b) => b.pct - a.pct).slice(0, top);
+  }
+
   const report = { url, scenes: {}, ablation: {} };
 
   // rAF has to actually be running, or every number below is meaningless.
@@ -321,7 +459,10 @@ async function main() {
     "new Promise((r) => requestAnimationFrame(() => r(!document.hidden)))",
   );
   report.rafRunning = alive;
-  if (!alive) {
+  report.visibility = await evaluate(
+    "document.visibilityState + '/' + (document.hasFocus() ? 'focus' : 'blur')",
+  );
+  if (!alive && HEADED) {
     console.log(
       JSON.stringify({ error: "rAF not running - cannot profile" }, null, 2),
     );
@@ -360,6 +501,37 @@ async function main() {
   }
 
   await delay(1200);
+  report.animations = { title: await animationCensus() };
+  report.budget = { title: await budget(3000, "title") };
+  // Sampled again after the entrance animations have run out, so the number
+  // reflects the screen a player sits on, not its first two seconds.
+  report.budget.titleSettled = await budget(4000, "titleSettled");
+
+  /* Instrumenting callers found no JS geometry reads, so the per-frame layout
+     has to come from the animations themselves. Cancelling one group at a time
+     and re-reading the layout counter is a direct causal test: whichever name
+     takes layouts/s down with it is the one paying for the whole screen. */
+  const names = JSON.parse(
+    (await evaluate(
+      "JSON.stringify([...new Set(document.getAnimations().map(a => a.animationName || 'transition'))])",
+    )) || "[]",
+  );
+  report.animAblation = [];
+  for (const name of names) {
+    await evaluate(
+      `document.getAnimations().filter(a => (a.animationName||'transition') === ${JSON.stringify(name)}).forEach(a => a.pause()), 1`,
+    );
+    const b = await budget(1400, name);
+    report.animAblation.push({
+      name,
+      layoutsPerSec: b.layoutsPerSec,
+      recalcsPerSec: b.styleRecalcsPerSec,
+      stylePct: b.stylePct,
+    });
+    await evaluate(
+      `document.getAnimations().filter(a => (a.animationName||'transition') === ${JSON.stringify(name)}).forEach(a => a.play()), 1`,
+    );
+  }
   report.scenes.title = await sampleFrames(3000);
   report.layersTitle = await layerStats();
 
@@ -390,7 +562,12 @@ async function main() {
   })()`);
 
   await gotoOnboarding();
-  report.scenes.onboarding = await sampleFrames(4000);
+  report.animations.onboarding = await animationCensus();
+  report.budget = report.budget || {};
+  report.budget.onboarding = await budget(4000, "onboarding");
+  report.cpu = { onboarding: await cpuProfile(5000) };
+  report.scenes.onboarding = await sampleFrames(HEADED ? 6000 : 4000);
+  report.headed = HEADED;
   report.layersOnboarding = await layerStats();
 
   if (ABLATE) {

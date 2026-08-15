@@ -28,15 +28,10 @@
   position: relative;
   overflow: hidden;
 }
-.game-mode .boss-banner:before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, #aab9ff11 50%, transparent);
-  transform: translateX(-70%);
-  animation: panelScan 6s ease-in-out infinite;
-}
+/* 배너 전체 폭을 도는 무한 스윕이 있었다. 쓸어가는 그라디언트는 #aab9ff11,
+   알파 7%인데 배너 배경은 96% 불투명이라 화면에서 사실상 보이지 않았다.
+   그 대가로 전투 내내 배너 폭만 한 합성 레이어가 고정 승격되고 부모의
+   overflow 클립이 계속 살아 있었다. 눈에 보이는 것 대비 비용이 가장 나빴다. */
 .game-mode .boss-banner > * {
   position: relative;
   z-index: 1;
@@ -341,10 +336,14 @@
       0 0 52px #8998ff55;
   }
 }
+/* `filter`는 단축 속성이라 여기서 brightness만 쓰면 기반 규칙의 blur(0.3px)이
+   통째로 교체된다 — 반주기마다 부드러움이 깜빡 꺼지고 있었다(연출 버그이자
+   매 프레임 필터 재계산 비용). 밝기는 blur를 유지한 채 얹고, 최대 열기에서만
+   도는 애니메이션이므로 값 자체는 그대로 둔다. */
 @keyframes starBreathe {
   50% {
     transform: scale(1.16) translateY(-4px);
-    filter: brightness(1.3);
+    filter: blur(0.3px) brightness(1.3);
   }
 }
 @keyframes missionSweep {
@@ -1632,12 +1631,30 @@ body.onboarding-locked canvas {
 .title-sky-halo {
   display: none;
 }
+/* SVG 자식은 개별 합성 레이어를 받지 못한다. 여기에 transform을 걸면 매
+   프레임 SVG 지오메트리가 메인 스레드에서 다시 계산되고, 이 먼지가 32개라
+   타이틀 화면 스타일 재계산 15%의 대부분이 여기서 나왔다. 먼지의 반지름은
+   1.1~1.6px이라 scale(1.12)이 실제로 바꾸는 건 0.2px 미만 — 화면에서 구분되지
+   않는다. 깜빡임은 불투명도만 남기고, 그마저도 셋 중 하나만 돌린다. 캔버스
+   별밭도 이미 다섯 중 하나 비율로 반짝인다. */
 .title-sky-dust circle {
   fill: #e9efff;
   opacity: 0;
+  animation: titleDustIn 1.4s ease-out 0.9s forwards;
+}
+.title-sky-dust circle:nth-child(3n + 1) {
   animation:
     titleDustIn 1.4s ease-out 0.9s forwards,
-    titleSkyNode 3.4s ease-in-out var(--td, 2s) infinite;
+    titleSkyDust 3.4s ease-in-out var(--td, 2s) infinite;
+}
+@keyframes titleSkyDust {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 @keyframes titleNebulaIn {
   to {
@@ -1704,6 +1721,7 @@ body.onboarding-locked canvas {
   .title-sky-nebula,
   .title-sky-halo,
   .title-sky-dust circle,
+  .title-sky-dust circle:nth-child(3n + 1),
   .title-dawn,
   .title-stars i {
     animation: none !important;

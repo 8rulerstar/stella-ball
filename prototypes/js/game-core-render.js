@@ -205,6 +205,11 @@ function updateFeedback(d) {
   }
   if (U.flash && flashOpacity !== lastFlashOpacity) {
     U.flash.style.opacity = flashOpacity;
+    /* `.impact-flash`는 스테이지 전체를 덮는 `mix-blend-mode: screen`이고
+       `.stage`는 `isolation: isolate`다. 투명해도 블렌드 그룹은 살아 있어서
+       매 프레임 갱신되는 캔버스가 직접 합성되지 못했다. 플래시는 타격 순간
+       0.2초 남짓만 보이므로, 안 보이는 동안에는 트리에서 빼 둔다. */
+    U.flash.style.display = flashOpacity === "0" ? "none" : "block";
     lastFlashOpacity = flashOpacity;
   }
   runRuntimeHooks("afterFeedbackUpdate", d);
@@ -263,10 +268,17 @@ function updateSpecial(d) {
   momentumHudCooldown -= d;
   if (U.momentum && ball) {
     const momentum = Math.round(Math.hypot(ball.vx || 0, ball.vy || 0));
+    /* 값이 같으면 쓰지 않는다. `textContent`는 같은 문자열이어도 텍스트 노드를
+       갈아끼우기 때문에 childList 변경이 발생하고, document.body를 보는
+       MutationObserver 두 개(하늘 리태그, 타이틀 감시)가 그때마다 깨어난다.
+       공이 멈춰 있어도 초당 12번 「0」을 「0」으로 덮어쓰면서 그 둘을 계속
+       돌리고 있었다 — 온보딩에서 측정된 초당 12회 강제 레이아웃의 정체다.
+       다른 HUD 항목은 모두 `sync()`에서 이미 이렇게 비교한다. */
     if (
-      momentumHudCooldown <= 0 ||
-      Math.abs(momentum - lastMomentumHud) >= 120 ||
-      (momentum === 0 && lastMomentumHud !== 0)
+      momentum !== lastMomentumHud &&
+      (momentumHudCooldown <= 0 ||
+        Math.abs(momentum - lastMomentumHud) >= 120 ||
+        momentum === 0)
     ) {
       U.momentum.textContent = momentum;
       lastMomentumHud = momentum;
@@ -695,7 +707,23 @@ function outsideBossFrame(size, phase, pupilStep = 0) {
     pupil: OUTSIDE_BOSS_PUPILS[pupilStep] ?? 1,
   });
   outsideBossFrames.set(key, baked);
+  warmOutsideBossFrames(size, phase);
   return baked;
+}
+/* 한 장을 굽는 데 14ms — 60fps 한 프레임을 통째로 먹는다. 그런데 호흡은
+   420ms마다 다음 동공 단계로 넘어가므로, 수업이 열린 뒤 첫 1.7초 동안 네 번
+   연속으로 프레임을 떨궜다. 첫 실패는 피할 수 없지만 나머지 세 장은 브라우저가
+   한가할 때 미리 구워 둔다. 프레임 루프에서는 두 번 다시 굽지 않는다. */
+const outsideBossWarmed = new Set();
+function warmOutsideBossFrames(size, phase) {
+  const tag = size + ":" + phase;
+  if (outsideBossWarmed.has(tag)) return;
+  outsideBossWarmed.add(tag);
+  const whenIdle =
+    window.requestIdleCallback?.bind(window) ?? ((fn) => setTimeout(fn, 32));
+  OUTSIDE_BOSS_PUPILS.forEach((_, step) =>
+    whenIdle(() => outsideBossFrame(size, phase, step)),
+  );
 }
 // The phase counter is the same one the combat solver already advances, so the
 // silhouette and the health thresholds can never disagree.

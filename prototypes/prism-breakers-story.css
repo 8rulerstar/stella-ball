@@ -140,10 +140,13 @@
   filter: brightness(1.12);
   transform: translateY(-2px);
 }
+/* 이 의사요소는 inset:0의 전체화면 배경이다. brightness를 애니메이션하면
+   화면 전체가 매 프레임 픽셀 단위로 다시 계산된다 — 8초 주기로 영원히.
+   느린 줌만 남겨도 「숨쉰다」는 읽힘은 유지되고, transform은 합성기에서
+   처리되므로 메인 스레드 비용이 없다. */
 @keyframes titleBackdrop {
   50% {
     transform: scale(1.06);
-    filter: brightness(1.18);
   }
 }
 @keyframes titleStar {

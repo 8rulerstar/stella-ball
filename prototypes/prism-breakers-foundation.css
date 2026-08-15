@@ -631,6 +631,10 @@ header button:hover {
   pointer-events: none;
   z-index: 6;
   opacity: 0;
+  /* 보이는 동안에만 트리에 올라온다 — 아래 mix-blend-mode가 스테이지 전체를
+     블렌드 그룹으로 묶기 때문이다. 켜는 쪽은 game-core-render.js가 display를
+     block으로 명시한다. */
+  display: none;
   background: radial-gradient(
     circle at 55% 44%,
     #fff4b8aa 0%,
@@ -979,7 +983,11 @@ header button,
 }
 .overlay {
   background: linear-gradient(135deg, #0e0920f7, #1d1236f5);
-  backdrop-filter: blur(4px);
+  /* 스테이지 전체를 덮는 backdrop blur였는데, 최종 배경이 #0a0f12f2(95%
+     불투명)라 흐려진 뒷면이 거의 드러나지 않는다. 온보딩 수업 카드·결과
+     카드·로스터까지 이 오버레이를 쓰므로 화면 전체 되읽기가 그때마다 켜졌다.
+     실제로 뒤가 비치는 pause/confirm/아이콘 선택은 각자 blur(2px)를 따로
+     선언하고 있으므로 그쪽은 그대로 둔다. */
   overflow: auto;
   place-content: start center;
 }

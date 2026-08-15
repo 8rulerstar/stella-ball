@@ -2287,19 +2287,31 @@ body.onboarding-locked .pause-button {
   z-index: 2;
   margin: 0;
   padding: 3px 7px;
+  position: relative;
+  box-shadow:
+    0 0 0 1px #4a0f0f,
+    0 0 8px #f2564e55;
+}
+/* 위 clearedStarPulse와 같은 이유 - blur 반경 애니메이션 대신 교차 페이드. */
+.claim-badge.card-dot:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px #4a0f0f,
+    0 0 15px #f2564eaa;
+  opacity: 0;
   animation: claimPulse 1.6s ease-in-out infinite;
 }
 @keyframes claimPulse {
   0%,
   100% {
-    box-shadow:
-      0 0 0 1px #4a0f0f,
-      0 0 8px #f2564e55;
+    opacity: 0;
   }
   50% {
-    box-shadow:
-      0 0 0 1px #4a0f0f,
-      0 0 15px #f2564eaa;
+    opacity: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2481,10 +2493,28 @@ body.onboarding-locked .pause-button {
 }
 .constellation-node.cleared .stage-star {
   border-color: #ffd9a8;
+  position: relative;
   box-shadow:
     0 0 0 4px #f6b57c22,
     0 0 26px #ffb987aa,
     0 0 46px #c97a4566;
+}
+/* box-shadow의 blur 반경을 애니메이션하면 매 프레임 큰 흐림 영역을 다시
+   칠한다. 게다가 클리어한 별 전부에 걸리므로 진행도가 쌓일수록 비싸지고,
+   허브는 플레이어가 가장 오래 머무는 화면이다. 밝은 쪽 그림자를 고정으로
+   한 번만 굽고 불투명도로 교차시킨다 — 합성기에서 처리되고 보이는 결과는
+   거의 같다. */
+.constellation-node.cleared .stage-star:after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 5px #f6b57c33,
+    0 0 34px #ffb987ee,
+    0 0 62px #c97a4588;
+  opacity: 0;
   animation: clearedStarPulse 3.4s ease-in-out infinite;
 }
 .constellation-node.cleared .node-status,
@@ -2507,16 +2537,10 @@ body.onboarding-locked .pause-button {
 @keyframes clearedStarPulse {
   0%,
   100% {
-    box-shadow:
-      0 0 0 4px #f6b57c22,
-      0 0 26px #ffb987aa,
-      0 0 46px #c97a4566;
+    opacity: 0;
   }
   50% {
-    box-shadow:
-      0 0 0 5px #f6b57c33,
-      0 0 34px #ffb987ee,
-      0 0 62px #c97a4588;
+    opacity: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {

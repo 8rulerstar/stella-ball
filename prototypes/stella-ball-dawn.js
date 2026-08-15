@@ -37,9 +37,16 @@
     if (window.StellaPixelUI) window.StellaPixelUI.apply();
   }
   var timer;
+  /* 매 변경마다 타이머를 다시 걸면 변경이 창보다 촘촘할 때 영영 합쳐지지
+     않는다 — 실제로 HUD가 83ms마다 DOM을 건드리는 동안 이 80ms 창은 한 번도
+     묶이지 못하고 전량 통과시켰다. 선두 타이머를 유지해 창당 한 번으로
+     고정한다. 굶길 수 없는 형태다. */
   function schedule() {
-    clearTimeout(timer);
-    timer = setTimeout(tag, 80);
+    if (timer) return;
+    timer = setTimeout(function () {
+      timer = 0;
+      tag();
+    }, 120);
   }
 
   function drawMoon(g) {
