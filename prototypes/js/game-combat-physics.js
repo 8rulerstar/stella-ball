@@ -21,9 +21,40 @@ function mobileWall(o, r, unit = null) {
     // main meteor's position. Without this a split clone bouncing off a
     // cushion paid the player for a bounce their own meteor never made.
     // The stageWall path below already had this guard; the rails did not.
-    if (!unit && o === ball) tableWall();
+    if (!unit && o === ball) {
+      tableWall();
+      breakDegenerateLine(o);
+    }
   }
   return hit;
+}
+/* 완전한 축 정렬은 이 게임에서 빠져나올 수 없는 샷을 만든다. 튜토리얼 패링
+   수업이 그 증거다 — 발사석 (360,748)과 미리내 (360,405)의 x가 같아서
+   `aim.x`가 «정확히» 0이고, 그 뒤로 마찰은 스칼라 곱, 벽 반사는 부호 반전,
+   접촉은 nx = 0/d = 0이라 어떤 연산도 그 0을 깨지 못한다. 유성은 같은 세로선을
+   왕복하며 같은 접점을 다시 때리고, 매 판 바이트 단위로 같은 경로를 그린다.
+   측정된 최장 샷은 13.7초였다.
+   저장소 어디에도 이걸 깨는 장치가 없었다 — 흔들림도, 최소 반사각도,
+   교착 감지도 없다. 세로 루프는 반드시 위아래 벽에 닿으므로 여기가 확실한
+   자리다. 축에 붙어 있을 때만, 한 번만 튼다: 2도를 틀면 |vx|/speed가 0.035가
+   되어 아래 문턱(0.02)을 넘어가므로 다음 반사부터는 손대지 않는다.
+   부호는 고정이다. `Math.random`을 쓰면 봇 하니스가 기대는 결정론이 깨져
+   같은 입력이 같은 결과를 내지 않게 된다. */
+const DEGENERATE_AXIS_RATIO = 0.02;
+function breakDegenerateLine(o) {
+  const speed = Math.hypot(o.vx, o.vy);
+  if (speed < 1) return;
+  const axisLocked =
+    Math.abs(o.vx) / speed < DEGENERATE_AXIS_RATIO ||
+    Math.abs(o.vy) / speed < DEGENERATE_AXIS_RATIO;
+  if (!axisLocked) return;
+  const turn = 0.035,
+    c = Math.cos(turn),
+    sn = Math.sin(turn),
+    vx = o.vx * c - o.vy * sn,
+    vy = o.vx * sn + o.vy * c;
+  o.vx = vx;
+  o.vy = vy;
 }
 function mobileStatic(o, target, radius, restitution, onHit) {
   let dx = o.x - target.x,
@@ -556,12 +587,11 @@ function simulatePhysics(d) {
       );
       mobileWall(g, g.r, g);
       applyStageGimmicks(g, g);
-      g.trailSample = (g.trailSample || 0) + step;
-      if (g.trailSample >= 1 / 60) {
-        g.trailSample = 0;
-        g.unitTrail.push({ x: g.x, y: g.y });
-        if (g.unitTrail.length > 10) g.unitTrail.shift();
-      }
+      /* 유닛 꼬리를 초당 60번 유닛마다 모으고 있었는데, 저장소 전체에서 이
+         배열을 «읽는» 곳이 없다 — 밀고 자르고 비우는 자리만 넷이다. 그리는
+         경로가 사라진 뒤 수집만 남은 것이라, 유닛 수 × 60개/초의 객체를
+         아무도 쓰지 않으려고 만들고 있었다. 배열 자체는 남긴다: 초기화
+         코드와 game-figure.js의 주석이 그 존재를 전제한다. */
     }
     for (const g of gates)
       mobilePair(

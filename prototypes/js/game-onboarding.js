@@ -1182,10 +1182,21 @@ function onboardingTableLive() {
   return Boolean(battle?.victory);
 }
 registerRuntimeHook("afterFeedbackUpdate", () => {
-  document
-    .querySelector(".onboarding-card")
-    ?.classList.toggle("table-live", onboardingTableLive());
+  /* 이 훅은 매 프레임 돈다. 예전에는 아무 가드가 없어서 캠페인·훈련장에서도
+     문서 전체를 뒤져 있지도 않은 `.onboarding-card`를 찾고 있었다. 수업이
+     아닐 때는 첫 줄에서 나간다. */
+  if (!onboarding || onboarding.panelVisible !== false) return;
+  const card = onboardingCardNode();
+  if (card) card.classList.toggle("table-live", onboardingTableLive());
 });
+/* 카드 노드를 프레임마다 새로 찾지 않는다. renderOnboarding이 카드를 다시
+   만들 때만 캐시가 어긋나므로, 붙어 있지 않으면 그때 한 번 다시 찾는다. */
+let onboardingCardCache = null;
+function onboardingCardNode() {
+  if (onboardingCardCache?.isConnected) return onboardingCardCache;
+  onboardingCardCache = document.querySelector(".onboarding-card");
+  return onboardingCardCache;
+}
 registerRuntimeHook("afterSpecialDraw", () => {
   const v = battle?.victory;
   if (!v || !boss) return;

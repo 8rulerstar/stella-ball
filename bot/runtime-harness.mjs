@@ -512,6 +512,40 @@ function __botAimProbe(config, pullDown) {
     samples,
   };
 }
+// 정확한 수직 발사가 축퇴 루프로 굳는지 본다. 튜토리얼 패링 수업이 실제로
+// 만드는 상황(발사석과 목표의 x가 같음)을 그대로 재현한다.
+// (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
+function __botAxisLockProbe(config) {
+  const source = stages[config.campaignIndex];
+  __botStart({
+    ...config,
+    arena: { ...source, tutorial: false, bossHp: 999999999 },
+    bossHp: 999999999,
+  });
+  ball.vx = 0;
+  ball.vy = -1725;
+  ball.moving = true;
+  ball.steerUsed = false;
+  let frames = 0, everOffAxis = false, firstOffAxisFrame = -1, maxRatio = 0;
+  while (ball.moving && frames < 3600) {
+    update(1 / 60);
+    frames += 1;
+    const speed = Math.hypot(ball.vx, ball.vy) || 1;
+    const ratio = Math.abs(ball.vx) / speed;
+    if (ratio > maxRatio) maxRatio = ratio;
+    if (ratio > 0.02 && !everOffAxis) {
+      everOffAxis = true;
+      firstOffAxisFrame = frames;
+    }
+  }
+  return {
+    shotSeconds: frames / 60,
+    endedNaturally: !ball.moving,
+    everOffAxis,
+    firstOffAxisSeconds: firstOffAxisFrame < 0 ? null : firstOffAxisFrame / 60,
+    maxLateralRatio: maxRatio,
+  };
+}
 function __botRuntimeModuleProbe() {
   const priorityOrder = [];
   const removeLow = registerRuntimeHook(
@@ -669,6 +703,24 @@ export function probeAimTransfer({ campaignIndex = 0, pullDown = 60 } = {}) {
       spread: [0, 0, 0, 0],
     },
     "__botAimProbe.bind(null, __botConfig, " + pullDown + ")",
+  );
+}
+
+export function probeAxisLock({ campaignIndex = 0 } = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy: "contact",
+      seed: 1,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 3600,
+      aimSigma: 0,
+      spread: [0, 0, 0, 0],
+    },
+    "__botAxisLockProbe.bind(null, __botConfig)",
   );
 }
 
