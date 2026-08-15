@@ -548,7 +548,13 @@ registerRuntimeHook("afterTableWall", () => {
   feedbackBeat("wall", ball.x, ball.y, "#8ae9e0", 0.62);
   combatSfx("wall", 0.7);
 });
-registerRuntimeHook("afterMobilePairCollision", ({ a, b }) => {
+registerRuntimeHook("afterMobilePairCollision", ({ a, b, kind }) => {
+  // Only the meteor striking a starkeeper is a 공명. The solver is shared with
+  // starkeeper-on-starkeeper nudges - whose own call site says they stay
+  // physical only - and with clone relays, which announce themselves with
+  // 분열 연계. Both of those used to play the resonance beat and SFX here,
+  // because every caller has a starkeeper on one side of the pair.
+  if (kind !== "meteor-hero") return;
   const hero = gates.includes(a) ? a : gates.includes(b) ? b : null;
   if (hero && feedbackCooldown <= 0) {
     feedbackCooldown = 0.12;

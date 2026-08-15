@@ -912,12 +912,13 @@ registerRuntimeHook("afterBossHitRegistered", () => {
     announceNewAchievements();
   }
 });
-// Forward the resting point: dropping the argument here is what silently
-// pinned every shot back to the launch stone while the in-game copy kept
-// promising "다음 샷은 멈춘 자리에서".
-registerRuntimeHook("afterShotStart", () => {
-  for (const gate of gates) gate.r = 23;
-});
+// A second afterShotStart listener used to sit here setting every starkeeper's
+// collision radius to 23. It never had an effect: this file loads before
+// game-combat.js, both listeners run at the default priority, so the listener
+// there overwrote all of them with 34 in the same dispatch. Verified live -
+// the radii read 34 after a shot starts. Removed rather than reconciled,
+// because game-combat.js's write is the one the parry geometry is tuned
+// against; leaving a dead write invites someone to "fix" the wrong one.
 // Bumpers are deliberately sparse: they build momentum and invoke the bumper
 // rule-slot. Damage belongs to the boss hit and the supporting unit, not to a
 // pile of anonymous table objects.

@@ -540,7 +540,7 @@ function completeOnboarding() {
     showMeta();
   };
 }
-registerRuntimeHook("afterBossDamage", () => {
+registerRuntimeHook("afterDirectBossDamage", () => {
   // Record only.  The lesson card advances when the player presses the button.
   if (onboarding?.phase === 0) onboarding.bossHit = true;
 });

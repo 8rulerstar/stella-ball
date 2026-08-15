@@ -312,7 +312,7 @@ function applyStageGimmicks(o, unit = null) {
     });
   for (const pad of boostPads) applyBoostPad(o, pad, unit);
 }
-function mobilePair(a, ar, b, br, onHit) {
+function mobilePair(a, ar, b, br, onHit, kind = "pair") {
   let dx = b.x - a.x,
     dy = b.y - a.y,
     d = Math.hypot(dx, dy) || 1,
@@ -334,7 +334,11 @@ function mobilePair(a, ar, b, br, onHit) {
   b.vx += impulse * nx;
   b.vy += impulse * ny;
   onHit?.(nx, ny, along, incoming);
-  runRuntimeHooks("afterMobilePairCollision", { a, b, nx, ny, along });
+  // `kind` exists because the feedback consumer cannot tell these apart from
+  // the payload alone: every caller passes a starkeeper as one of the two
+  // bodies, so a gates.includes() test matches the meteor parry, a physical
+  // unit-to-unit nudge and a clone relay equally. Only the first is a 공명.
+  runRuntimeHooks("afterMobilePairCollision", { a, b, nx, ny, along, kind });
   return true;
 }
 function guaranteeMomentum(o, dx, dy, minSpeed, maxSpeed) {
@@ -561,30 +565,37 @@ function simulatePhysics(d) {
       }
     }
     for (const g of gates)
-      mobilePair(ball, ball.r, g, g.r, (nx, ny, impactSpeed, incoming) => {
-        ball.firstImpact ??= "starkeeper";
-        ball.starkeeperTouched = true;
-        // `mobilePair` has already performed the ordinary elastic response.
-        // An armed Space parry turns this contact into a high-energy resonance.
-        // Otherwise retain it briefly, so a player can answer what they saw
-        // just after the billiards bounce without rewinding the table.
-        const contact = {
-          nx,
-          ny,
-          impactSpeed,
-          incoming,
-          x: (ball.x + g.x) / 2,
-          y: (ball.y + g.y) / 2,
-        };
-        const parried =
-          typeof consumeTrainingParry === "function" &&
-          consumeTrainingParry(g, contact);
-        if (!parried) {
-          rememberTrainingParryContact?.(g, contact);
-          return;
-        }
-        resolveMeteorParryContact(g, contact);
-      });
+      mobilePair(
+        ball,
+        ball.r,
+        g,
+        g.r,
+        (nx, ny, impactSpeed, incoming) => {
+          ball.firstImpact ??= "starkeeper";
+          ball.starkeeperTouched = true;
+          // `mobilePair` has already performed the ordinary elastic response.
+          // An armed Space parry turns this contact into a high-energy resonance.
+          // Otherwise retain it briefly, so a player can answer what they saw
+          // just after the billiards bounce without rewinding the table.
+          const contact = {
+            nx,
+            ny,
+            impactSpeed,
+            incoming,
+            x: (ball.x + g.x) / 2,
+            y: (ball.y + g.y) / 2,
+          };
+          const parried =
+            typeof consumeTrainingParry === "function" &&
+            consumeTrainingParry(g, contact);
+          if (!parried) {
+            rememberTrainingParryContact?.(g, contact);
+            return;
+          }
+          resolveMeteorParryContact(g, contact);
+        },
+        "meteor-hero",
+      );
     for (let a = 0; a < gates.length; a++)
       for (let b = a + 1; b < gates.length; b++) {
         // An armed wheel cuts through the moving formation instead

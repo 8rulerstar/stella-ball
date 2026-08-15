@@ -139,7 +139,19 @@ function damage(weak = false) {
   if (weak) ball.mark = false;
   chain = [];
   sync();
-  runRuntimeHooks("afterBossDamage", { weak, amount, dealt, marked, crit });
+  // Named for its scope: this is the DIRECT meteor-on-colossus path only.
+  // Nine other sites call applyBossHit - assists, area, clones, blade ticks,
+  // constellation abilities - and none of them reach here. The old name read
+  // as "any boss damage", which would quietly give a future consumer about one
+  // damage event in ten. The onboarding consumer is correct either way because
+  // lesson 1 deploys no starkeepers, so a direct hit is the only source there.
+  runRuntimeHooks("afterDirectBossDamage", {
+    weak,
+    amount,
+    dealt,
+    marked,
+    crit,
+  });
 }
 function hitBumper(b) {
   if (b.on > 0 || battleComplete) return;
