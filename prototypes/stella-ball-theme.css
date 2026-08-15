@@ -3278,12 +3278,15 @@ body.onboarding-locked .pause-button {
   right: auto !important;
   bottom: auto !important;
   margin: 0 !important;
-  transform: translate(-50%, -50%) !important;
+  /* 값을 그대로 박으면 폴리시의 호버 규칙이 통째로 죽는다 — 실제로
+     `translate(-50%,-53%)`의 들어올림이 한 번도 적용된 적이 없었다. 자리
+     고정은 유지하되 두 축을 변수로 열어 둔다. */
+  transform: translate(var(--node-x, -50%), var(--node-y, -50%)) !important;
 }
 .hub-map .constellation-node.active,
 .constellation-map .constellation-node.active {
   z-index: 3;
-  transform: translate(-50%, -50%) scale(1.06) !important;
+  transform: translate(var(--node-x, -50%), var(--node-y, -50%)) scale(1.06) !important;
 }
 .world-bar {
   display: flex;

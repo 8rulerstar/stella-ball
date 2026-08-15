@@ -1115,6 +1115,12 @@ function showStageSelect() {
         '<button class="constellation-node' +
         (stage.locked ? " locked" : "") +
         (stage.onboarding ? " active" : "") +
+        /* 카드는 호버 시 68px에서 184px로 «중심을 축으로» 넓어진다. 가장자리
+           노드는 그래서 양옆으로 92px씩 밀려나가 지도의 overflow:hidden에
+           잘렸다 — 1-1이 왼쪽 37.5px, 1-3이 오른쪽 31.9px(1280×720 실측).
+           어느 쪽으로 열 여유가 있는지는 x%를 아는 여기서만 말할 수 있다. */
+        '" data-edge="' +
+        (stage.x < 30 ? "left" : stage.x > 70 ? "right" : "mid") +
         '" style="left:' +
         stage.x +
         "%;top:" +
