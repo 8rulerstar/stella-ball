@@ -339,7 +339,16 @@ function __botRun(config) {
   while (run && !battleComplete && frames < config.frameLimit) {
     if (!ball.moving) {
       if (shot >= config.shots) break;
-      __botLaunch(__botAngle(config.policy, shot, config.spread[shot % config.spread.length]));
+      // 조준 오차. aimSigma가 있으면 시드된 난수로 매 발 새로 뽑는다 - 고정
+      // spread 배열은 (스테이지, 정책)마다 결정론적 경로 하나만 재서 시드를
+      // 늘려도 분포가 생기지 않았고, 더 큰 오차가 우연히 더 잘 맞는 비단조도
+      // 나왔다. 시그마를 주면 시드마다 다른 손떨림이 되어 클리어율이 실제
+      // 난이도 곡선이 된다. spread는 옛 스윕 호환으로 남긴다.
+      const jitter =
+        typeof config.aimSigma === "number"
+          ? (Math.random() * 2 - 1) * config.aimSigma
+          : config.spread[shot % config.spread.length];
+      __botLaunch(__botAngle(config.policy, shot, jitter));
       shot += 1;
       shotFrames = 0;
     }
@@ -370,11 +379,17 @@ function __botRun(config) {
 function __botCampaignRun(config) {
   const source = stages[config.campaignIndex];
   if (!source || source.training) throw new Error("campaign stage is unavailable");
-  return __botRun({
-    ...config,
-    arena: { ...source, tutorial: false },
+  // 리포트가 스스로를 설명하게 스테이지 정체를 함께 돌려준다. 인덱스만으로는
+  // 나중에 스테이지가 추가·재배열되면 과거 리포트를 읽을 수 없다.
+  return {
+    stageId: source.id,
     bossHp: source.bossHp,
-  });
+    ...__botRun({
+      ...config,
+      arena: { ...source, tutorial: false },
+      bossHp: source.bossHp,
+    }),
+  };
 }
 function __botIndividualClaimProbe() {
   progress = {
@@ -572,15 +587,29 @@ export function probeRuntimeModules() {
   return runInRuntime({ seed: 1 }, "__botRuntimeModuleProbe");
 }
 
+/* 조준 정확도 사다리. `spread`는 발사 각도에 더해지는 라디안 오프셋이라, 이
+   폭을 키우면 「겨눈 곳에서 빗나가는 사람」을 모사할 수 있다. 시드는 크리티컬
+   확률에만 쓰여 변량을 거의 만들지 못하므로(35스테이지 중 33개가 4시드 전부
+   같은 결과), 난이도 축으로는 시드가 아니라 이쪽을 쓴다. */
+export const AIM_LADDER = Object.freeze({
+  precise: 0,
+  steady: 0.04,
+  loose: 0.1,
+  wild: 0.22,
+});
 export function runCampaignStage({
   campaignIndex = 0,
   partySize = 3,
   policy = "contact",
   seed = 1,
   steer = false,
+  aim = "loose",
 } = {}) {
   const party = PARTY_POOLS[partySize];
   if (!party) throw new Error("partySize must be 2, 3, or 4");
+  const aimSigma = AIM_LADDER[aim];
+  if (aimSigma === undefined)
+    throw new Error("aim must be one of " + Object.keys(AIM_LADDER));
   return runInRuntime(
     {
       campaignIndex,
@@ -591,10 +620,46 @@ export function runCampaignStage({
       shots: 5,
       steerAt: 26,
       frameLimit: 7200,
-      spread: [-0.1, -0.04, 0.04, 0.1],
+      aimSigma,
+      spread: [0, 0, 0, 0],
     },
     "__botCampaignRun",
   );
+}
+/* 실제 캠페인 스윕. 무기믹 기준선(sweepPlainArena)이 포화된 뒤로 난이도 신호를
+   내는 것은 이쪽뿐이다 — 같은 날 측정에서 기준선은 contact 91.7% / chain 100%인
+   반면 실제 35스테이지는 contact 64.3% / chain 77.1%였다. 스테이지마다 진짜
+   보스 체력·배치·기믹을 쓰고, 조준 사다리를 축으로 돌려 「어느 정확도부터
+   무너지는가」를 스테이지별로 남긴다. */
+export function sweepCampaign({
+  stageCount = 35,
+  policies = ["contact", "chain"],
+  aims = ["precise", "steady", "loose", "wild"],
+  seeds = [11, 47],
+  partySizeFor = (index) => (index === 34 ? 4 : 3),
+} = {}) {
+  const report = [];
+  for (let campaignIndex = 0; campaignIndex < stageCount; campaignIndex++) {
+    const partySize = partySizeFor(campaignIndex);
+    for (const policy of policies)
+      for (const aim of aims)
+        for (const seed of seeds)
+          report.push({
+            campaignIndex,
+            partySize,
+            policy,
+            aim,
+            seed,
+            ...runCampaignStage({
+              campaignIndex,
+              partySize,
+              policy,
+              seed,
+              aim,
+            }),
+          });
+  }
+  return report;
 }
 
 export function probeIndividualClaims() {
