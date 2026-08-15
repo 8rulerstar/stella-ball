@@ -430,6 +430,11 @@ async function runOnboarding() {
   await evaluate("boss.hp = boss.maxHp = 1; sync(); true");
   for (const offset of [0, 55, -55]) {
     if (await evaluate("hasOnboardingClear()")) break;
+    // The retry offsets exist for a shot that MISSED. Once the colossus is
+    // down the battle is complete and the launch path is closed for the whole
+    // victory cutscene, so another drag here would wait forever - and used to
+    // "work" only because launching during that window was itself a bug.
+    if (await evaluate("battleComplete === true")) break;
     const ready = await waitUntil(
       "final meteor ready",
       async () => {

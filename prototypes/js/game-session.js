@@ -480,9 +480,17 @@ function resultGoldReward(amount) {
   );
 }
 function win() {
+  // The re-entrancy guard runs FIRST. It used to sit one line below the hook
+  // dispatch, so a win() call this function then refused still fired every
+  // beforeBattleWin listener - and those listeners are not observers: the
+  // tutorial's final-lesson hook tears the session down, writes the clear
+  // flag, increments progress.clears and grants a free summon, and the story
+  // hook writes clears/bestShots/bestTime and accrues gold. Only some of that
+  // is idempotent. Guarding first makes the hooks unreachable on a win that
+  // will not be honoured.
+  if (!battle || (battleComplete && !battle.victory)) return;
   const winContext = { battle };
   if (runtimeHookHandled("beforeBattleWin", winContext)) return;
-  if (!battle || (battleComplete && !battle.victory)) return;
   const victory = battle.victory;
   battleComplete = true;
   run = false;

@@ -84,16 +84,28 @@ function isTeachingHold() {
 }
 function beginTeachingHold(kind) {
   if (!onboarding || onboarding.hold || onboarding.holdDone?.[kind]) return;
-  const hold = { kind: kind, hint: TEACH_HOLD[kind].hint };
-  hold.timer = setTimeout(() => {
-    if (onboarding?.hold === hold) endTeachingHold();
-  }, TEACH_HOLD_GRACE_MS);
-  onboarding.hold = hold;
+  /* 유예는 프레임으로 센다. setTimeout은 벽시계라 일시정지 중에도 흘렀고,
+     정지 화면 뒤에서 수업이 조용히 만료됐다 — Escape를 눌러 10초 뒤 돌아오면
+     유성이 결정 지점에서 그냥 출발해 조향을 끝내 배우지 못했다. 이 카운터는
+     정지 브랜치에서만 줄어드는데, 루프가 `paused`를 그보다 먼저 반환하므로
+     일시정지 중에는 저절로 멈춘다. */
+  onboarding.hold = {
+    kind: kind,
+    hint: TEACH_HOLD[kind].hint,
+    graceLeft: TEACH_HOLD_GRACE_MS / 1000,
+  };
   renderTeachingHold();
+}
+// 정지가 살아 있는 프레임마다 호출된다. 남은 유예를 다 쓰면 조용히 풀어 원래
+// 흐름으로 돌려보낸다.
+function tickTeachingHold(d) {
+  const hold = teachingHold();
+  if (!hold) return;
+  hold.graceLeft -= d;
+  if (hold.graceLeft <= 0) endTeachingHold();
 }
 function endTeachingHold() {
   if (!onboarding?.hold) return;
-  clearTimeout(onboarding.hold.timer);
   const kind = onboarding.hold.kind;
   onboarding.holdDone = onboarding.holdDone || {};
   // 한 수업에 한 번만 세운다. 같은 샷에서 두 번 멈추면 가르치는 게 아니라
@@ -260,6 +272,11 @@ function setOnboardingPhase(phase) {
   const finalLesson = phase === ONBOARDING_FINAL_PHASE;
   onboarding = {
     ...onboarding,
+    // A live hold must not ride the spread into the next lesson. It would
+    // freeze the new lesson on its first frame - the loop takes the hold
+    // branch immediately - and it would be the wrong kind, e.g. a steer hold
+    // released only by a left/right click sitting on top of the parry lesson.
+    hold: null,
     phase,
     dialogue: 0,
     attempts: 0,
@@ -492,7 +509,6 @@ function restoreOnboardingStage() {
 }
 function clearOnboardingRuntime() {
   restoreOnboardingStage();
-  if (onboarding?.hold) clearTimeout(onboarding.hold.timer);
   if (onboarding) onboarding.hold = null;
   renderTeachingHold();
   onboarding = null;
@@ -1242,6 +1258,7 @@ const OnboardingModule = StellaRuntime.modules.register("onboarding", {
   isInputLocked: isOnboardingInputLocked,
   isTeachingHold: isTeachingHold,
   drawTeachingHoldCue: drawTeachingHoldCue,
+  tickTeachingHold: tickTeachingHold,
   isFinalLesson: isOnboardingFinalLesson,
   hasClear: hasOnboardingClear,
   showTutorial: showOnboardingTutorial,

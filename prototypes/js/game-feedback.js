@@ -1266,6 +1266,10 @@ function loop(t) {
   const onboardingModule = StellaRuntime.modules.optional("onboarding");
   if (onboardingModule?.isTeachingHold()) {
     resetInactiveCanvasFeedback();
+    // The safety grace is counted here rather than on a wall clock, so it
+    // stops while the pause dialog is up - the `paused` branch above returns
+    // before this one ever runs.
+    onboardingModule.tickTeachingHold?.(d);
     draw();
     onboardingModule.drawTeachingHoldCue?.();
     requestAnimationFrame(loop);

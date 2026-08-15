@@ -301,7 +301,14 @@ function steerMeteor(side) {
   return true;
 }
 function billiardPointerDown(e) {
-  if (!run || paused || isCombatInputLocked()) return;
+  // `battleComplete` matters here as much as `run`. scheduleWin freezes the
+  // meteor and marks the battle complete but deliberately leaves `run` true
+  // for the 2.55s victory cutscene, and every other combat entry point is
+  // guarded on battleComplete - only the launch path was not. That let a drag
+  // during the death animation spend `battle.shots`, which the result card
+  // reads back as the medal and the shot count, and repeated drags drove the
+  // counter negative in the HUD.
+  if (!run || paused || battleComplete || isCombatInputLocked()) return;
   if (!ball?.moving) {
     if (e.button !== 0) return;
     const p = pointer(e);
@@ -336,7 +343,7 @@ function billiardPointerMove(e) {
   );
 }
 function billiardPointerUp(e) {
-  if (!drag || ball?.moving) return;
+  if (!drag || ball?.moving || battleComplete) return;
   e.stopImmediatePropagation();
   // Lesson cards and the short constellation-result beat both lock launch.
   // Every practice step hides the card before returning control to the table.

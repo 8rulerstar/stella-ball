@@ -50,6 +50,16 @@ let figureBoon = null;
 function grantFigureBoon(boon) {
   figureBoon = { ...(figureBoon || {}), ...boon };
 }
+/* A boon is owed to the next shot OF THIS BATTLE. Without this it was a plain
+   module global that nothing reset, so a constellation resolved on the last
+   shot of one fight paid its mark/glide/true-aim into the opening meteor of
+   the next one, toast and all - a reward collected in a battle where it was
+   never earned. figureFx is battle-tagged for the same reason; this is the
+   one piece of the figure system that was not. */
+registerRuntimeHook("afterBattleSetup", () => {
+  figureBoon = null;
+  figureFx = null;
+});
 registerRuntimeHook("afterShotStart", () => {
   if (!figureBoon || !ball) return;
   if (figureBoon.mark) {
