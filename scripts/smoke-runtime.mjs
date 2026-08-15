@@ -43,6 +43,7 @@ const expectedScripts = [
   "./boss-art.js",
   "./stella-ball-pixel-ui.js",
   "./stella-ball-dawn.js",
+  "./sky-ambience.js",
   "./outer-observer.js",
 ];
 const actualScripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(

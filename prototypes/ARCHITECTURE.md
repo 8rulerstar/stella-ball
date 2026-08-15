@@ -43,6 +43,7 @@ Four presentation-only scripts load after that chain and stay outside `js/` beca
 19. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
 20. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer. Its margin props carry `data-dawn-prop` names so the intro can startle them without reaching into its locals.
 21. `outer-observer.js` — the five-beat title intro. It attaches its layer as a child of `#dawn-sky`, so the existing `#dawn-sky *` reduced-motion rule covers it, and it watches for `.title-sequence` instead of hooking the runtime. It must load after `stella-ball-dawn.js` because that script creates `#dawn-sky`.
+22. `sky-ambience.js` — the margin sky's three parallax layers, autonomous idle cycles, and the event background reactions from `SKY_AMBIENCE_REQUEST_2026_08_14.md`. A `#dawn-sky` child like the intro, loaded between `stella-ball-dawn.js` and `outer-observer.js` so the intro draws above it. It does not hook the runtime yet: reactions are exposed on `window.SkyAmbience` (`figure` / `world` / `boss` / `blaze` / `setProgress`) and wiring them to hooks is a separate approval, documented in the design session's README.
 
 ## Important maintenance rule
 

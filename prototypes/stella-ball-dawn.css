@@ -157,3 +157,42 @@ main {
 .pixel-kit-icons .profile-grid .mail-panel .panel-title h2 {
   --px-icon: var(--px-mail);
 }
+
+/* ── sky-ambience.js 전용 키프레임 (design session, 2026-08-15) ──
+   L0 성운의 장주기 드리프트 2종과 흘러가는 구름. 반짝임·유성은
+   기존 dawnTwinkle / dawnMeteor를 그대로 재사용한다. 새 레이어가
+   #dawn-sky의 자식이므로 모션 감소는 기존 `#dawn-sky *` 규칙에 걸린다. */
+@keyframes skyDriftA {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(26px, -14px);
+  }
+}
+@keyframes skyDriftB {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-22px, 16px);
+  }
+}
+@keyframes skyCloud {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(34vw);
+    opacity: 0;
+  }
+}
