@@ -332,8 +332,13 @@ function __botRun(config) {
   __botStart(config);
   const duration = [];
   let shot = 0, frames = 0, shotFrames = 0;
-  while (run && !battleComplete && shot < config.shots && frames < config.frameLimit) {
+  // 샷을 다 썼다는 이유로 루프를 끊으면 마지막 발이 발사 직후 한 프레임만 돌고
+  // 버려진다 — 피해도 별자리도 정산되지 않고 그 발의 체공 시간도 기록되지 않아,
+  // shots: 5가 실제로는 4발이 된다. 마지막 유성이 멈춘 뒤에 끝낸다.
+  // (이 함수는 VM으로 넘기는 템플릿 문자열 안이라 주석에도 백틱을 쓰지 않는다.)
+  while (run && !battleComplete && frames < config.frameLimit) {
     if (!ball.moving) {
+      if (shot >= config.shots) break;
       __botLaunch(__botAngle(config.policy, shot, config.spread[shot % config.spread.length]));
       shot += 1;
       shotFrames = 0;
