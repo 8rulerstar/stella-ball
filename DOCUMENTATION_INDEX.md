@@ -32,6 +32,8 @@
 - [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md): 데스크톱 양옆 관측창 밖의 심연, 외부의 관측자, 인트로 컷신의 디자인 요구서와 구현 상태
 - [OUTER_OBSERVER_PALETTE_REPLY.md](OUTER_OBSERVER_PALETTE_REPLY.md): 존재 시안에 대한 채택·보류 회신과 팔레트 교체 근거
 - [UI_REVIEW_2026_08_14.md](UI_REVIEW_2026_08_14.md): 화면·연출 전수 검토와 디자인 세션 요청서. 픽셀 배율 정책이 최우선 결정 사항
+- [META_UI_REQUEST_2026_08_14.md](META_UI_REQUEST_2026_08_14.md): 위 검토의 후속. 허브(메타)와 별자리 지도의 실측 요청서. 별자리 좌표계 규약과 노드 상태 4종이 최우선 결정 사항
+- [SKY_AMBIENCE_REQUEST_2026_08_14.md](SKY_AMBIENCE_REQUEST_2026_08_14.md): 양옆 여백 하늘과 이벤트 반응 연출의 실측 요청서. 런타임 훅 25종 중 배경에 쓸 3~5종 선정과 인트로 스펙 6절 미구현 2종이 최우선 결정 사항
 - [HIVE_SETUP.md](HIVE_SETUP.md): 실제 Hive Console 스파이크 절차와 완료 판정
 
 ## 현재 사실 기준선
