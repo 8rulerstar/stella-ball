@@ -448,13 +448,20 @@ function settleParty() {
     result: undefined,
   };
   runRuntimeHooks("beforePartySettle", context);
-  const settleOptions = { finisher: true, afterFigure: context.afterFigure };
   if (!context.handled && context.awakened.length) {
     battle.finisherSerial = 0;
     const finishers = context.awakened.filter((g) => {
       const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
       return fx !== "bladewheel";
     });
+    /* 인원수를 함께 넘긴다. 정산 전체가 쓰는 시간을 예산으로 잡으려면 첫 번째
+       피니셔를 큐에 넣는 시점에 「몇 명인지」를 알아야 하는데, 그것을 아는
+       곳은 여기뿐이다(game-feedback.js의 SETTLE_BUDGET). */
+    const settleOptions = {
+      finisher: true,
+      afterFigure: context.afterFigure,
+      finisherCount: finishers.length,
+    };
     for (const g of context.awakened) {
       const base =
           14 +
@@ -939,6 +946,16 @@ function drawAimGuide() {
 }
 registerRuntimeHook("afterDraw", function drawSteerPrompt() {
   if (!run || battle?.victory || !ball?.moving) return;
+  /* 조향 수업은 같은 말을 자기 어휘로 이미 세 군데에 그린다 — 유성 양옆의
+     방향 화살표, 정지 큐의 「좌클릭 ↶ · 우클릭 ↷」, 화면 아래 배너. 그 위에
+     이 일반 안내까지 얹히면 유성 둘레 27px 자리에서 글자와 화살표가 겹쳐
+     통째로 뭉갠다(scripts/probe-steer-lesson.mjs의 실화면). 수업이 안내를
+     맡는 동안에는 물러난다. */
+  if (
+    typeof isOnboardingSteerGuided === "function" &&
+    isOnboardingSteerGuided()
+  )
+    return;
   const flash = ball.steerFlash || 0;
   x.save();
   x.textAlign = "center";

@@ -609,22 +609,49 @@ registerRuntimeHook("afterBlazeEarned", ({ amount }) => {
   combatSfx("mult", 1);
   replayCssClass(U.blazeCard, "impact-heavy");
 });
+/* 정산은 «인원수 × 한 명분»이 아니라 예산이다.
+
+   0.52 + 순서 × 1.62라는 배분은 각성이 패링 전용이던 때 것이다. 그때 한 샷의
+   피니셔는 0~1명이었으므로 한 명이 1.62초를 온전히 갖는 것이 맞았다. 각성이
+   다시 움직임으로 돌아온 지금은 거의 매 샷이 파티 전원을 깨우고, 같은 배분이
+   그대로 3명 4.84초 · 4명 6.46초가 된다. 실측(probe-settle-cost.mjs, 2-2,
+   3인)에서 유성이 멈춘 뒤 판이 플레이어에게 돌아오기까지 **3.26초**였다 —
+   변경 전 같은 샷은 0.00초였다. 다섯 발이면 16초를 구경만 한다. 「렉 걸린다」는
+   제보의 정체가 프레임이 아니라 이 대기였다.
+
+   그래서 총량을 고정한다. 인원이 늘면 간격이 좁아져 한 명씩 서는 행렬이 아니라
+   «일제 사격»이 된다 — 짧아지면서 오히려 세진다. 초점(finisherFocus)은 여전히
+   한 번에 하나라 겹쳐도 그리는 값은 늘지 않는다.
+
+   프레임은 문제가 아니었음을 먼저 확인했다: 초점이 떠 있는 프레임의 draw()가
+   0.5ms(p95 0.8)로 idle과 같고, CPU는 70%가 idle이며, DOM 쓰기는 정산 구간에서
+   toast 2·popup 2다. 잘라야 할 것은 그리는 값이 아니라 «기다리는 시간»이다.
+
+   총 정산 시간 = SETTLE_LEAD + SETTLE_BUDGET (인원 2명 이상에서 일정).
+   여기 값은 잠정이다 — 한 타가 «어떻게 생겼는가»는 디자인 세션의 몫이고
+   (AWAKEN_FX_REQUEST_2026_08_16.md), 이 상수들은 그 세션에 주는 예산이다. */
+const SETTLE_LEAD = 0.34, // 유성이 멈추고 첫 타가 시작하기까지
+  SETTLE_BEAT = 0.92, // 한 명분 연출의 길이
+  SETTLE_BUDGET = 1.3; // 첫 타 시작부터 마지막 타 종료까지의 상한
+function settleStep(count) {
+  const n = Math.max(1, count || 1);
+  if (n < 2) return 0;
+  return Math.max(0.12, (SETTLE_BUDGET - SETTLE_BEAT) / (n - 1));
+}
 registerRuntimeHook(
   "afterUnitAssistQueued",
   ({ gate: g, shot, queued, options }) => {
     if (shot) {
       if (shot.finisher) {
-        // One hero owns a complete ultimate beat before the next takes focus.
-        // Future shots keep counting down but stay visually hidden.
         /* 별자리가 뜬 샷이면 현현이 끝난 다음에 줄을 선다. 별자리와 각성은
            이제 둘 다 나가므로(game-figure.js의 afterFigure 주석), 겹치면
            피니셔의 슬로모션 초점이 현현 위로 올라타 둘 다 읽히지 않는다.
            순서만 준다 — 없애지 않는다. */
         shot.delay =
           (options.afterFigure ? FIGURE_CAST_AT + 0.24 : 0) +
-          0.52 +
-          shot.finisherOrder * 1.62;
-        shot.dur = 1.08;
+          SETTLE_LEAD +
+          shot.finisherOrder * settleStep(options.finisherCount);
+        shot.dur = SETTLE_BEAT;
         shot.focusT = 0;
       } else {
         shot.delay = Math.min(0.32, queued * 0.085);

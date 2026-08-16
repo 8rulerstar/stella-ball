@@ -61,6 +61,17 @@ function isOnboardingSteerBlocked() {
 function isOnboardingSessionActive() {
   return Boolean(onboarding);
 }
+// 조향 수업이 자기 안내를 그리고 있는 동안인가. 일반 조향 안내가 겹치지
+// 않도록 game-combat-physics.js의 drawSteerPrompt가 이걸 묻는다.
+function isOnboardingSteerGuided() {
+  return Boolean(
+    onboarding &&
+      onboarding.phase === TEACH_HOLD.steer.phase &&
+      onboarding.panelVisible === false &&
+      ball?.moving &&
+      !ball.steerUsed,
+  );
+}
 
 /* ── 수업용 정지 ───────────────────────────────────────────────────────
    조향과 패링은 「읽고 나서 누르는」 것이 아니라 「지금 눌러야 하는」 것이라,
@@ -194,12 +205,10 @@ registerRuntimeHook("afterFeedbackUpdate", () => {
     if (ball.steerUsed || onboarding.steered) return;
     /* 발사석에서 곧장 세우면 아직 아무것도 안 일어난 화면이라 무엇을 꺾는
        건지 보이지 않는다. 항로의 절반쯤 올라와 궤도가 생기고, 그러면서도
-       꺾인 뒤를 보여 줄 자리가 남는 지점에서 세운다. */
-    const routeTarget = steerLessonRouteTarget();
-    if (
-      LAUNCH_Y - ball.y >
-      (LAUNCH_Y - routeTarget.y) * TEACH_STEER_ROUTE_FRACTION
-    )
+       꺾인 뒤를 보여 줄 자리가 남는 지점에서 세운다.
+       그 지점은 이제 화면에도 그려진다(steerLessonHoldPoint) — 판정과 그림이
+       같은 함수를 쓰므로 「표시된 곳 앞에서 멈춘다」가 성립하지 않는다. */
+    if (LAUNCH_Y - ball.y > LAUNCH_Y - steerLessonHoldPoint().y)
       beginTeachingHold("steer");
     return;
   }
@@ -594,6 +603,28 @@ registerRuntimeHook("afterMeteorSteer", () => {
    오버레이와 발사 고정이 같은 점을 봐야 하므로 한 곳에서만 정의한다. */
 function steerLessonRouteTarget() {
   return { x: boss.x + 145, y: boss.y + 85, r: 34, col: "#8ee7ff" };
+}
+/* 판이 멈추는 «그 자리». 실화면 확인(scripts/probe-steer-lesson.mjs)에서 정지
+   시점의 유성은 항로 링에서 185px — 링 반지름 5.4개 — 떨어져 있었다. 화면에는
+   도달하지 못한 링만 남으므로 「구역 도착 전에 멈췄다」로 읽힌다. 제보가 두 번
+   같은 말이었다.
+
+   정지 지점을 늦추는 것은 답이 아니다. 조향은 «도착하기 전»에 눌러야 뜻이 있고,
+   링에 붙여 세우면 꺾인 뒤를 보여 줄 항로가 남지 않는다. 대신 멈출 자리를 미리
+   그린다 — 그러면 유성은 표시된 곳에 정확히 도착해서 멈춘다.
+
+   발사석은 수업 동안 고정이라(startShot(battle.tutorial ? null : ...)) 그
+   좌표가 항로의 시작점이다 — game-session.js가 매 샷 `x: W / 2, y: LAUNCH_Y`로
+   세우는 그 자리다. */
+function steerLessonHoldPoint() {
+  const route = steerLessonRouteTarget(),
+    t = TEACH_STEER_ROUTE_FRACTION;
+  return {
+    x: W / 2 + (route.x - W / 2) * t,
+    y: LAUNCH_Y + (route.y - LAUNCH_Y) * t,
+    r: 26,
+    col: "#ffe6a1",
+  };
 }
 registerRuntimeHook(
   "resolveBilliardAim",
@@ -1074,17 +1105,49 @@ function drawOnboardingGuide() {
       /* 쏘라고 그려 준 항로 링이 발사되는 순간 사라졌다. 그래서 판이 멈춘
          시점에는 화면에 목표가 아예 없고, 「왜 여기서 멈췄지」만 남는다.
          비행 중에도 같은 점을 계속 보여 준다 — 정의는 한 곳(steerLessonRouteTarget)뿐이다. */
-      const route = steerLessonRouteTarget();
+      const route = steerLessonRouteTarget(),
+        holdAt = steerLessonHoldPoint(),
+        held = isTeachingHold();
       x.save();
-      x.globalAlpha = 0.85;
+      /* 항로 링은 «조준»의 목표지 «도착»의 목표가 아니다. 판이 멈춘 뒤에도
+         또렷하게 남아 있으면 닿지 못한 목적지로 읽히므로, 멈춘 동안에는
+         물러난다. */
+      x.globalAlpha = held ? 0.24 : 0.85;
       x.strokeStyle = route.col;
-      x.shadowBlur = 11;
+      x.shadowBlur = held ? 0 : 11;
       x.shadowColor = route.col;
       x.lineWidth = 2;
       x.setLineDash([6, 5]);
       x.beginPath();
       x.arc(route.x, route.y, route.r + 1, 0, Math.PI * 2);
       x.stroke();
+      x.restore();
+
+      /* 멈출 자리를 미리 그린다. 이것이 없으면 화면에 목표가 항로 링 하나뿐이라
+         정지가 언제나 「도착 전」이 된다. 판정과 같은 함수를 쓰므로 유성은 이
+         표식에 정확히 도착해서 선다. */
+      x.save();
+      const near = Math.max(
+        0,
+        Math.min(1, (LAUNCH_Y - ball.y) / (LAUNCH_Y - holdAt.y || 1)),
+      );
+      x.globalAlpha = held ? 0.95 : 0.34 + near * 0.5;
+      x.strokeStyle = holdAt.col;
+      x.shadowBlur = 12;
+      x.shadowColor = "#ffd36f";
+      x.lineWidth = held ? 3 : 2;
+      x.setLineDash(held ? [] : [4, 6]);
+      x.beginPath();
+      x.arc(holdAt.x, holdAt.y, holdAt.r, 0, Math.PI * 2);
+      x.stroke();
+      if (!held) {
+        x.setLineDash([]);
+        x.globalAlpha = 0.3 + near * 0.4;
+        x.fillStyle = holdAt.col;
+        x.textAlign = "center";
+        x.font = "bold 10px Galmuri11, ui-monospace";
+        x.fillText("여기서 꺾어요", holdAt.x, holdAt.y - holdAt.r - 9);
+      }
       x.restore();
 
       /* 좌·우 클릭이 무엇을 하는지 글자로만 말하고 있었다 — 눈에 띄지 않는다.
@@ -1122,17 +1185,17 @@ function drawOnboardingGuide() {
 
       x.save();
       x.strokeStyle = "#ffe6a1";
-      x.fillStyle = "#fff0bd";
       x.shadowBlur = 11;
       x.shadowColor = "#ffd36f";
       x.lineWidth = 2;
       x.beginPath();
       x.arc(ball.x, ball.y, ball.r + 24, -Math.PI * 0.9, Math.PI * 0.7);
       x.stroke();
-      x.textAlign = "center";
-      x.font = "bold 10px Galmuri11, ui-monospace";
-      x.fillText("좌클릭 ↶ · 우클릭 ↷ · 합산 1회", ball.x, ball.y - 45);
       x.restore();
+      /* 여기 있던 「좌클릭 ↶ · 우클릭 ↷ · 합산 1회」는 지웠다. 정지 큐가
+         유성 위 같은 자리에 「좌클릭 ↶ · 우클릭 ↷」를 그리고 있어서 두 줄이
+         겹쳐 글자가 뭉갰다(실화면 확인). 화면 아래 배너까지 세면 같은 안내가
+         셋이었다. 화살표가 방향을 말하고 배너가 규칙을 말한다. */
     } else if (phase === 2 && !onboarding.parrySuccess) {
       const target = gates[0];
       if (target) {
