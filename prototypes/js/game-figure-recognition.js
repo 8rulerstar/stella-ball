@@ -196,6 +196,16 @@ function addGuideStars(state, contact) {
     // 화자가 있는 말이다. 피해 숫자와 같은 서체를 쓰지 않는다.
     true,
   );
+  /* 루나가 «말한다». 이 한 줄이 §5 말풍선·§8 등장 연출과 같은 화자 체계를
+     쓰고, 그래서 「루나가 준 별」이 세 항목에서 한 어휘로 묶인다. */
+  StellaRuntime.modules
+    .optional("speech")
+    ?.say(
+      "luna",
+      showcase
+        ? "안내별 넷을 얹었어요. 오망성 항로가 완성됩니다."
+        : "첫 패링에 별을 둘 얹어 뒀어요. 궤적을 이어 보세요.",
+    );
   toast(
     showcase
       ? "루나의 안내별 넷 · 오망성 항로 완성"

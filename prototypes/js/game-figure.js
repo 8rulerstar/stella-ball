@@ -533,19 +533,38 @@ function drawParryFxLayer() {
         x.stroke();
       }
     } else if (fx.kind === "guide") {
+      /* 안내별은 «밖에서 온다»(디자인 세션 §9). 일반 패링의 kind:"hit"은 그
+         자리에서 터지고, 이건 루나의 자리에서 그 점으로 들어가 꽂힌다 —
+         방향이 있는 것과 없는 것으로 갈린다. 루나는 판 밖 아래에 서므로
+         출발점은 판 하단 중앙 바깥이다. */
+      const fromX = W / 2,
+        fromY = H + 40;
       x.strokeStyle = "#ffd27f";
       x.shadowBlur = 16;
       x.shadowColor = "#ffd27f";
       x.globalAlpha = life * 0.8;
       x.lineWidth = 2 + life * 2;
       for (const node of fx.nodes) {
+        // 들어오는 별빛. p가 1에 가까울수록 목표에 붙는다.
+        const ease = p * p * (3 - 2 * p),
+          hx = fromX + (node.x - fromX) * ease,
+          hy = fromY + (node.y - fromY) * ease;
         x.beginPath();
-        x.moveTo(fx.x, fx.y);
-        x.lineTo(node.x, node.y);
+        x.moveTo(
+          fromX + (node.x - fromX) * Math.max(0, ease - 0.22),
+          fromY + (node.y - fromY) * Math.max(0, ease - 0.22),
+        );
+        x.lineTo(hx, hy);
         x.stroke();
-        x.beginPath();
-        x.arc(node.x, node.y, 6 + p * 7, 0, Math.PI * 2);
-        x.stroke();
+        // 꽂히고 나서야 고리가 퍼진다.
+        if (p > 0.72) {
+          const k = (p - 0.72) / 0.28;
+          x.globalAlpha = (1 - k) * 0.8;
+          x.beginPath();
+          x.arc(node.x, node.y, 6 + k * 13, 0, Math.PI * 2);
+          x.stroke();
+          x.globalAlpha = life * 0.8;
+        }
       }
     } else if (fx.kind === "miss") {
       // Inward rhythm reversed: a ring already broken into three pieces that
