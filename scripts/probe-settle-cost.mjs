@@ -39,6 +39,8 @@ const arg = (name, fallback) => {
 const STAGE = arg("stage", "2-2");
 const PARTY = Number(arg("party", 3));
 const shotDir = arg("out", join(tmpdir(), "settle-shots"));
+// 각성을 한 프레임에 몰 것인가, 유성이 차례로 때리듯 흩을 것인가.
+const STAGGER = !process.argv.includes("--same-frame");
 mkdirSync(shotDir, { recursive: true });
 const browser = [
   process.env.STELLA_BROWSER_PATH,
@@ -165,7 +167,7 @@ async function cpuProfile(ms, top = 16) {
 
 // 판을 세우고 한 발 쏘는 동안 rAF 간격을 구간별로 모은다. 브라우저 안에서
 // 한 번에 돌려야 구간 경계가 실제 게임 상태와 어긋나지 않는다.
-const RUN_SHOT = (stage, party) => `(async () => {
+const RUN_SHOT = (stage, party, stagger) => `(async () => {
   const pool = ["gaon","biyeon","ria","byeolha"].slice(0, ${party});
   stageIndex = stages.findIndex((s) => s.id === ${JSON.stringify(stage)});
   deployed = [...pool]; selected = [...pool];
@@ -212,10 +214,42 @@ const RUN_SHOT = (stage, party) => `(async () => {
   const react = { flight: {}, settle: {} };
   for (const k of Object.keys(react))
     react[k] = { shake: 0, push: 0, tilt: 0, ghost: 0, flash: 0, stop: 0 };
+  /* 그동안 못 보고 있던 것. impactStop > 0 인 프레임은 update()가 아예 불리지
+     않아 «판이 얼어 있다». rAF는 계속 4ms로 돌고 draw()도 0.5ms 그대로라,
+     프레임 지표만 보면 완벽히 정상으로 나온다 — 그런데 플레이어에게는 그게
+     정확히 「렉」이다. 얼어 있던 시간과 횟수를 따로 센다. */
+  const frozen = { idle: 0, flight: 0, settle: 0 };
+  const freezeRuns = [];
+  let freezeRun = 0,
+    freezePeak = 0,
+    freezeCombo = 0;
   const drawMs = { idle: [], flight: [], settle: [], focus: [] };
+  const realUpdate = update;
+  let lastDrawAt = performance.now();
   const realDraw = draw;
   draw = function () {
     const t0 = performance.now();
+    const gap = t0 - lastDrawAt;
+    lastDrawAt = t0;
+    if ((impactStop || 0) > 0) {
+      frozen[phase] += gap;
+      freezeRun += gap;
+      /* 정지의 «주인»을 찾는다. impactStop에 배정되는 값이 곧 출처다 —
+         0.018 각성 / 0.028 접촉 / 0.034~0.078 보통 타격 / 0.075~0.17 강타 /
+         0.046~0.106 정산 명중 / 0.18 거상 퇴장. 최고치를 잡으면 그 구간을
+         누가 세웠는지가 나온다. */
+      freezePeak = Math.max(freezePeak, impactStop || 0);
+      freezeCombo = Math.max(freezeCombo, hitCombo || 0);
+    } else if (freezeRun > 0) {
+      freezeRuns.push({
+        ms: +freezeRun.toFixed(1),
+        setTo: +freezePeak.toFixed(3),
+        combo: freezeCombo,
+      });
+      freezeRun = 0;
+      freezePeak = 0;
+      freezeCombo = 0;
+    }
     realDraw.apply(this, arguments);
     const cost = performance.now() - t0;
     drawMs[phase].push(cost);
@@ -241,15 +275,29 @@ const RUN_SHOT = (stage, party) => `(async () => {
   ball.moving = true; ball.steerUsed = false; ball.firstImpact = null;
   ball.starkeeperTouched = false; ball.openingBossContact = false;
   battle.shots -= 1; chain = [];
-  /* 최악이 아니라 평균을 재면 「렉이 없다」가 나온다. 한 샷이 파티 전원을
-     굴리는 판이 이 변경의 최대 부하이므로, 별지기 전부에 실제 충돌과 같은
-     크기의 운동량을 준다 — 정산 피니셔가 인원수만큼 줄을 선다. */
-  for (const g of gates) {
-    const a = Math.atan2(boss.y - g.y, boss.x - g.x) + (g === t ? 0 : 0.7);
+  /* 별지기를 «서로 다른 프레임에» 깨운다. 전부 한 프레임에 밀면 히트스톱이
+     impactStop = Math.max(...) 하나로 합쳐져, 실제 플레이보다 정지가 적게
+     나온다 — 유성은 셋을 차례로 때리므로 정지도 셋으로 흩어진다. 이 지연이
+     그 차례를 흉내 낸다. 지연 값은 프로브의 것이지 게임의 것이 아니다. */
+  const STAGGER = ${JSON.stringify(String(stagger))} === "true";
+  const kick = (g, extra) => {
+    const a = Math.atan2(boss.y - g.y, boss.x - g.x) + extra;
     g.vx = Math.cos(a) * 900; g.vy = Math.sin(a) * 900;
-  }
+  };
+  kick(t, 0);
+  (async () => {
+    for (let i = 1; i < gates.length; i++) {
+      if (STAGGER) await wait(430);
+      kick(gates[i], 0.7);
+    }
+  })();
   const flightStart = performance.now();
-  while (ball.moving && performance.now() - flightStart < 12000) await wait(30);
+  // 실제 손이 쏜 발이라 유성이 언제 멈출지 모른다. 멈출 때까지 기다린다.
+  while (
+    (ball.moving || performance.now() - flightStart < 400) &&
+    performance.now() - flightStart < 16000
+  )
+    await wait(30);
 
   phase = "settle";
   const settleStart = performance.now();
@@ -286,6 +334,13 @@ const RUN_SHOT = (stage, party) => `(async () => {
       settle: stat(drawMs.settle), duringFocus: stat(drawMs.focus),
     },
     domWrites: dom,
+    // 「얼어 있던 시간」. 이것이 체감 렉의 후보 2번이다.
+    frozenMs: {
+      idle: Math.round(frozen.idle),
+      flight: Math.round(frozen.flight),
+      settle: Math.round(frozen.settle),
+    },
+    freezeRunsMs: freezeRuns.filter((v) => v.ms >= 8),
     screenReaction: {
       flight: Object.fromEntries(
         Object.entries(react.flight).map(([k, v]) => [k, +v.toFixed(4)]),
@@ -337,15 +392,81 @@ try {
     shots.push(file);
   };
   await send("Page.enable");
-  const running = evaluate(RUN_SHOT(STAGE, PARTY));
-  // 깨어나는 순간과 정산 한복판. 위 스크립트의 구간 표시를 그대로 읽는다.
+  const running = evaluate(RUN_SHOT(STAGE, PARTY, STAGGER));
+  await delay(1800); // idle 기준선이 다 모일 때까지
+
+  /* 진짜 마우스로 쏜다. 발사만 코드로 넣으면 조준 보정도, 위력 곡선도,
+     별지기를 하나씩 때리며 흩어지는 접촉도 전부 건너뛴다 — 그 흩어짐이
+     바로 재려는 것이다. */
+  const p = await evaluate(`(() => {
+    const rect = document.querySelector("#game").getBoundingClientRect();
+    // 세 별지기를 차례로 지나가도록 가장 가까운 하나를 겨눈다.
+    let best = gates[0], bestD = Infinity;
+    for (const g of gates) {
+      const d = Math.hypot(g.x - ball.x, g.y - ball.y);
+      if (d < bestD) { bestD = d; best = g; }
+    }
+    const dx = best.x - ball.x, dy = best.y - ball.y, l = Math.hypot(dx, dy) || 1;
+    const cueX = ball.x - dx / l * 300, cueY = ball.y - dy / l * 300;
+    const rawY = ball.y + (cueY > ball.y ? (cueY - ball.y) / 4.8 : cueY - ball.y);
+    const css = (x, y) => ({ x: rect.left + x * rect.width / 720, y: rect.top + y * rect.height / 900 });
+    return { from: css(ball.x, ball.y), to: css(cueX, rawY) };
+  })()`);
+  await send("Input.dispatchMouseEvent", {
+    type: "mouseMoved",
+    ...p.from,
+    button: "none",
+  });
+  await send("Input.dispatchMouseEvent", {
+    type: "mousePressed",
+    ...p.from,
+    button: "left",
+    buttons: 1,
+    clickCount: 1,
+  });
+  for (let i = 1; i <= 6; i++)
+    await send("Input.dispatchMouseEvent", {
+      type: "mouseMoved",
+      x: p.from.x + (p.to.x - p.from.x) * (i / 6),
+      y: p.from.y + (p.to.y - p.from.y) * (i / 6),
+      button: "left",
+      buttons: 1,
+    });
+  await send("Input.dispatchMouseEvent", {
+    type: "mouseReleased",
+    ...p.to,
+    button: "left",
+    buttons: 0,
+    clickCount: 1,
+  });
+  await evaluate("window.__probeGo && window.__probeGo(), 1");
+  /* 발사되지 않으면 그 뒤의 모든 수치가 「조용한 판」이라 렉이 없다고 거짓말을
+     한다. 실제로 떴는지 여기서 확인하고, 아니면 왜 막혔는지를 남긴다. */
+  let launched = false;
+  for (let i = 0; i < 40 && !launched; i++) {
+    launched = await evaluate("!!(ball && ball.moving)");
+    if (!launched) await delay(50);
+  }
+  if (!launched)
+    throw new Error(
+      "meteor never launched | " +
+        (await evaluate(`JSON.stringify({
+          run: !!run, paused: !!paused, battleComplete: !!battleComplete,
+          locked: typeof isCombatInputLocked === 'function' ? isCombatInputLocked() : 'n/a',
+          onboarding: !!onboarding,
+          rect: (() => { const r = document.querySelector('#game').getBoundingClientRect();
+                         return Math.round(r.width) + 'x' + Math.round(r.height) + ' @' + Math.round(r.left) + ',' + Math.round(r.top) })(),
+          drag: typeof drag !== 'undefined' ? !!drag : 'n/a',
+        })`)),
+    );
+
   for (const [ms, name] of [
-    [1700, "awaken.png"],
-    [4200, "rolling.png"],
-    [6400, "settle.png"],
-    [7100, "settle-late.png"],
+    [900, "awaken.png"],
+    [2200, "rolling.png"],
+    [1800, "settle.png"],
+    [700, "settle-late.png"],
   ]) {
-    await delay(ms - (shots.length ? [0, 1700, 4200, 6400][shots.length] : 0));
+    await delay(ms);
     await capture(name).catch(() => {});
   }
   const shot = await running;

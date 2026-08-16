@@ -60,8 +60,29 @@
     TILT_MAX = 0.0095,
     GHOST_MAX = 0.24,
     FLASH_MAX = 0.3,
-    STOP_MIN = 0.02,
-    STOP_MAX = 0.052,
+    /* 히트스톱만 반입 뒤에 다시 잘랐다(0.02~0.052 → 0~0.018).
+
+       `impactStop > 0`인 프레임은 update()가 아예 불리지 않는다 — 판이 실제로
+       언다. 프레임 지표에는 안 보인다: rAF는 계속 4ms로 돌고 draw()도 0.8ms
+       그대로다. 그래서 반입 검증을 통과했다.
+
+       실측(probe-settle-cost.mjs, 각성을 프레임마다 흩어서). 유성은 별지기를
+       차례로 때리므로 정지도 차례로 생긴다 — 같은 프레임에 몰아 재면
+       Math.max로 하나가 되어 문제가 사라져 보인다:
+
+         반입 전   비행 중 얼어 있던 시간  18ms, 구간 3개
+         반입 후                        194ms, 구간 7개 (22~58ms)
+
+       58ms는 60Hz에서 3.5프레임이고, 그것이 한 샷에 일곱 번이다. 게다가 하필
+       «유성이 날아가는 동안»인데, 그 선을 읽는 것이 이 게임의 조작 그 자체다.
+       각성은 문장의 끝이 아니라 중간이다 — 보스 타격처럼 시간을 멈춰 세울
+       사건이 아니다.
+
+       세션의 설계(밀림·기울기·잔상·흔들림)는 그대로 둔다. 그쪽은 시간을 멈추지
+       않고도 「밀렸다」를 전한다. 한 프레임(0.018초)이면 충돌을 찍기에 충분하고,
+       SOFTEN이 2·3번째를 14·11ms로 더 줄인다. */
+    STOP_MIN = 0,
+    STOP_MAX = 0.018,
     // 한 샷의 n번째 각성이 받는 배수. 매 샷 3회가 기본이 된 지금(§2)
     // 같은 세기를 세 번 주면 세 번째가 첫 번째를 못 이긴다.
     SOFTEN = [1, 0.78, 0.6];
@@ -117,7 +138,15 @@
 
     const subtle = !!(options && options.subtle),
       k = collisionStrength(),
-      soft = SOFTEN[Math.min(SOFTEN.length - 1, shotWakeCount)] * (subtle ? 0.72 : 1);
+      soft =
+        SOFTEN[Math.min(SOFTEN.length - 1, shotWakeCount)] *
+        (subtle ? 0.72 : 1),
+      /* 정지는 한 샷에 한 번만. 나머지 어휘(흔들림·밀림·기울기·잔상)는 전부
+         받되 시간을 멈추는 것만 첫 각성이 가진다.
+         유성이 날아가는 동안 판이 서는 것은 다른 사건과 뜻이 다르다 — 그 선을
+         읽는 것이 이 게임의 조작 자체라, 셋이 차례로 얼면 조작을 끊는다.
+         실측에서 각성 셋이 비행 중 83ms를 얼렸다. */
+      firstWake = shotWakeCount === 0;
     shotWakeCount++;
 
     // 밀린 방향 = 유성에서 별지기로 향하는 방향. §4-1 이 없다고 지적한 값이다.
@@ -155,10 +184,11 @@
        그쪽이 feedbackBeat·combatSfx·연타 판정까지 함께 울리기 때문이다 —
        깨어남은 baseWakeUnit 이 이미 awaken 소리를 냈다. 건드리는 값은
        impact() 가 쓰는 것과 정확히 같은 여섯이다. */
-    impactStop = Math.max(
-      impactStop || 0,
-      (STOP_MIN + k * (STOP_MAX - STOP_MIN)) * soft,
-    );
+    if (firstWake)
+      impactStop = Math.max(
+        impactStop || 0,
+        (STOP_MIN + k * (STOP_MAX - STOP_MIN)) * soft,
+      );
     screenShake = Math.max(
       screenShake || 0,
       (SHAKE_MIN + k * (SHAKE_MAX - SHAKE_MIN)) * soft,
@@ -210,11 +240,12 @@
     // 정산 덮개는 살아 있는 피니셔 샷이 있는 동안만 서 있는다.
     let alive = false;
     if (typeof assistShots !== "undefined" && assistShots)
-      for (const s of assistShots) if (s.finisher) { alive = true; break; }
-    settleFade = Math.max(
-      0,
-      Math.min(1, settleFade + (alive ? d : -d) / FADE),
-    );
+      for (const s of assistShots)
+        if (s.finisher) {
+          alive = true;
+          break;
+        }
+    settleFade = Math.max(0, Math.min(1, settleFade + (alive ? d : -d) / FADE));
   });
 
   /* ═══ 3. 굴러가는 동안 — 결정 4 ════════════════════════════════════
@@ -465,7 +496,8 @@
     for (let i = 0; i < waiting + firing; i++) {
       const shot = shots[i],
         gate = shot && gates.find((unit) => unit.id === shot.sourceId);
-      x.fillStyle = shot && shot.delay <= 0 ? (gate ? gate.col : "#ffd2a0") : "#243438";
+      x.fillStyle =
+        shot && shot.delay <= 0 ? (gate ? gate.col : "#ffd2a0") : "#243438";
       x.fillRect(34 + i * 15, BAND + 64, 11, 5);
     }
     x.restore();
@@ -473,7 +505,11 @@
     // 초점이 잡힌 한 발만 능력 모티프를 얹는다. 겹쳐 그리면 판이 읽히지 않는다.
     if (finisherFocus) {
       const gate = gates.find((unit) => unit.id === finisherFocus.sourceId);
-      if (gate && finisherFocus.delay <= 0 && typeof drawFinisherMotif === "function")
+      if (
+        gate &&
+        finisherFocus.delay <= 0 &&
+        typeof drawFinisherMotif === "function"
+      )
         drawFinisherMotif(
           gate,
           gate.x,

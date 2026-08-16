@@ -525,7 +525,20 @@ function impact(
     heavy = Boolean(weak) || hitCombo >= 3,
     contact = profile === "contact",
     finisher = profile === "finisher",
-    stop = contact ? 0.028 : (finisher ? 0.046 : heavy ? 0.075 : 0.034) * force,
+    /* 정지는 발수로 나눈다 — 정산 «길이»에 준 예산과 같은 규칙이다.
+
+       `impactStop > 0`인 프레임은 update()가 통째로 건너뛴다. 판이 실제로
+       언다. 0.046초는 한 샷이 피니셔를 하나 낼까 말까 하던 시절의 값인데,
+       각성이 움직임으로 돌아오면서 한 샷이 2~4발을 낸다. 연타 배수까지
+       곱해지면 실측으로 한 발이 42ms, 63ms씩 얼었고 그것이 줄줄이 이어졌다.
+       프레임 지표에는 안 잡힌다: rAF는 4ms로 계속 돌고 draw()도 0.8ms다.
+
+       나누면 일제 사격 전체가 예전 한 발만큼만 멈춘다. 첫 타의 «맛»은
+       발수가 적을수록 그대로다(1발이면 나눗셈이 없다). */
+    volley = finisher ? Math.max(1, battle?.finisherSerial || 1) : 1,
+    stop =
+      (contact ? 0.028 : (finisher ? 0.046 : heavy ? 0.075 : 0.034) * force) /
+      volley,
     /* 디자인 세션 §4. 예전 값은 5.5 / 5.5 / 10 / 8.5px이라 가장 약한 사건과
        가장 강한 사건의 비가 두 배도 안 됐다 — 판 가로 720px 대비 0.76%와
        1.4%다. 접촉을 «더 줄이고» 위를 벌린다: 4 / 8 / 24 / 34px.
