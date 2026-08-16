@@ -795,7 +795,14 @@ function showMeta() {
         '%" ' +
         (entry.locked ? "disabled" : 'data-map-index="' + index + '"') +
         '><span class="stage-star">' +
-        entry.mark +
+        /* 전체화면 지도와 같은 보스 초상을 허브 지도에도 얹는다(§3). 허브가
+           「게임 시작」 뒤 처음 보이는 화면이므로, 여기가 비어 있으면 지도를
+           고친 것이 플레이어에게 도달하지 않는다. */
+        (stageSelectPortrait(entry)
+          ? '<img src="' +
+            stageSelectPortrait(entry) +
+            '" alt="" draggable="false" data-crop-first>'
+          : entry.mark) +
         '</span><span class="stage-copy"><small>' +
         (entry.star ? entry.star.bayer : "STAGE " + entry.id) +
         '</small><b class="stage-id">' +
@@ -820,7 +827,11 @@ function showMeta() {
     .join("");
   U.over.className = "overlay meta-scene";
   U.over.innerHTML =
-    '<div class="survivor-hub hub-map-mode"><div class="hub-night-sky" aria-hidden="true">' +
+    '<div class="survivor-hub hub-map-mode" style="' +
+    (WORLD_HUES[world.id] === undefined
+      ? "--wc:0;--wh:0"
+      : "--wc:1;--wh:" + WORLD_HUES[world.id]) +
+    '"><div class="hub-night-sky" aria-hidden="true">' +
     storySkyStars(clear) +
     '</div><div class="hub-topbar"><div class="hub-player"><span class="hub-avatar">' +
     avatar +
@@ -836,7 +847,24 @@ function showMeta() {
     gold +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
-    '</b></span></div></div><div class="world-bar"><button class="world-step" id="worldPrev" aria-label="이전 별자리"' +
+    '</b></span></div></div><div class="world-band">' +
+    WORLDS.filter((entry) => WORLD_HUES[entry.id] !== undefined)
+      .map(
+        (entry) =>
+          '<i class="' +
+          (entry.id === world.id
+            ? "on"
+            : isWorldUnlocked(entry)
+              ? "open"
+              : "") +
+          '" style="--wh:' +
+          WORLD_HUES[entry.id] +
+          '" title="' +
+          entry.name +
+          '"></i>',
+      )
+      .join("") +
+    '</div><div class="world-bar"><button class="world-step" id="worldPrev" aria-label="이전 별자리"' +
     (worldNav.prev ? "" : " disabled") +
     '>◀</button><div class="world-name"><small>' +
     world.bayer +
@@ -846,7 +874,11 @@ function showMeta() {
     world.lore +
     '</span></div><button class="world-step" id="worldNext" aria-label="다음 별자리"' +
     (worldNav.next ? "" : " disabled") +
-    '>▶</button></div><section class="hub-map" aria-label="별자리 스테이지 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+    '>▶</button></div><section class="hub-map" aria-label="별자리 스테이지 지도" style="' +
+    (worldFigureArt(world.id)
+      ? "--figure:url('" + worldFigureArt(world.id) + "')"
+      : "--figure:none") +
+    '"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
     constellationRoute(mapStages) +
     "</svg>" +
     nodes +
@@ -863,6 +895,7 @@ function showMeta() {
     (mapStage.onboarding ? "수업 다시 보기" : "게임 시작!") +
     '</button></section><nav class="hub-tabbar" aria-label="관측소 메뉴"><button class="hub-tab" id="hubProfile"><span aria-hidden="true">◎</span><b>프로필</b></button><button class="hub-tab" id="hubGacha"><span aria-hidden="true">☄</span><b>소환</b></button><button class="hub-tab center" id="hubBattleTab"><span aria-hidden="true">★</span><b>관측</b></button><button class="hub-tab" id="hubShop"><span aria-hidden="true">◈</span><b>상점</b></button><button class="hub-tab" id="hubSettings"><span aria-hidden="true">⚙</span><b>설정</b></button></nav></div>';
   applyMarquees(U.over);
+  window.StellaPixelUI?.cropSheets?.(".hub-map img[data-crop-first]");
   for (const node of document.querySelectorAll("[data-map-index]"))
     node.onclick = () => {
       hubMapSelection = Number(node.dataset.mapIndex);

@@ -3945,3 +3945,76 @@ body.onboarding-locked .pause-button {
   border-color: #7cc6bb;
   color: #dff3ea;
 }
+
+/* ---------------------------------------------------------------------
+   허브 인라인 지도 — 전체화면 지도와 같은 처리 (§2·§3)
+   허브가 「게임 시작」 뒤 처음 보이는 화면이므로, 전체화면 지도만 고치면
+   바꾼 것이 플레이어에게 도달하지 않는다. 노드 크기와 배치는 그대로 두고
+   월드색·초상·형상만 얹는다 — 배치는 META_UI_REQUEST 1-1의 별도 사안이다.
+   --------------------------------------------------------------------- */
+.survivor-hub.hub-map-mode {
+  --w-line: oklch(0.63 calc(0.115 * var(--wc, 1)) var(--wh, 0));
+  --w-node: oklch(0.72 calc(0.09 * var(--wc, 1)) var(--wh, 0));
+  --w-glow: oklch(0.79 calc(0.105 * var(--wc, 1)) var(--wh, 0));
+  --w-text: oklch(0.86 calc(0.075 * var(--wc, 1)) var(--wh, 0));
+}
+.hub-map-mode .world-band {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 7px;
+}
+.hub-map-mode .world-band i {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #2b3a3e;
+}
+.hub-map-mode .world-band i.open {
+  background: oklch(0.5 0.06 var(--wh));
+}
+.hub-map-mode .world-band i.on {
+  background: oklch(0.79 0.105 var(--wh));
+  box-shadow: 0 0 8px oklch(0.79 0.105 var(--wh) / 0.55);
+}
+.hub-map-mode .world-name small {
+  color: var(--w-text) !important;
+}
+.hub-map .constellation-route path,
+.hub-map .constellation-route line {
+  stroke: var(--w-line) !important;
+}
+.hub-map .constellation-node {
+  border-color: color-mix(in oklab, var(--w-node) 55%, #0a0f12) !important;
+}
+.hub-map .constellation-node.active {
+  border-color: var(--w-glow) !important;
+}
+/* 초상. 노드 크기는 그대로 두고 별 자리에만 들어간다. */
+.hub-map .constellation-node .stage-star {
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--w-node) 45%, #0a0f12);
+  background: #0a0f12;
+  display: grid;
+  place-items: center;
+}
+.hub-map .constellation-node .stage-star img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.hub-map .constellation-node.locked .stage-star img {
+  filter: grayscale(1) brightness(0.5);
+}
+/* 월드 별자리 형상. 전체화면 지도와 같은 그림, 같은 옅기다. */
+.hub-map:before {
+  content: "";
+  position: absolute;
+  inset: 6%;
+  pointer-events: none;
+  background: var(--figure) center/contain no-repeat;
+  opacity: 0.075;
+  filter: saturate(0.2) brightness(1.5);
+  image-rendering: pixelated;
+}
