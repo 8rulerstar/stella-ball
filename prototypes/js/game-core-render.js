@@ -177,6 +177,21 @@ let lastStageTransform = "",
   lastFlashOpacity = "",
   momentumHudCooldown = 0,
   lastMomentumHud = -1;
+/* 모션 감소 확인은 한 번만 재고 캐시한다. matchMedia 호출을 프레임마다 하면
+   그 자체가 비용이고, 이 값은 사용자가 OS 설정을 바꿀 때만 변한다. */
+let reducedMotionCache = null;
+function reducedMotionPreferred() {
+  if (reducedMotionCache === null) {
+    try {
+      const q = matchMedia("(prefers-reduced-motion: reduce)");
+      reducedMotionCache = q.matches;
+      q.addEventListener?.("change", (e) => (reducedMotionCache = e.matches));
+    } catch (e) {
+      reducedMotionCache = false;
+    }
+  }
+  return reducedMotionCache;
+}
 function updateFeedback(d) {
   updateAssists(d);
   advanceTimed(areaBursts, d);
@@ -186,7 +201,15 @@ function updateFeedback(d) {
      프레임에서만 조용히 비싸진다. 오래된 것부터 버린다. */
   if (areaBursts.length > 10) areaBursts.splice(0, areaBursts.length - 10);
   if (assistShots.length > 12) assistShots.splice(0, assistShots.length - 12);
-  screenShake = Math.max(0, screenShake - d * 18);
+  /* 선형 감쇠(-= d×18)는 끝이 뭉툭해서, 최댓값을 키우면 잔진동이 그만큼 길게
+     남는다. 지수감쇠로 바꾸면 24px에서 시작해도 꼬리가 길어지지 않는다. */
+  const fade = (v, rate) => (v > 0.02 ? v * Math.exp(-d * rate) : 0);
+  screenShake = fade(screenShake, 11);
+  screenPushX = fade(screenPushX, 9);
+  screenPushY = fade(screenPushY, 9);
+  screenTilt =
+    Math.abs(screenTilt) > 0.0004 ? screenTilt * Math.exp(-d * 8) : 0;
+  screenGhost = fade(screenGhost, 13);
   screenFlash = Math.max(0, screenFlash - d * 4.8);
   comboTimer = Math.max(0, comboTimer - d);
   comboPulse = Math.max(0, comboPulse - d * 2.8);
@@ -201,8 +224,21 @@ function updateFeedback(d) {
     // At rest the transform must be cleared, not zeroed: any non-none
     // transform turns .stage into the containing block for position:fixed,
     // which boxed every full-window menu into the canvas column after battle.
-    stageTransform = screenShake
-      ? "translate(" + s.toFixed(1) + "px," + (-s * 0.45).toFixed(1) + "px)"
+    /* 모션 감소에서는 흔들림·밀림·기울기를 전부 0으로 두고 플래시와
+       히트스톱만 남긴다(UI_REVIEW 규약). */
+    calm = reducedMotionPreferred(),
+    px2 = calm ? 0 : screenPushX,
+    py2 = calm ? 0 : screenPushY,
+    tilt = calm ? 0 : screenTilt,
+    moved = !calm && (screenShake || px2 || py2 || tilt),
+    stageTransform = moved
+      ? "translate(" +
+        (s + px2).toFixed(1) +
+        "px," +
+        (-s * 0.45 + py2).toFixed(1) +
+        "px) rotate(" +
+        ((tilt * 180) / Math.PI).toFixed(2) +
+        "deg)"
       : "",
     flashOpacity = screenFlash > 0.005 ? screenFlash.toFixed(2) : "0";
   if (stageTransform !== lastStageTransform) {
@@ -1013,8 +1049,37 @@ function drawArena() {
   drawPinballTable();
   runRuntimeHooks("afterArenaDraw");
 }
+/* 잔상. 직전 프레임을 낮은 알파로 한 장 남긴다 — 세션 §4의 방향 어휘 셋 중
+   하나다. 강타·마무리에서만 켜지고, 켜져 있는 동안에도 판 한 장을 복사해
+   한 번 얹는 것이 전부라 fillRect 호출 수는 늘지 않는다. */
+let ghostFrame = null;
+function drawGhostFrame() {
+  if (!(screenGhost > 0.02) || reducedMotionPreferred()) return;
+  if (!ghostFrame) {
+    ghostFrame = document.createElement("canvas");
+    ghostFrame.width = W;
+    ghostFrame.height = H;
+  }
+  if (ghostFrame.__filled) {
+    x.save();
+    x.globalAlpha = screenGhost;
+    x.drawImage(ghostFrame, 0, 0);
+    x.restore();
+  }
+}
+function keepGhostFrame() {
+  if (!(screenGhost > 0.02) || reducedMotionPreferred() || !ghostFrame) {
+    if (ghostFrame) ghostFrame.__filled = false;
+    return;
+  }
+  const g = ghostFrame.getContext("2d");
+  g.clearRect(0, 0, W, H);
+  g.drawImage(c, 0, 0);
+  ghostFrame.__filled = true;
+}
 function draw() {
   drawArena();
+  drawGhostFrame();
   for (let i = 1; i < ball.trail.length; i++) {
     const age = ball.trail.length - i,
       sz = age < 6 ? 4 : age < 14 ? 3 : 2;
@@ -1273,6 +1338,7 @@ function draw() {
     x.restore();
   }
   runRuntimeHooks("afterDraw");
+  keepGhostFrame();
 }
 function drawCombo() {
   if (!comboTimer || !boss) return;

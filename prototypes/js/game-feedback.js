@@ -526,9 +526,32 @@ function impact(
     contact = profile === "contact",
     finisher = profile === "finisher",
     stop = contact ? 0.028 : (finisher ? 0.046 : heavy ? 0.075 : 0.034) * force,
-    shake = contact ? 5.5 : (finisher ? 8.5 : heavy ? 10 : 5.5) * force;
+    /* 디자인 세션 §4. 예전 값은 5.5 / 5.5 / 10 / 8.5px이라 가장 약한 사건과
+       가장 강한 사건의 비가 두 배도 안 됐다 — 판 가로 720px 대비 0.76%와
+       1.4%다. 접촉을 «더 줄이고» 위를 벌린다: 4 / 8 / 24 / 34px.
+       24px는 판 가로의 3.3%이고, 값 자체를 크게 키우지 않고도 강약이 생긴다. */
+    shake = contact ? 4 : (finisher ? 34 : heavy ? 24 : 8) * force,
+    /* 방향 어휘 셋. 지금 화면 전체를 건드리는 것은 흔들림과 플래시뿐이고 둘
+       다 방향이 없다 — 그래서 어디서 맞았는지가 손에 오지 않는다.
+       밀림은 판을 타격이 진행한 방향으로 밀고, 기울기는 판을 살짝 돌리고,
+       잔상은 직전 프레임을 낮은 알파로 한 장 남긴다. 셋 다 캔버스/DOM 변환
+       한 번이라 fillRect 호출 수가 늘지 않는다. */
+    push = contact ? 0 : (finisher ? 28 : heavy ? 20 : 6) * force,
+    tilt = contact ? 0 : finisher ? 0.019 : heavy ? 0.0105 : 0,
+    ghost = contact ? 0 : finisher ? 0.45 : heavy ? 0.25 : 0;
   impactStop = Math.max(Number.isFinite(impactStop) ? impactStop : 0, stop);
   screenShake = Math.max(Number.isFinite(screenShake) ? screenShake : 0, shake);
+  if (push > 0) {
+    // 밀림 방향은 유성이 가던 쪽이다. 멈춰 있으면 위로 민다.
+    const speed = Math.hypot(ball?.vx ?? 0, ball?.vy ?? 0);
+    screenPushX = speed > 1 ? (ball.vx / speed) * push : 0;
+    screenPushY = speed > 1 ? (ball.vy / speed) * push : -push;
+  }
+  screenTilt =
+    Math.abs(screenTilt) > Math.abs(tilt)
+      ? screenTilt
+      : tilt * (px < W / 2 ? -1 : 1);
+  screenGhost = Math.max(screenGhost || 0, ghost);
   screenFlash = Math.max(
     Number.isFinite(screenFlash) ? screenFlash : 0,
     (heavy ? 1 : 0.58) * force,
@@ -1230,6 +1253,10 @@ registerRuntimeHook("afterFeedbackUpdate", (d) => {
 function resetInactiveCanvasFeedback() {
   impactStop = 0;
   screenShake = 0;
+  screenPushX = 0;
+  screenPushY = 0;
+  screenTilt = 0;
+  screenGhost = 0;
   screenFlash = 0;
   if (lastStageTransform) {
     stageEl.style.transform = "";
