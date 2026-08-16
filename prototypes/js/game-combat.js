@@ -422,6 +422,9 @@ function steerMeteor(side) {
   return true;
 }
 function billiardPointerDown(e) {
+  // 첫 입력에 입장 연출을 건너뛴다. 재도전이 잦은 게임에서 연출이 기다림이
+  // 되면 안 된다 — 누르는 순간 판이 완성된 상태로 있어야 한다.
+  skipBattleIntro();
   // `battleComplete` matters here as much as `run`. scheduleWin freezes the
   // meteor and marks the battle complete but deliberately leaves `run` true
   // for the 2.55s victory cutscene, and every other combat entry point is

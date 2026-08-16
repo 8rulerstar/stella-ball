@@ -1718,6 +1718,11 @@ let build,
   stagePhases = null,
   // 포효 연출 상태. 그리기 쪽이 파형을 읽고, 물리 쪽이 밀림을 진행한다.
   bossRoar = null,
+  /* 전투 입장·퇴장 연출(디자인 세션 §8·§11). setupBattle이 지금 하는 일은
+     값을 채우고 화면을 켜는 것뿐이라, 첫 프레임에 모든 것이 이미 제자리에
+     완성돼 있었다 — 등장이라는 개념 자체가 없었다. */
+  battleIntro = null,
+  bossOutro = null,
   frameClock = 0,
   last = 0,
   toastTimer = 0,

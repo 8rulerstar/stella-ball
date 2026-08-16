@@ -1079,6 +1079,19 @@ function keepGhostFrame() {
   g.drawImage(c, 0, 0);
   ghostFrame.__filled = true;
 }
+/* 입장 연출의 구간별 진행도(디자인 세션 §8). 전 구간이 0~1로 정규화된
+   진행도 위에 얹히므로, 첫 진입 1.5초와 재도전 0.6초가 같은 코드로 돈다.
+     0.00–0.26  판   프레임이 네 모서리에서 안으로 닫힌다
+     0.20–0.72  거상 위에서 내려앉는다 · 페이드인 + 착지 충격
+     0.62–1.10  별지기 0.08초 간격으로 별빛에서 맺힌다
+     1.04–1.34  유성 발사석으로 떨어져 자리를 잡는다
+   구간 밖은 0 또는 1이라 호출자가 분기하지 않는다. */
+function introBand(t, from, to) {
+  if (t >= to) return 1;
+  if (t <= from) return 0;
+  return (t - from) / (to - from);
+}
+const introEase = (u) => 1 - (1 - u) * (1 - u) * (1 - u);
 function draw() {
   drawArena();
   drawGhostFrame();
@@ -1095,7 +1108,21 @@ function draw() {
     );
   }
   x.globalAlpha = 1;
-  for (const g of gates) {
+  /* 입장: 별지기는 거상이 내려앉은 «뒤에» 0.08초 간격으로 맺힌다. 순서가
+     「이미 여기 있었고, 우리가 들어간다」를 말한다(§8). */
+  const partyIntro = introProgress();
+  for (let gi = 0; gi < gates.length; gi++) {
+    const g = gates[gi];
+    const born = introBand(partyIntro, 0.62 + gi * 0.053, 0.9 + gi * 0.053);
+    if (born <= 0) continue;
+    const bornEase = introEase(born);
+    if (born < 1) {
+      x.save();
+      x.globalAlpha = bornEase;
+      x.translate(g.x, g.y);
+      x.scale(0.72 + 0.28 * bornEase, 0.72 + 0.28 * bornEase);
+      x.translate(-g.x, -g.y);
+    }
     const actionFrame = Math.floor(
       (g.animClock || 0) /
         (g.animState === "attack"
@@ -1113,6 +1140,7 @@ function draw() {
     x.font = "10px ui-monospace";
     x.textAlign = "center";
     x.fillText(g.s, g.x, g.y + 45);
+    if (born < 1) x.restore();
   }
   for (const a of adds) {
     if (a.down > 0) continue;
@@ -1187,6 +1215,53 @@ function draw() {
      sprite-sheet draw and the baked-canvas blit without any re-bake; the
      wrapper stays outside drawFrame's own save/restore, which only sets a
      filter for hero skins and bosses have none. */
+  /* 입장: 거상이 위에서 내려앉는다. 이미 구운 한 장을 blit 시점에 옮기는
+     것뿐이라 프레임을 더 굽지 않는다 — 절차적 보스는 한 장이 14ms다.
+     착지 충격 12px은 0.72 지점에서 한 번, 감쇠하며 사라진다. */
+  const introT = introProgress(),
+    bossIn = introBand(introT, 0.2, 0.72),
+    bossLand = introBand(introT, 0.72, 0.86);
+  /* 퇴장. 거상은 사라지는 것이 아니라 «부서진다» — 흰색으로 타고, 금이 가고,
+     파편이 되고, 별빛으로 오른다. 전부 이미 구운 한 장에 얹는 변환과 캔버스
+     원시 도형이라 새로 굽지 않는다. */
+  const outroT = bossOutro ? (frameClock - bossOutro.at) / 1000 : -1;
+  if (outroT >= 1.4) bossOutro = null;
+  let introRestore = false;
+  let outroRestore = false;
+  if (outroT >= 0) {
+    x.save();
+    outroRestore = true;
+    if (outroT < 0.78) {
+      // 흩어지기 전까지는 자리를 지키되 점점 하얗게 탄다.
+      const burn = Math.min(1, outroT / 0.18);
+      if (outroT >= 0.62) {
+        const k = (outroT - 0.62) / 0.16;
+        x.globalAlpha = 1 - k;
+        x.translate(boss.x, boss.y);
+        x.scale(1 + k * 0.22, 1 - k * 0.1);
+        x.translate(-boss.x, -boss.y);
+      }
+      x.filter =
+        "brightness(" +
+        (1 + burn * 1.9).toFixed(2) +
+        ") saturate(" +
+        (1 - burn * 0.85).toFixed(2) +
+        ")";
+    } else {
+      // 0.78 이후 몸은 없다. 별빛만 남는다.
+      x.globalAlpha = 0;
+    }
+  }
+  if (bossIn < 1) {
+    x.save();
+    introRestore = true;
+    x.globalAlpha = introEase(bossIn);
+    x.translate(0, -160 * (1 - introEase(bossIn)));
+  } else if (bossLand < 1) {
+    x.save();
+    introRestore = true;
+    x.translate(0, 12 * Math.sin(bossLand * Math.PI) * (1 - bossLand));
+  }
   const flinch = Math.min(1, (boss.hitFlash || 0) / 0.26);
   if (flinch > 0) {
     x.save();
@@ -1258,6 +1333,9 @@ function draw() {
   )
     circle(boss.x, boss.y, 58, "#442b72", 16);
   if (flinch > 0) x.restore();
+  if (introRestore) x.restore();
+  if (outroRestore) x.restore();
+  if (outroT >= 0.18) drawBossOutro(outroT);
   // Engrave the orbit and trail the gem's heading. With five shots a turn,
   // "where the gem will be next" is a precondition for aiming at all.
   for (let a = 0; a < Math.PI * 2; a += 15 / 84) {
@@ -1394,6 +1472,69 @@ function drawBossRoar() {
       x.moveTo(ball.x, ball.y);
       x.lineTo(ball.x + Math.cos(a) * len, ball.y + Math.sin(a) * len);
       x.stroke();
+    }
+  }
+  x.restore();
+}
+/* 균열 → 파편 → 별빛. 세 구간이 이어져 「부서졌다」를 만든다(§11).
+   각도는 보스 좌표에서 뽑은 고정 해시라 매번 같은 모양이 나온다 — 봇 하니스가
+   기대는 결정론을 깨지 않기 위해 Math.random을 쓰지 않는다. */
+function drawBossOutro(t) {
+  if (!boss) return;
+  const shards = 14;
+  const hash = (n) => {
+    let h = (n * 374761393) | 0;
+    h = ((h ^ (h >>> 13)) * 1274126177) | 0;
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  };
+  x.save();
+  // 0.18–0.62 금이 간다. 약점에서 바깥으로 번진다.
+  if (t < 0.62) {
+    const k = (t - 0.18) / 0.44;
+    x.globalAlpha = Math.min(1, k * 2) * 0.9;
+    x.strokeStyle = "#fff6d8";
+    x.lineWidth = 2;
+    for (let i = 0; i < 9; i++) {
+      const a = hash(i) * Math.PI * 2,
+        reach = 18 + k * (58 + hash(i + 40) * 46);
+      x.beginPath();
+      x.moveTo(boss.x, boss.y);
+      x.lineTo(boss.x + Math.cos(a) * reach, boss.y + Math.sin(a) * reach);
+      x.stroke();
+    }
+  }
+  // 0.62–0.78 파편. 흔들림은 여기서 가장 크다.
+  if (t >= 0.62 && t < 0.9) {
+    const k = (t - 0.62) / 0.28;
+    if (t < 0.66) screenShake = Math.max(screenShake, 34);
+    x.globalAlpha = 1 - k;
+    x.fillStyle = "#ffe9ad";
+    for (let i = 0; i < shards; i++) {
+      const a = hash(i + 7) * Math.PI * 2,
+        d = k * (70 + hash(i + 90) * 120),
+        sz = 6 - k * 4;
+      x.fillRect(
+        boss.x + Math.cos(a) * d - sz / 2,
+        boss.y + Math.sin(a) * d - sz / 2,
+        sz,
+        sz,
+      );
+    }
+  }
+  // 0.78–1.40 별빛이 되어 오른다. 판이 비고 정산으로 넘어간다.
+  if (t >= 0.78) {
+    const k = (t - 0.78) / 0.62;
+    x.globalAlpha = (1 - k) * 0.9;
+    x.fillStyle = "#cfdad7";
+    for (let i = 0; i < shards; i++) {
+      const sway = Math.sin(k * 5 + i) * 12,
+        rise = k * (170 + hash(i + 11) * 90);
+      x.fillRect(
+        boss.x + (hash(i) - 0.5) * 120 + sway,
+        boss.y - rise,
+        2,
+        2 + (1 - k) * 2,
+      );
     }
   }
   x.restore();

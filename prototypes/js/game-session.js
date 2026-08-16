@@ -81,8 +81,40 @@ function setupBattle() {
           ? "관측 잔광 · 첫 패링으로 안내별을 밝히세요"
           : " " + s.id + " · " + s.name,
   );
+  /* 입장 연출. 거상이 «먼저» 온다 — 판이 닫히고 그것이 내려앉은 뒤에 아군이
+     맺힌다. 이 순서가 「이미 여기 있었고, 우리가 들어간다」를 말한다.
+     첫 진입 1.5초, 재도전 0.6초로 같은 어휘를 압축한다. 어느 쪽이든 첫
+     입력에 즉시 건너뛴다.
+     온보딩 1-1은 통째로 건너뛴다 — 첫 수업은 이미 안내가 많고, 이 연출은
+     두 번째 전투에서 처음 보는 편이 낫다. */
+  battleIntro =
+    tutorial || s.training
+      ? null
+      : {
+          at: frameClock,
+          span: introSeenStages.has(s.id) ? 600 : 1500,
+        };
+  introSeenStages.add(s.id);
+  bossOutro = null;
   runRuntimeHooks("afterBattleSetup", { stage: s, battle });
   sync();
+}
+/* 이 스테이지를 이미 본 적이 있는가. 세션 동안만 기억하면 된다 — 재도전이
+   잦은 게임이라 「두 번째부터 짧게」가 목적이고, 저장까지 할 값은 아니다. */
+const introSeenStages = new Set();
+/* 입장 연출의 진행도(0~1). 없으면 1을 돌려주므로 호출자는 분기하지 않는다. */
+function introProgress() {
+  if (!battleIntro) return 1;
+  const t = (frameClock - battleIntro.at) / battleIntro.span;
+  if (t >= 1) {
+    battleIntro = null;
+    return 1;
+  }
+  return Math.max(0, t);
+}
+// 첫 입력에 건너뛴다. 재도전이 잦은 게임에서 연출은 기다림이 되면 안 된다.
+function skipBattleIntro() {
+  battleIntro = null;
 }
 function startShot(restingPoint = null) {
   const context = { restingPoint, handled: false };
@@ -486,6 +518,15 @@ function scheduleWin() {
     d: 2.55,
     elapsedMs: Math.round(performance.now() - battle.startedAt),
   };
+  /* 퇴장(디자인 세션 §11). 지금까지는 값이 0이 되면 거상이 그냥 사라졌다 —
+     죽음에 1.4초를 주는 것이 이 게임에서 가장 값싼 개선이다. 새 배관이 필요
+     없고 fieldFx가 이미 파편을 그린다.
+       0.00–0.18  히트스톱 · 화면이 멈추고 거상만 흰색으로 탄다
+       0.18–0.62  금이 간다 — 균열이 약점에서 바깥으로 번진다
+       0.62–0.78  파편이 되어 흩어진다 · 흔들림 34px
+       0.78–1.40  별빛이 되어 위로 오른다 */
+  bossOutro = { at: frameClock };
+  impactStop = Math.max(impactStop, 0.18);
   screenShake = Math.max(screenShake, 15);
   screenFlash = 1;
   areaBursts.push({
