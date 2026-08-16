@@ -18,7 +18,13 @@
  *   node scripts/probe-settle-cost.mjs --party 3 --stage 2-2
  */
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -32,6 +38,8 @@ const arg = (name, fallback) => {
 };
 const STAGE = arg("stage", "2-2");
 const PARTY = Number(arg("party", 3));
+const shotDir = arg("out", join(tmpdir(), "settle-shots"));
+mkdirSync(shotDir, { recursive: true });
 const browser = [
   process.env.STELLA_BROWSER_PATH,
   "C:/Program Files/Google/Chrome/Application/chrome.exe",
@@ -199,6 +207,11 @@ const RUN_SHOT = (stage, party) => `(async () => {
       return real.apply(this, arguments);
     };
   }
+  /* 각성이 화면을 미는가(AWAKEN_FX_REQUEST §4-1: 그동안 0px이었다). 깨어나는
+     프레임에만 값이 서므로 최고치를 구간별로 잡는다. */
+  const react = { flight: {}, settle: {} };
+  for (const k of Object.keys(react))
+    react[k] = { shake: 0, push: 0, tilt: 0, ghost: 0, flash: 0, stop: 0 };
   const drawMs = { idle: [], flight: [], settle: [], focus: [] };
   const realDraw = draw;
   draw = function () {
@@ -206,6 +219,15 @@ const RUN_SHOT = (stage, party) => `(async () => {
     realDraw.apply(this, arguments);
     const cost = performance.now() - t0;
     drawMs[phase].push(cost);
+    const r = react[phase];
+    if (r) {
+      r.shake = Math.max(r.shake, screenShake || 0);
+      r.push = Math.max(r.push, Math.hypot(screenPushX || 0, screenPushY || 0));
+      r.tilt = Math.max(r.tilt, Math.abs(screenTilt || 0));
+      r.ghost = Math.max(r.ghost, screenGhost || 0);
+      r.flash = Math.max(r.flash, screenFlash || 0);
+      r.stop = Math.max(r.stop, impactStop || 0);
+    }
     if (typeof finisherFocus !== "undefined" && finisherFocus)
       drawMs.focus.push(cost);
   };
@@ -264,11 +286,35 @@ const RUN_SHOT = (stage, party) => `(async () => {
       settle: stat(drawMs.settle), duringFocus: stat(drawMs.focus),
     },
     domWrites: dom,
+    screenReaction: {
+      flight: Object.fromEntries(
+        Object.entries(react.flight).map(([k, v]) => [k, +v.toFixed(4)]),
+      ),
+      settle: Object.fromEntries(
+        Object.entries(react.settle).map(([k, v]) => [k, +v.toFixed(4)]),
+      ),
+    },
   };
 })()`;
 
+const consoleErrors = [];
 try {
   await connect();
+  /* 그리기 훅 안에서 던진 예외는 프레임을 죽이지만 evaluate 쪽에는 안 보인다.
+     반입분처럼 남이 쓴 파일을 넣을 때는 이걸 켜 두지 않으면 「돌아간다」와
+     「조용히 한 겹이 빠졌다」를 구분할 수 없다. */
+  cdp.addEventListener("message", (e) => {
+    const m = JSON.parse(String(e.data));
+    if (m.method === "Log.entryAdded" && m.params?.entry?.level === "error")
+      consoleErrors.push(m.params.entry.text);
+    if (m.method === "Runtime.exceptionThrown")
+      consoleErrors.push(
+        m.params?.exceptionDetails?.exception?.description ??
+          m.params?.exceptionDetails?.text ??
+          "unknown exception",
+      );
+  });
+  await send("Log.enable");
   await send("Runtime.enable");
   for (let i = 0; i < 60; i++) {
     if (await evaluate("document.readyState === 'complete'")) break;
@@ -281,7 +327,29 @@ try {
   await evaluate("document.querySelector('#titleHelp')?.click(), 1");
   await delay(600);
 
-  const shot = await evaluate(RUN_SHOT(STAGE, PARTY));
+  /* 수치만으로는 「연출이 붙었다」까지만 알 수 있다. 그림이 판을 가리지 않는지,
+     여러 발이 겹칠 때 누가 쏘는지 읽히는지는 찍어 봐야 안다. */
+  const shots = [];
+  const capture = async (name) => {
+    const { data } = await send("Page.captureScreenshot", { format: "png" });
+    const file = join(shotDir, name);
+    writeFileSync(file, Buffer.from(data, "base64"));
+    shots.push(file);
+  };
+  await send("Page.enable");
+  const running = evaluate(RUN_SHOT(STAGE, PARTY));
+  // 깨어나는 순간과 정산 한복판. 위 스크립트의 구간 표시를 그대로 읽는다.
+  for (const [ms, name] of [
+    [1700, "awaken.png"],
+    [4200, "rolling.png"],
+    [6400, "settle.png"],
+    [7100, "settle-late.png"],
+  ]) {
+    await delay(ms - (shots.length ? [0, 1700, 4200, 6400][shots.length] : 0));
+    await capture(name).catch(() => {});
+  }
+  const shot = await running;
+  shot.screenshots = shots;
 
   /* 정산 구간만 다시 한 발 쏘면서 CPU 프로파일을 뜬다. 위 측정과 같은 판이라
      비교가 성립한다. */
@@ -295,7 +363,17 @@ try {
   await delay(2200); // 유성이 멈추고 정산이 시작될 때까지
   const cpu = await cpuProfile(4000);
 
-  console.log(JSON.stringify({ ...shot, cpuDuringSettle: cpu }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        ...shot,
+        consoleErrors: consoleErrors.slice(0, 8),
+        cpuDuringSettle: cpu,
+      },
+      null,
+      2,
+    ),
+  );
 } finally {
   cdp?.close?.();
   chrome.kill();
