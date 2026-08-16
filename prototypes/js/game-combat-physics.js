@@ -208,6 +208,35 @@ function checkStagePhases() {
     runStagePhase(stagePhases.effect);
   }
 }
+/* 포효가 지정한 자리로 실제로 밀어 보낸다. 좌표를 덮어쓰지 않고 매 프레임
+   조금씩 옮기므로, 유성도 별지기도 「끌려간다」로 보인다. 도착하면 스스로
+   꺼진다 — 물리가 다시 주도권을 가진다. */
+function advanceRoarPush(d) {
+  const move = (o) => {
+    if (!o?.roarTo) return;
+    if (frameClock < o.roarTo.at) return;
+    const span = Math.max(1, o.roarTo.until - o.roarTo.at),
+      t = Math.min(1, (frameClock - o.roarTo.at) / span),
+      // 감속하며 도착한다. 등속으로 밀면 「끌려간다」가 아니라 「미끄러진다」다.
+      ease = 1 - (1 - t) * (1 - t);
+    /* 시간으로 보간한다. 프레임마다 목표 쪽으로 일정 비율씩 당기면 프레임률에
+       따라 도착 시각이 달라지고, 실측에서 0.46초가 아니라 0.2초에 닿았다.
+       출발점을 기억해 두고 0.12→0.46초를 그대로 따른다. */
+    o.x = o.roarTo.fromX + (o.roarTo.x - o.roarTo.fromX) * ease;
+    o.y = o.roarTo.fromY + (o.roarTo.y - o.roarTo.fromY) * ease;
+    o.vx *= 0.72;
+    o.vy *= 0.72;
+    if (t >= 1) {
+      o.x = o.roarTo.x;
+      o.y = o.roarTo.y;
+      o.vx = 0;
+      o.vy = 0;
+      o.roarTo = null;
+    }
+  };
+  for (const g of gates) move(g);
+  move(ball);
+}
 function runStagePhase(effect) {
   if (effect === "push") {
     // The table is reset, not damaged: everything alive is thrown to the
@@ -228,13 +257,23 @@ function runStagePhase(effect) {
           best = corner;
         }
       }
-      o.x = best[0];
-      o.y = best[1];
-      o.vx = 0;
-      o.vy = 0;
+      /* 디자인 세션 §6-2는 「순간이동 아님」을 못 박았다. 예전에는 좌표를
+         그대로 덮어써서 판 위의 모든 것이 한 프레임에 사라졌다 나타났고,
+         그래서 「밀려났다」가 아니라 「초기화됐다」로 읽혔다.
+         목표만 정해 두고 실제로 밀어 보낸다 — 0.12초 뒤에 시작해 0.46초에
+         닿는다. 도착 판정은 물리 루프가 한다. */
+      o.roarTo = {
+        x: best[0],
+        y: best[1],
+        // 출발점을 기억해 둔다. 시간으로 보간하려면 어디서 떠났는지가 필요하다.
+        fromX: o.x,
+        fromY: o.y,
+        at: frameClock + 120,
+        until: frameClock + 460,
+      };
       areaBursts.push({
-        x: o.x,
-        y: o.y,
+        x: best[0],
+        y: best[1],
         r: 52,
         col: "#f6c48e",
         t: 0,
@@ -243,8 +282,11 @@ function runStagePhase(effect) {
     };
     for (const g of gates) throwTo(g);
     if (ball) throwTo(ball);
-    screenShake = Math.max(screenShake, 16);
-    toast("거상의 파동 · 모두 모서리로 밀려났습니다");
+    /* 포효. 흔들림 26px은 강타(24px)보다 한 단계 위다 — 이 판에서 가장 큰
+       사건이므로 가장 큰 값을 받아야 한다. 파형은 그리기 쪽이 읽는다. */
+    screenShake = Math.max(screenShake, 26);
+    bossRoar = { at: frameClock, until: frameClock + 460 };
+    toast("거상의 포효 · 모두 모서리로 밀려납니다");
   } else if (effect === "sleep") {
     for (const g of gates) {
       g.awake = false;
@@ -549,6 +591,7 @@ function simulatePhysics(d) {
     orbit.x = boss.x + Math.cos(orbit.a) * orbit.radius;
     orbit.y = boss.y + Math.sin(orbit.a) * orbit.radius;
   }
+  advanceRoarPush(d);
   for (let i = 0; i < slices && ball?.moving; i++) {
     ball.x += ball.vx * step;
     ball.y += ball.vy * step;
@@ -738,8 +781,14 @@ function simulatePhysics(d) {
   const partyStillRolling = gates.some(
     (g) => g.vx * g.vx + g.vy * g.vy > 55 * 55,
   );
+  /* 포효가 유성을 끌고 가는 동안에는 샷이 끝나면 안 된다. 밀면서 속도를
+     죽이므로 정착 문턱을 그냥 통과해 버리고, 그러면 밀림이 끝나기도 전에
+     다음 샷이 시작되면서 유성 객체가 교체된다 — 실측에서 유성이 모서리에
+     닿지 못하고 (207,689)에서 멈췄다. */
+  const roarHolds = Boolean(ball?.roarTo) || gates.some((g) => g.roarTo);
   if (
     ball?.moving &&
+    !roarHolds &&
     ball.vx * ball.vx + ball.vy * ball.vy < 68 * 68 &&
     !partyStillRolling
   )

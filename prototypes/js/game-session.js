@@ -54,6 +54,8 @@ function setupBattle() {
   // 대기 상태는 전투마다 새로 시작한다. 남겨 두면 시선과 기울임이 이전 판의
   // 마지막 자세에서 이어져, 새 전투 첫 프레임에 눈이 엉뚱한 곳을 본다.
   resetOutsideBossIdle?.();
+  // 포효 상태도 전투마다 비운다. 남으면 다음 판 첫 프레임에 파형이 지나간다.
+  bossRoar = null;
   areaBursts = [];
   fieldFx = [];
   ball = null;

@@ -1716,6 +1716,8 @@ let build,
   orbitals = [],
   bossShield = null,
   stagePhases = null,
+  // 포효 연출 상태. 그리기 쪽이 파형을 읽고, 물리 쪽이 밀림을 진행한다.
+  bossRoar = null,
   frameClock = 0,
   last = 0,
   toastTimer = 0,

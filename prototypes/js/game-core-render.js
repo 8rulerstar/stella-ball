@@ -1337,8 +1337,59 @@ function draw() {
     x.fillText(p.text, p.x, p.y - p.t * 34);
     x.restore();
   }
+  drawBossRoar();
   runRuntimeHooks("afterDraw");
   keepGhostFrame();
+}
+/* 포효(디자인 세션 §6-2). 비트는 이렇다 —
+     0.00~0.12  숨을 들이켠다. 판이 어두워지고 유성이 끌려온다.
+     0.12       파형 3겹이 0.09초 간격으로 밖으로 나간다.
+     0.12~0.46  유성이 최근접 모서리로 «밀려난다»(순간이동 아님, 물리 쪽).
+     0.46       모서리에 균열 쐐기와 섬광.
+   방향 있는 어휘를 처음 쓰는 자리다 — 파형이 중심에서 밖으로 가고, 흔들림은
+   균일 진동이 아니라 감쇠를 지닌다(§4의 지수감쇠가 이미 그렇게 한다). */
+function drawBossRoar() {
+  if (!bossRoar || !boss) return;
+  const t = (frameClock - bossRoar.at) / 1000;
+  if (t > 0.95) {
+    bossRoar = null;
+    return;
+  }
+  x.save();
+  // 들이켜는 동안 판이 어두워진다. 밝아지는 것보다 「빨아들인다」로 읽힌다.
+  if (t < 0.12) {
+    x.globalAlpha = (t / 0.12) * 0.34;
+    x.fillStyle = "#03070a";
+    x.fillRect(0, 0, W, H);
+  }
+  // 파형 3겹. 0.09초씩 어긋나 같은 중심에서 밖으로 나간다.
+  for (let i = 0; i < 3; i++) {
+    const w = (t - 0.12 - i * 0.09) / 0.62;
+    if (w <= 0 || w >= 1) continue;
+    x.globalAlpha = (1 - w) * 0.5;
+    x.strokeStyle = i === 0 ? "#fff1c7" : "#f6c48e";
+    x.lineWidth = 5 - i * 1.4;
+    x.beginPath();
+    x.arc(boss.x, boss.y, 40 + w * 620, 0, Math.PI * 2);
+    x.stroke();
+  }
+  // 0.46초, 유성이 닿는 순간 그 모서리에 균열 쐐기와 섬광.
+  if (t > 0.46 && t < 0.78 && ball) {
+    const k = (t - 0.46) / 0.32;
+    x.globalAlpha = 1 - k;
+    x.strokeStyle = "#fff1c7";
+    x.lineWidth = 2;
+    const inward = Math.atan2(H / 2 - ball.y, W / 2 - ball.x);
+    for (let i = -2; i <= 2; i++) {
+      const a = inward + i * 0.22,
+        len = 26 + k * 54 + Math.abs(i) * 8;
+      x.beginPath();
+      x.moveTo(ball.x, ball.y);
+      x.lineTo(ball.x + Math.cos(a) * len, ball.y + Math.sin(a) * len);
+      x.stroke();
+    }
+  }
+  x.restore();
 }
 function drawCombo() {
   if (!comboTimer || !boss) return;
