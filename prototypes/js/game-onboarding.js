@@ -323,7 +323,7 @@ function setOnboardingPhase(phase) {
     "도우미 루나 · 유성을 보스에게 곧장 보내 보세요.",
     "도우미 루나 · 유성이 움직일 때 좌·우 클릭 중 하나로 궤도를 한 번 꺾어 보세요.",
     "도우미 루나 · 미리내와 닿기 직전이나 접점 잔광 중 Space로 공명하세요.",
-    "실전 · 세 별지기의 패링 각성과 별자리를 엮어 거상을 무너뜨리세요.",
+    "실전 · 세 별지기를 깨우고 공명 접점으로 별자리를 엮어 거상을 무너뜨리세요.",
   ][phase];
   sync();
   renderOnboarding();
@@ -420,7 +420,7 @@ function renderOnboarding() {
           ? "궤도를 한 번 꺾었어요."
           : "아직 궤도 전환을 쓰지 않았어요.",
         body: onboarding.steered
-          ? "전환은 속도를 조금 더하며 즉시 소모됩니다. 이제 핵심 입력인 Space 패링으로 별지기를 깨우고 고유 능력을 발동해 볼게요."
+          ? "전환은 속도를 조금 더하며 즉시 소모됩니다. 별지기는 유성에 밀려 움직이기만 해도 깨어나요. 이제 그 접점을 별빛으로 남기는 Space 공명을 배워 볼게요."
           : "유성이 움직이기 시작한 다음 캔버스를 좌클릭하거나 우클릭해 보세요. 드래그가 아니라 짧게 한 번 누르면 됩니다.",
         button: onboarding.steered
           ? "다음 · Space 패링"
@@ -434,7 +434,7 @@ function renderOnboarding() {
       {
         n: 5,
         title: "첫 공명 항로는 루나가 고정할게요.",
-        body: "어느 방향으로 당겨도 이번 유성은 미리내에게 향해요. 발사한 뒤 Space를 한 번 누르세요. 접점에서 공명하면 미리내의 능력과 별빛 하나가 깨어나고, 안내별 넷이 최고의 첫 별자리를 완성합니다.",
+        body: "어느 방향으로 당겨도 이번 유성은 미리내에게 향해요. 발사한 뒤 Space를 한 번 누르세요. 접점에서 공명하면 그 자리가 별빛 하나로 남고, 안내별 넷이 최고의 첫 별자리를 완성합니다.",
         button: "Space로 첫 별자리 열기",
         action: "practice",
       },
@@ -448,10 +448,10 @@ function renderOnboarding() {
               : "일반 충돌로 지나갔어요.",
         body:
           onboarding.parrySuccess && onboarding.figureResolved
-            ? "미리내의 거리 저격은 패링 순간 발동했고, 실제 접점 하나와 안내별 넷이 오망성을 현현시켰어요. 실전에서는 한 샷에 패링 접점 3개 이상을 직접 모아 여러 별자리를 발동합니다."
+            ? "실제 접점 하나와 안내별 넷이 오망성을 현현시켰어요. 미리내의 거리 저격은 유성이 멈출 때 각성 공격으로 따로 들어갑니다. 실전에서는 한 샷에 공명 접점 3개 이상을 직접 모아 여러 별자리를 발동해요."
             : onboarding.parrySuccess
-              ? "공명 각성은 성공했습니다. 별자리는 한 샷이 멈출 때 별빛 노드가 3개 이상이면 발동해요."
-              : "그냥 부딪히면 물리 반동만 남아요. 충돌 직전 또는 접점 잔광이 보일 때 Space를 눌러 공명으로 바꿔 보세요.",
+              ? "공명은 성공했습니다. 별자리는 한 샷이 멈출 때 별빛 노드가 3개 이상이면 발동해요."
+              : "그냥 부딪혀도 미리내는 깨어나 각성 공격을 합니다. 다만 별빛은 남지 않아요. 충돌 직전 또는 접점 잔광이 보일 때 Space를 눌러 공명으로 바꿔 보세요.",
         button: onboarding.parrySuccess ? "직접 잡아보기" : "다시 시도",
         // The showcase is the promise of the combat system. Do not let a
         // skipped practice advance before the player has actually seen it.
@@ -959,14 +959,15 @@ registerRuntimeHook("afterBattleSetup", ({ stage, battle: activeBattle }) => {
   msg = activeBattle.training
     ? "무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기."
     : activeBattle.tutorial
-      ? "1-1 · 드래그 발사, 1회 조향, Space 패링과 별빛 노드를 익히세요."
-      : stage.name + " · Space 패링 접점을 모아 별자리를 그리세요.";
+      ? "1-1 · 드래그 발사, 1회 조향, Space 공명과 별빛 노드를 익히세요."
+      : stage.name +
+        " · 별지기를 깨우고 Space 공명 접점으로 별자리를 그리세요.";
   sync();
 });
 registerRuntimeHook("afterShotEnd", () => {
   if (run && battle && !battle.training) {
     msg =
-      "다음 유성을 준비하세요. 패링 접점과 남은 배치에서 항로를 다시 설계하세요.";
+      "다음 유성을 준비하세요. 공명 접점과 남은 배치에서 항로를 다시 설계하세요.";
     sync();
   }
 });

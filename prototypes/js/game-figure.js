@@ -420,24 +420,18 @@ function resolveFigure(points) {
 registerRuntimeHook(
   "beforePartySettle",
   (context) => {
-    // Every combat resolves this shot's starlight nodes instead of judging where
-    // the moving bodies happened to rest. Normal settle awakenings stay muted so
-    // they cannot hide the constellation reveal.
-    //
-    // `handled` must follow whether a constellation ACTUALLY resolved, not
-    // merely whether the figure system is live. `figureActive()` is true for
-    // every settle in a running battle, so claiming the settle unconditionally
-    // muted the awakening finishers on every shot - including shots with zero
-    // parry nodes, where there is no reveal to protect. That made the whole
-    // awakened branch of settleParty dead code: rolling the meteor through
-    // three starkeepers woke all three, queued no assists and dealt no
-    // settlement damage at all. Measured before this change: awakened 3,
-    // queued 0, boss health unchanged.
+    /* 별자리와 각성은 이제 서로를 대신하지 않는다. `handled`를 세우면
+       settleParty의 각성 분기가 통째로 꺼지는데, 그러면 접점 셋을 모아
+       별자리를 띄운 샷이 «그 대가로» 파티의 정산 공격을 잃는다 — 잘한
+       플레이가 손해를 보는 구조다. 별자리는 공명(패링)의 값이고 정산
+       공격은 각성의 값이라, 한 샷은 둘 다 낼 수 있어야 한다.
+       가릴 걱정은 남으므로 순서로 푼다: 별자리가 발동한 샷의 피니셔는
+       현현이 끝난 뒤에 시작한다(game-feedback.js의 afterFigure). */
     if (!figureActive()) return;
     context.figureActive = true;
     const resolved = finishFigureShot();
     context.result = resolved;
-    context.handled = resolved;
+    context.afterFigure = Boolean(resolved);
   },
   { priority: 100 },
 );

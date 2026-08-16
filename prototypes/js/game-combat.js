@@ -28,7 +28,7 @@ function finalizeBilliardShot() {
     // stone, because their copy points the player at the bottom of the board.
     startShot(battle.tutorial ? null : restingPoint);
     msg =
-      "다음 샷 · 멈춘 자리에서 이어 발사하고 Space 패링으로 별지기를 깨우세요.";
+      "다음 샷 · 멈춘 자리에서 이어 발사해 별지기를 깨우고, Space 공명으로 별빛을 모으세요.";
     toast("다음 샷 · 현재 위치에서 재개");
     sync();
   };
@@ -612,10 +612,12 @@ function trackBlazeUnit(g) {
   const b = ball?.blaze;
   if (!b || b.units.has(g.id)) return;
   b.units.add(g.id);
-  b.detail = "별지기 연결 " + b.units.size + "/" + gates.length;
+  /* 배율은 별자리 쪽 값이라 공명(패링)으로만 오른다. 각성은 이제 그냥
+     부딪히기만 해도 되므로, 여기서 「각성」이라고 부르면 두 어휘가 섞인다. */
+  b.detail = "별지기 공명 " + b.units.size + "/" + gates.length;
   if (b.units.size === gates.length && !b.fullParty) {
     b.fullParty = true;
-    earnBlaze(3, "전원 각성 +3.0");
+    earnBlaze(3, "전원 공명 +3.0");
   } else renderBlaze();
 }
 function trackBlazeDirect() {
@@ -924,10 +926,12 @@ function queueUnitAssist(g, amount, name, options = {}) {
     options,
   });
 }
-// Gaon's sword wave always reaches the colossus. This range only defines the
-// distance band that converts a close parry into the stronger hit.
+/* Gaon's sword wave always reaches the colossus. This range only defines the
+   distance band that converts a close stop into the stronger hit — the old
+   hard gate answered a whiff with 「사거리 밖」 and nothing else, which is a
+   worse read than a weak hit. */
 const GAON_CLOSE_RANGE = 205;
-function resolveSlash(g, name = "샛별 검기", options = {}) {
+function resolveSlash(g, name = "샛별 근접 베기", options = {}) {
   const distance = Math.hypot(g.x - boss.x, g.y - boss.y),
     closeness = Math.max(0, 1 - distance / GAON_CLOSE_RANGE),
     amount = 18 + Math.round(closeness * closeness * 68);
@@ -936,8 +940,8 @@ function resolveSlash(g, name = "샛별 검기", options = {}) {
       g,
       g.x,
       g.y,
-      options.parry ? 76 : 104,
-      options.parry ? 0.26 : 0.38,
+      104,
+      0.38,
       Math.atan2(boss.y - g.y, boss.x - g.x),
     );
   queueUnitAssist(g, amount, name, options);
@@ -963,22 +967,17 @@ function detonateShockwave(g, name = "모루 충돌 충격파", options = {}) {
   const hits = Math.max(1, g.collisions || 0),
     radius = 94 + hits * 15,
     amount = Math.round((8 + hits * 7) * (ball.blaze?.mult || 1)),
-    targets = [...adds.filter((a) => a.down <= 0), boss],
-    parry = options.parry === true;
+    targets = [...adds.filter((a) => a.down <= 0), boss];
+  /* 아래 비피니셔 경로는 지금 아무도 부르지 않는다 — 충격파는 정산에서만
+     터진다. 접점 발동을 되살릴 때를 위해 남긴다. */
   if (!options.finisher) {
-    emitAbilityFx(
-      g,
-      g.x,
-      g.y,
-      Math.min(parry ? 124 : 184, (parry ? 64 : 88) + hits * 10),
-      parry ? 0.34 : 0.58,
-    );
+    emitAbilityFx(g, g.x, g.y, Math.min(184, 88 + hits * 10), 0.58);
     fieldFx.push({
       type: "shockwave",
       x: g.x,
       y: g.y,
       t: 0,
-      d: parry ? 0.38 : 0.62,
+      d: 0.62,
       col: g.col,
     });
     /* 충격파의 비피니셔 경로는 어시스트를 큐에 넣지 않고 즉시 광역 정산한다.
@@ -986,28 +985,14 @@ function detonateShockwave(g, name = "모루 충돌 충격파", options = {}) {
        shot이 이전 발의 무관한 어시스트(assistShots.at(-1))를 가리켜 그
        delay·dur를 덮어썼다. 훅 발화는 queueUnitAssist 안으로 옮겼고, 여기는
        소비자가 만들던 각성 비트·효과음만 직접 남긴다. */
-    feedbackBeat(
-      "awaken",
-      g.x,
-      g.y,
-      g.col,
-      parry ? 0.54 : 1.08,
-      g.s + (parry ? " 공명" : " 각성"),
-    );
-    combatSfx("awaken", parry ? 0.52 : 0.9);
+    feedbackBeat("awaken", g.x, g.y, g.col, 1.08, g.s + " 각성");
+    combatSfx("awaken", 0.9);
   }
   if (options.finisher) {
     queueUnitAssist(g, amount, name, { ...options, areaRadius: radius });
     return;
   }
-  areaBursts.push({
-    x: g.x,
-    y: g.y,
-    r: radius,
-    col: g.col,
-    t: 0,
-    d: parry ? 0.34 : 0.52,
-  });
+  areaBursts.push({ x: g.x, y: g.y, r: radius, col: g.col, t: 0, d: 0.52 });
   for (const target of targets) {
     if (Math.hypot(target.x - g.x, target.y - g.y) > radius) continue;
     if (target === boss) {
@@ -1098,9 +1083,28 @@ function redirectToNearestUnit(g) {
 function reportBladeWheelHit() {}
 function isBladeWheelPhasing(g) {
   const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
-  // The phase is the payoff for the successful meteor parry that armed the
-  // wheel, on every combat table.
+  // The phase is the payoff for the awakening that armed the wheel, on every
+  // combat table.
   return fx === "bladewheel" && g.bladeAwake;
+}
+/* 윤슬은 정산 공격이 없다 — 회전 칼날이 그의 정산이다. 그래서 이 켜짐은
+   다른 별지기의 「정산 공격」과 같은 자리에 있어야 한다: 각성하면 켜진다.
+   패링 전용으로 묶여 있던 동안, 패링하지 않은 샷에서 윤슬만 판을 가로질러도
+   아무것도 하지 않는 유일한 별지기였다. */
+function armBladeWheel(g) {
+  const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
+  if (fx !== "bladewheel" || g.bladeAwake) return;
+  g.bladeAwake = true;
+  fieldFx.push({
+    type: "bladewheel",
+    x: g.x,
+    y: g.y,
+    t: 0,
+    d: 0.5,
+    col: g.col,
+  });
+  addPopup(g.x, g.y - 38, "질풍 칼날!", g.col, true);
+  toast(g.s + " · 이동 속도로 회전 칼날 강화");
 }
 function updateBladeWheel(g, speed, step) {
   const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
@@ -1115,17 +1119,15 @@ function updateBladeWheel(g, speed, step) {
   // clearly rolling.  It now stays lit until she is nearly still; damage still
   // needs real speed (the 105 gate below), so this is readability only.
   /* 각성 여부가 이 목표값에 들어와야 한다. 아래 `if (!g.bladeAwake) return`은
-     피해만 막고 있었고, 세기는 그 앞에서 순수 속도로 올라갔다 — 패링 없이
+     피해만 막고 있었고, 세기는 그 앞에서 순수 속도로 올라갔다 — 깨우지 않고
      그냥 부딪혀 굴러가기만 해도(속도 10 초과) 한 프레임 만에 0.05가 되어
-     그리기 문턱 0.025를 넘겼다. 능력 설명이 「패링 공명 뒤에만」이라고
-     적어 둔 그대로, 깨어나기 전에는 목표가 0이고 램프가 알아서 꺼진다. */
+     그리기 문턱 0.025를 넘겼다. 그림과 피해는 한 문(門)을 쓴다: 깨어나기
+     전에는 목표가 0이고 램프가 알아서 꺼진다. */
   const targetStrength =
     g.bladeAwake && speed > 10 ? Math.min(1, 0.2 + (speed - 10) / 700) : 0;
   g.bladeStrength =
     (g.bladeStrength || 0) +
     (targetStrength - (g.bladeStrength || 0)) * Math.min(1, step * 15);
-  // A unit can still roll after an ordinary elastic hit, but its sustained
-  // effect stays dormant until a successful meteor parry wakes it.
   if (!g.bladeAwake) return;
   if (speed < 105 || g.bladeTick > 0 || battleComplete) return;
   g.bladeTick = 0.14;
@@ -1180,47 +1182,11 @@ function applyContactAbility(g, incoming) {
     redirectToNearestUnit(g);
     return true;
   }
-  const copied = g.fx === "copycat";
-  // Former settlement attacks now pay out directly at every successful
-  // Space-parry contact. Collision-native abilities below use the same gate.
-  if (fx === "slash") {
-    resolveSlash(g, copied ? "그믐 · " + g.copiedName + " 검기" : "샛별 검기", {
-      parry: true,
-    });
-    return true;
-  }
-  if (fx === "longshot") {
-    resolveLongshot(
-      g,
-      copied ? "그믐 · " + g.copiedName + " 거리 저격" : "미리내 거리 저격",
-      { parry: true },
-    );
-    return true;
-  }
-  if (fx === "shockwave") {
-    detonateShockwave(
-      g,
-      copied ? "그믐 · " + g.copiedName + " 충격파" : "모루 충돌 충격파",
-      { parry: true },
-    );
-    return true;
-  }
-  if (fx === "bladewheel") {
-    if (!g.bladeAwake) {
-      g.bladeAwake = true;
-      fieldFx.push({
-        type: "bladewheel",
-        x: g.x,
-        y: g.y,
-        t: 0,
-        d: 0.5,
-        col: g.col,
-      });
-      addPopup(g.x, g.y - 38, "질풍 칼날!", g.col, true);
-      toast(g.s + " · 이동 속도로 회전 칼날 강화");
-    }
-    return true;
-  }
+  /* 검기·저격·충격파는 여기로 돌아오지 않는다. 2954f79가 이 셋을 정산에서
+     패링 접점으로 옮겼는데, 각성이 다시 움직임으로 돌아온 지금 둘 다 두면
+     한 번의 패링이 같은 능력을 두 번 값을 치른다. 이 셋의 자리는 정산이다
+     (settleParty). 남는 것은 접점에서만 뜻이 있는 둘 — 유성을 쪼개는 별하와
+     유성을 넘기는 살별이다. 윤슬의 칼날은 wakeUnit이 각성과 함께 켠다. */
   return false;
 }
 function nearestGate(excluded, fromX, fromY) {
@@ -1555,6 +1521,7 @@ function wakeUnit(g, { subtle = false } = {}) {
       true,
     );
     combatSfx?.("awaken", subtle ? 0.48 : 0.78);
+    armBladeWheel(g);
   }
   g.moved = true;
   g.on = Math.max(g.on, subtle ? 0.52 : 0.72);

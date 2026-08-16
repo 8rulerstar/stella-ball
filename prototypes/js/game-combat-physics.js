@@ -13,7 +13,15 @@ function mobileWall(o, r, unit = null) {
   }
   if (hit) {
     if (!unit && o === ball) ball.firstImpact ??= "rail";
-    // Rails keep their physical bounce but never count as a parry awakening.
+    /* 쿠션에 튄 별지기는 그 충돌을 자기 정산에 싣는다. `wallHits`는 정산
+       피해 공식(`g.wallHits * 4`)이 여전히 읽는 값인데, 각성이 패링 전용이
+       되면서 이 값을 올리는 자리가 저장소에서 전부 사라져 그 항이 죽어
+       있었다. */
+    if (unit) {
+      unit.wallHits = (unit.wallHits || 0) + 1;
+      unit.collisions = (unit.collisions || 0) + 1;
+      wakeUnit(unit);
+    }
     // The `o === ball` test matters as much as `!unit`: clone meteors also
     // come through here (updateCloneBalls), and tableWall() tallies the
     // PLAYER's meteor - `ball.bounces`, which multiplies its damage, and the
@@ -364,7 +372,7 @@ function applyStageGimmicks(o, unit = null) {
         });
         toast("도는 방벽 하나를 부쉈습니다");
       }
-      // Orbitals remain physical for rolling units but cannot awaken them.
+      if (unit) wakeUnit(unit);
     });
   }
   for (const wall of stageWalls)
@@ -379,7 +387,12 @@ function applyStageGimmicks(o, unit = null) {
         d: 0.28,
         col: "#c3f3ff",
       });
-      if (!unit && o === ball) tableWall();
+      if (unit) {
+        unit.wallHits = (unit.wallHits || 0) + 1;
+        unit.collisions = (unit.collisions || 0) + 1;
+        wakeUnit(unit);
+        o.bounces = (o.bounces || 0) + 1;
+      } else if (o === ball) tableWall();
       else o.bounces = (o.bounces || 0) + 1;
     });
   for (const pad of boostPads) applyBoostPad(o, pad, unit);
@@ -429,9 +442,13 @@ function settleParty() {
     awakened: gates.filter((g) => g.moved && g.travel > 10),
     figureActive: false,
     handled: false,
+    // 이 샷이 별자리를 띄웠는가. 각성 공격을 «없애는» 값이 아니라 «늦추는»
+    // 값이다 — 현현이 끝난 뒤에 정산이 시작한다.
+    afterFigure: false,
     result: undefined,
   };
   runRuntimeHooks("beforePartySettle", context);
+  const settleOptions = { finisher: true, afterFigure: context.afterFigure };
   if (!context.handled && context.awakened.length) {
     battle.finisherSerial = 0;
     const finishers = context.awakened.filter((g) => {
@@ -457,7 +474,7 @@ function settleParty() {
           g.fx === "copycat"
             ? "그믐 · " + g.copiedName + " 근접 베기"
             : "샛별 근접 베기",
-          { finisher: true },
+          settleOptions,
         );
         continue;
       }
@@ -470,7 +487,7 @@ function settleParty() {
           g.fx === "copycat"
             ? "그믐 · " + g.copiedName + " 거리 저격"
             : "미리내 거리 저격",
-          { finisher: true },
+          settleOptions,
         );
         continue;
       }
@@ -483,7 +500,7 @@ function settleParty() {
           g.fx === "copycat"
             ? "그믐 · " + g.copiedName + " 충격파"
             : "모루 충돌 충격파",
-          { finisher: true },
+          settleOptions,
         );
         continue;
       }
@@ -491,7 +508,7 @@ function settleParty() {
         addPopup(g.x, g.y - 30, "모사 대상 없음", g.col, false);
         toast("그믐 · 아직 모사한 아군이 없습니다.");
       }
-      queueUnitAssist(g, base, g.s + " 각성", { finisher: true });
+      queueUnitAssist(g, base, g.s + " 각성", settleOptions);
     }
     msg = finishers.length
       ? finishers.map((g) => g.s).join(" · ") +
@@ -615,6 +632,14 @@ function simulatePhysics(d) {
       const speed = Math.hypot(g.vx, g.vy);
       if (speed > 82) {
         g.travel += speed * step;
+        /* 각성은 다시 «움직임»이다. 2954f79가 패링을 유일한 각성 조건으로
+           묶으면서, 패링하지 않은 샷은 별지기를 밀어내고 판을 가로질러도
+           아무 일도 일어나지 않는 판이 됐다 — 실측으로 패링 없는 판의 피해
+           용량 중앙값이 124, 패링한 판이 972다(7.8배). 캠페인 34판 중
+           패링 없이 넘어가는 판은 1-1 하나뿐이었다.
+           패링은 그대로 남되 별자리 쪽 일만 한다: 접점이 별빛 노드가 되고,
+           공명이 유성과 별지기를 함께 가속한다. 능력을 여는 열쇠는 아니다. */
+        wakeUnit(g);
       }
       updateBladeWheel(g, speed, step);
       // Units should roll through a contact, then settle.  They are lighter

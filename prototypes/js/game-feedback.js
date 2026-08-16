@@ -616,27 +616,24 @@ registerRuntimeHook(
       if (shot.finisher) {
         // One hero owns a complete ultimate beat before the next takes focus.
         // Future shots keep counting down but stay visually hidden.
-        shot.delay = 0.52 + shot.finisherOrder * 1.62;
+        /* 별자리가 뜬 샷이면 현현이 끝난 다음에 줄을 선다. 별자리와 각성은
+           이제 둘 다 나가므로(game-figure.js의 afterFigure 주석), 겹치면
+           피니셔의 슬로모션 초점이 현현 위로 올라타 둘 다 읽히지 않는다.
+           순서만 준다 — 없애지 않는다. */
+        shot.delay =
+          (options.afterFigure ? FIGURE_CAST_AT + 0.24 : 0) +
+          0.52 +
+          shot.finisherOrder * 1.62;
         shot.dur = 1.08;
         shot.focusT = 0;
       } else {
         shot.delay = Math.min(0.32, queued * 0.085);
-        shot.dur = Math.max(
-          options.parry ? 0.22 : 0.3,
-          shot.dur + (options.parry ? 0.02 : 0.1),
-        );
+        shot.dur = Math.max(0.3, shot.dur + 0.1);
       }
     }
     if (!shot?.finisher) {
-      feedbackBeat(
-        "awaken",
-        g.x,
-        g.y,
-        g.col,
-        options.parry ? 0.54 : 1.08,
-        g.s + (options.parry ? " 공명" : " 각성"),
-      );
-      combatSfx("awaken", options.parry ? 0.52 : 0.9);
+      feedbackBeat("awaken", g.x, g.y, g.col, 1.08, g.s + " 각성");
+      combatSfx("awaken", 0.9);
     }
   },
 );
