@@ -3645,3 +3645,224 @@ body.onboarding-locked .pause-button {
   background-size: contain;
   image-rendering: pixelated;
 }
+
+/* ---------------------------------------------------------------------
+   스테이지 지도 — 디자인 세션 §2·§3
+   월드색은 hue 하나(--wh)로만 들어온다. L과 C는 톤마다 고정이므로 어느
+   월드에서도 대비와 무게가 같고, 글자 가독성이 월드마다 달라지지 않는다.
+   --wc는 색을 지울 스위치다(관측되지 않은 월드는 0).
+   색이 실리는 곳은 네 군데뿐이다 — 머리글·항로선·노드 테두리·별먼지.
+   유닛 고유색·희귀도·체력바·안내별은 월드가 바뀌어도 그대로다.
+   --------------------------------------------------------------------- */
+.constellation-map-shell {
+  --w-line: oklch(0.63 calc(0.115 * var(--wc, 1)) var(--wh, 0));
+  --w-node: oklch(0.72 calc(0.09 * var(--wc, 1)) var(--wh, 0));
+  --w-glow: oklch(0.79 calc(0.105 * var(--wc, 1)) var(--wh, 0));
+  --w-text: oklch(0.86 calc(0.075 * var(--wc, 1)) var(--wh, 0));
+  --w-deep: oklch(0.26 calc(0.045 * var(--wc, 1)) var(--wh, 0));
+}
+/* 상단 7칸 띠 — 월드 진행과 팔레트를 한 줄로 동시에 말한다. */
+.world-band {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 10px;
+}
+.world-band i {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #2b3a3e;
+}
+.world-band i.open {
+  background: oklch(0.5 0.06 var(--wh));
+}
+.world-band i.on {
+  background: oklch(0.79 0.105 var(--wh));
+  box-shadow: 0 0 8px oklch(0.79 0.105 var(--wh) / 0.55);
+}
+.constellation-map-head .tag {
+  color: var(--w-text) !important;
+  letter-spacing: 0.14em;
+}
+.constellation-map-head h2 {
+  color: #f3ede2 !important;
+}
+.constellation-map-scene .constellation-route path,
+.constellation-map-scene .constellation-route line {
+  stroke: var(--w-line) !important;
+}
+/* 노드. 초상이 들어오므로 글자를 담지 않는다 — 상태는 형태로 가른다. */
+.constellation-map-scene .constellation-node {
+  position: absolute !important;
+  overflow: visible !important;
+  width: 54px !important;
+  height: 62px !important;
+  padding: 0 !important;
+  gap: 3px !important;
+  flex-direction: column !important;
+  border-color: color-mix(in oklab, var(--w-node) 55%, #0a0f12) !important;
+  background: #0c1418e8 !important;
+}
+.constellation-map-scene .constellation-node .stage-star {
+  width: 38px !important;
+  height: 38px !important;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--w-node) 45%, #0a0f12);
+  background: #0a0f12;
+  display: grid;
+  place-items: center;
+}
+.constellation-map-scene .constellation-node .stage-star img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.constellation-map-scene .constellation-node .stage-id {
+  font-size: 11px !important;
+  color: #cfdad7 !important;
+}
+.constellation-map-scene .constellation-node.picked {
+  border-color: var(--w-glow) !important;
+  box-shadow:
+    0 0 0 1px var(--w-glow),
+    0 0 18px oklch(0.79 0.105 var(--wh) / 0.4) !important;
+}
+.constellation-map-scene .constellation-node.picked .stage-star {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 6px;
+}
+.constellation-map-scene .constellation-node.locked {
+  filter: saturate(0.2) brightness(0.72);
+}
+.constellation-map-scene .constellation-node.locked .stage-star img {
+  filter: grayscale(1) brightness(0.5);
+}
+/* `.constellation-node span`(폴리시 9px)이 더 구체적이라 여기 특이도를 올린다.
+   요구서가 9px 설명문을 문제로 짚었으므로 새로 넣는 글자는 그 아래로 가지
+   않는다 — 이건 문장이 아니라 상태 글리프 하나다. */
+.constellation-map-scene .constellation-node .stage-mark {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #0a0f12;
+  /* 요구서가 9px 설명문을 문제로 짚었으므로 새로 넣는 글자도 그 아래로
+     내려가지 않게 한다. 이건 문장이 아니라 상태 글리프 하나다. */
+  font-size: 10px;
+  line-height: 1;
+}
+.constellation-map-scene .constellation-node .stage-mark.locked {
+  color: #7d8b8e;
+  border: 1px solid #3a4b4f;
+}
+.constellation-map-scene .constellation-node .stage-mark.cleared {
+  color: #ffd2a0;
+  border: 1px solid #6b5a3a;
+}
+/* 하단 서랍 — 고른 하나만 여기서 펼친다. 9px 설명문을 노드마다 흩어 놓던
+   것을 대체한다. 글자는 10px 이상이고, 잘릴 카드가 없다. */
+.stage-drawer {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 10px 0 0;
+  padding: 9px 11px;
+  border: 1px solid color-mix(in oklab, var(--w-node) 40%, #0a0f12);
+  border-radius: 10px;
+  background: linear-gradient(100deg, #0b131699, #0e181cdd);
+}
+.stage-drawer-face {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--w-node) 35%, #0a0f12);
+  background: #080d10;
+  overflow: hidden;
+}
+.stage-drawer-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.stage-drawer-copy {
+  min-width: 0;
+  flex: 1;
+}
+.stage-drawer-head {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+.stage-drawer-head b {
+  color: var(--w-text);
+  font-size: 13px;
+}
+.stage-drawer-head small {
+  color: #8ba39f;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.stage-drawer-copy strong {
+  display: block;
+  margin: 1px 0 3px;
+  color: #f3ede2;
+  font-size: 12px;
+}
+.stage-drawer-copy p {
+  margin: 0;
+  color: #c3cfd2;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.stage-drawer-meta {
+  display: flex;
+  gap: 9px;
+  margin-top: 5px;
+}
+.stage-drawer-meta span {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #34494d;
+  color: #a9bcbe;
+  /* 이 화면에서 9px 아래로 내려가는 글자를 두지 않는다. */
+  font-size: 10px;
+}
+.stage-drawer-go {
+  flex: none;
+  align-self: stretch;
+  padding: 0 13px;
+  border: 1px solid var(--w-glow);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--w-deep) 70%, #0a0f12);
+  color: var(--w-text);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.stage-drawer-go:hover {
+  background: color-mix(in oklab, var(--w-line) 30%, #0a0f12);
+}
+
+/* 월드 별자리 형상. 항로선과 노드 뒤에 아주 옅게 깔려 「여기가 어느 별자리인가」를
+   글자 없이 말한다. 배경 이미지 한 장이라 합성 레이어가 늘지 않는다. */
+.constellation-map-scene .constellation-map:before {
+  content: "";
+  position: absolute;
+  inset: 6%;
+  pointer-events: none;
+  background: var(--figure) center/contain no-repeat;
+  opacity: 0.085;
+  filter: saturate(0.2) brightness(1.5);
+  image-rendering: pixelated;
+}

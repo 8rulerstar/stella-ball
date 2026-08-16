@@ -1064,11 +1064,14 @@ function constellationMapStages(worldId = activeWorld().id) {
       name: stage.name,
       star: stage.star,
       note: stage.tutorial
-        ? "온보딩 튜토리얼"
-        : (stageGimmickLabels(stage).join(" · ") || "기믹 없음") +
-          " · 거상 HP " +
-          (stage.bossHp ?? RULES.coreHp),
+        ? "루나와 함께 첫 패링 접점을 관측하세요."
+        : (stage.terrain ??
+          (stageGimmickLabels(stage).join(" · ") || "기믹 없음")),
       mark: stage.tutorial ? "✦" : "★",
+      // 서랍이 보스 이름과 체력을 읽는다. 예전에는 note 문자열 안에 녹아
+      // 있었는데, 그러면 표시 형식을 바꿀 때마다 문자열을 다시 파싱해야 한다.
+      bossHp: stage.bossHp ?? RULES.coreHp,
+      world: stage.world,
       stage: stages.indexOf(stage),
       campaignIndex,
       onboarding: Boolean(stage.tutorial),
@@ -1101,90 +1104,202 @@ function constellationRoute(entries) {
       : "";
   return solid + future;
 }
+/* 지도에서 고른 스테이지. 노드를 한 번 누르면 고르고, 같은 노드를 다시 누르면
+   출격한다 — 예전처럼 호버로 펼치지 않으므로 잘릴 카드 자체가 없다. */
+let stageSelectPick = null;
+/* 지도 뒤에 그 월드의 별자리 형상을 아주 옅게 깐다. 세션이 요구한 「배경에
+   양자리 형상」이고, 파일은 이미 일곱 월드 전부 있다 — 별자리 인식 연출이
+   쓰는 것과 같은 그림이라 판 위와 지도가 같은 형상을 말한다.
+   월드 id와 파일명이 두 곳에서 어긋난다(cass·ursa). */
+const WORLD_FIGURE_FILE = {
+  aries: "aries",
+  sagitta: "sagitta",
+  corvus: "corvus",
+  cass: "cassiopeia",
+  cygnus: "cygnus",
+  orion: "orion",
+  ursa: "bigdipper",
+};
+function worldFigureArt(worldId) {
+  const file = WORLD_FIGURE_FILE[worldId];
+  return file ? "../assets/library/constellations/" + file + ".png" : null;
+}
+function stageSelectPortrait(stage) {
+  if (stage.onboarding) return null;
+  const slug = WORLD_BOSS[stage.world]?.slug;
+  return slug ? "../assets/library/boss10/" + slug + ".png" : null;
+}
+function stageSelectLaunch(stage) {
+  if (!stage || stage.locked) return;
+  playSfx();
+  if (stage.onboarding)
+    return StellaRuntime.modules.require("onboarding").showTutorial(true);
+  stageIndex = stage.stage;
+  primeCombatTextures();
+  showRoster();
+}
+/* 하단 서랍. 9px 설명문을 노드마다 흩어 놓는 대신 고른 하나만 10px로 펼친다.
+   보스 이름·체력·설명이 여기 모이므로 노드는 그림과 번호만 지면 된다. */
+function stageSelectDrawer(stage, currentEntry) {
+  if (!stage) return "";
+  const portrait = stageSelectPortrait(stage),
+    bossName = stage.onboarding
+      ? "첫 관측자"
+      : (WORLD_BOSS[stage.world]?.name ?? "공허 거상"),
+    hp = stage.onboarding ? null : (stage.bossHp ?? null),
+    isCurrent = stage.id === currentEntry?.id;
+  return (
+    '<section class="stage-drawer' +
+    (stage.locked ? " locked" : "") +
+    '"><div class="stage-drawer-face">' +
+    (portrait
+      ? '<img src="' + portrait + '" alt="" draggable="false" data-crop-first>'
+      : '<span class="stage-drawer-mark">✦</span>') +
+    '</div><div class="stage-drawer-copy"><div class="stage-drawer-head"><b>' +
+    stage.id +
+    "</b><small>" +
+    (stage.star ? stage.star.bayer : "STAGE " + stage.id) +
+    "</small></div><strong>" +
+    stage.name +
+    "</strong><p>" +
+    (stage.locked ? "앞선 관측을 마치면 열립니다." : stage.note) +
+    '</p><div class="stage-drawer-meta"><span>' +
+    bossName +
+    "</span>" +
+    (hp ? "<span>HP " + hp + "</span>" : "") +
+    "</div></div>" +
+    (stage.locked
+      ? ""
+      : '<button id="stageSelectGo" class="stage-drawer-go">' +
+        (isCurrent ? "현재 출격 →" : "출격 →") +
+        "</button>") +
+    "</section>"
+  );
+}
 function showStageSelect() {
   run = false;
   drag = null;
   setScene("meta");
-  const mapStages = constellationMapStages();
+  const world = activeWorld(),
+    mapStages = constellationMapStages(),
+    worldIndex = WORLDS.findIndex((entry) => entry.id === world.id);
   const currentEntry =
     mapStages.find((entry) => !entry.locked && !isStageCleared(entry)) ??
     mapStages.filter((entry) => !entry.locked).at(-1);
+  /* 선택된 노드 하나만 아래 서랍에서 펼친다. 예전에는 노드마다 9px 설명문을
+     60×17px 상자에 넣고 호버할 때만 184px로 «중심을 축으로» 넓혔는데, 그래서
+     가장자리 노드는 카드 절반이 지도 밖으로 잘렸다. 펼침을 한 곳으로 모으면
+     그 잘림이 구조적으로 사라지고, 글자도 10px로 키울 수 있다. */
+  const selected =
+    mapStages.find((entry) => entry.id === stageSelectPick) ??
+    currentEntry ??
+    mapStages[0];
+  stageSelectPick = selected?.id ?? null;
+
   const nodes = mapStages
-    .map(
-      (stage, index) =>
+    .map((stage) => {
+      const cleared = isStageCleared(stage),
+        isCurrent = stage.id === currentEntry?.id,
+        portrait = stageSelectPortrait(stage);
+      return (
         '<button class="constellation-node' +
         (stage.locked ? " locked" : "") +
-        (stage.onboarding ? " active" : "") +
-        /* 카드는 호버 시 68px에서 184px로 «중심을 축으로» 넓어진다. 가장자리
-           노드는 그래서 양옆으로 92px씩 밀려나가 지도의 overflow:hidden에
-           잘렸다 — 1-1이 왼쪽 37.5px, 1-3이 오른쪽 31.9px(1280×720 실측).
-           어느 쪽으로 열 여유가 있는지는 x%를 아는 여기서만 말할 수 있다. */
-        '" data-edge="' +
-        (stage.x < 30 ? "left" : stage.x > 70 ? "right" : "mid") +
+        (cleared ? " cleared" : "") +
+        (isCurrent ? " current" : "") +
+        (stage.id === selected?.id ? " picked" : "") +
         '" style="left:' +
         stage.x +
         "%;top:" +
         stage.y +
         '%" ' +
-        (stage.locked
-          ? "disabled"
-          : stage.onboarding
-            ? 'data-onboarding="true"'
-            : 'data-stage="' + stage.stage + '"') +
-        '><span class="stage-star">' +
-        stage.mark +
-        '</span><span class="stage-copy"><small>' +
-        (stage.star ? stage.star.bayer : "STAGE " + stage.id) +
-        '</small><b class="stage-id">' +
+        (stage.locked ? "disabled " : "") +
+        'data-pick="' +
         stage.id +
-        "</b><strong>" +
+        '" aria-label="' +
+        stage.id +
+        " " +
         stage.name +
-        "</strong><span>" +
-        stage.note +
-        '</span></span><em class="node-status">' +
+        '"><span class="stage-star">' +
+        (portrait
+          ? '<img src="' +
+            portrait +
+            '" alt="" draggable="false" data-crop-first>'
+          : stage.mark) +
+        /* 잠김·현재·클리어를 색이 아니라 «형태»로 가른다. 색으로만 가르면
+           월드마다 팔레트가 달라지는 이 지도에서 같은 상태가 다른 색으로
+           보이고, 색각 차이에서도 읽히지 않는다. */
+        "</span>" +
         (stage.locked
-          ? "잠김"
-          : stage.id === currentEntry?.id
-            ? "현재 출격 →"
-            : "시작 →") +
-        "</em></button>",
+          ? '<span class="stage-mark locked" aria-hidden="true">✕</span>'
+          : cleared
+            ? '<span class="stage-mark cleared" aria-hidden="true">◆</span>'
+            : "") +
+        '<b class="stage-id">' +
+        stage.id +
+        "</b></button>"
+      );
+    })
+    .join("");
+
+  // 상단 7칸 띠. 월드 진행과 팔레트를 한 줄로 동시에 알린다.
+  const band = WORLDS.filter((entry) => WORLD_HUES[entry.id] !== undefined)
+    .map(
+      (entry, index) =>
+        '<i class="' +
+        (entry.id === world.id ? "on" : isWorldUnlocked(entry) ? "open" : "") +
+        '" style="--wh:' +
+        WORLD_HUES[entry.id] +
+        '" title="' +
+        entry.name +
+        '"></i>',
     )
     .join("");
+
+  const hue = WORLD_HUES[world.id];
   U.over.className = "overlay constellation-map-scene";
   U.over.innerHTML =
-    '<div class="constellation-map-shell"><div class="constellation-map-head"><div><div class="tag">' +
-    activeWorld().bayer +
+    '<div class="constellation-map-shell" style="' +
+    (hue === undefined ? "--wc:0;--wh:0" : "--wc:1;--wh:" + hue) +
+    '"><div class="constellation-map-head"><div class="world-band">' +
+    band +
+    '</div><div class="world-line"><div><div class="tag">' +
+    world.bayer +
+    (worldIndex >= 0 && hue !== undefined
+      ? " · WORLD " + (worldIndex + 1) + "/7"
+      : "") +
     "</div><h2>" +
-    activeWorld().name +
-    "</h2></div><p>" +
-    activeWorld().lore +
-    '</p></div><section class="constellation-map" aria-label="스테이지 별자리 지도"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+    world.name +
+    "</h2></div></div><p>" +
+    world.lore +
+    '</p></div><section class="constellation-map" aria-label="스테이지 별자리 지도" style="' +
+    (worldFigureArt(world.id)
+      ? "--figure:url('" + worldFigureArt(world.id) + "')"
+      : "--figure:none") +
+    '"><svg class="constellation-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
     constellationRoute(mapStages) +
     "</svg>" +
     nodes +
-    '</section><footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><button class="constellation-training" id="enterTraining">무한 훈련장</button><span>현재 출격: ' +
-    (currentEntry
-      ? currentEntry.id + " · " + currentEntry.name
-      : "전 월드 관측 완료") +
-    '</span><button id="stageSelectBack">뒤로</button></footer></div>';
-  for (const button of document.querySelectorAll("[data-stage]"))
-    button.onclick = () => {
-      stageIndex = Number(button.dataset.stage);
-      primeCombatTextures();
+    "</section>" +
+    stageSelectDrawer(selected, currentEntry) +
+    '<footer class="constellation-map-foot"><button class="constellation-training" id="replayOnboarding">튜토리얼 다시보기</button><button class="constellation-training" id="enterTraining">무한 훈련장</button><button id="stageSelectBack">뒤로</button></footer></div>';
+
+  for (const node of document.querySelectorAll("[data-pick]"))
+    node.onclick = () => {
+      if (stageSelectPick === node.dataset.pick)
+        return stageSelectLaunch(selected);
+      stageSelectPick = node.dataset.pick;
       playSfx();
-      showRoster();
+      showStageSelect();
     };
-  // The tutorial node is drawn on one map only — the world that owns stage 1-1
-  // — and it is replaced by a plain stage node once the lesson is cleared.  An
-  // unguarded query here threw on every other world, and because these handler
-  // registrations run in a row, the throw took the replay, training and back
-  // buttons with it: the map rendered with a dead footer and no way out.
-  const onboardingNode = document.querySelector("[data-onboarding]");
-  if (onboardingNode)
-    onboardingNode.onclick = () => {
-      playSfx();
-      StellaRuntime.modules.require("onboarding").showTutorial(true);
-    };
+  /* 지금 보스 아트는 384×384 단일 프레임이라(BOSS_PACK_SPEC.frames = 1)
+     자를 것이 없고, cropSheets는 가로가 세로보다 크지 않으면 그냥 빠진다.
+     그래도 걸어 두는 것은, 이 팩이 나중에 가로 시트로 바뀌면 초상이 네
+     프레임 눌린 그림이 되기 때문이다 — 그때 여기서 알아서 첫 칸만 남는다. */
+  window.StellaPixelUI?.cropSheets?.(
+    ".constellation-map-scene img[data-crop-first]",
+  );
+  const go = document.querySelector("#stageSelectGo");
+  if (go) go.onclick = () => stageSelectLaunch(selected);
   document.querySelector("#replayOnboarding").onclick = () => {
     playSfx();
     StellaRuntime.modules.require("onboarding").showTutorial(true);

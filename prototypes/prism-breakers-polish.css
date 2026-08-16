@@ -640,20 +640,8 @@
     0 0 21px #9caaff44 !important;
   --node-y: -53%;
 }
-/* 가장자리 카드는 지도 안쪽으로 열린다. 별 표식은 제 좌표에 그대로 남고
-   글자만 안쪽으로 뻗으므로, 커진 카드가 클립 밖으로 나가지 않는다.
-   왼쪽 끝: 별을 왼쪽에 두고 오른쪽으로 펼친다 — 별 중심이 좌표에 오도록
-   패딩 7px + 별 반지름 15px 만큼만 당긴다.
-   오른쪽 끝: 축을 뒤집어 별을 오른쪽에 두고 왼쪽으로 펼친다. */
-.constellation-map-scene .constellation-node[data-edge="left"]:hover,
-.constellation-map-scene .constellation-node[data-edge="left"]:focus-visible {
-  --node-x: -22px;
-}
-.constellation-map-scene .constellation-node[data-edge="right"]:hover,
-.constellation-map-scene .constellation-node[data-edge="right"]:focus-visible {
-  --node-x: calc(-100% + 24px);
-  flex-direction: row-reverse;
-}
+/* 가장자리 카드가 안쪽으로 열리게 하던 보정은 더 이상 필요 없다. 노드가
+   호버에서 커지지 않으므로 잘릴 것 자체가 없다 — 펼침은 하단 서랍이 맡는다. */
 .constellation-node.locked {
   border-color: #49577e !important;
   background: #0a0e20d9 !important;
@@ -801,8 +789,15 @@
 .constellation-map-scene .constellation-node strong {
   display: none;
 }
+/* 호버로 184px까지 펼치던 규칙은 §3에서 하단 서랍으로 대체됐다. 펼침이 한
+   곳으로 모이면 가장자리 노드가 지도 밖으로 잘리는 문제가 구조적으로
+   사라지고, 설명문도 9px에서 10px로 올라간다. 호버에는 테두리만 남긴다. */
 .constellation-map-scene .constellation-node:hover,
 .constellation-map-scene .constellation-node:focus-visible {
+  width: 54px;
+  flex-direction: column;
+}
+.constellation-map-scene .constellation-node--legacy-hover {
   z-index: 5;
   flex-direction: row;
   gap: 9px;

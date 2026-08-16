@@ -359,6 +359,50 @@ for (const id of Object.keys(heroes))
 // come from the sky instead of being invented.  `shape` is the real figure in
 // percentages of the map box, in play order, which is also the order the nodes
 // connect on the hub map.
+/* 월드 색상환. 디자인 세션 §2의 답이다 — 지금 고유색 976개가 마주 보는 두 호에만
+   몰려 있어 「색이 적은 게 아니라 갈래가 둘」인 상태라, 월드마다 hue만 돌려
+   일곱 갈래로 벌린다. 인접한 월드끼리 50도 이상 떨어뜨려 캠페인을 이어서 하면
+   따뜻함과 차가움이 번갈아 온다.
+   L과 C는 톤 단계마다 고정이므로(WORLD_TONES) 어느 월드에서도 대비와 무게가
+   같고, 글자 가독성이 월드마다 달라지지 않는다.
+   `outside`는 색을 받지 않는다 — 관측되지 않은 점이고, 인트로가 「없는 별」로
+   부르는 그 빈 좌표다. 색이 없다는 것 자체가 그 월드의 성질이다. */
+const WORLD_HUES = {
+  aries: 45,
+  sagitta: 255,
+  corvus: 305,
+  cass: 145,
+  cygnus: 355,
+  orion: 195,
+  ursa: 95,
+};
+/* 톤 사다리. 이름은 쓰임새로 붙였다. 월드가 바뀌어도 이 L·C는 바뀌지 않는다. */
+const WORLD_TONES = {
+  deep: [0.26, 0.045],
+  ground: [0.4, 0.075],
+  line: [0.63, 0.115],
+  node: [0.72, 0.09],
+  glow: [0.79, 0.105],
+  text: [0.86, 0.075],
+  bright: [0.91, 0.055],
+};
+function worldTone(worldId, tone, alpha) {
+  const hue = WORLD_HUES[worldId];
+  const [l, c] = WORLD_TONES[tone] ?? WORLD_TONES.line;
+  // 월드색이 없는 자리는 뼈대 회색으로 떨어진다. 일곱 월드가 공유하는 넷 중
+  // 달빛 회색이다 — 색을 뺀 자리에 다른 월드의 색이 새면 안 된다.
+  if (hue === undefined) return alpha === undefined ? "#cfdad7" : "#cfdad7";
+  return (
+    "oklch(" +
+    l +
+    " " +
+    c +
+    " " +
+    hue +
+    (alpha === undefined ? "" : " / " + alpha) +
+    ")"
+  );
+}
 const WORLDS = [
   {
     id: "aries",
