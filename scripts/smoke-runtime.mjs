@@ -38,6 +38,9 @@ const expectedScripts = [
   "./js/game-figure.js",
   "./js/game-feedback.js",
   "./js/game-onboarding.js",
+  // 화자별 말풍선. 훅으로만 붙고 전역을 만들지 않으므로 온보딩 뒤, 전장
+  // 합성 앞이면 된다 — 그리기는 afterDraw에서 마지막에 얹힌다.
+  "./js/game-speech.js",
   "./js/game-arena-carve.js",
   "./js/game-bootstrap.js",
   "./boss-art.js",

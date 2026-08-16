@@ -3866,3 +3866,61 @@ body.onboarding-locked .pause-button {
   filter: saturate(0.2) brightness(1.5);
   image-rendering: pixelated;
 }
+
+/* ---------------------------------------------------------------------
+   루나 말풍선 (§5). 판 «밖» 아래에 선다 — 판을 가리지 않고, 매 프레임
+   갱신되지 않으므로 DOM이어도 프레임 예산을 건드리지 않는다. 수업 카드와
+   같은 어휘를 이어받는다.
+   --------------------------------------------------------------------- */
+.luna-speech {
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  transform: translate(-50%, 12px);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: min(520px, 94%);
+  padding: 9px 13px;
+  border: 1px solid #8f7ad0;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #14102bf2, #1b1638ee);
+  box-shadow: 0 10px 26px #02030cbb;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+  z-index: 6;
+}
+.luna-speech.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.luna-speech-face {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  border: 1px solid #8f7ad0;
+  background: #0a0f12;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+.luna-speech-body b {
+  display: block;
+  color: #cbb8ff;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.luna-speech-text {
+  margin: 3px 0 0;
+  color: #ece7ff;
+  font-size: 12px;
+  line-height: 1.55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .luna-speech {
+    transition: none;
+  }
+}

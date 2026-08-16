@@ -1533,6 +1533,12 @@ function wakeUnit(g, { subtle = false } = {}) {
   if (!g.awake) {
     g.awake = true;
     g.wakeFlash = subtle ? 0.34 : 0.62;
+    /* 깨어난 별지기가 «자기 자리에서» 말한다(§5). 예전에는 화면 오른쪽 위
+       토스트로 나가서, 판 위에서 벌어진 일과 그 말이 서로 다른 곳에 있었다.
+       꼬리가 화자를 가리키므로 이름을 다시 쓰지 않는다. */
+    StellaRuntime.modules
+      .optional("speech")
+      ?.say("unit", subtle ? "공명했다" : "깨어났다", { gate: g });
     areaBursts.push({
       x: g.x,
       y: g.y,

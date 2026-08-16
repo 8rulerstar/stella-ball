@@ -96,6 +96,16 @@ function setupBattle() {
         };
   introSeenStages.add(s.id);
   bossOutro = null;
+  /* 거상이 판 상단 띠로 한 번 말한다(§5). 입장 연출이 끝날 즈음에 맞춰 띄워
+     「이미 여기 있었다」가 말로도 한 번 온다. 수업은 안내가 이미 많아 건너뛴다. */
+  if (battleIntro && !tutorial)
+    setTimeout(
+      () =>
+        StellaRuntime.modules
+          .optional("speech")
+          ?.say("boss", bossDisplayName() + "이(가) 관측을 시작한다"),
+      battleIntro.span * 0.55,
+    );
   runRuntimeHooks("afterBattleSetup", { stage: s, battle });
   sync();
 }
