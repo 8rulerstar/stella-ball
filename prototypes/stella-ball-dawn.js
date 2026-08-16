@@ -248,6 +248,26 @@
       if (!st.twinkles || RM) return 0.6;
       return 0.24 + 0.5 * (0.5 + 0.5 * Math.sin(t / st.period + st.phase));
     }
+    /* 「없는 별」(디자인 세션 §10, 비트 7). 하늘이 제자리로 돌아왔는데 별 하나만
+       없다 — 그 빈 좌표가 8번째 월드, WORLDS의 「관측되지 않은 점」이다.
+       새 서사를 만드는 것이 아니라 이미 코드에 있는 것을 첫 화면에서 미리
+       보여 준다. 새 애니메이션을 더하지 않는다: 도는 별 하나를 «끄는» 것이다. */
+    var missingIndex = -1;
+    function markMissingStar(on) {
+      if (!on) {
+        missingIndex = -1;
+        paintStars();
+        return;
+      }
+      // 눈에 띄되 한가운데는 아닌 자리. 위쪽 3분의 1에서 하나 고른다.
+      for (var k = 0; k < stars.length; k++)
+        if (!stars[k].band && stars[k].v < 0.34 && stars[k].u > 0.2) {
+          missingIndex = k;
+          break;
+        }
+      if (missingIndex < 0) missingIndex = 0;
+      paintStars();
+    }
     function drawStar(st, t) {
       starCtx.globalAlpha = starAlpha(st, t);
       starCtx.fillStyle = st.warm ? "#ffd2a0" : "#cfe8e0";
@@ -260,6 +280,16 @@
       var t = performance.now() / 1000;
       for (var k = 0; k < stars.length; k++) {
         starPosition(stars[k], w, h);
+        if (k === missingIndex) {
+          // 빈 좌표만 남는다. 별이 아니라 «자리»가 보여야 한다.
+          starCtx.globalAlpha = 0.5;
+          starCtx.strokeStyle = "#6b7f86";
+          starCtx.lineWidth = 1;
+          starCtx.beginPath();
+          starCtx.arc(stars[k].x + 1, stars[k].y + 1, 4.5, 0, Math.PI * 2);
+          starCtx.stroke();
+          continue;
+        }
         drawStar(stars[k], t);
       }
       starCtx.globalAlpha = 1;
@@ -270,12 +300,15 @@
       var t = performance.now() / 1000;
       for (var k = 0; k < stars.length; k++) {
         var st = stars[k];
-        if (!st.twinkles) continue;
+        if (!st.twinkles || k === missingIndex) continue;
         starCtx.clearRect(st.x - 1, st.y - 1, 4, 4);
         drawStar(st, t);
       }
       starCtx.globalAlpha = 1;
     }
+    /* 인트로 비트 7이 이 스위치를 켠다(§10). 별밭이 buildSky의 클로저 안에
+       있으므로, 밖에서 부를 수 있게 창구 하나만 내놓는다. */
+    window.StellaDawnSky = { missingStar: markMissingStar };
     paintStars();
     var starResizeTimer;
     addEventListener("resize", function () {

@@ -705,6 +705,7 @@
     if (mode === "short") return playShort(P);
     // 전체 연출일 때만 잠근다. 약식은 짧고, 이미 본 사람이다.
     holdStart();
+    setTimeout(showSkip, 1000);
     playV2(P, sky);
   }
 
@@ -983,6 +984,17 @@
       P.anomaly.style.opacity = "0.18";
       P.being.src = P.wide;
     });
+    /* 비트 7 · 없는 별 (디자인 세션 §10). 하늘이 제자리로 돌아왔는데 별 하나가
+       없다 — 빈 좌표만 남는다. 그 자리가 8번째 월드, WORLDS의 「관측되지 않은
+       점」(bayer ∅, 1600 HP, 4인 파티)이다. 첫 실행 30초에 본 빈 자리가 7-7을
+       깨고 나서 열린다 — 새 서사가 아니라 이미 코드에 있는 것을 미리 보여
+       주는 것이다.
+       새 CSS 애니메이션을 더하지 않는다. 도는 별 하나를 «끄는» 것이다 —
+       타이틀에 이미 141개가 도는데 전투에는 사실상 없으므로, 여기서 늘리면
+       잘못된 쪽을 더 채운다. */
+    at(10200, function () {
+      window.StellaDawnSky?.missingStar(true);
+    });
     at(12300, function () {
       // 흔들림 클래스는 반드시 벗긴다. main에 transform이 남으면
       // position:fixed 전체화면 오버레이가 캔버스 폭에 갇힌다.
@@ -993,6 +1005,9 @@
           c.rig.style.opacity = "0";
         });
       st.phase = "rest";
+      // 연출이 끝나면 건너뛸 것이 없다. stop()에만 걸어 두면 타이틀에 머무는
+      // 동안 버튼이 계속 남는다.
+      hideSkip();
       // 흔적: 등간격 점 중 셋만 남는다. 하늘은 원래대로 돌아오지 않는다.
       Array.prototype.forEach.call(P.grid.children, function (c, i) {
         c.style.transition = "opacity .8s ease-out";
@@ -1087,6 +1102,7 @@
     var m = document.querySelector("main");
     if (m) m.classList.remove("oo2-shake", "oo2-squeeze", "oo2-kick");
     releaseStart();
+    hideSkip();
     // 발톱은 body 직계라 레이어와 같이 지워지지 않는다.
     document.querySelectorAll(".oo2-claw").forEach(function (n) {
       n.remove();
@@ -1161,6 +1177,30 @@
      안전장치를 함께 둔다: 무슨 일이 있어도 9.5초 뒤에는 풀린다. 연출이 실패해도
      플레이어가 갇히면 안 된다. 튜토리얼 버튼은 잠그지 않는다 — 그쪽을 누르는
      사람은 건너뛰는 게 아니라 참여하는 것이다. */
+  /* CTA 정책 충돌의 타협안(§10-2). 인트로 스펙 §5는 「CTA는 연출 완료를
+     기다리지 않고 접근 가능해야 한다」이고, 오너 지시는 「흔들기 전까지는
+     게임 시작 비활성」이다. 둘 다 지킨다 —
+       · 「건너뛰기」는 1.0초부터 «항상» 활성 (스펙의 접근성 의도)
+       · 「게임 시작」은 비트 5(발톱이 짚는 순간)부터 활성 (오너의 의도)
+     건너뛰면 즉시 타이틀로 가고 시작 버튼도 함께 켜진다. 갇히는 사람이 없다. */
+  var skipNode = null;
+  function showSkip() {
+    if (skipNode) return;
+    skipNode = document.createElement("button");
+    skipNode.className = "oo2-skip";
+    skipNode.type = "button";
+    skipNode.textContent = "건너뛰기";
+    skipNode.addEventListener("click", function () {
+      stop();
+      markPlayed();
+    });
+    document.body.appendChild(skipNode);
+  }
+  function hideSkip() {
+    if (!skipNode) return;
+    skipNode.remove();
+    skipNode = null;
+  }
   var holdTimer = 0;
   function startButton() {
     return document.getElementById("enterHub");

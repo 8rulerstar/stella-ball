@@ -187,8 +187,17 @@ function renderTitlePresentation() {
     metaArt.wordmark +
     '" alt="STELLA BALL"><small class="title-kicker">CONSTELLATION RESTORATION PROJECT</small><button class="title-enter" id="enterHub"><img src="' +
     metaArt.play +
-    '" alt="">게임 시작!</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button><small class="title-credit">MADE BY <b>8RULERSTAR</b></small></div></section>';
+    '" alt="">게임 시작!</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button><button class="title-help" id="titleReplayIntro">인트로 다시 보기</button><small class="title-credit">MADE BY <b>8RULERSTAR</b></small></div></section>';
   const enter = document.querySelector("#enterHub");
+  /* 인트로 다시 보기(§10). 재생 표식을 첫 실행 단위(localStorage)로 옮기고
+     나니 두 번째부터는 전체 연출을 볼 방법이 없어졌다 — 스테이지 지도의
+     「튜토리얼 다시보기」와 같은 자리, 같은 어휘로 하나 둔다. */
+  const replayIntro = document.querySelector("#titleReplayIntro");
+  if (replayIntro)
+    replayIntro.onclick = () => {
+      playSfx?.("confirm");
+      window.StellaIntroObserver?.play("v2");
+    };
   document.querySelector("#titleHelp").onclick = () => {
     playSfx?.("confirm");
     if (typeof showOnboardingTutorial === "function")

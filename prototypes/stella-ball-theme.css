@@ -3924,3 +3924,24 @@ body.onboarding-locked .pause-button {
     transition: none;
   }
 }
+
+/* 인트로 건너뛰기 (§10-2). 스펙의 「연출 완료를 기다리지 않고 접근 가능」을
+   지키는 쪽이다 — 1.0초부터 늘 눌린다. 시작 버튼과 달리 잠기지 않는다. */
+.oo2-skip {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 70;
+  padding: 7px 14px;
+  border: 1px solid #4d7f80;
+  border-radius: 999px;
+  background: #0a0f12cc;
+  color: #a9c6c2;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.oo2-skip:hover {
+  border-color: #7cc6bb;
+  color: #dff3ea;
+}
