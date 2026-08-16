@@ -194,6 +194,10 @@ function breakShell(ctx) {
   if (layers > 0) {
     bossShield.hits = 0;
     bossShield.flash = 0.6;
+    /* §6-4. 남은 조각이 한 프레임에 전부 튀어 나간다. 예전에는 값만 0이 되고
+       링이 그냥 사라져서, 「걷어냈다」가 아니라 「없어졌다」로 읽혔다.
+       그리기는 이 배열을 보고 흩어지는 조각을 그린다. */
+    bossShield.shattered = { at: frameClock, count: layers };
     areaBursts.push({
       x: boss.x,
       y: boss.y,

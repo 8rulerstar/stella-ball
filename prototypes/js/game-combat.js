@@ -197,15 +197,73 @@ function drawPinballTable() {
       x.fillRect(px, pad.y - 3, 11, 6);
     x.restore();
   }
+  /* 디자인 세션 §6-3. 예전에는 회색 직사각형 하나에 `wall.on`으로 색과
+     그림자만 바뀌었다. 이 벽의 정체성은 반사 계수 1.01 — 「튕긴다」인데,
+     그게 그림 어디에도 없었다.
+     이제 표현을 전부 그 한 가지에 쓴다. 평시에는 갈매기무늬가 면을 따라 느리게
+     흐르며 어느 쪽으로 튕길지 예고하고, 맞으면 판이 밀리고 무늬가 나가는 쪽으로
+     스냅한다. 3장 분절이라 w/h가 스테이지마다 달라도 늘어난다. */
   for (const wall of stageWalls) {
+    const hw = wall.w / 2,
+      hh = wall.h / 2,
+      hot = wall.on > 0,
+      heat = hot ? wall.on / 0.22 : 0,
+      // 맞은 쪽에서 밀린다. 세로로 긴 벽이면 가로로, 가로로 긴 벽이면 세로로.
+      lateral = wall.w >= wall.h,
+      kick = heat * 3,
+      ox = lateral ? 0 : kick,
+      oy = lateral ? -kick : 0;
     x.save();
-    x.fillStyle = wall.on > 0 ? "#e3edf0" : "#7699a3";
+    x.translate(wall.x + ox, wall.y + oy);
+    // 판 세 장. 이음매가 보여야 「타일이 이어진 방벽」으로 읽힌다.
+    const plates = 3,
+      step = (lateral ? wall.w : wall.h) / plates;
+    x.fillStyle = hot ? "#e3edf0" : "#7699a3";
     x.strokeStyle = "#243b47";
-    x.lineWidth = 3;
-    x.shadowBlur = wall.on > 0 ? 18 : 6;
-    x.shadowColor = "#c3f3ff";
-    x.fillRect(wall.x - wall.w / 2, wall.y - wall.h / 2, wall.w, wall.h);
-    x.strokeRect(wall.x - wall.w / 2, wall.y - wall.h / 2, wall.w, wall.h);
+    x.lineWidth = 2;
+    for (let i = 0; i < plates; i++) {
+      const px0 = lateral ? -hw + i * step + 1 : -hw,
+        py0 = lateral ? -hh : -hh + i * step + 1,
+        pw = lateral ? step - 2 : wall.w,
+        ph = lateral ? wall.h : step - 2;
+      x.fillRect(px0, py0, pw, ph);
+      x.strokeRect(px0, py0, pw, ph);
+    }
+    /* 갈매기무늬. 면을 따라 흐르고, 맞으면 흐름이 한 번에 앞으로 스냅한다. */
+    const flow = ((frameClock / (hot ? 90 : 640)) % 1) * step;
+    x.globalAlpha = hot ? 0.9 : 0.42;
+    x.strokeStyle = hot ? "#fffbe8" : "#c3f3ff";
+    x.lineWidth = hot ? 3 : 2;
+    x.beginPath();
+    for (let i = -1; i < plates + 1; i++) {
+      const at = -(lateral ? hw : hh) + i * step + flow;
+      if (lateral) {
+        x.moveTo(at, -hh + 2);
+        x.lineTo(at + hh, 0);
+        x.lineTo(at, hh - 2);
+      } else {
+        x.moveTo(-hw + 2, at);
+        x.lineTo(0, at + hw);
+        x.lineTo(hw - 2, at);
+      }
+    }
+    x.stroke();
+    // 맞은 순간 면에 수직으로 충격파가 한 번 나간다.
+    if (hot) {
+      x.globalAlpha = heat * 0.55;
+      x.strokeStyle = "#fffbe8";
+      x.lineWidth = 2;
+      const reach = 10 + (1 - heat) * 26;
+      x.beginPath();
+      if (lateral) {
+        x.moveTo(-hw, -hh - reach);
+        x.lineTo(hw, -hh - reach);
+      } else {
+        x.moveTo(hw + reach, -hh);
+        x.lineTo(hw + reach, hh);
+      }
+      x.stroke();
+    }
     x.restore();
   }
   // Fading pads read as the opposite of boost pads: grey, no arrows, and a
@@ -252,16 +310,66 @@ function drawPinballTable() {
   }
   // The shell is the reason a good hit did nothing, so it is drawn on the
   // colossus itself, one ring per remaining layer.
+  /* 껍질이 통째로 걷힌 순간. 남은 조각 전부가 0.4초 동안 바깥으로 흩어진다. */
+  if (bossShield?.shattered && boss) {
+    const age = (frameClock - bossShield.shattered.at) / 400;
+    if (age >= 1) bossShield.shattered = null;
+    else {
+      const slots = bossShield.max || bossShield.shattered.count,
+        gap = 0.16,
+        span = (Math.PI * 2) / slots - gap;
+      x.save();
+      x.lineCap = "butt";
+      x.strokeStyle = "#ffe3c0";
+      x.shadowBlur = 16;
+      x.shadowColor = "#9adfc9";
+      x.lineWidth = 7;
+      for (let i = 0; i < bossShield.shattered.count; i++) {
+        const a0 = -Math.PI / 2 + i * ((Math.PI * 2) / slots) + gap / 2;
+        x.globalAlpha = 1 - age;
+        x.beginPath();
+        x.arc(boss.x, boss.y, 76 + age * 92, a0, a0 + span * (1 - age * 0.5));
+        x.stroke();
+      }
+      x.restore();
+    }
+  }
   if (bossShield && bossShield.hits > 0 && boss) {
+    /* 디자인 세션 §6-4. 예전에는 반지름 76+11i의 동심원을 남은 타수만큼
+       겹쳐 그렸다. 그런데 보스 둘레의 링은 이 게임에서 공전 장애물·공명
+       고리·별자리 궤적에도 쓰는 형태라 서로 구분되지 않고, 남은 수를 알려면
+       원의 개수를 세어야 했다.
+       이제 방패 조각이 둘레를 감싼다. 깨진 자리는 «비어» 있으므로 세지 않아도
+       읽히고, 조각이 깨져 나가는 것 자체가 연출이 된다. */
+    const slots = Math.max(bossShield.max || bossShield.hits, bossShield.hits),
+      gap = 0.16,
+      span = (Math.PI * 2) / slots - gap,
+      hot = bossShield.flash > 0,
+      lift = hot ? 6 * (bossShield.flash / 0.45) : 0;
     x.save();
-    x.strokeStyle = bossShield.flash > 0 ? "#ffe3c0" : "#7cc6bb";
-    x.shadowBlur = bossShield.flash > 0 ? 26 : 12;
-    x.shadowColor = "#9adfc9";
-    for (let i = 0; i < bossShield.hits; i++) {
-      x.lineWidth = 3;
-      x.globalAlpha = 0.42 + 0.16 * i;
+    x.lineCap = "butt";
+    for (let i = 0; i < slots; i++) {
+      const intact = i < bossShield.hits,
+        // 가장 최근에 깨진 조각은 바깥으로 튀어 나가며 사라진다.
+        justBroke = !intact && i === bossShield.hits && hot;
+      if (!intact && !justBroke) continue;
+      const a0 = -Math.PI / 2 + i * ((Math.PI * 2) / slots) + gap / 2,
+        r = 76 + (justBroke ? 14 * (1 - bossShield.flash / 0.45) + lift : lift);
+      x.globalAlpha = justBroke ? bossShield.flash / 0.45 : hot ? 0.95 : 0.72;
+      x.strokeStyle = hot ? "#ffe3c0" : "#7cc6bb";
+      x.shadowBlur = hot ? 20 : 9;
+      x.shadowColor = "#9adfc9";
+      // 판 하나는 두꺼운 호 + 안쪽 테두리. 두 겹이라 「판」으로 읽힌다.
+      x.lineWidth = 7;
       x.beginPath();
-      x.arc(boss.x, boss.y, 76 + i * 11, 0, Math.PI * 2);
+      x.arc(boss.x, boss.y, r, a0, a0 + span);
+      x.stroke();
+      x.globalAlpha *= 0.55;
+      x.lineWidth = 2;
+      x.shadowBlur = 0;
+      x.strokeStyle = "#dff3ea";
+      x.beginPath();
+      x.arc(boss.x, boss.y, r - 5, a0 + 0.03, a0 + span - 0.03);
       x.stroke();
     }
     x.restore();
