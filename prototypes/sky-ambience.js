@@ -306,18 +306,158 @@
     { every: [5200, 7400], fn: driftCloud },
     { every: [6800, 11000], fn: quietMeteor },
     { every: [9000, 14000], fn: blinkPair },
+    /* 하늘 소품 3종(디자인 세션 §7). 주기를 기존 소품의 5~9배로 잡았다 —
+       유성과 구름은 배경의 «결»이라 자주 와도 되지만, 로켓·UFO·외계인은
+       «사건»이라 자주 오면 사건이 아니게 된다. 게다가 셋은 한 번에 하나만
+       뜬다(guestBusy). 그래서 총량이 평균 21초에 하나로 수렴하고 하늘이
+       붐비지 않는다. */
+    { every: [34000, 48000], fn: guestRocket, guest: true },
+    { every: [52000, 70000], fn: guestUfo, guest: true },
+    { every: [78000, 96000], fn: guestAlien, guest: true },
   ];
   function schedule() {
     for (var i = 0; i < slots.length; i++) plan(slots[i], 1200 * (i + 1));
   }
   function plan(slot, delay) {
     setTimeout(function run() {
+      // 손님 소품은 겹치지 않는다. 하나가 살아 있으면 다음 차례를 짧게 미룬다.
+      if (slot.guest && guestBusy) {
+        setTimeout(run, 4000);
+        return;
+      }
       slot.fn();
       setTimeout(
         run,
         slot.every[0] + Math.random() * (slot.every[1] - slot.every[0]),
       );
     }, delay);
+  }
+
+  /* ── 하늘 손님 3종 ────────────────────────────────
+     달토끼·우주비행사와 같은 방식이다 — 래스터가 아니라 MAPS 맵 문자열을
+     StellaPixelUI.sprite()가 구워 준 dataURL을 <img>로 띄운다.
+     판(main) 뒤로 지나가지 않는다. 판이 화면 대부분을 가리므로 여백에서만
+     보이고, 판 경계에서 사라진다 — 뒤로 지나가면 「가려졌다」로 읽힌다. */
+  var guestBusy = false;
+  function guestSprite(name, css) {
+    var i = document.createElement("img");
+    i.src = window.StellaPixelUI.sprite(name);
+    i.alt = "";
+    i.setAttribute("aria-hidden", "true");
+    i.draggable = false;
+    i.style.cssText =
+      "position:absolute;image-rendering:pixelated;pointer-events:auto;" + css;
+    l1.appendChild(i);
+    return i;
+  }
+  // 여백 폭. 판 위로 올라오지 않게 손님을 이 띠 안에만 둔다.
+  function marginBand() {
+    var m = document.querySelector("main");
+    if (!m) return null;
+    var r = m.getBoundingClientRect(),
+      leftW = r.left,
+      rightW = window.innerWidth - r.right;
+    if (Math.max(leftW, rightW) < 90) return null;
+    var useLeft = leftW >= rightW;
+    return {
+      x0: useLeft ? 8 : r.right + 8,
+      w: (useLeft ? leftW : rightW) - 16,
+    };
+  }
+  function endGuest(node, ms) {
+    setTimeout(function () {
+      node.remove();
+      guestBusy = false;
+    }, ms);
+  }
+  /* 로켓. 아래에서 위로 오른다. 화면 위 3/4에서 속도가 붙고 꼬리가 길어진다 —
+     누르면 부스터가 한 번 더 터진다(달토끼 절구질과 같은 어휘). */
+  function guestRocket() {
+    var band = marginBand();
+    if (!band) return;
+    guestBusy = true;
+    var left = band.x0 + Math.random() * Math.max(1, band.w - 44);
+    var img = guestSprite(
+      "rocketRise",
+      "left:" + left.toFixed(0) + "px;bottom:-70px;width:44px;cursor:pointer",
+    );
+    var t0 = performance.now();
+    (function climb() {
+      var t = (performance.now() - t0) / 5500;
+      if (t >= 1 || !img.isConnected) return;
+      // 위 3/4에서 가속. 등속으로 오르면 「떠오른다」가 아니라 「끌려간다」다.
+      var eased = t < 0.25 ? t * 0.7 : 0.175 + (t - 0.25) * 1.1;
+      img.style.bottom =
+        (-70 + eased * (window.innerHeight + 140)).toFixed(0) + "px";
+      requestAnimationFrame(climb);
+    })();
+    img.addEventListener("click", function (e) {
+      e.stopPropagation();
+      img.src = window.StellaPixelUI.sprite("rocketBurn");
+      setTimeout(function () {
+        if (img.isConnected)
+          img.src = window.StellaPixelUI.sprite("rocketRise");
+      }, 420);
+    });
+    endGuest(img, 5500);
+  }
+  /* UFO. 가로로 들어와 «멈춘다». 1.4초 정지, 아래로 광선 한 번, 그리고 순간
+     가속해 사라진다 — 정지 구간이 이 소품의 전부다. */
+  function guestUfo() {
+    var band = marginBand();
+    if (!band) return;
+    guestBusy = true;
+    var top = 14 + Math.random() * 34;
+    var img = guestSprite(
+      "ufoCruise",
+      "left:" +
+        (band.x0 - 70).toFixed(0) +
+        "px;top:" +
+        top.toFixed(0) +
+        "%;width:56px;transition:left 1.1s cubic-bezier(.2,.8,.3,1)",
+    );
+    var stopAt = band.x0 + Math.max(0, band.w - 56) * 0.5;
+    setTimeout(function () {
+      img.style.left = stopAt.toFixed(0) + "px";
+    }, 30);
+    setTimeout(function () {
+      if (img.isConnected) img.src = window.StellaPixelUI.sprite("ufoBeam");
+    }, 1500);
+    setTimeout(function () {
+      if (!img.isConnected) return;
+      img.src = window.StellaPixelUI.sprite("ufoCruise");
+      img.style.transition = "left .55s cubic-bezier(.7,0,.9,.2)";
+      img.style.left = (band.x0 + band.w + 90).toFixed(0) + "px";
+    }, 2900);
+    endGuest(img, 7000);
+  }
+  /* 외계인. UFO가 떨군 것처럼 아래쪽 여백을 «걸어서» 지나간다.
+     2프레임 걸음, 140ms 교대 — 달토끼 절구질과 같은 단위다. */
+  function guestAlien() {
+    var band = marginBand();
+    if (!band) return;
+    guestBusy = true;
+    var img = guestSprite(
+      "alienWalkA",
+      "left:" +
+        (band.x0 - 60).toFixed(0) +
+        "px;bottom:6%;width:52px;" +
+        "transition:left 5.6s linear",
+    );
+    setTimeout(function () {
+      img.style.left = (band.x0 + band.w + 60).toFixed(0) + "px";
+    }, 30);
+    var step = 0,
+      walk = setInterval(function () {
+        if (!img.isConnected) return clearInterval(walk);
+        img.src = window.StellaPixelUI.sprite(
+          ++step % 2 ? "alienWalkB" : "alienWalkA",
+        );
+      }, 140);
+    setTimeout(function () {
+      clearInterval(walk);
+    }, 6000);
+    endGuest(img, 6000);
   }
   function driftCloud() {
     var left = Math.random() < 0.5;
@@ -509,6 +649,16 @@
     },
     layers: function (on) {
       root.style.display = on ? "" : "none";
+    },
+    /* 손님 소품은 34~96초에 한 번 오므로 기다려서는 확인할 수 없다. QA와
+       회귀 확인용으로 한 번 부르는 창구를 연다 — 게임 로직은 이걸 쓰지 않는다. */
+    guest: function (which) {
+      var fns = { rocket: guestRocket, ufo: guestUfo, alien: guestAlien };
+      var fn = fns[which];
+      if (!fn) return Object.keys(fns);
+      guestBusy = false;
+      fn();
+      return true;
     },
     debug: function (on) {
       var ids = ["L0", "L1", "L2"];
