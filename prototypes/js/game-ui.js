@@ -12,6 +12,12 @@ function setPortrait(el, h, size = 56) {
    refresh is still on display. Every screen transition passes through here. */
 let sceneSequence = 0;
 function setScene(scene) {
+  /* 화면이 바뀌는 자리는 여기 하나뿐이다 — 타이틀·허브·메뉴·전투가 전부
+     이 함수를 지난다. 그래서 화면 전환음도 여기 한 번만 둔다. 화면마다
+     따로 넣으면 새 화면이 생길 때마다 조용한 화면이 하나씩 늘어난다.
+     같은 화면으로 다시 부르는 경우가 있어 실제로 «바뀔 때»만 낸다. */
+  if (!isRuntimeScene(scene) && typeof playSfx === "function")
+    playSfx("screen");
   sceneSequence += 1;
   setRuntimeScene(scene);
   document.body.classList.toggle("title-mode", scene === "title");

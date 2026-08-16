@@ -122,6 +122,9 @@ function beginTeachingHold(kind) {
     hint: TEACH_HOLD[kind].hint,
     graceLeft: TEACH_HOLD_GRACE_MS / 1000,
   };
+  // 판이 서는 순간이 무음이면 「멈춘 버그」로 읽힌다. 시간이 멈춘 것을 귀로도
+  // 말한다 — 그림 쪽은 이미 숨 쉬는 고리와 배너가 맡고 있다.
+  playSfx("card");
   renderTeachingHold();
 }
 // 정지가 살아 있는 프레임마다 호출된다. 남은 유예를 다 쓰면 조용히 풀어 원래
@@ -508,6 +511,10 @@ function renderOnboarding() {
         "</button>"
       : "");
   (dock || stageEl).append(card);
+  /* 오너가 이름을 대어 지적한 자리. 여섯 장의 수업 카드가 전부 소리 없이
+     나타나고 있었다 — 첫 실행에서 플레이어가 가장 오래 보는 화면인데,
+     화면이 바뀐 것을 눈으로만 알 수 있었다. */
+  playSfx("card");
   if (copy.button) {
     const continueButton = document.querySelector("#onboardingContinue");
     continueButton.onclick = () => continueOnboarding(copy.action);

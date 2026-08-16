@@ -536,8 +536,24 @@ function syncAudio() {
   audioEngine.master.gain.value = settings.master;
   audioEngine.music.gain.value = settings.bgm;
 }
+/* 메타 UI의 소리. 여태 합성 사각파 3종(confirm·flip·unlock)만 냈고, 50종
+   샘플 팩은 전투 쪽만 썼다 — 그래서 팩의 `ui-01`~`ui-05`가 반입 이후 한 번도
+   울린 적이 없다. 화면을 넘기고 버튼을 누르는 소리가 게임에서 가장 자주
+   들리는 소리인데 그것만 합성음이었다.
+   샘플이 있으면 샘플을 쓰고, 없거나 아직 못 받았으면 기존 합성음이 그대로
+   받는다 — 조용해지는 경우는 없다. */
+const UI_SAMPLE_CUE = {
+  confirm: "uiConfirm",
+  flip: "uiTap",
+  unlock: "uiUnlock",
+  fail: "uiFail",
+  card: "uiCard",
+  screen: "uiScreen",
+};
 function playSfx(kind = "confirm") {
   if (settings.sfx <= 0) return;
+  const cue = UI_SAMPLE_CUE[kind] ?? "uiTap";
+  if (typeof playSampleSfx === "function" && playSampleSfx(cue, 1)) return;
   const engine = ensureAudio();
   if (!engine) return;
   const ac = engine.ac,

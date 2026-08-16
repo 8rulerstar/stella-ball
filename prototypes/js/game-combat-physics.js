@@ -249,6 +249,9 @@ function runStagePhase(effect) {
   if (effect === "push") {
     // The table is reset, not damaged: everything alive is thrown to the
     // corner nearest it, so a carefully built lane has to be rebuilt.
+    /* 포효는 이 게임에서 화면을 가장 크게 흔드는 사건인데 소리가 없었다.
+       한 번만 낸다 — 아래 throwTo는 판 위의 모든 것에 대해 불린다. */
+    combatSfx?.("roar", 1.15);
     const corners = [
       [96, 176],
       [W - 96, 176],

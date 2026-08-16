@@ -171,7 +171,11 @@ const RUN_SHOT = (stage, party, stagger) => `(async () => {
   const pool = ["gaon","biyeon","ria","byeolha"].slice(0, ${party});
   stageIndex = stages.findIndex((s) => s.id === ${JSON.stringify(stage)});
   deployed = [...pool]; selected = [...pool];
-  resetBuild(); settings.sfx = 0; setupBattle();
+  resetBuild(); setupBattle();
+  /* 소리를 켠 채로 잰다. 예전에는 꺼 두었는데, 그러면 playSampleSfx가
+     첫 줄에서 false를 돌려주어 「어느 사건이 어느 큐를 부르는가」가
+     통째로 0으로 나온다 — 조용한 것과 «끈 것»을 구분하지 못한다. */
+  settings.sfx = 1;
   /* 파티 전원이 각성하면 2-2의 200은 한 샷에 넘어가고, 승리 화면이 뜨면서
      실행 컨텍스트가 통째로 사라진다 — 측정이 아니라 크래시가 된다. 판을
      끝나지 않게 두고 프레임만 본다. */
@@ -185,6 +189,15 @@ const RUN_SHOT = (stage, party, stagger) => `(async () => {
   registerRuntimeHook("afterUnitAssistQueued", ({ shot }) => {
     if (shot && shot.finisher) queuedFinishers += 1;
   });
+  /* 어느 사건이 어느 효과음 큐를 부르는지 센다. 큐 이름이 하나만 어긋나도
+     playSampleSfx가 조용히 false를 돌려주고 재생 실패는 catch가 먹는다. */
+  const sfx = {};
+  const realSample = playSampleSfx;
+  playSampleSfx = function (kind) {
+    const ok = realSample.apply(this, arguments);
+    if (ok) sfx[kind] = (sfx[kind] || 0) + 1;
+    return ok;
+  };
   const gaps = { idle: [], flight: [], settle: [] };
   let phase = "idle", last = performance.now(), stop = false;
   const tick = (now) => {
@@ -334,6 +347,7 @@ const RUN_SHOT = (stage, party, stagger) => `(async () => {
       settle: stat(drawMs.settle), duringFocus: stat(drawMs.focus),
     },
     domWrites: dom,
+    sfxByCue: sfx,
     // 「얼어 있던 시간」. 이것이 체감 렉의 후보 2번이다.
     frozenMs: {
       idle: Math.round(frozen.idle),

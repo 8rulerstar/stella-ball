@@ -95,6 +95,8 @@ function setupBattle() {
           span: introSeenStages.has(s.id) ? 600 : 1500,
         };
   introSeenStages.add(s.id);
+  // 판이 세워지는 소리. 거상의 «말»은 아래 setTimeout이 따로 낸다(speechBoss).
+  if (battleIntro) combatSfx?.("battleIntro", 0.95);
   bossOutro = null;
   /* 거상이 판 상단 띠로 한 번 말한다(§5). 입장 연출이 끝날 즈음에 맞춰 띄워
      「이미 여기 있었다」가 말로도 한 번 온다. 수업은 안내가 이미 많아 건너뛴다. */
@@ -162,6 +164,11 @@ function startShot(restingPoint = null) {
   for (const bumper of bumpers) bumper.on = 0;
   chain = [];
   drag = null;
+  /* 「판이 다시 내 것이 됐다」는 신호. 정산 대기가 렉으로 읽혔던 문제
+     (AWAKEN_FX_REQUEST 7절)의 나머지 절반이다 — 언제 다시 쏠 수 있는지를
+     눈으로만 알 수 있었다. 정산 소리들이 아직 울리는 중이면 내지 않는다
+     (재생기의 정숙 조건). */
+  combatSfx?.("shotReady", 0.5);
   runRuntimeHooks("afterShotStart", context);
 }
 let titleSequence = 0;
@@ -545,6 +552,8 @@ function scheduleWin() {
        0.62–0.78  파편이 되어 흩어진다 · 흔들림 34px
        0.78–1.40  별빛이 되어 위로 오른다 */
   bossOutro = { at: frameClock };
+  // 1.4초짜리 죽음 연출이 통째로 무음이었다. victory는 그 뒤 결과 화면의 것이다.
+  combatSfx?.("bossFall", 1.2);
   impactStop = Math.max(impactStop, 0.18);
   screenShake = Math.max(screenShake, 15);
   screenFlash = 1;
@@ -653,6 +662,9 @@ function toast(text) {
       ? currentToastText
       : null;
   if (text === last) return;
+  /* 알림이 «떴다»는 것 자체가 소리를 가진 적이 없다. 잦은 사건이라 가장
+     조용한 큐를 쓰고, 재생기 쪽 간격표가 연속 알림을 묶는다. */
+  if (typeof combatSfx === "function") combatSfx("toast", 0.42);
   toastQueue.push(text);
   if (toastTimer <= 0) return showNextToast();
   // Something arrived while a banner is still up.  Cut its hold short so the

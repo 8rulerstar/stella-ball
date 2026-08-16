@@ -174,7 +174,56 @@ const sampleSfxCue = {
   figure7: "figure-07",
   summonGather: "summon-01",
   summonReveal: "summon-02",
+
+  /* ── 조용하던 자리들 (2026-08-16) ────────────────────────────────────
+     50종 팩에서 `ui-01`~`ui-05` 다섯은 반입 이후 한 번도 울린 적이 없다.
+     메타 UI가 `playSfx`의 합성 사각파 3종만 쓰고 샘플 경로를 아예 타지
+     않았기 때문이다. 아래 이름들은 그 다섯과, 팩 안에서 놀고 있던 대체
+     테이크들을 실제 사건에 배정한 것이다. 새 자산은 만들지 않았다. */
+  uiConfirm: "ui-01", // 확정 버튼
+  uiTap: "ui-02", // 일반 클릭·전환
+  uiCard: "ui-03", // 수업 대화창이 뜬다
+  uiUnlock: "ui-04", // 해금
+  uiScreen: "ui-05", // 화면이 바뀐다
+  uiFail: "fail-02", // 눌렀지만 안 되는 것 (playSfx("fail")이 여태 기본 비프였다)
+  /* `combatSfx("unlock")`은 네 곳에서 불리는데 — 안내별이 얹힐 때, 오망성이
+     전원을 깨울 때, 별자리가 현현할 때, 페이즈가 별지기를 다시 재울 때 —
+     이 이름이 표에도 합성음 표에도 없었다. 넷 다 조용히 기본 비프
+     [260,420,0.08]로 떨어지고 있었다. `playSfx("unlock")`과 같은 소리를 준다. */
+  unlock: "ui-04",
+
+  steer: "launch-03", // 궤도 전환
+  battleIntro: "launch-04", // 전투 입장
+  shotReady: "wall-02", // 다음 샷이 준비됐다 — 판이 다시 내 것이다
+  toast: "wall-01", // 시스템 알림. 잦으므로 가장 조용한 것
+
+  speechUnit: "unit-01", // 별지기가 말한다
+  speechBoss: "riposte-04", // 거상이 말한다
+  speechLuna: "ui-05", // 루나가 말한다 — 판 밖이라 UI 어휘를 쓴다
+  roar: "riposte-05", // 포효
+  bossFall: "fail-02", // 거상 퇴장
 };
+/* 큐마다 다시 울리기까지의 최소 간격(ms). 기본 90은 타격용이라 잦은 알림에는
+   짧다 — 토스트가 연달아 뜨면 기관총이 된다. 오너의 조건이 「투머치가 아닌
+   이상」이었으므로, 넣되 겹치지 않게 하는 것은 이 표가 맡는다. */
+const sampleSfxHold = {
+  toast: 460,
+  speechUnit: 240,
+  speechBoss: 240,
+  speechLuna: 240,
+  shotReady: 300,
+  uiTap: 70,
+};
+/* 「투머치가 아닌 이상」의 실제 구현. 이 큐들은 «조용할 때만» 말한다.
+
+   토스트가 대표적이다 — 전투 중 거의 모든 알림은 이미 소리를 가진 사건의
+   메아리다(궤도 전환은 impact와 전환음을 내고 나서 토스트를 띄운다). 거기에
+   알림음을 또 얹으면 한 번의 입력이 세 번 울린다. 반대로 정산·골드·해금처럼
+   판이 조용할 때 뜨는 알림은 소리가 있어야 「무슨 일이 났다」가 읽힌다.
+   그 둘을 «내용»으로 가르는 것은 문자열 검사가 되므로, 값 대신 시간으로
+   가른다: 직전 소리로부터 이만큼 조용했을 때만 낸다. */
+const sampleSfxNeedsQuiet = { toast: 260, shotReady: 220 };
+let lastSampleSfxAt = -1e9;
 const sampleSfxCooldown = {};
 const sampleSfxPools = new Map();
 function sampleSfxPool(cue) {
@@ -199,8 +248,11 @@ function playSampleSfx(kind = "hit", strength = 1, heroId = "") {
   if (!cue || settings.sfx <= 0) return false;
   const now = performance.now(),
     last = sampleSfxCooldown[cue] || 0;
-  if (now - last < 90) return true;
+  if (now - last < (sampleSfxHold[kind] ?? 90)) return true;
+  const quiet = sampleSfxNeedsQuiet[kind];
+  if (quiet !== undefined && now - lastSampleSfxAt < quiet) return true;
   sampleSfxCooldown[cue] = now;
+  lastSampleSfxAt = now;
   const pool = sampleSfxPool(cue),
     sound = pool.voices[pool.cursor++ % pool.voices.length];
   sound.pause();

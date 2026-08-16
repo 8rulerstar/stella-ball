@@ -57,19 +57,27 @@ function speechFace(path) {
      say("boss", text)              거상 — 판 상단 띠
      say("luna", text)              루나 — 판 밖 DOM
      say("narration", text)         내레이션 — 판 중앙 하단 */
+/* 화자마다 다른 소리를 낸다. 창구를 넷으로 나눈 것과 같은 이유다 — 넷이 같은
+   소리를 내면 눈을 떼고 있을 때 누가 말하는지 알 수 없다. 내레이션만 무음인
+   것은 의도다: 아무도 말하고 있지 않기 때문이다. */
 function say(who, text, opts = {}) {
   if (!text) return;
   if (who === "boss") {
     speechBanner = { text, t: 0, d: opts.d ?? 2.2 };
+    combatSfx?.("speechBoss", 0.8);
     return;
   }
   if (who === "narration") {
     speechNarration = { text, t: 0, d: opts.d ?? 2.8 };
     return;
   }
-  if (who === "luna") return sayLuna(text, opts);
+  if (who === "luna") {
+    combatSfx?.("speechLuna", 0.62);
+    return sayLuna(text, opts);
+  }
   const gate = opts.gate;
   if (!gate) return;
+  combatSfx?.("speechUnit", 0.55);
   const bubble = {
     gate,
     text,

@@ -247,6 +247,21 @@ try {
   );
   await delay(1500);
 
+  /* 효과음이 «실제로 울리는지»는 코드를 읽어서는 알 수 없다. 큐 이름이 하나만
+     어긋나도 playSampleSfx가 조용히 false를 돌려주고, 재생 실패는 .catch(()=>{})가
+     먹는다. 실제 재생 시도를 큐별로 센다. 헤드리스에는 사용자 제스처가 없어
+     소리가 나지는 않지만, «어느 사건이 어느 큐를 불렀는가»는 그대로 보인다. */
+  await evaluate(`(() => {
+    window.__sfx = {};
+    const realSample = playSampleSfx;
+    playSampleSfx = function (kind, strength, heroId) {
+      const ok = realSample.apply(this, arguments);
+      if (ok) window.__sfx[kind] = (window.__sfx[kind] || 0) + 1;
+      return ok;
+    };
+    return 1;
+  })()`);
+
   await clickButton("처음인가요? 1분 튜토리얼");
   await waitFor("lesson 1", () =>
     evaluate("!!onboarding && onboarding.panelVisible !== false"),
@@ -365,6 +380,9 @@ try {
         beforeLaunch: beforeGeom,
         midFlight,
         atHold: held,
+        sfxByCue: await evaluate(
+          "JSON.parse(JSON.stringify(window.__sfx || {}))",
+        ),
         // 표식과 정지 지점이 같은가. 이것이 어긋나면 「도착 전에 멈춤」이 다시 산다.
         stoppedOnMarker:
           Math.hypot(

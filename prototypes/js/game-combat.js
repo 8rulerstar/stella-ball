@@ -409,7 +409,11 @@ function steerMeteor(side) {
     col: side < 0 ? "#8ee7ff" : "#ffd18d",
   });
   impact?.(false, ball.x, ball.y, "contact");
-  combatSfx?.("bumper", 0.56);
+  /* 여기는 소리를 «더하는» 자리가 아니라 «바로잡는» 자리다. 궤도 전환은
+     범퍼가 아닌데 범퍼 큐를 빌려 쓰고 있었다 — 판 위의 다른 물체에 부딪힌
+     것과 내가 누른 것이 같은 소리를 내면 둘을 구분할 수 없다. 위의 impact가
+     이미 접촉음을 내므로 여기에 하나를 더 얹지는 않는다. */
+  combatSfx?.("steer", 0.56);
   addPopup(
     ball.x,
     ball.y - 30,
