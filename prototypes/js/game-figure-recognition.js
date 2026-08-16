@@ -190,8 +190,10 @@ function addGuideStars(state, contact) {
   addPopup(
     x,
     y - 42,
-    "안내별 점등 · 별빛 " + state.nodes.length + "/7",
+    "루나의 별 · " + state.nodes.length + "/7",
     "#ffd27f",
+    true,
+    // 화자가 있는 말이다. 피해 숫자와 같은 서체를 쓰지 않는다.
     true,
   );
   toast(

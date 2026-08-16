@@ -161,7 +161,7 @@ function registerBossHit(weak) {
    clone's 분열 약점 label matched, so a clone weak hit registered twice on top
    of cloneDamage's own explicit call, double-counting the combo and inflating
    the persisted best-combo record. Damage sites now say so themselves. */
-function addPopup(px, py, text, col, big = false) {
+function addPopup(px, py, text, col, big = false, voice = false) {
   popups.push({
     x: px,
     y: py,
@@ -170,6 +170,8 @@ function addPopup(px, py, text, col, big = false) {
     t: 0,
     d: 0.9,
     big: big || text.includes("약점") || hitCombo >= 3,
+    // 화자가 있는 말인가. 그리기 쪽이 서체를 가른다(§9-2).
+    voice,
   });
   if (popups.length > 12) popups.shift();
 }
@@ -1330,7 +1332,12 @@ function draw() {
     x.save();
     x.globalAlpha = a;
     x.fillStyle = "#071117";
-    x.font = (p.big ? "bold 22px" : "bold 16px") + " ui-monospace";
+    /* §9-2. 지금 모든 팝업이 같은 모노 서체·같은 크기라 「루나가 준 별」이
+       피해량과 구별되지 않았다. 화자가 말하는 것은 다른 서체로 쓴다 —
+       숫자가 아니라 말이라는 신호다. */
+    x.font = p.voice
+      ? (p.big ? "bold 19px" : "bold 15px") + " Galmuri11, ui-monospace"
+      : (p.big ? "bold 22px" : "bold 16px") + " ui-monospace";
     x.textAlign = "center";
     x.fillText(p.text, p.x + 2, p.y - p.t * 34 + 2);
     x.fillStyle = p.col;

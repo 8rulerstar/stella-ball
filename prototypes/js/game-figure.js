@@ -498,17 +498,9 @@ function drawStarNode(cx, cy, col, born = 0, guide = false) {
     x.arc(cx, cy, halo + 5 + (1 - pop) * 10, 0, Math.PI * 2);
     x.stroke();
   }
-  if (guide) {
-    x.globalAlpha = 0.9;
-    x.strokeStyle = "#fff2bf";
-    x.lineWidth = 1.5;
-    x.beginPath();
-    x.moveTo(cx - 6, cy);
-    x.lineTo(cx + 6, cy);
-    x.moveTo(cx, cy - 6);
-    x.lineTo(cx, cy + 6);
-    x.stroke();
-  }
+  /* 안내별의 십자는 여기서 그리지 않는다 — 실루엣은 선 «아래»에 깔려야 해서
+     drawGuideStarSilhouette가 별도로, 궤적보다 먼저 그린다. 심과 헤일로는
+     일반 별빛과 완전히 같게 둔다(좌표·반지름을 건드리면 이어진 선이 어긋난다). */
   x.restore();
 }
 function drawParryFxLayer() {
@@ -747,6 +739,37 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
           nodes[fit.order[b]],
         ])
       : nodes.slice(1).map((node, i) => [nodes[i], node]);
+  /* 디자인 세션 §9. 안내별이 안 보이는 이유는 «작아서가 아니라 같아서»였다 —
+     헤일로 7px·심 3px이 일반 별빛과 똑같고, 더해지는 것은 굵기 1.5px의 12px
+     십자 네 토막인데 그 위에 blur 10이 얹혀 번짐에 묻혔다.
+     그래서 크기를 키우는 대신 실루엣을 바꾼다: 6방 별빛(반지름 19px)과 얇은
+     고리(24px, 2.4초 호흡). 번짐은 걷는다. 심의 좌표와 반지름은 그대로라
+     궤적이 이 점들을 이어도 모양이 달라지지 않고, 실루엣이 선 아래에 깔리므로
+     「이 둘은 받은 별」만 더 읽힌다. */
+  for (const node of nodes) {
+    if (!node.guide) continue;
+    const breathe = 0.62 + 0.38 * Math.sin(frameClock / 382);
+    x.save();
+    x.shadowBlur = 0;
+    x.strokeStyle = "#ffd27f";
+    x.globalAlpha = 0.85;
+    x.lineWidth = 2;
+    x.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = -Math.PI / 2 + (i * Math.PI) / 3,
+        // 긴 살 셋과 짧은 살 셋이 번갈아 — 균일하면 눈꽃이 아니라 바퀴가 된다.
+        len = i % 2 ? 11 : 19;
+      x.moveTo(node.x + Math.cos(a) * 5, node.y + Math.sin(a) * 5);
+      x.lineTo(node.x + Math.cos(a) * len, node.y + Math.sin(a) * len);
+    }
+    x.stroke();
+    x.globalAlpha = 0.2 + 0.3 * breathe;
+    x.lineWidth = 1.5;
+    x.beginPath();
+    x.arc(node.x, node.y, 24, 0, Math.PI * 2);
+    x.stroke();
+    x.restore();
+  }
   x.save();
   // Edges stay quieter than the nodes: the points are the subject.
   x.globalAlpha = 0.26;
