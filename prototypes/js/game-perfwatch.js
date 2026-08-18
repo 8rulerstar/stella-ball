@@ -317,6 +317,45 @@
     render();
   }
 
+  /* 오늘의 결론 한 줄.
+
+     다섯 번 고치고 다섯 번 되돌린 이유는, 스위치가 준 답(「무엇을 끄면 멎는가」)을
+     원인(「무엇이 시간을 쓰는가」)으로 읽었기 때문이다. 그 둘을 가르는 값은
+     하나뿐이다 — 긴 프레임에 «JS가 쓴 시간»이 있는가.
+
+     있으면 어느 함수인지가 나오고 코드로 고칠 수 있다. 없으면 게임이 느린 것이
+     아니라 합성기가 느린 것이고, 그때는 코드를 읽어도 나오지 않는다.
+
+     콘솔을 열고 JSON을 복사하지 않아도 되게 그 판정을 화면에 그대로 쓴다. */
+  function verdict() {
+    if (!longs.length) return "판정: 긴 프레임 없음 - 더 플레이해 주세요";
+    var withJs = 0,
+      tot = {};
+    for (var i = 0; i < longs.length; i++) {
+      var sp = longs[i].spent;
+      if (!sp) continue;
+      var sum = 0;
+      for (var k in sp) {
+        tot[k] = (tot[k] || 0) + sp[k];
+        sum += sp[k];
+      }
+      if (sum >= 4) withJs++;
+    }
+    var top = "",
+      best = 0;
+    for (var k2 in tot)
+      if (tot[k2] > best) {
+        best = tot[k2];
+        top = k2;
+      }
+    var ratio = withJs + "/" + longs.length;
+    if (withJs * 2 < longs.length)
+      return "판정: 긴프레임 " + ratio + "만 JS 탓 -> 합성기 문제";
+    return (
+      "판정: 긴프레임 " + ratio + "가 JS 탓 -> " + top + " " + best.toFixed(0) + "ms"
+    );
+  }
+
   var painted = 0;
   function render() {
     // 요약은 4Hz만 갱신한다. 재는 도구가 스스로 프레임을 먹으면 안 된다.
@@ -346,7 +385,11 @@
       over +
       "/" +
       s.length +
-      "   [F10: 기록 복사]";
+      "
+" +
+      verdict() +
+      "
+[F10 기록]  F7 하늘  F8 흐림  F6 화면반응";
   }
 
   function build() {
