@@ -1314,8 +1314,8 @@ addEventListener("keydown", (e) => {
     StellaRuntime.modules.optional("onboarding")?.isActive()
   )
     return;
-  /* Space는 별자리 확정이다. 자동 공명이 된 뒤로 이 키는 비어 있었고,
-     원래 뜻(별자리를 그린다)이 그대로 남는 자리다. */
+  /* Space는 «발사»다. 고른 셋으로 쏘고, 고르지 않은 나머지가 먼저 별자리로
+     탄다. 세 번째를 찍는 순간 나가게 두면 고른 결과를 보고 무를 수가 없다. */
   if (
     e.code === "Space" &&
     typeof nodeEconomyOn === "function" &&
@@ -1325,7 +1325,7 @@ addEventListener("keydown", (e) => {
     !battleComplete
   ) {
     e.preventDefault();
-    castMarkedFigure?.();
+    launchAimStarShot?.();
     return;
   }
   if (

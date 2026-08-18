@@ -475,37 +475,23 @@ function billiardPointerDown(e) {
       e.preventDefault();
       e.stopImmediatePropagation();
       const hit = aimStarAt(p.x, p.y);
-      /* 오른쪽 버튼은 «별자리용 표시»다. Space로 태운다.
-         유성이 멈춰 있을 때 오른쪽 버튼은 원래 하는 일이 없었다. */
+      /* 오른쪽 버튼은 «무르기»다. 별자리용 표시가 없어졌으므로(고르지 않은
+         것이 곧 별자리다) 이 버튼은 다시 비었다. */
       if (e.button !== 0) {
-        if (hit < 0) {
-          if (aimPick.length) {
-            aimPick = [];
-            combatSfx?.("parryMiss", 0.5);
-          }
-          return;
+        if (aimPick.length) {
+          aimPick = [];
+          combatSfx?.("parryMiss", 0.5);
         }
-        const star = aimStars[hit];
-        star.mark = !star.mark;
-        combatSfx?.("node", star.mark ? 0.8 : 0.5);
-        const marked = aimStars.filter((s) => s.mark).length;
-        addPopup(
-          star.x,
-          star.y - 30,
-          star.mark ? "별자리 " + marked + "/3" : "해제",
-          "#ffd27f",
-          true,
-        );
         return;
       }
       if (hit < 0) {
-        // 빈 곳은 «지금 고른 것으로 발사»다. 셋을 채우면 자동으로 나가지만,
-        // 하나나 둘만 골라 약하고 정확하게 쏘고 싶을 때가 있다.
-        if (aimPick.length) launchFromAimStars();
-        else toast("별빛을 찍어 조준하세요 · 셋까지 고를 수 있습니다");
+        if (!aimPick.length)
+          toast("별빛을 찍어 조준하세요 · 셋까지 · Space로 발사");
         return;
       }
-      if (pickAimStar(hit)) launchFromAimStars();
+      // 셋을 채워도 바로 나가지 않는다. 발사는 Space다 — 고른 뒤에 미리보기를
+      // 보고 무를 수 있어야 「고른다」가 성립한다.
+      pickAimStar(hit);
       return;
     }
     if (e.button !== 0) return;
@@ -693,28 +679,46 @@ function aimStarPreview() {
     return aimStarShot([...aimPick, aimHover]);
   return aimPick.length ? aimStarShot() : null;
 }
-/* Space로 표시한 별빛을 태워 별자리를 그린다. 이것이 노드 경제의 한쪽이다 —
-   태우면 그 별빛은 사라지고, 그만큼 다음 샷의 조준 선택지가 줄어든다. */
-function castMarkedFigure() {
+/* 발사. 고른 셋이 «조준»이고, 고르지 않은 나머지가 «별자리»다.
+
+   그래서 선택이 하나인데 결과가 둘이다 — 일곱 개 중 어느 셋을 조준에 쓰느냐가
+   곧 남은 넷으로 어떤 별자리가 그려지느냐를 정한다. 별자리는 둘러싼 것을
+   때리므로(실측: 보스를 감싸면 42, 못 감싸면 0), 「가고 싶은 방향」과
+   「감싸고 싶은 모양」이 같은 손짓 안에서 다툰다.
+
+   순서는 별자리가 먼저다. deferFigureResolution이 현현 연출이 끝난 뒤에
+   발사를 이어 준다 — 없으면 별자리가 뜨는 위로 유성이 먼저 지나간다. */
+function launchAimStarShot() {
   if (!battle || ball?.moving || battleComplete) return false;
-  const marked = aimStars.filter((s) => s.mark);
-  if (marked.length < 3) {
-    if (marked.length)
-      toast("별빛 " + marked.length + "/3 · 셋부터 별자리가 됩니다");
+  const shot = aimStarShot();
+  if (!shot) {
+    toast("별빛을 골라 조준하세요 · 최대 셋");
     return false;
   }
-  const points = marked.map((s) => ({
-    x: s.x,
-    y: s.y,
-    col: s.col,
-    label: s.label,
-  }));
-  // 태운 것은 판에서 사라진다. 조준 선택은 인덱스라 함께 비운다.
-  aimStars = aimStars.filter((s) => !s.mark);
-  aimPick = [];
-  aimHover = -1;
-  resolveFigure?.(points);
-  sync();
+  const picked = new Set(aimPick.map((i) => aimStars[i])),
+    rest = aimStars.filter((s) => !picked.has(s));
+  const fire = () => {
+    aimPick = [];
+    aimHover = -1;
+    fireMeteor(
+      shot.dx,
+      shot.dy,
+      shot.force,
+      "별빛 조준 · 위력 " + Math.round(shot.force * 100) + "%",
+    );
+  };
+  if (rest.length >= 3) {
+    /* 남은 별빛은 별자리로 타 버린다. 조준에 쓴 셋은 남는다 — 둘 다
+       소모하면 경제가 적자다(한 샷이 남기는 별빛이 중앙 2개인데 여섯을
+       먹는다). 그래도 「조준에 빼두면 별자리에 못 쓴다」는 대가는 그대로다. */
+    aimStars = aimStars.filter((s) => picked.has(s));
+    resolveFigure?.(
+      rest.map((s) => ({ x: s.x, y: s.y, col: s.col, label: s.label })),
+    );
+    sync();
+    if (deferFigureResolution?.(fire)) return true;
+  }
+  fire();
   return true;
 }
 /* 샷이 끝나면 무엇이 남았는지 말한다. 판만 보고는 별빛이 몇 개 생겼는지,
@@ -722,37 +726,16 @@ function castMarkedFigure() {
 registerRuntimeHook("afterShotEnd", () => {
   if (!battle || battleComplete) return;
   if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
-  const n = aimStars.length,
-    marked = aimStars.filter((s) => s.mark).length;
+  const n = aimStars.length;
   if (!n) return toast("별빛 없음 · 끌어서 조준하세요");
   toast(
     "별빛 " +
       n +
-      (marked ? " (별자리 표시 " + marked + ")" : "") +
-      " · 좌클릭으로 조준" +
-      (marked >= 3 ? " · Space로 별자리" : ""),
+      " · 셋을 골라 조준 · 남은 " +
+      Math.max(0, n - 3) +
+      "개가 별자리가 됩니다",
   );
 });
-function launchFromAimStars() {
-  const shot = aimStarShot();
-  if (!shot) {
-    aimPick = [];
-    return false;
-  }
-  /* 조준은 별빛을 «쓰지» 않는다. 소모는 별자리 쪽에만 있다 — 태우면 그만큼
-     조준 선택지가 줄어드는 것이 이 설계의 저울질이고, 조준까지 소모하면
-     경제가 적자가 된다: 실측으로 한 샷이 남기는 별빛은 중앙 2개인데
-     조준이 3개를 먹으면 두 발째부터 늘 자유 조준으로 떨어졌다. */
-  aimPick = [];
-  aimHover = -1;
-  fireMeteor(
-    shot.dx,
-    shot.dy,
-    shot.force,
-    "별빛 조준 · 위력 " + Math.round(shot.force * 100) + "%",
-  );
-  return true;
-}
 /* 발사 본체. 조준 경로가 둘이므로(별빛 조준 / 드래그) 한 곳에 모은다 —
    나뉘어 있으면 한쪽만 고친 채로 다른 쪽이 조용히 남는다. */
 function fireMeteor(dx, dy, force, note = null) {

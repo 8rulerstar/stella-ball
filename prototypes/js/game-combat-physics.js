@@ -1138,10 +1138,10 @@ function drawAimStars() {
     pixelSparkle(star.x, star.y, r + 10, star.col + "aa", 2);
     pixelSparkle(star.x, star.y, r + 5, "#fff6e2", 3);
     pixelGem(star.x, star.y, Math.max(3, r - 3), [star.col, "#fff6e2"]);
-    if (star.mark) {
-      stepRing(star.x, star.y, r + 8, "#ffd27f");
-      stepRing(star.x, star.y, r + 12, "#ffd27f77");
-    }
+    // 고르지 않은 것은 별자리가 될 후보다. 셋 이상 남아야 실제로 그려지므로
+    // 그때만 금색 무리를 둘러 「이것들이 별자리가 된다」를 보여준다.
+    if (!picked && aimStars.length - aimPick.length >= 3)
+      stepRing(star.x, star.y, r + 8, "#ffd27f55", 3, 2);
     if (picked || hovered)
       stepRing(star.x, star.y, r + 6, picked ? "#ffffff" : "#ffffff88", 3, 3);
     if (picked) {
@@ -1161,6 +1161,7 @@ function drawAimStars() {
 
   /* 조작 안내. 튜토리얼이 아직 이 전투를 안 가르치므로(전투 확정 뒤에 다시
      짠다) 화면이 스스로 말해야 한다. */
+  const restCount = aimStars.length - aimPick.length;
   x.globalAlpha = 0.92;
   x.fillStyle = "#0b0718cc";
   x.fillRect(0, H - 46, W, 46);
@@ -1168,11 +1169,13 @@ function drawAimStars() {
   x.font = "700 13px Galmuri11, ui-monospace";
   x.textAlign = "center";
   x.fillText(
-    "별빛 " +
-      aimStars.length +
-      "  ·  좌클릭으로 조준 (" +
+    "조준 " +
       aimPick.length +
-      "/3)  ·  우클릭 별자리 표시  ·  Space 별자리",
+      "/3   ·   남은 " +
+      restCount +
+      "개가 별자리" +
+      (restCount >= 3 ? "" : " (셋부터)") +
+      "   ·   Space 발사",
     W / 2,
     H - 26,
   );
@@ -1180,8 +1183,8 @@ function drawAimStars() {
   x.font = "600 11px Galmuri11, ui-monospace";
   x.fillText(
     aimPick.length
-      ? "빈 곳을 좌클릭하면 지금 고른 것으로 발사합니다"
-      : "고른 별빛의 무게중심으로 날아가고, 벌린 만큼 세게 나갑니다",
+      ? "별자리가 먼저 그려지고 그다음 유성이 나갑니다 · 우클릭으로 무르기"
+      : "고른 별빛의 가운데로 날아가고, 벌린 만큼 세게 나갑니다",
     W / 2,
     H - 10,
   );
