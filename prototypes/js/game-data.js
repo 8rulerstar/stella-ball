@@ -1262,7 +1262,12 @@ function buildCampaignStages() {
           bumpers: [],
           gimmicks,
           tutorial: worldIndex === 0 && stageIndex === 0,
-          art: campaignIndex % 5,
+          /* 지형 세트는 월드를 따라간다. 통산 번호 기준이던 예전 값은
+             한 월드 안에서 스테이지마다 지형이 바뀌고(큰곰자리는 다섯 세트를
+             두 바퀴 돌았다) 월드끼리는 같은 세트가 반복됐다 — 월드가 바뀐 것이
+             화면에 드러나지 않던 원인이다. 세트가 다섯이라 월드 여덟 중 셋은
+             짝을 공유한다. 전용 세트는 `ASSET_BACKLOG.md` 항목이다. */
+          art: worldIndex % 5,
         };
       },
     ),

@@ -33,10 +33,76 @@ function carveNoise(a, b) {
   return s - Math.floor(s);
 }
 
+/* 월드 순서. 바닥색은 통산 스테이지 번호가 아니라 이 순서로 정한다.
+   예전 값 `min(0.85, 0.28 + index * 0.05)`은 index 12에서 상한에 닿아
+   4-1부터 마지막까지 23개 스테이지가 완전히 같은 색이었고, 애초에 월드
+   경계와 맞지 않아 한 월드 안에서 스테이지마다 색이 변했다. */
+const CARVE_WORLD_ORDER = [
+  "aries",
+  "sagitta",
+  "corvus",
+  "cass",
+  "cygnus",
+  "orion",
+  "ursa",
+  "outside",
+];
+function carveWorldIndex(index) {
+  const at = CARVE_WORLD_ORDER.indexOf(stages[index]?.world);
+  return at < 0 ? 0 : at;
+}
 // The void gets denser as the campaign moves outward.  This is presentation
 // only; it reads as difficulty without touching a single balance number.
+// 월드 여덟 개에 고르게 편다 — 마지막 월드에서만 상한에 닿는다.
 function carveVioletFor(index) {
-  return Math.min(0.85, 0.28 + index * 0.05);
+  const span = CARVE_WORLD_ORDER.length - 1;
+  return 0.3 + (carveWorldIndex(index) / span) * 0.55;
+}
+/* 돌판 색조도 월드를 따라간다. 밝기와 채도는 건드리지 않고 색상만 옮기므로
+   새벽 관측소의 어두운 바탕은 그대로다. 청록(양자리)에서 보랏빛(바깥)으로
+   가는 70도짜리 호 하나만 쓴다 — 공허가 짙어진다는 기존 연출과 같은 방향이라
+   두 신호가 서로를 거스르지 않는다. */
+const CARVE_WORLD_HUE_ARC = 70;
+function carveHueShift(hex, deg) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = ((n >> 16) & 255) / 255,
+    g = ((n >> 8) & 255) / 255,
+    b = (n & 255) / 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b),
+    l = (max + min) / 2,
+    d = max - min;
+  if (d === 0) return hex;
+  const sat = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h =
+    max === r
+      ? (g - b) / d + (g < b ? 6 : 0)
+      : max === g
+        ? (b - r) / d + 2
+        : (r - g) / d + 4;
+  h = (h / 6 + deg / 360) % 1;
+  const q = l < 0.5 ? l * (1 + sat) : l + sat - l * sat,
+    pp = 2 * l - q;
+  const chan = (t) => {
+    t = (t + 1) % 1;
+    const v =
+      t < 1 / 6
+        ? pp + (q - pp) * 6 * t
+        : t < 1 / 2
+          ? q
+          : t < 2 / 3
+            ? pp + (q - pp) * (2 / 3 - t) * 6
+            : pp;
+    return Math.round(v * 255);
+  };
+  const out = (chan(h + 1 / 3) << 16) | (chan(h) << 8) | chan(h - 1 / 3);
+  return "#" + out.toString(16).padStart(6, "0");
+}
+function carveRampFor(index) {
+  const span = CARVE_WORLD_ORDER.length - 1;
+  const deg = (carveWorldIndex(index) / span) * CARVE_WORLD_HUE_ARC;
+  if (deg === 0) return CARVE_PLATE_RAMP;
+  return CARVE_PLATE_RAMP.map((hex) => carveHueShift(hex, deg));
 }
 
 function carveFigureFor(index) {
@@ -48,7 +114,7 @@ function carveFigureFor(index) {
 // Voronoi plates baked at 4px.  A tiled PNG repeats every 128px and the seam
 // is visible; a voronoi field has no period at all, so the floor never shows
 // a grid the player can accidentally read as gameplay information.
-function carvePlates(layerX, seed) {
+function carvePlates(layerX, seed, ramp) {
   const count = 78;
   const sx = [];
   const sy = [];
@@ -57,10 +123,7 @@ function carvePlates(layerX, seed) {
     sx.push(carveNoise(i + seed, 1.7) * W);
     sy.push(carveNoise(i + seed, 4.3) * H);
     shade.push(
-      CARVE_PLATE_RAMP[
-        Math.floor(carveNoise(i + seed, 9.1) * CARVE_PLATE_RAMP.length) %
-          CARVE_PLATE_RAMP.length
-      ],
+      ramp[Math.floor(carveNoise(i + seed, 9.1) * ramp.length) % ramp.length],
     );
   }
   const cols = W / 4;
@@ -317,7 +380,7 @@ function buildCarveLayer(index) {
   const by = stages[index]?.boss?.y ?? 196;
   layerX.fillStyle = "#080e11";
   layerX.fillRect(0, 0, W, H);
-  carvePlates(layerX, seed);
+  carvePlates(layerX, seed, carveRampFor(index));
   carveAstrolabe(
     layerX,
     W / 2,

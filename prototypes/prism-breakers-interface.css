@@ -536,8 +536,15 @@ header,
 .game-mode .runes {
   display: none;
 }
+/* 넘치면 잘리는 것이 아니라 닿을 수 있어야 한다. `hidden`이던 이 규칙은
+   미디어 쿼리 밖 전역이라, 좁은 화면용으로 앞쪽(417행 블록)에 넣어 둔
+   `.overlay { overflow: auto }`를 같은 특정도로 덮어 무력화하고 있었다.
+   그래서 스테이지 선택의 내용 722px이 상자 635px에 갇혀 「튜토리얼 다시보기 ·
+   무한 훈련장 · 뒤로」 세 버튼이 스크롤도 못 하고 사라졌다 — 판을 떠날 방법이
+   없었다는 뜻이다. 내용이 들어맞을 때는 auto가 막대를 만들지 않으므로
+   타이틀·편성·전투 화면의 모습은 그대로다. */
 .overlay {
-  overflow: hidden;
+  overflow: auto;
 }
 .meta-hub {
   padding: 16px 18px;
