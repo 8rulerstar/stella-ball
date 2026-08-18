@@ -168,6 +168,28 @@
     off.ghost = !off.ghost;
     pinReact();
   }
+  /* F1 — 판 레이어를 살려 둔다.
+
+     흔들림·밀림·기울기는 캔버스가 아니라 .stage의 CSS transform으로 적용되고,
+     반응이 끝나면 그 문자열이 ""가 되어 transform이 «사라진다». 그때마다 브라우저는
+     .stage의 합성 레이어를 버리고, 다음 타격에 다시 만든다 — 그 서브트리에는
+     720x900 캔버스와 토스트·플래시·안내가 전부 들어 있다.
+
+     각성이 매 샷 2~4번 이것을 일으킨다(각성 연출이 밀림·기울기·잔상을 세운다).
+     F6이 렉을 없앤 이유가 잔상이 아니라 이것이라면, transform을 «지우지 않고»
+     0으로 두기만 해도 사라져야 한다. 그 차이를 여기서 시험한다.
+
+     원본 코드는 건드리지 않는다 — 매 프레임 뒤에 빈 transform만 0으로 되돌린다. */
+  function toggleStageLayer() {
+    off.stage = !off.stage;
+  }
+  function holdStageLayer() {
+    if (!off.stage) return;
+    var st = document.querySelector(".stage");
+    if (st && st.style.transform === "")
+      st.style.transform = "translate(0px,0px)";
+  }
+
   function snapshot() {
     var g = function (n) {
       try {
@@ -231,6 +253,7 @@
       }
     }
     last = now;
+    holdStageLayer();
     raf = requestAnimationFrame(tick);
     render();
   }
@@ -347,6 +370,11 @@
     } else if (e.code === "F3" && on) {
       e.preventDefault();
       toggleTwinkle();
+      gaps = [];
+      longs = [];
+    } else if (e.code === "F1" && on) {
+      e.preventDefault();
+      toggleStageLayer();
       gaps = [];
       longs = [];
     } else if (e.code === "F5" && on) {
