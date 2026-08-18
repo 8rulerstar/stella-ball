@@ -17,6 +17,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const DROP = process.argv.includes("--no-group-opacity");
 const browser = [
   process.env.STELLA_BROWSER_PATH,
   "C:/Program Files/Google/Chrome/Application/chrome.exe",
@@ -43,7 +44,7 @@ for (let i = 0; i < 60; i++) {
   await delay(120);
 }
 
-async function sample(w, h) {
+async function sample(w, h, dropOpacity) {
   const dir = mkdtempSync(join(tmpdir(), "winscale-"));
   const dbg = port + 1 + Math.floor(Math.random() * 0);
   const chrome = spawn(
@@ -113,6 +114,13 @@ async function sample(w, h) {
         deployed = ["gaon","biyeon","ria"]; selected = [...deployed];
         resetBuild(); setupBattle();
         document.querySelectorAll(".oo2, .cin, #introRoot").forEach((n) => n.remove());
+        /* --no-group-opacity: 전체화면 레이어의 그룹 불투명도를 걷어 본다.
+           걷었을 때 그 표면이 레이어 목록에서 사라지는지가, 색을 굽는 수술이
+           값어치가 있는지를 가른다. 색이 달라지므로 측정 전용이다. */
+        if (${dropOpacity ? "true" : "false"})
+          document.querySelectorAll('[data-sky-layer]').forEach((n) => {
+            n.style.opacity = "1";
+          });
       } catch (e) {}
       return 1;
     })()`,
@@ -197,7 +205,7 @@ try {
     [1920, 1080],
     [2560, 1440],
   ]) {
-    const s = await sample(w, h);
+    const s = await sample(w, h, DROP);
     console.log(
       `${String(w) + "x" + h}`.padEnd(11),
       "viewport",
