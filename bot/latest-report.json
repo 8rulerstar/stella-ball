@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generatedAt": "2026-08-18T01:08:22.652Z",
+    "generatedAt": "2026-08-18T01:43:01.348Z",
     "model": "runtime-harness-v2",
     "instrument": "campaign is the difficulty instrument; plain is a saturated regression baseline. Read campaign.byAim per policy across the aim ladder - a monotonic fall is a live signal, a flat row means the sweep cannot distinguish that policy any more. Never pool policies. Two caveats: the precise rung has sigma 0, so every seed replays one identical line and it is a single deterministic probe (does any line work at all?), not a six-sample rate; and the contact policy is non-monotonic across the ladder because a wider error can graze more starkeepers than a clean line does, so read chain for the difficulty curve.",
     "plain": {
@@ -47,6 +47,7 @@
           "precise": {
             "sigmaRad": 0,
             "cases": 210,
+            "distinctRuns": 35,
             "clearRate": 81,
             "averageShots": 3.5,
             "constellations": 12
@@ -54,6 +55,7 @@
           "steady": {
             "sigmaRad": 0.04,
             "cases": 210,
+            "distinctRuns": 210,
             "clearRate": 84.8,
             "averageShots": 3.6,
             "constellations": 43
@@ -61,6 +63,7 @@
           "loose": {
             "sigmaRad": 0.1,
             "cases": 210,
+            "distinctRuns": 210,
             "clearRate": 85.2,
             "averageShots": 3.5,
             "constellations": 41
@@ -68,6 +71,7 @@
           "wild": {
             "sigmaRad": 0.22,
             "cases": 210,
+            "distinctRuns": 210,
             "clearRate": 88.1,
             "averageShots": 3.3,
             "constellations": 68
@@ -77,6 +81,7 @@
           "precise": {
             "sigmaRad": 0,
             "cases": 210,
+            "distinctRuns": 35,
             "clearRate": 80.5,
             "averageShots": 3.5,
             "constellations": 40
@@ -84,6 +89,7 @@
           "steady": {
             "sigmaRad": 0.04,
             "cases": 210,
+            "distinctRuns": 210,
             "clearRate": 77.6,
             "averageShots": 3.6,
             "constellations": 45
@@ -91,6 +97,7 @@
           "loose": {
             "sigmaRad": 0.1,
             "cases": 210,
+            "distinctRuns": 210,
             "clearRate": 84.3,
             "averageShots": 3.6,
             "constellations": 51
@@ -98,6 +105,7 @@
           "wild": {
             "sigmaRad": 0.22,
             "cases": 210,
+            "distinctRuns": 210,
             "clearRate": 82.9,
             "averageShots": 3.6,
             "constellations": 69

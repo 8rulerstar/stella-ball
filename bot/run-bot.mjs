@@ -50,15 +50,26 @@ const campaign = sweepCampaign({ seeds: [11, 23, 47, 83, 101, 137] });
 const aims = Object.keys(AIM_LADDER);
 const policies = [...new Set(campaign.map((r) => r.policy))];
 
-// 조준 정확도 × 정책. 이 표가 단조 감소하면 계기가 살아 있는 것이다.
+/* 조준 정확도 × 정책. 이 표의 단조성을 계기의 건강 신호로 쓰지 않는다 —
+   0-7절에서 시드를 16개로 올리자 단조가 깨졌고, 원래의 매끄러운 곡선은 시드
+   2~6개짜리 표본의 착시였다. */
 const byAim = {};
 for (const policy of policies) {
   byAim[policy] = {};
   for (const aim of aims) {
     const rows = campaign.filter((r) => r.policy === policy && r.aim === aim);
+    /* aimSigma가 0이면 뽑은 난수에 0이 곱해져 사라지므로 시드가 아무것도
+       바꾸지 못한다 — 6개 시드가 같은 한 줄을 재생한다. cases를 그대로 표본
+       수로 읽으면 신뢰구간이 6배 좁아 보인다. 서로 다른 판이 실제로 몇 개인지
+       같이 낸다. (0-3절에 사실이, 0-7절에 그 영향이 적혀 있다) */
+    const distinctRuns =
+      AIM_LADDER[aim] === 0
+        ? new Set(rows.map((r) => r.campaignIndex + "/" + r.partySize)).size
+        : rows.length;
     byAim[policy][aim] = {
       sigmaRad: AIM_LADDER[aim],
       cases: rows.length,
+      distinctRuns,
       clearRate: clearRate(rows),
       averageShots: mean(rows, "shotsUsed"),
       constellations: rows.reduce((s, r) => s + r.constellations, 0),

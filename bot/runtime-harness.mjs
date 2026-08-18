@@ -376,7 +376,11 @@ function __botRun(config) {
         typeof config.aimSigma === "number"
           ? (Math.random() * 2 - 1) * config.aimSigma
           : config.spread[shot % config.spread.length];
-      __botLaunch(__botAngle(config.policy, shot, jitter), config);
+      // aimOffset은 잡음이 아니라 결정적인 각도 이동이다. 정책이 고른 각을
+      // 기준으로 삼고 그 둘레를 훑어 「피해가 각도에 따라 어떻게 변하는가」를
+      // 그리는 데 쓴다. 0이면 아무 영향이 없으므로 기존 측정은 그대로다.
+      const offset = typeof config.aimOffset === "number" ? config.aimOffset : 0;
+      __botLaunch(__botAngle(config.policy, shot, jitter + offset), config);
       shot += 1;
       shotFrames = 0;
     }
@@ -762,6 +766,8 @@ export function runCampaignStage({
   bossHpOverride = null,
   aimPath = false,
   launchForce = 1,
+  aimOffset = 0,
+  shots = 5,
 } = {}) {
   const party = PARTY_POOLS[partySize];
   if (!party) throw new Error("partySize must be 2, 3, or 4");
@@ -775,13 +781,14 @@ export function runCampaignStage({
       policy,
       seed,
       steer,
-      shots: 5,
+      shots,
       steerAt: 26,
       frameLimit: 7200,
       aimSigma,
       bossHpOverride,
       aimPath,
       launchForce,
+      aimOffset,
       spread: [0, 0, 0, 0],
     },
     "__botCampaignRun",
