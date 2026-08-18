@@ -385,11 +385,10 @@
       over +
       "/" +
       s.length +
-      "
-" +
+      String.fromCharCode(10) +
       verdict() +
-      "
-[F10 기록]  F7 하늘  F8 흐림  F6 화면반응";
+      String.fromCharCode(10) +
+      "[F10 기록]  F7 하늘  F8 흐림  F6 화면반응";
   }
 
   function build() {
