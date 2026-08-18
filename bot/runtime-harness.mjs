@@ -337,10 +337,13 @@ function __botChainAngle(spread) {
   }
   return (best ? best.angle : Math.atan2(boss.y - ball.y, boss.x - ball.x)) + spread;
 }
-function __botTryParry(mode) {
+/* noParry는 «조준만으로 얼마나 되는가»를 재기 위한 것이다. direct 정책도
+   패링을 안 하지만 그쪽은 보스를 직접 겨누므로 별지기 조준 실력과 무관하다.
+   조준은 chain/contact 그대로 두고 패링만 끈다. */
+function __botTryParry(mode, config) {
   const state = currentFigureShot();
   __botMetrics.maxNodes = Math.max(__botMetrics.maxNodes, state.nodes.length);
-  if (mode === "direct") return;
+  if (mode === "direct" || (config && config.noParry)) return;
   if (state.contact && state.contact.t > 0) {
     if (requestTrainingParry()) __botMetrics.lateParries += 1;
     return;
@@ -384,7 +387,7 @@ function __botRun(config) {
       shot += 1;
       shotFrames = 0;
     }
-    __botTryParry(config.policy);
+    __botTryParry(config.policy, config);
     if (config.steer && ball.moving && !ball.steerUsed && shotFrames === config.steerAt) {
       if (steerMeteor(shot % 2 ? -1 : 1)) __botMetrics.steers += 1;
     }
@@ -1229,6 +1232,33 @@ export function runPlainArena({
     frameLimit: 7200,
     spread: [-0.1, -0.04, 0.04, 0.1],
   });
+}
+
+export function probeAimSkill({
+  campaignIndex = 0,
+  policy = "chain",
+  seed = 1,
+  aimSigma = 0,
+  noParry = true,
+  bossHpOverride = 999999,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma,
+      spread: [0, 0, 0, 0],
+      noParry,
+      bossHpOverride,
+    },
+    "__botCampaignRun.bind(null, __botConfig)",
+  );
 }
 
 export function probeGuideTruth({
