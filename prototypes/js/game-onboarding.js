@@ -705,19 +705,70 @@ function showStoryIntro() {
   drag = null;
   setScene("title");
   U.over.className = "overlay story-intro-scene";
+  /* 프롤로그 (INTRO_REDESIGN_HANDOFF.md §2-3). 예전에는 네 줄을 한 카드에
+     모두 띄우고 아무 데나 누르면 닫혔다 — 읽는 순서도 없고, 각 줄이 무엇을
+     말하는지 하늘이 거들지도 않았다. 한 줄씩 4초, 줄마다 하늘이 한 가지씩
+     한다. 문구는 규격이 못 박은 대로 기존 원문 그대로 두고 키워드만 칠한다.
+     골드는 「되찾을 수 있는 것」(별·별지기·별자리), 마젠타는 「바깥에서 온
+     것」(공허) — §1-1의 두 색 규칙이 그대로 문장에 걸린다. */
+  const LINES = [
+    ["어느 밤부터, <b>별</b>이 하나씩 꺼졌다.", "dim"],
+    [
+      '이야기가 잊힐 때마다 별이 지고,<br>그 자리에 <b class="void">공허</b>가 고였다.',
+      "pool",
+    ],
+    [
+      "땅에 떨어져 잠든 <b>별지기</b>를 깨우는 방법은<br>단 하나 — <b>부딪히는 것</b>.",
+      "wake",
+    ],
+    [
+      "관측자여, 유성을 굴려라.<br><b>별자리</b>가 기억을 되찾을 것이다.",
+      "link",
+    ],
+  ];
   U.over.innerHTML =
-    '<section class="story-intro-card" aria-label="잊힌 별의 관측자 프롤로그"><small class="story-intro-kicker">THE LAST OBSERVATORY</small><h2>잊힌 별의 관측자</h2><div class="story-intro-lines"><p>어느 밤부터, 별이 하나씩 꺼졌다.</p><p>이야기가 잊힐 때마다 별이 지고, 그 자리에 공허가 고였다.</p><p>땅에 떨어져 잠든 별지기를 깨우는 방법은 단 하나 — 부딪히는 것.</p><p>관측자여, 유성을 굴려라. 별자리가 기억을 되찾을 것이다.</p></div><small class="story-intro-skip">클릭하여 계속</small></section>';
+    '<section class="pro-scene" aria-label="잊힌 별의 관측자 프롤로그">' +
+    '<div class="pro-bar pro-bar-t" aria-hidden="true"></div>' +
+    '<div class="pro-bar pro-bar-b" aria-hidden="true"></div>' +
+    '<div class="pro-sky" aria-hidden="true"><span class="pro-pool"></span>' +
+    '<span class="pro-meteor"></span><span class="pro-wake"></span>' +
+    '<svg class="pro-links" viewBox="0 0 260 120"><line x1="40" y1="82" x2="130" y2="34"></line>' +
+    '<line x1="130" y1="34" x2="222" y2="72"></line></svg></div>' +
+    '<small class="pro-kicker">PROLOGUE</small>' +
+    '<p class="pro-line" aria-live="polite"></p>' +
+    '<small class="pro-hint">클릭하여 계속</small></section>';
+  const scene = U.over.querySelector(".pro-scene");
+  const lineEl = U.over.querySelector(".pro-line");
+  const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  let step = -1;
+  let hold = null;
+  const advance = () => {
+    clearTimeout(hold);
+    step += 1;
+    if (step >= LINES.length) return close();
+    const [html, beat] = LINES[step];
+    lineEl.innerHTML = html;
+    lineEl.classList.add("pro-enter");
+    void lineEl.offsetWidth;
+    lineEl.classList.remove("pro-enter");
+    // 하늘 비트는 «누적»이다. 별이 꺼진 자리에 공허가 고이고, 그 위로 유성이
+    // 떨어진다 — 앞 줄을 지우면 문장들이 이어지지 않는다.
+    scene.classList.add("pro-" + beat);
+    if (!still) hold = setTimeout(advance, 4000);
+  };
   // `once` tears the key listener down on the first KEYPRESS, not when the
   // prologue closes - so closing it with a click left the listener bound for
   // the rest of the session, and every showStoryIntro added another. Release
   // it from close() instead, whichever way the card was dismissed.
+  // 키보드로도 한 줄씩 넘어간다 — 마지막 줄에서 누르면 닫힌다.
   const skipStoryIntro = () => {
-    if (document.querySelector(".story-intro-card")) close();
+    if (document.querySelector(".pro-scene")) advance();
   };
   const close = () => {
     // The overlay element is reused by every later screen, so this handler has
     // to be released.  Leaving it attached made any click on the hub, gacha,
     // achievements or settings restart the tutorial underneath them.
+    clearTimeout(hold);
     U.over.onclick = null;
     removeEventListener("keydown", skipStoryIntro);
     markStoryIntroSeen();
@@ -731,9 +782,10 @@ function showStoryIntro() {
      before a single frame had been painted. The prologue was being built and
      destroyed by one press, which is why a first run never showed it. */
   setTimeout(() => {
-    if (!document.querySelector(".story-intro-card")) return;
-    U.over.onclick = close;
+    if (!document.querySelector(".pro-scene")) return;
+    U.over.onclick = advance;
     addEventListener("keydown", skipStoryIntro);
+    advance();
   }, 0);
 }
 function showTitle() {
