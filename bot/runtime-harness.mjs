@@ -1008,10 +1008,10 @@ function __botDeferredFigureProbe(config) {
 function __botInstallHeroMass(k) {
   if (!k || k === 1) return;
   var originalPair = mobilePair;
-  mobilePair = function (a, ar, b, br, onHit, kind) {
+  mobilePair = function (a, ar, b, br, onHit, kind, massB) {
     var isBallHero =
       (a === ball && gates.indexOf(b) >= 0) || (b === ball && gates.indexOf(a) >= 0);
-    if (!isBallHero) return originalPair(a, ar, b, br, onHit, kind);
+    if (!isBallHero) return originalPair(a, ar, b, br, onHit, kind, massB);
     var dx = b.x - a.x, dy = b.y - a.y;
     var d = Math.hypot(dx, dy) || 1, reach = ar + br;
     if (d >= reach) return false;
@@ -1038,16 +1038,68 @@ function __botInstallHeroMass(k) {
     return true;
   };
 }
+// 조준 가이드가 «진짜»인가. billiardPredict가 그리는 첫 접촉 뒤의 선과,
+// 같은 각으로 실제로 쐈을 때 유성이 가는 방향을 비교한다. 물리에 질량을 넣고
+// 가이드를 안 고치면 여기가 벌어진다 — 예측 가능하게 만들려던 변경이 오히려
+// 가이드를 거짓말로 만드는지 확인하는 자리다.
+function __botGuideTruthProbe(config) {
+  var source = stages[config.campaignIndex];
+  if (!source || source.training) throw new Error("campaign stage is unavailable");
+  __botStart({
+    ...config,
+    arena: { ...source, tutorial: false, bossHp: source.bossHp },
+    bossHp: source.bossHp,
+  });
+  var angle = __botAngle(config.policy, 0, 0) + (config.angleOffset || 0);
+  // 가이드는 «당김 벡터»를 받는다. 발사 방향의 반대다.
+  var guide = billiardPredict(Math.cos(angle), Math.sin(angle));
+  if (!guide.hits.length) return { hit: false };
+  var p = guide.points;
+  var gx = p[p.length - 1].x - p[p.length - 2].x;
+  var gy = p[p.length - 1].y - p[p.length - 2].y;
+  // 충돌 «직후» 속도를 훅에서 바로 잡는다. 예전에는 5프레임 뒤를 봤는데,
+  // 질량을 올리면 유성이 더 빨라서 그 5프레임 안에 다른 것을 또 맞는다 —
+  // 가이드가 나빠진 것처럼 보이던 값의 정체가 그것이었다.
+  var contacted = false, vx = 0, vy = 0, hitTarget = null;
+  registerRuntimeHook("afterMobilePairCollision", function (payload) {
+    if (contacted || !payload) return;
+    if (payload.a !== ball && payload.b !== ball) return;
+    contacted = true;
+    vx = ball.vx;
+    vy = ball.vy;
+    hitTarget = payload.a === ball ? payload.b : payload.a;
+  });
+  __botLaunch(angle, config);
+  for (var f = 0; f < 900 && ball.moving && !contacted; f++) {
+    update(1 / 60);
+    updateSpecial(1 / 60);
+    updateFeedback(1 / 60);
+  }
+  if (!contacted) return { hit: false };
+  var lg = Math.hypot(gx, gy) || 1, lv = Math.hypot(vx, vy) || 1;
+  var dot = (gx * vx + gy * vy) / (lg * lv);
+  return {
+    hit: true,
+    sameTarget: hitTarget === guide.hits[0].target,
+    errorDeg: (Math.acos(Math.max(-1, Math.min(1, dot))) * 180) / Math.PI,
+  };
+}
 function __botLegibilityProbe(config) {
   var source = stages[config.campaignIndex];
   if (!source || source.training) throw new Error("campaign stage is unavailable");
   var hits = [];
   var shotNo = 0, inShot = 0;
   __botInstallHeroMass(config.heroMass);
+  // 각성 조건은 g.moved && g.travel > 10 이다 — 무거운 별지기는 덜 밀리므로
+  // 질량을 올리면 각성이 죽을 수 있다. 샷마다 몇 명이 깼는지 센다.
+  var awakened = [];
+  registerRuntimeHook("beforePartySettle", function (ctx) {
+    awakened.push(ctx.awakened.length);
+  });
   // mobilePair를 감싼다. 훅(afterMobilePairCollision)은 임펄스가 «끝난 뒤»에
   // 불리므로 별지기의 충돌 전 속도를 읽을 수 없다 — 처음엔 그걸 재고 있었다.
   var originalPair = mobilePair;
-  mobilePair = function (a, ar, b, br, onHit, kind) {
+  mobilePair = function (a, ar, b, br, onHit, kind, massB) {
     var other = a === ball ? b : b === ball ? a : null;
     var pre = null;
     if (other) {
@@ -1065,7 +1117,7 @@ function __botLegibilityProbe(config) {
           };
       }
     }
-    var res = originalPair(a, ar, b, br, onHit, kind);
+    var res = originalPair(a, ar, b, br, onHit, kind, massB);
     if (pre) {
       inShot += 1;
       hits.push({
@@ -1090,7 +1142,7 @@ function __botLegibilityProbe(config) {
     arena: { ...source, tutorial: false, bossHp: source.bossHp },
     bossHp: source.bossHp,
   });
-  return { stageId: source.id, hits: hits, run: result };
+  return { stageId: source.id, hits: hits, awakened: awakened, run: result };
 }
 function __botTrajectoryProbe(config) {
   var source = stages[config.campaignIndex];
@@ -1167,6 +1219,29 @@ export function runPlainArena({
     frameLimit: 7200,
     spread: [-0.1, -0.04, 0.04, 0.1],
   });
+}
+
+export function probeGuideTruth({
+  campaignIndex = 0,
+  policy = "chain",
+  seed = 1,
+  angleOffset = 0,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 1,
+      steerAt: 26,
+      frameLimit: 7200,
+      spread: [0, 0, 0, 0],
+      angleOffset,
+    },
+    "__botGuideTruthProbe.bind(null, __botConfig)",
+  );
 }
 
 export function probeLegibility({

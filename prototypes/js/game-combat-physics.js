@@ -400,7 +400,27 @@ function applyStageGimmicks(o, unit = null) {
     });
   for (const pad of boostPads) applyBoostPad(o, pad, unit);
 }
-function mobilePair(a, ar, b, br, onHit, kind = "pair") {
+/* 별지기는 유성보다 무겁다.
+
+   예전에는 두 몸이 같은 질량이라 법선 성분이 통째로 넘어갔다. 그래서 «정통으로
+   맞출수록 유성이 죽었다» — 실측(probeLegibility, 접촉 826회)으로 정면도
+   중앙값이 0.88이고, 정중앙(c>=0.95)으로 맞은 34%는 속도의 17%만 남긴다.
+   남은 속도가 0에 가까우면 그 «방향»이 극도로 민감해진다: 마우스 1px 차이가
+   세 번째 접촉에서 진행 방향을 57.6도 바꿨다(probeTrajectory). 당구처럼
+   읽히지 않던 원인은 충돌 횟수가 아니라 여기였다 — 첫 접촉은 이미 0.7도로
+   정확했고, 별지기는 접촉의 83.5%에서 정지해 있었다.
+
+   질량 5에서 그 발산이 1.9도로 평평해지고, 충돌 후 남는 속도가 43% -> 73%,
+   샷당 별지기 접촉이 1.51 -> 1.83회가 된다. 각성(g.moved && g.travel > 10)은
+   1.41 -> 1.38로 사실상 그대로다 — 별지기를 실제로 날리는 것은 패링의
+   guaranteeMomentum(410~1080)이기 때문이다. 클리어율 93.0% -> 95.3%.
+   8까지 올리면 99.2%로 터진다.
+
+   1로 두면 예전 식과 완전히 동일하다(mu = 0.5 -> impulse = 0.98 * along).
+   분신 유성(game-combat.js의 updateCloneBalls)은 콜백에서 속도를 자기 값으로
+   덮어쓰므로 여기 값을 받지 않는다. */
+const HERO_MASS = 5;
+function mobilePair(a, ar, b, br, onHit, kind = "pair", massB = 1) {
   let dx = b.x - a.x,
     dy = b.y - a.y,
     d = Math.hypot(dx, dy) || 1,
@@ -415,12 +435,44 @@ function mobilePair(a, ar, b, br, onHit, kind = "pair") {
   b.y += ny * (overlap * 0.5 + 0.12);
   const along = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
   if (along <= 0) return true;
+  /* 법선은 «겹친 자리»가 아니라 «닿은 자리»에서 잡는다.
+
+     한 프레임을 최대 3조각으로만 쪼개는데(slices) 실제로는 2조각이라, 발사
+     직후 유성은 한 조각에 14px씩 움직인다 — 반지름이 13이므로 접촉이 감지될
+     때 이미 접촉 거리의 40%까지 파고들어 있다. 그 자리의 법선은 실제로 닿은
+     순간의 법선과 다르고, 조준 가이드는 정확한 접점을 계산하므로 둘이 갈렸다:
+     실측 3.67도(중앙), p90 9.98도. 가이드 선이 유성 지름만큼 어긋난다는 뜻이다.
+
+     상대 속도를 따라 시간을 되감아 |p + vrel·t| = reach가 되는 t를 푼다.
+     위치는 건드리지 않는다 — 겹침 해소는 그대로 두고 «방향»만 바로잡는다. */
+  const relVx = a.vx - b.vx,
+    relVy = a.vy - b.vy,
+    relSq = relVx * relVx + relVy * relVy;
+  if (relSq > 1) {
+    const pDotV = dx * relVx + dy * relVy,
+      disc = pDotV * pDotV - relSq * (d * d - reach * reach);
+    if (disc >= 0) {
+      const t = (-pDotV + Math.sqrt(disc)) / relSq;
+      if (t >= 0 && t * t * relSq < reach * reach * 4) {
+        const tx = dx + relVx * t,
+          ty = dy + relVy * t,
+          tl = Math.hypot(tx, ty) || 1;
+        nx = tx / tl;
+        ny = ty / tl;
+      }
+    }
+  }
   const incoming = { x: a.vx, y: a.vy },
-    impulse = along * 0.98;
+    /* 탄성 충돌의 환산질량. massB = 1이면 mu = 0.5이고 impulse = 0.98 * along이라
+       예전 식과 글자 그대로 같다. 겹침 해소(위의 overlap * 0.5)는 질량을 타지
+       않는다 — 각성이 살아남는다고 측정한 것이 이 상태이고, 여기를 함께 바꾸면
+       그 측정이 무효가 된다. */
+    reduced = massB / (1 + massB),
+    impulse = 1.96 * reduced * along;
   a.vx -= impulse * nx;
   a.vy -= impulse * ny;
-  b.vx += impulse * nx;
-  b.vy += impulse * ny;
+  b.vx += (impulse / massB) * nx;
+  b.vy += (impulse / massB) * ny;
   onHit?.(nx, ny, along, incoming);
   // `kind` exists because the feedback consumer cannot tell these apart from
   // the payload alone: every caller passes a starkeeper as one of the two
@@ -702,6 +754,7 @@ function simulatePhysics(d) {
           resolveMeteorParryContact(g, contact);
         },
         "meteor-hero",
+        HERO_MASS,
       );
     for (let a = 0; a < gates.length; a++)
       for (let b = a + 1; b < gates.length; b++) {
@@ -857,11 +910,18 @@ function billiardPredict(dx, dy) {
     px += vx * first.t;
     py += vy * first.t;
     points.push({ x: px, y: py });
+    /* 가이드는 물리와 같은 식을 써야 한다. 예전에는 법선 성분을 통째로
+       넘기는 등질량 결과(cueV = v - (v·n)n)를 그렸는데, 물리가 HERO_MASS를
+       타기 시작하면 그리는 선과 실제 진로가 갈린다 — 예측 가능하게 만들려던
+       변경이 오히려 가이드를 거짓말로 만든다. mobilePair와 같은 환산질량을
+       쓴다(계수 0.98도 여기서 함께 맞춰진다). */
     const nx = (px - first.target.x) / (ball.r + first.target.r),
       ny = (py - first.target.y) / (ball.r + first.target.r),
       normal = vx * nx + vy * ny,
-      unitV = { x: nx * normal, y: ny * normal },
-      cueV = { x: vx - unitV.x, y: vy - unitV.y };
+      reduced = HERO_MASS / (1 + HERO_MASS),
+      impulse = 1.96 * reduced * normal,
+      unitV = { x: (nx * impulse) / HERO_MASS, y: (ny * impulse) / HERO_MASS },
+      cueV = { x: vx - nx * impulse, y: vy - ny * impulse };
     const travel = 260;
     unitPaths.push({
       from: { x: px, y: py },
