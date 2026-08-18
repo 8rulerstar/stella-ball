@@ -1061,70 +1061,130 @@ registerRuntimeHook("afterDraw", function drawSteerPrompt() {
    셋이 모였을 때의 삼각형과 무게중심을 그린다.
    색은 별지기의 판단색(g.col)을 그대로 쓴다 — 어느 별지기에서 나온 별빛인지가
    곧 그 점의 정체이고, 표현용 토큰으로 덮으면 그 인과가 사라진다. */
+/* 별빛은 «별»로 그린다. 별지기도 원형 토큰이라, 별빛을 원으로 그리면 판
+   위에서 둘이 같은 물건으로 보인다 — 실제로 첫 화면에서 구분이 안 됐다.
+   이 저장소가 공명 연출에서 이미 배운 규칙이다: 다른 것은 밝기가 아니라
+   모양으로 갈라야 읽힌다(PARRY_FX 주석). */
+function pixelSparkle(cx, cy, r, col, thick = 3) {
+  x.fillStyle = col;
+  const step = 3;
+  for (let d = -r; d <= r; d += step) {
+    const taper = Math.max(1, Math.round((1 - Math.abs(d) / r) * thick));
+    const px = Math.round((cx + d) / step) * step,
+      py = Math.round((cy + d) / step) * step;
+    x.fillRect(px, Math.round(cy) - taper, step, taper * 2);
+    x.fillRect(Math.round(cx) - taper, py, taper * 2, step);
+  }
+}
 function drawAimStars() {
   if (!run || battle?.victory || ball?.moving || !aimStars.length) return;
   if (introProgress() < 1) return;
-  const preview = aimStarPreview();
+  const preview = aimStarPreview(),
+    // 맥동. 지금이 «고르는 시간»이라는 것이 가만히 있어도 읽혀야 한다.
+    pulse = 0.5 + 0.5 * Math.sin(frameClock / 260);
   x.save();
+  /* 판을 살짝 덮는다. 별빛이 5px짜리 보석이라 판의 다른 것들에 묻혀
+     「안 보인다」는 제보가 있었다 — 크기만 키우면 판이 시끄러워지므로,
+     주위를 낮추고 별빛만 남긴다. 판단색을 바꾸지는 않는다(§1-4). */
+  x.globalAlpha = 0.34;
+  x.fillStyle = "#0b0718";
+  x.fillRect(0, 0, W, H);
+  x.globalAlpha = 1;
+
   if (preview) {
-    // 삼각형과 무게중심. 세기가 «크기»라는 규칙이 눈에 보여야 한다.
-    const p = (aimPick.length >= 3 ? aimPick : [...aimPick, aimHover]).map(
-      (i) => aimStars[i],
-    );
+    const previewPicks =
+      aimPick.length >= 3 || aimHover < 0 || aimPick.includes(aimHover)
+        ? aimPick
+        : [...aimPick, aimHover];
+    const p = previewPicks.map((i) => aimStars[i]);
     if (p.every(Boolean)) {
-      x.globalAlpha = 0.5;
-      x.setLineDash([4, 4]);
+      x.globalAlpha = 0.62;
+      x.setLineDash([5, 4]);
       x.strokeStyle = "#ffe09a";
-      x.lineWidth = 1.5;
-      x.beginPath();
-      x.moveTo(p[0].x, p[0].y);
-      x.lineTo(p[1].x, p[1].y);
-      x.lineTo(p[2].x, p[2].y);
-      x.closePath();
-      x.stroke();
+      x.lineWidth = 2;
+      if (p.length > 1) {
+        x.beginPath();
+        x.moveTo(p[0].x, p[0].y);
+        for (let i = 1; i < p.length; i++) x.lineTo(p[i].x, p[i].y);
+        if (p.length > 2) x.closePath();
+        x.stroke();
+      }
       x.setLineDash([]);
       x.globalAlpha = 1;
-      stepRing(preview.cx, preview.cy, 9, "#ffe09acc");
+      stepRing(preview.cx, preview.cy, 10, "#ffe09a");
       x.fillStyle = "#ffe09a";
-      x.font = "700 11px Galmuri11, ui-monospace";
+      x.font = "700 12px Galmuri11, ui-monospace";
       x.textAlign = "center";
       x.fillText(
         "위력 " + Math.round(preview.force * 100) + "%",
         preview.cx,
-        preview.cy - 16,
+        preview.cy - 18,
       );
     }
   }
+
   for (let i = 0; i < aimStars.length; i++) {
     const star = aimStars[i],
       order = aimPick.indexOf(i),
       picked = order >= 0,
       hovered = i === aimHover;
     if (star.born > 0) star.born = Math.max(0, star.born - 1 / 60);
-    const grow = star.born > 0 ? 1 + star.born * 1.6 : 1;
-    pixelGem(star.x, star.y, (picked ? 7 : 5) * grow, [star.col, "#fff4d8"]);
-    // 별자리용 표시는 금색 겹고리다. 조준 선택(숫자)과 «종류»가 다른
-    // 표시라, 밝기가 아니라 모양으로 갈라야 읽힌다.
+    const grow = star.born > 0 ? 1 + star.born * 1.8 : 1,
+      // 고르지 않은 것이 맥동한다. 이미 고른 것은 흔들리면 오히려 읽기 어렵다.
+      breathe = picked ? 1 : 1 + pulse * 0.22,
+      r = (picked ? 11 : 9) * grow * breathe;
+    // 바깥 무리 + 뾰족한 별. 어두워진 판 위에서 이것이 「여기 있다」를 만든다.
+    stepRing(star.x, star.y, r + 10 + pulse * 3, star.col + "33", 3, 2);
+    pixelSparkle(star.x, star.y, r + 10, star.col + "aa", 2);
+    pixelSparkle(star.x, star.y, r + 5, "#fff6e2", 3);
+    pixelGem(star.x, star.y, Math.max(3, r - 3), [star.col, "#fff6e2"]);
     if (star.mark) {
-      stepRing(star.x, star.y, 15, "#ffd27f");
-      stepRing(star.x, star.y, 19, "#ffd27f66");
+      stepRing(star.x, star.y, r + 8, "#ffd27f");
+      stepRing(star.x, star.y, r + 12, "#ffd27f77");
     }
     if (picked || hovered)
-      stepRing(
-        star.x,
-        star.y,
-        picked ? 13 : 11,
-        picked ? "#ffe09a" : "#ffe09a77",
-      );
+      stepRing(star.x, star.y, r + 6, picked ? "#ffffff" : "#ffffff88", 3, 3);
     if (picked) {
+      // 번호는 별빛 «위»에 칩으로 띄운다. 안에 넣으면 별 모양에 묻힌다.
+      const bx = star.x,
+        by = star.y - r - 16;
+      x.fillStyle = "#ffe09a";
+      x.fillRect(bx - 9, by - 9, 18, 18);
       x.fillStyle = "#0f0a1e";
-      x.font = "700 10px Galmuri11, ui-monospace";
+      x.font = "700 13px Galmuri11, ui-monospace";
       x.textAlign = "center";
       x.textBaseline = "middle";
-      x.fillText(String(order + 1), star.x, star.y + 1);
+      x.fillText(String(order + 1), bx, by + 1);
       x.textBaseline = "alphabetic";
     }
   }
+
+  /* 조작 안내. 튜토리얼이 아직 이 전투를 안 가르치므로(전투 확정 뒤에 다시
+     짠다) 화면이 스스로 말해야 한다. */
+  x.globalAlpha = 0.92;
+  x.fillStyle = "#0b0718cc";
+  x.fillRect(0, H - 46, W, 46);
+  x.fillStyle = "#ffe09a";
+  x.font = "700 13px Galmuri11, ui-monospace";
+  x.textAlign = "center";
+  x.fillText(
+    "별빛 " +
+      aimStars.length +
+      "  ·  좌클릭으로 조준 (" +
+      aimPick.length +
+      "/3)  ·  우클릭 별자리 표시  ·  Space 별자리",
+    W / 2,
+    H - 26,
+  );
+  x.fillStyle = "#cfc4e8";
+  x.font = "600 11px Galmuri11, ui-monospace";
+  x.fillText(
+    aimPick.length
+      ? "빈 곳을 좌클릭하면 지금 고른 것으로 발사합니다"
+      : "고른 별빛의 무게중심으로 날아가고, 벌린 만큼 세게 나갑니다",
+    W / 2,
+    H - 10,
+  );
   x.restore();
 }
 registerRuntimeHook("afterDraw", drawAimStars);

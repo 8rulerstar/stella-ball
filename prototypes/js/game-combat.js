@@ -499,7 +499,10 @@ function billiardPointerDown(e) {
         return;
       }
       if (hit < 0) {
-        if (aimPick.length) toast("별빛을 찍어 조준하세요 · 셋을 고르면 발사");
+        // 빈 곳은 «지금 고른 것으로 발사»다. 셋을 채우면 자동으로 나가지만,
+        // 하나나 둘만 골라 약하고 정확하게 쏘고 싶을 때가 있다.
+        if (aimPick.length) launchFromAimStars();
+        else toast("별빛을 찍어 조준하세요 · 셋까지 고를 수 있습니다");
         return;
       }
       if (pickAimStar(hit)) launchFromAimStars();
@@ -617,10 +620,17 @@ function resetAimStars() {
   aimPick = [];
   aimHover = -1;
 }
-/* 별빛 조준이 지금 가능한가. 셋 미만이면 예전 드래그 조준으로 떨어진다 —
-   튜토리얼과 온보딩 E2E가 드래그를 쓰므로 그 경로는 살아 있어야 한다. */
+/* 별빛이 하나라도 있으면 별빛 조준이다. 0개일 때만 예전 드래그로 떨어진다 —
+   첫 발에는 별빛이 없고, 튜토리얼과 온보딩 E2E도 드래그를 쓴다.
+
+   셋을 요구하지 않는 이유: 규칙이 이미 일반화된다. 무게중심은 «고른 점들의
+   평균»이고 세기는 «무게중심에서 각 점까지의 평균 거리»라, 하나면 그 점
+   자체(거리 0 = 최소 세기), 둘이면 중점(반거리), 셋이면 삼각형이다.
+   그래서 「별빛이 많을수록 세게 칠 수 있다」가 규칙 하나로 나온다 — 모으면
+   세지고 별자리로 태우면 약해진다는 대가가 저절로 생긴다.
+   셋 미만을 드래그로 떨어뜨리면 조작이 조용히 바뀌어 오히려 헷갈린다. */
 function aimStarReady() {
-  return aimStars.length >= 3;
+  return aimStars.length >= 1;
 }
 function aimStarAt(px, py) {
   let best = -1,
@@ -636,12 +646,13 @@ function aimStarAt(px, py) {
 }
 /* 고른 셋에서 발사값을 뽑는다. 셋이 안 되면 null이라 호출자가 분기한다. */
 function aimStarShot(picks = aimPick) {
-  if (picks.length < 3) return null;
+  if (!picks.length) return null;
   const p = picks.map((i) => aimStars[i]);
   if (p.some((s) => !s)) return null;
-  const cx = (p[0].x + p[1].x + p[2].x) / 3,
-    cy = (p[0].y + p[1].y + p[2].y) / 3,
-    radius = p.reduce((sum, s) => sum + Math.hypot(s.x - cx, s.y - cy), 0) / 3,
+  const cx = p.reduce((sum, s) => sum + s.x, 0) / p.length,
+    cy = p.reduce((sum, s) => sum + s.y, 0) / p.length,
+    radius =
+      p.reduce((sum, s) => sum + Math.hypot(s.x - cx, s.y - cy), 0) / p.length,
     dx = cx - ball.x,
     dy = cy - ball.y;
   // 무게중심이 유성 위에 겹치면 방향이 없다. 그 조합은 쏠 수 없다.
@@ -676,9 +687,11 @@ function pickAimStar(index) {
    않으면 «고른다»는 말이 성립하지 않는다. */
 function aimStarPreview() {
   if (aimPick.length >= 3) return aimStarShot();
-  if (aimPick.length === 2 && aimHover >= 0 && !aimPick.includes(aimHover))
+  // 마우스가 올라간 것을 «다음 하나»로 가정해 미리 그린다. 아무것도 안 고른
+  // 상태에서 별빛 위에 올리기만 해도 그 한 발이 어디로 갈지 바로 보인다.
+  if (aimHover >= 0 && !aimPick.includes(aimHover))
     return aimStarShot([...aimPick, aimHover]);
-  return null;
+  return aimPick.length ? aimStarShot() : null;
 }
 /* Space로 표시한 별빛을 태워 별자리를 그린다. 이것이 노드 경제의 한쪽이다 —
    태우면 그 별빛은 사라지고, 그만큼 다음 샷의 조준 선택지가 줄어든다. */
@@ -704,6 +717,22 @@ function castMarkedFigure() {
   sync();
   return true;
 }
+/* 샷이 끝나면 무엇이 남았는지 말한다. 판만 보고는 별빛이 몇 개 생겼는지,
+   지금 무엇을 할 수 있는지가 안 읽힌다는 제보가 있었다. */
+registerRuntimeHook("afterShotEnd", () => {
+  if (!battle || battleComplete) return;
+  if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
+  const n = aimStars.length,
+    marked = aimStars.filter((s) => s.mark).length;
+  if (!n) return toast("별빛 없음 · 끌어서 조준하세요");
+  toast(
+    "별빛 " +
+      n +
+      (marked ? " (별자리 표시 " + marked + ")" : "") +
+      " · 좌클릭으로 조준" +
+      (marked >= 3 ? " · Space로 별자리" : ""),
+  );
+});
 function launchFromAimStars() {
   const shot = aimStarShot();
   if (!shot) {
