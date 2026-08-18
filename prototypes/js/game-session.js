@@ -130,14 +130,17 @@ let battleCine = null;
 /* 전투 입장 오버레이 (§2-4). 캔버스가 그리는 강하·맺힘 위에 DOM으로 레터박스,
    착지 충격, 네임플레이트, 별지기 컷인, 조작 프롬프트를 얹는다.
    비트는 전부 frameClock 기준이라 캔버스와 절대 어긋나지 않는다. */
+/* 비트 클래스는 `is-`로 시작한다. 요소 클래스와 같은 접두사를 쓰면 충돌한다 —
+   실제로 비트 `cin-plate`가 요소 `.cin-plate`와 이름이 겹쳐, 그 비트가 켜지는
+   순간 컨테이너에도 `.cin-plate { opacity: 0 }`이 걸려 연출 전체가 사라졌다. */
 const CINE_BEATS = [
-  [0, "cin-bars"],
-  [2178, "cin-land"],
-  [2438, "cin-plate"],
-  [2828, "cin-cut1"],
-  [3108, "cin-cut2"],
-  [3388, "cin-cut3"],
-  [4178, "cin-open"],
+  [0, "is-bars"],
+  [2178, "is-land"],
+  [2438, "is-plate"],
+  [2828, "is-cut1"],
+  [3108, "is-cut2"],
+  [3388, "is-cut3"],
+  [4178, "is-open"],
 ];
 function buildBattleCine() {
   document.querySelector(".cin")?.remove();
@@ -189,7 +192,7 @@ registerRuntimeHook("afterFeedbackUpdate", () => {
   for (const [ms, cls] of CINE_BEATS)
     if (t >= ms && !box.classList.contains(cls)) {
       box.classList.add(cls);
-      if (cls === "cin-land") {
+      if (cls === "is-land") {
         screenShake = Math.max(screenShake || 0, 26);
         for (let i = 0; i < 20; i++) {
           const bit = document.createElement("i"),

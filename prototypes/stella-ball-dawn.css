@@ -822,3 +822,279 @@ body.oo-intro .title-sequence::before,
 body.oo-intro .title-sequence::after {
   background: transparent !important;
 }
+
+/* ---------------------------------------------------------------------
+   STARLIGHT IGNITION — 전투 입장 (§2-4)
+   캔버스가 그리는 거상 강하·별지기 맺힘 위에 DOM으로 얹는다. 비트 클래스는
+   frameClock으로만 켜지므로(game-session.js) 캔버스와 어긋나지 않는다.
+   전부 `main` 안이라 여백 소품과 HUD 바깥을 침범하지 않는다.
+   --------------------------------------------------------------------- */
+.cin {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cin-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8%;
+  background: #03020c;
+  transform: translateY(var(--from, 0));
+  transition: transform 0.5s cubic-bezier(0.3, 0.1, 0.2, 1);
+}
+.cin-bar-t {
+  top: 0;
+  --from: -100%;
+}
+.cin-bar-b {
+  bottom: 0;
+  --from: 100%;
+}
+.cin.is-bars .cin-bar {
+  --from: 0;
+}
+.cin.is-open .cin-bar-t {
+  --from: -100%;
+}
+.cin.is-open .cin-bar-b {
+  --from: 100%;
+}
+/* 전장만 어둡게. 거상이 내려오는 동안 판이 한 톤 죽어 있어야 착지의 플래시가
+   산다 — 밝은 판에 흰 플래시를 터뜨리면 아무 일도 안 일어난 것처럼 보인다. */
+.cin-veil {
+  position: absolute;
+  inset: 0;
+  background: #05010f;
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+.cin.is-bars .cin-veil {
+  opacity: 0.42;
+}
+.cin.is-open .cin-veil {
+  opacity: 0;
+}
+.cin-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff3d6;
+  opacity: 0;
+}
+.cin.is-land .cin-flash {
+  animation: cinFlash 0.2s steps(2) forwards;
+}
+/* 착지 링 두 겹. 골드가 먼저, 마젠타가 엇박으로 뒤따른다(§1-3 충격 3종 세트). */
+.cin-ring {
+  position: absolute;
+  left: 50%;
+  top: 26%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+.cin-ring-a {
+  border: 3px solid #ffd98eaa;
+}
+.cin-ring-b {
+  border: 2px dashed #c94ff088;
+}
+.cin.is-land .cin-ring-a {
+  animation: cinRing 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.cin.is-land .cin-ring-b {
+  animation: cinRing 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) 0.09s both;
+}
+.cin-dust {
+  position: absolute;
+  left: 50%;
+  top: 26%;
+  width: 0;
+  height: 0;
+}
+.cin-dust i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #ffd98e;
+  animation: cinDust 0.62s ease-out forwards;
+}
+/* 네임플레이트. 작은 라벨 → 좌우 골드 헤어라인 → 대형 타이틀 순서가
+   §1-2가 정한 네임플레이트 문법이다. */
+.cin-plate {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+.cin-plate b {
+  color: #fdf6e8;
+  font-size: 34px;
+  letter-spacing: -0.03em;
+  text-shadow:
+    0 3px 0 #0a0418,
+    0 0 22px #ffd98e66;
+}
+.cin-hair {
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffd98e, transparent);
+}
+.cin.is-plate .cin-plate {
+  animation: cinSlam 0.5s cubic-bezier(0.2, 0.85, 0.25, 1.1) both;
+}
+.cin.is-plate .cin-hair {
+  animation: cinHair 0.42s ease-out 0.18s both;
+}
+/* 별지기 컷인 세 장. 속성색을 엣지로만 써서 캔버스의 유닛 판정색과 같은
+   신호를 반복한다 — 새 색을 들이지 않는다. */
+.cin-cuts {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 15%;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.cin-portrait {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 7px 10px 6px;
+  border-left: 3px solid var(--edge, #ffd98e);
+  background: #0e0616e0;
+  opacity: 0;
+  transform: translateX(-26px) skewX(-8deg);
+}
+.cin-portrait i {
+  width: 48px;
+  height: 48px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 288px 48px;
+  image-rendering: pixelated;
+}
+.cin-portrait b {
+  color: #fdf6e8;
+  font-size: 11px;
+}
+.cin.is-cut1 .cin-p1,
+.cin.is-cut2 .cin-p2,
+.cin.is-cut3 .cin-p3 {
+  animation: cinCut 0.32s cubic-bezier(0.2, 0.85, 0.25, 1.05) both;
+}
+.cin.is-open .cin-cuts {
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+/* 조작 프롬프트. 연출이 끝났다는 마지막 신호이자 첫 조작 안내다. */
+.cin-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  color: #ffd98e;
+  font:
+    700 12px "Galmuri11",
+    monospace;
+  letter-spacing: 0.3em;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity 0.4s ease-out;
+}
+.cin.is-open .cin-prompt {
+  opacity: 1;
+  animation: cinBlink 1.4s steps(2) infinite;
+}
+@keyframes cinFlash {
+  0% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes cinRing {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3.4);
+  }
+}
+@keyframes cinDust {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy));
+  }
+}
+@keyframes cinSlam {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.1);
+  }
+  52% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  74% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@keyframes cinHair {
+  to {
+    width: 92px;
+  }
+}
+@keyframes cinCut {
+  to {
+    opacity: 1;
+    transform: translateX(0) skewX(-8deg);
+  }
+}
+@keyframes cinBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cin-flash,
+  .cin-ring,
+  .cin-dust {
+    display: none;
+  }
+  .cin .cin-plate,
+  .cin .cin-portrait,
+  .cin .cin-prompt {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    animation: none;
+  }
+  .cin .cin-portrait {
+    transform: none;
+  }
+}
