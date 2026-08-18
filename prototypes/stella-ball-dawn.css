@@ -795,10 +795,12 @@ body.oo-intro .ig-wm {
   opacity: 0 !important;
   pointer-events: none;
 }
-/* 서브 링크만 남긴다. 원래 코드가 「튜토리얼 버튼은 잠그지 않는다」고 못
-   박아 둔 탈출구다 — 문안을 통째로 덮었더니 그 길이 막혀 온보딩 E2E가
-   1분 튜토리얼을 누르지 못했다. 컷신 위에 뜨는 것은 「관측 시작」이었지
-   이쪽이 아니다. */
+/* 서브 링크는 «보이지 않게 하되 누를 수는 있게» 둔다. opacity:0인 요소도
+   히트 테스트는 받으므로, 원래 코드가 「튜토리얼 버튼은 잠그지 않는다」고
+   못 박아 둔 탈출구와 온보딩 E2E의 클릭이 모두 살아 있다.
+   0.55로 남겨 뒀더니 컷신 캡션 바로 위에 겹쳐 떠서, 로고만 사라지고 UI는
+   그대로라는 제보를 받았다. pointer-events는 건드리지 않는다. */
 body.oo-intro .ig-sub {
-  opacity: 0.55;
+  animation: none !important;
+  opacity: 0 !important;
 }
