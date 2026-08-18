@@ -1069,11 +1069,33 @@ function drawGhostFrame() {
     x.restore();
   }
 }
+/* 잔상은 «올라가는 순간»에만 한 장 뜬다.
+
+   예전에는 잔상이 켜져 있는 동안 매 프레임 여기서 살아 있는 캔버스를 통째로
+   복사했다(720x900). 정산 명중이 screenGhost를 0.45로 세우고 감쇠율이 13이라
+   0.02까지 0.24초, 60Hz에서 약 14프레임이다 — 한 발마다 14번의 전체 캔버스
+   읽기가 생기고, 한 샷에 피니셔가 둘에서 넷이다.
+
+   그리고 이것이 「각성 피해 들어갈 때 렉」의 정체다. 오너가 스위치로 갈랐다:
+   흐림(F8)을 꺼도 그대로였고 화면 반응(F6)을 끄니 사라졌다. 그 셋 중 흔들림과
+   기울기는 그리기 전 translate·rotate 한 번이라 값이 없다. 남는 것이 이 복사다.
+
+   살아 있는 캔버스에서 읽는 drawImage는 GPU에 밀어 둔 그리기를 먼저 끝내게
+   만드는 종류의 호출이라, 같은 크기의 fillRect와 비용 차원이 다르다 — 오늘
+   같은 함정에 하늘 쪽에서 한 번 빠졌다.
+
+   한 장이면 충분하다. 잔상은 «그 순간의 화면»이 남는 것이고, 매 프레임 갱신하면
+   오히려 한 프레임 전 그림이라 잔상이 아니라 흐릿한 겹침이 된다. 값이 다시
+   올라갈 때(새 타격)만 새로 뜬다. */
+let ghostPrev = 0;
 function keepGhostFrame() {
+  const rising = screenGhost > ghostPrev + 0.001;
+  ghostPrev = screenGhost;
   if (!(screenGhost > 0.02) || reducedMotionPreferred() || !ghostFrame) {
     if (ghostFrame) ghostFrame.__filled = false;
     return;
   }
+  if (!rising && ghostFrame.__filled) return;
   const g = ghostFrame.getContext("2d");
   g.clearRect(0, 0, W, H);
   g.drawImage(c, 0, 0);

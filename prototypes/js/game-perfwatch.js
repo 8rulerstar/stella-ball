@@ -144,20 +144,30 @@
       delete ctx.shadowBlur;
     }
   }
-  function toggleReact() {
-    off.react = !off.react;
-    // 값을 매 프레임 0으로 눌러 둔다. 원본 코드를 건드리지 않는 방법이다.
-    if (off.react && !toggleReact.timer)
-      toggleReact.timer = setInterval(function () {
-        if (!off.react) return;
-        try {
-          screenGhost = 0;
+  /* F6은 잔상·흔들림·기울기 셋을 함께 껐다. 셋 중 값을 치르는 것은 잔상뿐이라고
+     보고 고쳤으므로, 그 판단을 확인할 수 있게 잔상만 따로 끄는 스위치를 둔다.
+       F6  셋 다
+       F5  잔상만 */
+  function pinReact(which) {
+    if (pinReact.timer) return;
+    pinReact.timer = setInterval(function () {
+      try {
+        if (off.react || off.ghost) screenGhost = 0;
+        if (off.react) {
           screenShake = 0;
           screenTilt = 0;
-        } catch (e) {}
-      }, 8);
+        }
+      } catch (e) {}
+    }, 8);
   }
-
+  function toggleReact() {
+    off.react = !off.react;
+    pinReact();
+  }
+  function toggleGhost() {
+    off.ghost = !off.ghost;
+    pinReact();
+  }
   function snapshot() {
     var g = function (n) {
       try {
@@ -337,6 +347,11 @@
     } else if (e.code === "F3" && on) {
       e.preventDefault();
       toggleTwinkle();
+      gaps = [];
+      longs = [];
+    } else if (e.code === "F5" && on) {
+      e.preventDefault();
+      toggleGhost();
       gaps = [];
       longs = [];
     } else if (e.code === "F2" && on) {
