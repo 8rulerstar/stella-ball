@@ -503,6 +503,75 @@ function __botSteerProbe(config, side) {
    것은 합성 접촉 한 종류뿐이라, 연타·페이즈 배수가 얹힌 실제 값은 여기서만
    보인다. (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
 */
+/* 「운의 띠」를 좁히는 후보를 게임 코드를 고치기 전에 재기 위한 실험대다.
+   p90/p10 비율은 배수에 대해 불변이므로, 배수를 올리거나 내려서는 띠가
+   움직이지 않는다. 비율을 움직이는 것은 둘뿐이다 — 바닥을 가산으로 올리거나
+   천장을 상한으로 자르거나.
+     - cap: 단일 타격의 피해를 C로 자른다. p90을 내린다.
+     - floor: 한 발이 F보다 적게 넣었으면 그 차이를 채운다. p10을 올린다.
+   보스 피해는 전부 applyBossHit 한 곳을 지나므로 그 통로만 감싸면 된다.
+   (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.) */
+var __botFloorAudit = [];
+function __botBandRun(config) {
+  __botFloorAudit = [];
+  var cap = config.leverCap > 0 ? config.leverCap : 0;
+  var floor = config.leverFloor > 0 ? config.leverFloor : 0;
+  var origHit = applyBossHit;
+  if (cap > 0) {
+    applyBossHit = function (amount) {
+      return origHit(amount > cap ? cap : amount);
+    };
+  }
+  var offs = [];
+  var atLaunch = 0;
+  /* afterMeteorLaunch는 사람의 드래그 경로(billiardPointerUp)에서만 발화한다.
+     봇은 __botLaunch로 속도를 직접 넣으므로 그 훅에 걸리지 않는다 — 처음에
+     그걸 놓쳐 스냅샷이 0으로 남았고, 차액이 보스 체력만큼 벌어져 한 발에
+     판이 끝났다. 봇의 발사 지점을 직접 감싼다. */
+  var origLaunch = __botLaunch;
+  /* ball.starkeeperTouched는 정산 중(game-combat.js:1452)에 false로 돌아가므로
+     afterShotEnd에서 읽으면 언제나 「안 닿았다」로 나온다 — 처음 이렇게 재서
+     접촉 조건이 아무 효과도 없는 것처럼 보였다. 프레임마다 걸어 둔다. */
+  var latched = false;
+  var origUpdateB = update;
+  if (floor > 0) {
+    update = function () {
+      var out = origUpdateB.apply(null, arguments);
+      if (ball && (ball.starkeeperTouched || ball.openingBossContact)) latched = true;
+      return out;
+    };
+    __botLaunch = function () {
+      atLaunch = boss ? boss.hp : 0;
+      latched = false;
+      return origLaunch.apply(null, arguments);
+    };
+    offs.push(
+      registerRuntimeHook('afterShotEnd', function () {
+        if (!boss || battleComplete || !atLaunch) return;
+        /* 헛발까지 채우면 빗나감이 빗나감이 아니게 된다. needsContact를 켜면
+           별지기를 스쳤거나 보스에 닿은 발만 채운다 — 「연결은 됐는데 운이
+           나빴던 발」만 구제하고, 아무것도 못 맞힌 발은 그대로 둔다. */
+        var touched = latched;
+        __botFloorAudit.push({ touched: !!touched, dealt: atLaunch - boss.hp });
+        if (config.leverFloorNeedsContact && !touched) {
+          atLaunch = 0;
+          return;
+        }
+        var dealt = atLaunch - boss.hp;
+        if (dealt < floor) origHit(floor - dealt);
+        atLaunch = 0;
+      }),
+    );
+  }
+  var run = __botCampaignRun(config);
+  run.floorAudit = __botFloorAudit.slice();
+  applyBossHit = origHit;
+  __botLaunch = origLaunch;
+  update = origUpdateB;
+  for (var i = 0; i < offs.length; i++)
+    if (typeof offs[i] === 'function') offs[i]();
+  return run;
+}
 var __botStopFrame = 0;
 function __botStopProbe(config) {
   var stops = [];
@@ -777,6 +846,37 @@ export function probeAimTransfer({ campaignIndex = 0, pullDown = 60 } = {}) {
       spread: [0, 0, 0, 0],
     },
     "__botAimProbe.bind(null, __botConfig, " + pullDown + ")",
+  );
+}
+
+export function probeBandLever({
+  campaignIndex = 0,
+  policy = "chain",
+  aim = "loose",
+  seed = 1,
+  leverCap = 0,
+  leverFloor = 0,
+  leverFloorNeedsContact = false,
+  bossHpOverride = null,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma: AIM_LADDER[aim],
+      spread: [0, 0, 0, 0],
+      bossHpOverride,
+      leverCap,
+      leverFloor,
+      leverFloorNeedsContact,
+    },
+    "__botBandRun.bind(null, __botConfig)",
   );
 }
 
