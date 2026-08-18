@@ -495,6 +495,47 @@ function __botSteerProbe(config, side) {
 // cuePull + billiardAim이 내놓는 발사각을 기록한다 - 재구현하면 보정 원뿔과
 // 4.8배 세로 과장이 미묘하게 어긋나므로 반드시 진짜 함수를 부른다.
 // (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
+/* 「패링할 때 렉이 걸린다」 제보를 가르는 계측. impactStop > 0인 프레임은
+   update()가 통째로 건너뛰므로 판이 실제로 언다 — 화면에서는 렉과 구별되지
+   않지만 원인은 정반대다(연출이지 성능이 아니다).
+   impact()가 실제로 적는 값을 전투 내내 모아, 한 번에 몇 ms를 세우는지와
+   한 판에서 언 시간이 총 얼마인지를 낸다. 프로파일러가 브라우저에서 잰
+   것은 합성 접촉 한 종류뿐이라, 연타·페이즈 배수가 얹힌 실제 값은 여기서만
+   보인다. (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
+*/
+function __botStopProbe(config) {
+  var stops = [];
+  var prev = 0;
+  var origImpact = impact;
+  impact = function () {
+    var before = typeof impactStop === 'number' ? impactStop : 0;
+    var out = origImpact.apply(null, arguments);
+    var after = typeof impactStop === 'number' ? impactStop : 0;
+    if (after > before) stops.push({ ms: +(after * 1000).toFixed(1), profile: arguments[3] || 'default' });
+    return out;
+  };
+  var run = __botCampaignRun(config);
+  impact = origImpact;
+  var ms = stops.map(function (s) { return s.ms; }).sort(function (a, b) { return a - b; });
+  var byProfile = {};
+  stops.forEach(function (s) {
+    byProfile[s.profile] = byProfile[s.profile] || { n: 0, total: 0, max: 0 };
+    byProfile[s.profile].n += 1;
+    byProfile[s.profile].total += s.ms;
+    byProfile[s.profile].max = Math.max(byProfile[s.profile].max, s.ms);
+  });
+  return {
+    stageId: run.stageId,
+    cleared: run.cleared,
+    battleSeconds: +(run.framesUsed / 60).toFixed(1),
+    events: ms.length,
+    medianMs: ms.length ? ms[Math.floor(ms.length / 2)] : 0,
+    p90Ms: ms.length ? ms[Math.floor(ms.length * 0.9)] : 0,
+    maxMs: ms.length ? ms[ms.length - 1] : 0,
+    frozenTotalMs: +ms.reduce(function (a, b) { return a + b; }, 0).toFixed(0),
+    byProfile: byProfile,
+  };
+}
 function __botAimProbe(config, pullDown) {
   const source = stages[config.campaignIndex];
   if (!source || source.training) throw new Error("campaign stage is unavailable");
@@ -721,6 +762,29 @@ export function probeAimTransfer({ campaignIndex = 0, pullDown = 60 } = {}) {
       spread: [0, 0, 0, 0],
     },
     "__botAimProbe.bind(null, __botConfig, " + pullDown + ")",
+  );
+}
+
+export function probeImpactStops({
+  campaignIndex = 0,
+  policy = "chain",
+  aim = "loose",
+  seed = 1,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma: AIM_LADDER[aim],
+      spread: [0, 0, 0, 0],
+    },
+    "__botStopProbe.bind(null, __botConfig)",
   );
 }
 

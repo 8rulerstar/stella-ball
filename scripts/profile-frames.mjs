@@ -219,9 +219,16 @@ async function sampleFrames(ms) {
   })`);
 }
 
+/* 저장소를 비우면 바깥 관측자 인트로가 «처음 보는 사람» 상태가 되어 원본
+   길이로 재생되고, 그동안 시작 버튼이 잠긴다(7.7초, 안전장치 9.5초). 그래서
+   이 프로파일러는 온보딩에 닿기 전에 20초 대기에서 죽고 있었다 — 측정 도구가
+   측정하려는 게임의 첫 연출 때문에 못 돌던 셈이다.
+   인트로 자체는 title 장면 측정에 이미 포함되므로, 여기서는 「이미 봤다」로
+   표시해 온보딩까지 곧장 간다. */
 const SEED_SAVE = `(() => {
   localStorage.clear(); sessionStorage.clear();
   localStorage.setItem("prism-breakers.story-intro.v1", "1");
+  localStorage.setItem("stella-ball.outer-observer.played", "1");
   return true;
 })()`;
 
@@ -567,6 +574,71 @@ async function main() {
   report.budget.onboarding = await budget(4000, "onboarding");
   report.cpu = { onboarding: await cpuProfile(5000) };
   report.scenes.onboarding = await sampleFrames(HEADED ? 6000 : 4000);
+
+  /* 패링 순간의 비용. 「패링할 때 렉이 걸리는 것 같다(연출일 수도 있고)」는
+     제보를 가르기 위한 측정이다. 두 가지는 화면에서 똑같이 «멈춤»으로 보이지만
+     원인이 정반대다.
+       - 히트스톱: impactStop > 0인 프레임은 update()가 통째로 건너뛴다. 판이
+         의도적으로 언 것이고, rAF는 정상 간격으로 계속 돈다.
+       - 진짜 렉: rAF 간격 자체가 길어진 것. 이쪽만 고칠 대상이다.
+     그래서 프레임마다 간격과 impactStop을 함께 적어 둘을 분리한다. 패링은
+     전투가 실제로 부르는 자리와 같은 인자로 낸다(game-combat.js:417). */
+  report.parry = await evaluate(`new Promise((done) => {
+    const rows = [];
+    let last = performance.now();
+    const stopAt = last + 5000;
+    let next = last + 300;
+    requestAnimationFrame(function tick(t) {
+      rows.push({ gap: t - last, stop: typeof impactStop === 'number' ? impactStop : 0 });
+      last = t;
+      if (t > next) {
+        next = t + 300;
+        try { impact(false, ball.x, ball.y, 'contact'); } catch (e) {}
+      }
+      if (t < stopAt) return requestAnimationFrame(tick);
+      const gaps = rows.slice(1).map((r) => r.gap).sort((a, b) => a - b);
+      const at = (p) => gaps.length ? +gaps[Math.floor(gaps.length * p)].toFixed(1) : 0;
+      const frozen = rows.filter((r) => r.stop > 0).length;
+      done({
+        frames: gaps.length,
+        parries: Math.floor(5000 / 300),
+        p50: at(0.5), p95: at(0.95), p99: at(0.99),
+        worst: gaps.length ? +gaps[gaps.length - 1].toFixed(1) : 0,
+        over20ms: gaps.filter((v) => v > 20).length,
+        over33ms: gaps.filter((v) => v > 33).length,
+        frozenFrames: frozen,
+        frozenPct: +(100 * frozen / rows.length).toFixed(1),
+        maxStopMs: +(Math.max(...rows.map((r) => r.stop)) * 1000).toFixed(1),
+      });
+    });
+  })`);
+  /* 같은 조건에서 그림자 블러만 끄고 다시 잰다. 08-16 절제 실험에서 이 한
+     값이 CPU 래스터 프레임을 46.34ms → 7.77ms로 바꿨다 — GPU에서는 싸고
+     소프트웨어 래스터로 떨어지면 잔혹한 비용이라, 재현 안 되는 렉 제보의
+     유력한 후보다. 여기서 차이가 없다면 이 기계는 GPU 경로다. */
+  await evaluate(`(() => {
+    const g = document.getElementById('game').getContext('2d');
+    const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur');
+    window.__blurOff = d;
+    Object.defineProperty(g, 'shadowBlur', { set() {}, get() { return 0; }, configurable: true });
+    return true;
+  })()`);
+  report.parryNoBlur = await evaluate(`new Promise((done) => {
+    const gaps = [];
+    let last = performance.now();
+    const stopAt = last + 5000;
+    let next = last + 300;
+    requestAnimationFrame(function tick(t) {
+      gaps.push(t - last); last = t;
+      if (t > next) { next = t + 300; try { impact(false, ball.x, ball.y, 'contact'); } catch (e) {} }
+      if (t < stopAt) return requestAnimationFrame(tick);
+      const s = gaps.slice(1).sort((a, b) => a - b);
+      const at = (p) => s.length ? +s[Math.floor(s.length * p)].toFixed(1) : 0;
+      done({ frames: s.length, p50: at(0.5), p95: at(0.95), p99: at(0.99),
+             worst: s.length ? +s[s.length - 1].toFixed(1) : 0,
+             over20ms: s.filter((v) => v > 20).length });
+    });
+  })`);
   report.headed = HEADED;
   report.layersOnboarding = await layerStats();
 
