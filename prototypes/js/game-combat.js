@@ -46,11 +46,26 @@ function finalizeBilliardShot() {
   }
   continueBattle();
 }
+/* 조준 보정 세기. 0이면 꺼진다 — 되돌리려면 이 값만 0.58로 되돌리면 된다.
+   2026-08-18에 껐다. 근거:
+     · 목적을 달성하지 못했다. 켜고 끈 캠페인 클리어율이 87.5%로 «같고»,
+       같은 별지기를 유지하는 각도 폭도 21도 대 20도로 차이가 없다.
+     · 조준 감각을 왜곡한다. 목표 중앙에서는 손보다 0.42배로 느리고 원뿔
+       가장자리에서는 2.16배로 빨라, 같은 1px에 조준이 다섯 배까지 다르게
+       반응한다. 「조준이 이상한데 왜인지 모르겠다」의 정체가 이것이었다.
+     · 결과를 서로 비슷하게 만든다. 피해의 p90/p10이 켜면 2.75, 끄면 3.48 —
+       잘 쏜 판과 못 쏜 판을 가깝게 당긴다. 실력을 드러내려는 방향과 반대다.
+     · 설계 근거가 문서에 없다. 최초 수직 슬라이스에 딸려 들어온 뒤 한 번도
+       정당화된 적이 없고, 오늘 고친 「별지기를 갈아탈 때 1px에 2~4도 튀는」
+       버그도 이 시스템 것이었다.
+   수업이 조준을 강제하는 경로(resolveBilliardAim 훅)는 그대로 남는다. */
+const AIM_ASSIST_PULL = 0;
 function billiardAim(dx, dy) {
   const override = queryRuntimeHook("resolveBilliardAim", { dx, dy });
   if (override) return override;
   const len = Math.hypot(dx, dy) || 1,
     base = Math.atan2(dy, dx);
+  if (!AIM_ASSIST_PULL) return { x: dx / len, y: dy / len, assisted: false };
   let best = null,
     pull = 0;
   const consider = (target) => {
@@ -86,7 +101,7 @@ function billiardAim(dx, dy) {
   for (const bumper of bumpers) consider(bumper);
   consider(boss);
   if (!best) return { x: dx / len, y: dy / len, assisted: false };
-  const angle = base + pull * 0.58;
+  const angle = base + pull * AIM_ASSIST_PULL;
   return {
     x: Math.cos(angle),
     y: Math.sin(angle),

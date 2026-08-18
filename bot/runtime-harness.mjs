@@ -419,6 +419,10 @@ function __botRun(config) {
   };
 }
 function __botCampaignRun(config) {
+  if (typeof config.guideStarOverride === "number") {
+    var src = stages[config.campaignIndex];
+    if (src) src.guideStarCharges = config.guideStarOverride;
+  }
   const source = stages[config.campaignIndex];
   if (!source || source.training) throw new Error("campaign stage is unavailable");
   // 체력 덮어쓰기는 밸런스 측정용이다. 실제 체력으로 재면 피해가 체력에서
@@ -611,6 +615,183 @@ function __botParryWindowProbe(config) {
     간격프레임: gaps,
     직전과_같은_별지기: sameSlot,
   };
+}
+/* 「닿고도 일을 못 한 발」의 원인을 가른다. 저조한 발이 헛발이 아니라는 것은
+   이미 알고 있다(피해 100 미만의 78%가 접촉). 그렇다면 닿은 «뒤»에 무슨 일이
+   있었는지가 남는다 — 속도를 잃었는가, 아니면 살아 있는데도 아무것도 못
+   만났는가. 앞이면 관성이 원인이고 뒤면 배치가 원인이다.
+   샷마다 첫 접촉 직후 속도와 그 뒤의 접촉 횟수를 적는다.
+   (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.) */
+function __botWeakShotProbe(config) {
+  var shots = [];
+  var cur = null;
+  var origLaunch = __botLaunch;
+  var origUpdate = update;
+  var touching = {};
+  __botLaunch = function () {
+    if (cur) shots.push(cur);
+    cur = { hpAt: boss ? boss.hp : 0, contacts: 0, speedAfterFirst: null, firstAt: 0, frames: 0 };
+    return origLaunch.apply(null, arguments);
+  };
+  update = function () {
+    var out = origUpdate.apply(null, arguments);
+    if (!cur || !ball) return out;
+    cur.frames += 1;
+    for (var i = 0; i < gates.length; i++) {
+      var g = gates[i];
+      var d = Math.hypot(g.x - ball.x, g.y - ball.y);
+      var near = d < g.r + ball.r + 4;
+      if (near && !touching[i]) {
+        cur.contacts += 1;
+        if (cur.speedAfterFirst === null) {
+          cur.speedAfterFirst = Math.round(Math.hypot(ball.vx, ball.vy));
+          cur.firstAt = cur.frames;
+        }
+      }
+      touching[i] = near;
+    }
+    return out;
+  };
+  var run = __botCampaignRun(config);
+  if (cur) shots.push(cur);
+  __botLaunch = origLaunch;
+  update = origUpdate;
+  for (var k = 0; k < shots.length; k++)
+    shots[k].dealt = Math.max(0, shots[k].hpAt - (boss ? boss.hp : 0));
+  return { stageId: run.stageId, shots: shots };
+}
+/* 「너무 많이 튕겨서 조종이 불가능한 것 아닌가」를 세는 계측.
+   조준이 결과를 정하려면 발사와 결과 사이에 놓인 사건 수가 적어야 한다 —
+   벽 반사가 세 번을 넘어가면 초기 각도의 오차가 기하급수로 벌어져, 조준이
+   아무리 정확해도 도착점이 달라진다. 샷마다 벽 반사·별지기 접촉 수와
+   비행 시간을 적는다. (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.) */
+function __botBounceProbe(config) {
+  var shots = [];
+  var cur = null;
+  var origLaunch = __botLaunch;
+  var origUpdate = update;
+  var prevVx = 0, prevVy = 0, touching = {};
+  __botLaunch = function () {
+    if (cur) shots.push(cur);
+    cur = { walls: 0, units: 0, frames: 0 };
+    prevVx = 0; prevVy = 0;
+    return origLaunch.apply(null, arguments);
+  };
+  update = function () {
+    var out = origUpdate.apply(null, arguments);
+    if (!cur || !ball) return out;
+    if (ball.moving) {
+      cur.frames += 1;
+      // 벽 반사는 속도 성분의 «부호»가 뒤집히는 것으로 잡는다.
+      if (prevVx !== 0 && Math.sign(ball.vx) !== Math.sign(prevVx) && Math.abs(ball.vx) > 40) cur.walls += 1;
+      if (prevVy !== 0 && Math.sign(ball.vy) !== Math.sign(prevVy) && Math.abs(ball.vy) > 40) cur.walls += 1;
+      prevVx = ball.vx; prevVy = ball.vy;
+      for (var i = 0; i < gates.length; i++) {
+        var g = gates[i];
+        var near = Math.hypot(g.x - ball.x, g.y - ball.y) < g.r + ball.r + 4;
+        if (near && !touching[i]) cur.units += 1;
+        touching[i] = near;
+      }
+    }
+    return out;
+  };
+  var run = __botCampaignRun(config);
+  if (cur) shots.push(cur);
+  __botLaunch = origLaunch;
+  update = origUpdate;
+  return { stageId: run.stageId, shots: shots };
+}
+/* 「어느 별지기와 패링했는지의 순열」이 실제로 어떤 모양인지 본다.
+   a-b-a-a-c처럼 섞이면 외우는 재미가 되지만, a-a-a처럼 한 명만 반복되면
+   외울 것이 없고, 길이가 2 이하면 애초에 문제가 성립하지 않는다.
+   샷마다 접촉한 별지기의 인덱스를 순서대로 적는다.
+   (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.) */
+function __botSeqProbe(config) {
+  var seqs = [];
+  var cur = null;
+  var origLaunch = __botLaunch;
+  var origUpdate = update;
+  var touching = {};
+  __botLaunch = function () {
+    if (cur) seqs.push(cur);
+    cur = [];
+    return origLaunch.apply(null, arguments);
+  };
+  update = function () {
+    var out = origUpdate.apply(null, arguments);
+    if (!cur || !ball || !ball.moving) return out;
+    for (var i = 0; i < gates.length; i++) {
+      var g = gates[i];
+      var near = Math.hypot(g.x - ball.x, g.y - ball.y) < g.r + ball.r + 4;
+      if (near && !touching[i]) cur.push(i);
+      touching[i] = near;
+    }
+    return out;
+  };
+  var run = __botCampaignRun(config);
+  if (cur) seqs.push(cur);
+  __botLaunch = origLaunch;
+  update = origUpdate;
+  return { stageId: run.stageId, seqs: seqs };
+}
+/* 「첫 접촉을 조준으로 고를 수 있는가」. 이것이 참이라야 판이 패링 기회
+   생성기로 축소되지 않는다 — 어느 별지기를 «먼저» 칠지가 공간적 선택으로
+   남기 때문이다. 조준각을 조금씩 돌리며 첫 접촉 상대가 누구인지 적는다.
+   같은 상대가 넓은 각도 구간에서 이어지면 고를 수 있는 것이고, 한 도씩
+   바뀌면 고를 수 없는 것이다. (VM 템플릿이라 백틱을 쓰지 않는다.) */
+function __botFirstHitProbe(config) {
+  var first = -1;
+  var origUpdate = update;
+  var touching = {};
+  update = function () {
+    var out = origUpdate.apply(null, arguments);
+    if (first < 0 && ball && ball.moving)
+      for (var i = 0; i < gates.length; i++) {
+        var near = Math.hypot(gates[i].x - ball.x, gates[i].y - ball.y) < gates[i].r + ball.r + 4;
+        if (near && !touching[i]) { first = i; break; }
+        touching[i] = near;
+      }
+    return out;
+  };
+  var run = __botCampaignRun(config);
+  update = origUpdate;
+  return { first: first, stageId: run.stageId };
+}
+/* 「두께」를 조절할 수 있는가. 당구의 실력은 어느 공을 치느냐가 아니라
+   얼마나 두껍게 맞히느냐인데, 이 게임은 지금 접촉 여부만 본다.
+   첫 접촉 순간에 별지기 중심에서 진행선까지의 수직 거리(충돌 매개변수)를
+   잰다. 조준을 조금 돌렸을 때 이 값이 «부드럽게» 옮겨가면 두께를 조절할
+   수 있는 것이고, 계단처럼 튀거나 늘 0에 붙으면 조절할 수 없는 것이다.
+   조준 보정은 aimPath로 켜고 끈다 — 보정이 두께를 뭉개는지 함께 본다.
+   (VM 템플릿이라 백틱을 쓰지 않는다.) */
+function __botThicknessProbe(config) {
+  var res = { slot: -1, offset: null, radius: 0 };
+  var origUpdate = update;
+  var touching = {};
+  update = function () {
+    var out = origUpdate.apply(null, arguments);
+    if (res.offset === null && ball && ball.moving)
+      for (var i = 0; i < gates.length; i++) {
+        var g = gates[i];
+        var d = Math.hypot(g.x - ball.x, g.y - ball.y);
+        var near = d < g.r + ball.r + 4;
+        if (near && !touching[i]) {
+          var sp = Math.hypot(ball.vx, ball.vy) || 1;
+          var ux = ball.vx / sp, uy = ball.vy / sp;
+          var gx = g.x - ball.x, gy = g.y - ball.y;
+          // 진행 방향에 대한 수직 성분 = 충돌 매개변수(부호 포함)
+          res.offset = Math.round(gx * uy - gy * ux);
+          res.slot = i;
+          res.radius = Math.round(g.r + ball.r);
+          break;
+        }
+        touching[i] = near;
+      }
+    return out;
+  };
+  __botCampaignRun(config);
+  update = origUpdate;
+  return res;
 }
 var __botStopFrame = 0;
 function __botStopProbe(config) {
@@ -889,6 +1070,125 @@ export function probeAimTransfer({ campaignIndex = 0, pullDown = 60 } = {}) {
   );
 }
 
+export function probeThickness({
+  campaignIndex = 0,
+  aimOffset = 0,
+  aimPath = false,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy: "contact",
+      seed: 1,
+      steer: false,
+      shots: 1,
+      steerAt: 26,
+      frameLimit: 3600,
+      aimSigma: 0,
+      aimOffset,
+      aimPath,
+      spread: [0, 0, 0, 0],
+    },
+    "__botThicknessProbe.bind(null, __botConfig)",
+  );
+}
+
+export function probeFirstHit({
+  campaignIndex = 0,
+  aimOffset = 0,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy: "contact",
+      seed: 1,
+      steer: false,
+      shots: 1,
+      steerAt: 26,
+      frameLimit: 3600,
+      aimSigma: 0,
+      aimOffset,
+      spread: [0, 0, 0, 0],
+    },
+    "__botFirstHitProbe.bind(null, __botConfig)",
+  );
+}
+
+export function probeSequences({
+  campaignIndex = 0,
+  policy = "chain",
+  aim = "loose",
+  seed = 1,
+  guideStarCharges = null,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma: AIM_LADDER[aim],
+      spread: [0, 0, 0, 0],
+      guideStarOverride: guideStarCharges,
+    },
+    "__botSeqProbe.bind(null, __botConfig)",
+  );
+}
+
+export function probeBounces({
+  campaignIndex = 0,
+  policy = "chain",
+  aim = "loose",
+  seed = 1,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma: AIM_LADDER[aim],
+      spread: [0, 0, 0, 0],
+    },
+    "__botBounceProbe.bind(null, __botConfig)",
+  );
+}
+
+export function probeWeakShots({
+  campaignIndex = 0,
+  policy = "chain",
+  aim = "loose",
+  seed = 1,
+  bossHpOverride = 999999,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma: AIM_LADDER[aim],
+      spread: [0, 0, 0, 0],
+      bossHpOverride,
+    },
+    "__botWeakShotProbe.bind(null, __botConfig)",
+  );
+}
+
 export function probeParryWindow({
   campaignIndex = 0,
   policy = "chain",
@@ -1010,6 +1310,10 @@ export function runCampaignStage({
   launchForce = 1,
   aimOffset = 0,
   shots = 5,
+  /* 안내별 충전 수를 덮어쓴다. 스테이지 선언값(대부분 0, 1-2·1-3만 1)을
+     바꿔 가며 「패링 한 번이 접점 3개를 만드는 일」을 얼마나 흔하게 둘지
+     재기 위한 손잡이다. null이면 스테이지 값을 그대로 쓴다. */
+  guideStarCharges = null,
 } = {}) {
   const party = PARTY_POOLS[partySize];
   if (!party) throw new Error("partySize must be 2, 3, or 4");
@@ -1031,6 +1335,7 @@ export function runCampaignStage({
       aimPath,
       launchForce,
       aimOffset,
+      guideStarOverride: guideStarCharges,
       spread: [0, 0, 0, 0],
     },
     "__botCampaignRun",
