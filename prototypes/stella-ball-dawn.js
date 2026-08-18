@@ -308,7 +308,50 @@
     }
     /* 인트로 비트 7이 이 스위치를 켠다(§10). 별밭이 buildSky의 클로저 안에
        있으므로, 밖에서 부를 수 있게 창구 하나만 내놓는다. */
-    window.StellaDawnSky = { missingStar: markMissingStar };
+    /* 전투 중에는 하늘의 «영원히 도는» 애니메이션을 멈춘다.
+
+       오너가 스위치로 두 번 확인한 사실 하나: F2로 하늘 소품을 숨기면 일반
+       렉이 사라진다. 그런데 하늘을 지우는 것은 화풍을 지우는 것이라, 하늘은
+       두고 하늘이 «하는 일»만 뺀다.
+
+       도는 애니메이션은 그 요소의 합성 레이어를 매 프레임 갱신하게 만든다.
+       그리고 여기서 도는 것들은 대부분 보이지도 않는다 — 성운 드리프트가
+       360초와 420초, 구름이 수십 초다. 60~90초짜리 전투 동안 멈춰 있어도
+       눈에 띄지 않는다. 오로라(9초)와 부유(6·8초)는 곁눈에 보이지만 여백에
+       있고, 판을 보는 동안 값을 치를 만한 것은 아니다.
+
+       한 번 지나가고 끝나는 것(유성, 손님, 팝)은 건드리지 않는다 — 잠깐이고,
+       멈추면 화면 한가운데에 박제된다.
+
+       되돌리기는 이 함수를 부르지 않기만 하면 된다(game-ui.js의 setScene). */
+    function setSkyQuiet(on) {
+      if (!document.getAnimations) return;
+      var roots = [
+        document.getElementById("dawn-sky"),
+        document.getElementById("sky-ambience"),
+      ].filter(Boolean);
+      if (!roots.length) return;
+      var all = document.getAnimations();
+      for (var i = 0; i < all.length; i++) {
+        var a = all[i],
+          el = a.effect && a.effect.target;
+        if (!el) continue;
+        var mine = false;
+        for (var r = 0; r < roots.length; r++)
+          if (roots[r].contains(el)) mine = true;
+        if (!mine) continue;
+        var t = a.effect.getTiming ? a.effect.getTiming() : null;
+        if (!t || t.iterations !== Infinity) continue;
+        try {
+          if (on) a.pause();
+          else a.play();
+        } catch (e) {}
+      }
+    }
+    window.StellaDawnSky = {
+      missingStar: markMissingStar,
+      quiet: setSkyQuiet,
+    };
     paintStars();
     var starResizeTimer;
     addEventListener("resize", function () {

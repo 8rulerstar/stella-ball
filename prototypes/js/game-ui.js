@@ -18,6 +18,13 @@ function setScene(scene) {
      같은 화면으로 다시 부르는 경우가 있어 실제로 «바뀔 때»만 낸다. */
   if (!isRuntimeScene(scene) && typeof playSfx === "function")
     playSfx("screen");
+  /* 전투에 들어가면 하늘의 도는 애니메이션을 재운다. 소품을 «숨기는»
+     F2가 일반 렉을 없앴는데, 숨기는 대신 도는 것만 멈추는 쪽이 화풍을
+     지키면서 같은 일을 던다(stella-ball-dawn.js의 setSkyQuiet).
+     새 소품이 전투 도중에 생기면 그것은 다음 화면 전환까지 돈다 — 잠깐
+     지나가는 것들이라 그대로 둔다. */
+  if (window.StellaDawnSky && window.StellaDawnSky.quiet)
+    window.StellaDawnSky.quiet(scene === "game");
   sceneSequence += 1;
   setRuntimeScene(scene);
   document.body.classList.toggle("title-mode", scene === "title");
