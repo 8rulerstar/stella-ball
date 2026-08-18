@@ -804,3 +804,21 @@ body.oo-intro .ig-sub {
   animation: none !important;
   opacity: 0 !important;
 }
+
+/* 컷신 동안에는 판 자체를 비운다. 문안만 감췄더니 「글은 사라져도 UI 창이
+   남아 괴물을 가린다」는 제보가 왔다 — 실제로 .stage(불투명 배경 + 테두리)와
+   .overlay(95% 불투명)가 화면 가운데 920×700 상자로 남아 있었고, 존재는
+   설계상 그 «뒤»(main z-index 1 뒤)를 지나가므로 통째로 가려졌다.
+   존재를 앞으로 끌어내는 대신 판을 비운다 — 「존재는 중앙 UI 위로 오지
+   않는다」는 원래 제약을 깨지 않으면서 하늘 전체가 무대가 된다. */
+body.oo-intro .stage {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+body.oo-intro .overlay.title-scene,
+body.oo-intro .title-sequence,
+body.oo-intro .title-sequence::before,
+body.oo-intro .title-sequence::after {
+  background: transparent !important;
+}
