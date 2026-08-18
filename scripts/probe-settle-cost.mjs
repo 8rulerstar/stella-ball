@@ -51,6 +51,9 @@ const NO_SHOTS = process.argv.includes("--no-shots");
    메인스레드가 아니라 래스터에서 나온 것이다 — 이 저장소에서 shadowBlur는
    전에도 단일 최대 항목이었다. */
 const NO_BLUR = process.argv.includes("--no-blur");
+/* 잔상(screenGhost)만 꺼서 재 본다. 켜져 있는 동안 매 프레임 720x900 캔버스를
+   통째로 두 번 복사한다 — 정산 명중이 이 값을 0.45로 세운다. */
+const NO_GHOST = process.argv.includes("--no-ghost");
 /* 창 크기. 별 캔버스가 창 너비를 그대로 쓰고(stella-ball-dawn.js) 여백 하늘도
    innerWidth로 배치되므로, 프로브의 1280x900만 재면 큰 창의 비용을 못 본다. */
 const WIN = arg("window", "1280,900");
@@ -206,7 +209,14 @@ async function domBudget(ms) {
   };
 }
 
-const RUN_SHOT = (stage, party, stagger, mute, noBlur) => `(async () => {
+const RUN_SHOT = (
+  stage,
+  party,
+  stagger,
+  mute,
+  noBlur,
+  noGhost,
+) => `(async () => {
   const pool = ["gaon","biyeon","ria","byeolha"].slice(0, ${party});
   stageIndex = stages.findIndex((s) => s.id === ${JSON.stringify(stage)});
   deployed = [...pool]; selected = [...pool];
@@ -252,6 +262,12 @@ const RUN_SHOT = (stage, party, stagger, mute, noBlur) => `(async () => {
     if (d && d.set) Object.defineProperty(g, "shadowBlur", {
       configurable: true, get: () => 0, set: () => {},
     });
+  }
+  if (${noGhost ? "true" : "false"}) {
+    const realKeep = keepGhostFrame, realDraw2 = drawGhostFrame;
+    keepGhostFrame = function () {};
+    drawGhostFrame = function () {};
+    void realKeep; void realDraw2;
   }
   const gaps = { idle: [], flight: [], settle: [] };
   let phase = "idle", last = performance.now(), stop = false;
@@ -465,7 +481,9 @@ try {
     shots.push(file);
   };
   await send("Page.enable");
-  const running = evaluate(RUN_SHOT(STAGE, PARTY, STAGGER, MUTE, NO_BLUR));
+  const running = evaluate(
+    RUN_SHOT(STAGE, PARTY, STAGGER, MUTE, NO_BLUR, NO_GHOST),
+  );
   await delay(1800); // idle 기준선이 다 모일 때까지
 
   /* 진짜 마우스로 쏜다. 발사만 코드로 넣으면 조준 보정도, 위력 곡선도,

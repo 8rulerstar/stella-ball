@@ -42,6 +42,7 @@ const expectedScripts = [
   // 합성 앞이면 된다 — 그리기는 afterDraw에서 마지막에 얹힌다.
   "./js/game-speech.js",
   "./js/game-awaken-fx.js",
+  "./js/game-perfwatch.js",
   "./js/game-arena-carve.js",
   "./js/game-bootstrap.js",
   "./boss-art.js",
