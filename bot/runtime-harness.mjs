@@ -503,19 +503,31 @@ function __botSteerProbe(config, side) {
    것은 합성 접촉 한 종류뿐이라, 연타·페이즈 배수가 얹힌 실제 값은 여기서만
    보인다. (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.)
 */
+var __botStopFrame = 0;
 function __botStopProbe(config) {
   var stops = [];
-  var prev = 0;
+  /* 정지가 «몇 프레임 간격으로» 오는지도 같이 본다. 피니셔는 이미 발수로
+     나누는데 heavy는 안 나눈다 — 만약 heavy도 몰려서 온다면 같은 처방이
+     필요하고, 흩어져서 온다면 나눌 이유가 없다. 프레임 번호를 함께 적어
+     연속한 두 정지의 간격을 낸다. */
+  var origUpdate = update;
+  update = function () {
+    __botStopFrame += 1;
+    return origUpdate.apply(null, arguments);
+  };
   var origImpact = impact;
   impact = function () {
     var before = typeof impactStop === 'number' ? impactStop : 0;
     var out = origImpact.apply(null, arguments);
     var after = typeof impactStop === 'number' ? impactStop : 0;
-    if (after > before) stops.push({ ms: +(after * 1000).toFixed(1), profile: arguments[3] || 'default' });
+    if (after > before) stops.push({ ms: +(after * 1000).toFixed(1), profile: arguments[3] || 'default', frame: __botStopFrame });
     return out;
   };
   var run = __botCampaignRun(config);
   impact = origImpact;
+  update = origUpdate;
+  var gaps = [];
+  for (var i = 1; i < stops.length; i++) gaps.push(stops[i].frame - stops[i - 1].frame);
   var ms = stops.map(function (s) { return s.ms; }).sort(function (a, b) { return a - b; });
   var byProfile = {};
   stops.forEach(function (s) {
@@ -533,6 +545,9 @@ function __botStopProbe(config) {
     p90Ms: ms.length ? ms[Math.floor(ms.length * 0.9)] : 0,
     maxMs: ms.length ? ms[ms.length - 1] : 0,
     frozenTotalMs: +ms.reduce(function (a, b) { return a + b; }, 0).toFixed(0),
+    // 연속한 두 정지 사이의 프레임 수. 6프레임(0.1초) 이내면 «몰려서 온다».
+    gapFrames: gaps,
+    clustered: gaps.filter(function (g) { return g <= 6; }).length,
     byProfile: byProfile,
   };
 }

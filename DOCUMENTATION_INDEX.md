@@ -19,6 +19,7 @@
 ## 제출과 이력 문서
 
 - [CODEX_COLLABORATION.md](CODEX_COLLABORATION.md): 제출·발표용 원본. **실제 구현·검증이 끝난 항목만** 완료로 쓴다.
+- [CONTENT_PROPOSAL_2026_08_18.md](CONTENT_PROPOSAL_2026_08_18.md): 밸런스·아이템·기믹·페이즈 제안서다. 값을 정하지 않았고 결정 네 가지를 요청한다. 근거 수치는 `BOT_REPORT.md` 0-4·0-7절에 있다.
 - [DEVLOG.md](DEVLOG.md): 날짜별 요청, 결과, 막힌 점, 사람의 판단을 남기는 변경 이력이다. 과거 시안의 용어는 당시 기록이므로 소급해 고치지 않는다.
 - [BOT_REPORT.md](BOT_REPORT.md): 헤드리스 하니스로 실제 런타임을 구동해 얻은 측정 기록이다. 각 수치는 **측정 조건과 한계를 함께 읽어야** 하며, 물리를 따로 재구현한 `bot/prism-sim.mjs`의 결과와 섞지 않는다.
 - [EVIDENCE_PROTOCOL.md](EVIDENCE_PROTOCOL.md): 커밋·push·Actions·Pages·DEVLOG를 연결하는 증거 운영 규칙이다.

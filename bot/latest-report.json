@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generatedAt": "2026-08-18T01:43:01.348Z",
+    "generatedAt": "2026-08-18T03:56:29.997Z",
     "model": "runtime-harness-v2",
     "instrument": "campaign is the difficulty instrument; plain is a saturated regression baseline. Read campaign.byAim per policy across the aim ladder - a monotonic fall is a live signal, a flat row means the sweep cannot distinguish that policy any more. Never pool policies. Two caveats: the precise rung has sigma 0, so every seed replays one identical line and it is a single deterministic probe (does any line work at all?), not a six-sample rate; and the contact policy is non-monotonic across the ladder because a wider error can graze more starkeepers than a clean line does, so read chain for the difficulty curve.",
     "plain": {
