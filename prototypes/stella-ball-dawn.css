@@ -1098,3 +1098,217 @@ body.oo-intro .title-sequence::after {
     transform: none;
   }
 }
+
+/* ---------------------------------------------------------------------
+   STARLIGHT IGNITION — 승리 / 패배 (§2-5 · §2-6)
+   한 뼈대에 색과 속도만 다르게 걸린다. 승리는 골드로 「회수」, 패배는 냉색으로
+   「중단」을 말한다. 패배 화면의 골드는 재도전 CTA 하나뿐이고 플래시·파티클은
+   없다 — 패배는 처벌이 아니라 관측이 끊긴 것이다.
+   --------------------------------------------------------------------- */
+.oc {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding: 30px 26px;
+  text-align: center;
+}
+.oc-veil {
+  position: absolute;
+  inset: -30px -26px;
+  opacity: 0;
+  pointer-events: none;
+}
+.oc-win .oc-veil {
+  background: radial-gradient(ellipse at 50% 42%, #ffd98e1f, transparent 68%);
+  animation: ocVeil 0.9s ease-out 0.15s forwards;
+}
+.oc-lose .oc-veil {
+  background: radial-gradient(ellipse at 50% 42%, #9fb4bd1a, transparent 72%);
+  animation: ocVeil 1.4s ease-out 0.3s forwards;
+}
+.oc-kicker {
+  color: var(--magenta-dim, #c94ff0);
+  font:
+    700 10px ui-monospace,
+    monospace;
+  letter-spacing: 0.3em;
+  opacity: 0;
+  animation: ocFade 0.4s ease-out 0.2s forwards;
+}
+.oc-lose .oc-kicker {
+  color: var(--cool-1, #7d95a0);
+}
+/* 네임플레이트 문법(§1-2): 작은 라벨 → 좌우 헤어라인 → 대형 타이틀. */
+.oc-plate {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0 4px;
+  opacity: 0;
+}
+.oc-win .oc-plate {
+  animation: ocSlam 0.5s cubic-bezier(0.2, 0.85, 0.25, 1.1) 0.75s forwards;
+}
+/* 패배는 슬램하지 않는다. 느리게 떠오르는 것이 「중단」의 속도다. */
+.oc-lose .oc-plate {
+  animation: ocFade 0.8s ease-out 0.9s forwards;
+}
+.oc-plate b {
+  font-size: 30px;
+  letter-spacing: -0.02em;
+}
+.oc-win .oc-plate b {
+  color: #fdf6e8;
+  text-shadow:
+    0 3px 0 #0a0418,
+    0 0 22px #ffd98e66;
+}
+.oc-lose .oc-plate b {
+  color: var(--cool-0, #9fb4bd);
+  text-shadow: 0 2px 0 #0a0418;
+}
+.oc-hair {
+  width: 0;
+  height: 2px;
+}
+.oc-win .oc-hair {
+  background: linear-gradient(90deg, transparent, #ffd98e, transparent);
+  animation: ocHair 0.42s ease-out 0.95s forwards;
+}
+.oc-lose .oc-hair {
+  background: linear-gradient(90deg, transparent, #7d95a0, transparent);
+  animation: ocHair 0.7s ease-out 1.2s forwards;
+}
+.oc-caption {
+  max-width: 460px;
+  margin: 0 0 16px !important;
+  color: var(--ink-dim, #b9a8d6);
+  font-size: 12px !important;
+  line-height: 1.7;
+  opacity: 0;
+  animation: ocFade 0.5s ease-out 1.3s forwards;
+}
+.oc-lose .oc-caption {
+  color: var(--cool-1, #7d95a0);
+  animation-delay: 1.5s;
+}
+/* 기록은 한 줄씩 160ms 간격으로 들어온다 — 한꺼번에 뜨면 읽는 순서가 없다. */
+.oc-rows {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.oc-row {
+  display: grid;
+  gap: 3px;
+  min-width: 92px;
+  padding: 9px 12px;
+  border: 1px solid #3f2e53;
+  background: #170a24b8;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: ocRow 0.36s ease-out calc(1.55s + var(--i) * 0.16s) forwards;
+}
+.oc-lose .oc-row {
+  border-color: #3d4a50;
+  background: #131c20b8;
+  animation-delay: calc(1.8s + var(--i) * 0.16s);
+}
+.oc-row small {
+  color: var(--ink-dim, #b9a8d6);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+.oc-lose .oc-row small {
+  color: var(--cool-1, #7d95a0);
+}
+.oc-row b {
+  color: #fdf6e8;
+  font-size: 17px;
+}
+.oc-lose .oc-row b {
+  color: var(--cool-0, #9fb4bd);
+}
+.oc-ctas {
+  display: flex;
+  gap: 12px;
+  opacity: 0;
+  animation: ocFade 0.4s ease-out 2.2s forwards;
+}
+.oc-lose .oc-ctas {
+  animation-delay: 2.6s;
+}
+/* 패배 화면에서 골드는 여기 하나뿐이다(§2-6). */
+.oc-go {
+  border: 2px solid #f6c48e !important;
+  border-radius: 0 !important;
+  background: linear-gradient(#f0b078, #a05c32) !important;
+  color: #241304 !important;
+  font-weight: 900 !important;
+}
+.oc-ghost {
+  border: 1px solid #4d3d61 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--ink-btn, #d9c2f0) !important;
+}
+.oc-lose .oc-ghost {
+  border-color: #3d4a50 !important;
+  color: var(--cool-1, #7d95a0) !important;
+}
+@keyframes ocVeil {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ocFade {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ocSlam {
+  0% {
+    opacity: 0;
+    transform: scale(2);
+  }
+  52% {
+    opacity: 1;
+    transform: scale(0.94);
+  }
+  74% {
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes ocHair {
+  to {
+    width: 74px;
+  }
+}
+@keyframes ocRow {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* 움직임을 줄이면 최종 정지 프레임만. 결과 화면은 읽어야 하는 화면이므로
+   여기서 투명도가 남아 있으면 정보가 사라진다. */
+@media (prefers-reduced-motion: reduce) {
+  .oc-kicker,
+  .oc-plate,
+  .oc-caption,
+  .oc-row,
+  .oc-ctas,
+  .oc-veil {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .oc-hair {
+    width: 74px;
+    animation: none;
+  }
+}

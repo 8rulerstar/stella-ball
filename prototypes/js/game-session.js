@@ -712,6 +712,43 @@ function showRoster() {
 function showDeployment() {
   showRoster();
 }
+/* 승패 컷신 (§2-5·§2-6). 두 화면은 같은 뼈대를 쓰고 색과 순서만 다르다 —
+   승리는 골드로 «회수»를, 패배는 냉색으로 «중단»을 말한다. 패배 화면에서
+   골드는 재도전 CTA 하나뿐이고 플래시·파티클은 없다(§1-1, §2-6).
+   시간은 CSS animation-delay가 쥔다. 결과 화면은 전투 루프가 이미 멈춘 뒤라
+   frameClock이 흐르지 않으므로 여기서는 프레임 시계를 쓸 이유가 없다. */
+function outcomeCine(kind, { kicker, title, caption, rows, ctas }) {
+  return (
+    '<div class="oc oc-' +
+    kind +
+    '"><span class="oc-veil" aria-hidden="true"></span>' +
+    '<small class="oc-kicker">' +
+    kicker +
+    "</small>" +
+    '<span class="oc-plate"><i class="oc-hair"></i><b>' +
+    title +
+    '</b><i class="oc-hair"></i></span>' +
+    '<p class="oc-caption">' +
+    caption +
+    "</p>" +
+    '<div class="oc-rows">' +
+    rows
+      .map(
+        (r, i) =>
+          '<span class="oc-row" style="--i:' +
+          i +
+          '"><small>' +
+          r[0] +
+          "</small><b>" +
+          r[1] +
+          "</b></span>",
+      )
+      .join("") +
+    '</div><div class="oc-ctas">' +
+    ctas +
+    "</div></div>"
+  );
+}
 function resultCard(shotsUsed, elapsedMs) {
   const medal =
       shotsUsed <= 1 ? "flawless" : shotsUsed <= 2 ? "sharp" : "clear",
@@ -785,10 +822,26 @@ function fail(reason = "다른 별지기와 다른 궤적으로 다시 관측하
   // board nobody is playing any more.
   cloneBalls = [];
   U.over.className = "overlay";
-  U.over.innerHTML =
-    '<div class="outcome-cut fail"><div class="outcome-constellation" aria-hidden="true"><i>·</i><i>✧</i><i>·</i></div><div class="tag">관측 실패</div><h2>별빛이 닿지 않았습니다.</h2><p>' +
-    reason +
-    '</p><button onclick="showRoster()">다시 관측하기</button></div>';
+  U.over.innerHTML = outcomeCine("lose", {
+    kicker: "OBSERVATION LOST",
+    title: "관측 실패",
+    caption: "별빛이 흩어졌다 — " + reason,
+    /* 규격 §2-6은 「가한 피해 · 최대 배율」을 요구하지만 최대 배율은 런타임에
+         집계되는 값이 아니다. 없는 값을 지어내지 않고 사용 유성으로 바꾼다. */
+    rows: [
+      [
+        "가한 피해",
+        Math.max(0, (boss?.maxHp || 0) - Math.max(0, boss?.hp || 0)),
+      ],
+      [
+        "사용 유성",
+        (battle?.shotMax || 0) - Math.max(0, battle?.shots || 0) + "개",
+      ],
+    ],
+    ctas:
+      '<button class="oc-go" onclick="showRoster()">다시 관측</button>' +
+      '<button class="oc-ghost" onclick="showTitle()">타이틀로</button>',
+  });
   U.over.classList.remove("hide");
 }
 function scheduleWin() {
@@ -891,11 +944,22 @@ function win() {
   U.over.className = "overlay";
   U.over.innerHTML = isFinalStage()
     ? endingCard(shotsUsed, elapsedMs)
-    : '<div class="outcome-cut win"><div class="tag">코어 파괴</div><h2>' +
-      bossDisplayName() +
-      "을 무너뜨렸습니다.</h2>" +
-      resultCard(shotsUsed, elapsedMs) +
-      '<p>다른 파티 조합으로 더 짧은 발사를 노려보세요.</p><button onclick="showRoster()">다시 하기</button></div>';
+    : outcomeCine("win", {
+        kicker: "OBSERVATION COMPLETE",
+        title: "관측 성공",
+        /* 이름 뒤에 조사를 붙이지 않는다. 받침에 따라 「을/를」이 갈리는데
+           코드에는 그 판단이 없어서, 예전 문구가 「백조자리 표류자을
+           무너뜨렸습니다」로 나오고 있었다. 가운뎃점으로 끊는다. */
+        caption: bossDisplayName() + " · 별빛을 회수했습니다",
+        rows: [
+          ["남은 유성", Math.max(0, (battle.shotMax || 0) - shotsUsed) + "개"],
+          ["관측 시간", (elapsedMs / 1000).toFixed(1) + "초"],
+          ["최대 피해", boss.maxHp],
+        ],
+        ctas:
+          '<button class="oc-go" onclick="showStageSelect()">다음 관측</button>' +
+          '<button class="oc-ghost" onclick="showRoster()">다시 보기</button>',
+      });
   U.over.classList.remove("hide");
   if (isFinalStage()) markCampaignComplete();
   runRuntimeHooks("afterBattleWin", {
