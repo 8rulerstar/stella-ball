@@ -352,7 +352,58 @@
     if (withJs * 2 < longs.length)
       return "판정: 긴프레임 " + ratio + "만 JS 탓 -> 합성기 문제";
     return (
-      "판정: 긴프레임 " + ratio + "가 JS 탓 -> " + top + " " + best.toFixed(0) + "ms"
+      "판정: 긴프레임 " +
+      ratio +
+      "가 JS 탓 -> " +
+      top +
+      " " +
+      best.toFixed(0) +
+      "ms"
+    );
+  }
+
+  /* 렌더러 확인 — 하루 종일 안 본 것.
+
+     지금까지의 관찰이 전부 한 방향을 가리킨다: JS는 싸고(draw 0.5~1.0ms, CPU
+     70% 유휴, 레이아웃 초당 1%), 그런데 프레임이 길다. 그리고 값을 움직인 것은
+     흐림·하늘 소품·창 크기 — 전부 «래스터할 픽셀 양»이다. 창 크기에 제곱으로
+     커지는 것도 같다.
+
+     그 조합은 GPU 합성에서는 잘 안 나오고 «소프트웨어 래스터»에서는 정확히
+     그렇게 나온다. 이 저장소의 옛 측정에도 같은 문장이 있다 — 흐림은 GPU
+     캔버스에서 싸고 CPU 래스터에서 잔혹하다(3연쇄 46.34ms → 7.77ms).
+
+     내 프로브가 하루 종일 매끄러웠던 것도 이것으로 설명된다. 같은 기계라도
+     크롬 인스턴스마다 가속 여부가 다를 수 있고, 내 프로브는 매번 새 프로필로
+     띄운다.
+
+     WebGL의 렌더러 문자열이 그것을 그대로 말해 준다. SwiftShader·llvmpipe·
+     Software가 보이면 그래픽 가속이 꺼진 것이고, 그때는 이 저장소의 어떤 코드도
+     답이 아니다 — 크롬 설정이 답이다. */
+  var renderer = null;
+  function gpuName() {
+    if (renderer !== null) return renderer;
+    renderer = "?";
+    try {
+      var cv = document.createElement("canvas"),
+        gl = cv.getContext("webgl") || cv.getContext("experimental-webgl");
+      if (gl) {
+        var ext = gl.getExtension("WEBGL_debug_renderer_info");
+        renderer = ext
+          ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL))
+          : String(gl.getParameter(gl.RENDERER));
+      } else renderer = "WebGL 없음";
+    } catch (e) {
+      renderer = "확인 실패";
+    }
+    return renderer;
+  }
+  function gpuVerdict() {
+    var r = gpuName(),
+      soft = /swiftshader|llvmpipe|software|microsoft basic/i.test(r);
+    return (
+      (soft ? "[!] 소프트웨어 렌더링 - 그래픽 가속 꺼짐 " : "GPU ") +
+      r.slice(0, 58)
     );
   }
 
@@ -385,6 +436,8 @@
       over +
       "/" +
       s.length +
+      String.fromCharCode(10) +
+      gpuVerdict() +
       String.fromCharCode(10) +
       verdict() +
       String.fromCharCode(10) +
@@ -443,6 +496,7 @@
       longFramesWithJsCost: withJs + "/" + longs.length,
       seconds: +((performance.now() - startedAt) / 1000).toFixed(1),
       viewport: innerWidth + "x" + innerHeight,
+      renderer: gpuName(),
       dpr: devicePixelRatio,
       ua: navigator.userAgent,
       frames: s.length,
