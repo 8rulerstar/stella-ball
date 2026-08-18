@@ -54,6 +54,10 @@ const NO_BLUR = process.argv.includes("--no-blur");
 /* 잔상(screenGhost)만 꺼서 재 본다. 켜져 있는 동안 매 프레임 720x900 캔버스를
    통째로 두 번 복사한다 — 정산 명중이 이 값을 0.45로 세운다. */
 const NO_GHOST = process.argv.includes("--no-ghost");
+/* 거상을 «죽게» 두고 잰다. 지금까지 체력을 999999로 박아 판이 끝나지 않게 했는데,
+   그래서 죽음 연출(bossOutro 1.4초)과 승리 컷신(battle.victory 2.55초)을 한 번도
+   재지 못했다. 오너 기록에서 가장 긴 프레임 20개가 전부 그 구간이다. */
+const KILL = process.argv.includes("--kill");
 /* 창 크기. 별 캔버스가 창 너비를 그대로 쓰고(stella-ball-dawn.js) 여백 하늘도
    innerWidth로 배치되므로, 프로브의 1280x900만 재면 큰 창의 비용을 못 본다. */
 const WIN = arg("window", "1280,900");
@@ -216,6 +220,7 @@ const RUN_SHOT = (
   mute,
   noBlur,
   noGhost,
+  kill,
 ) => `(async () => {
   const pool = ["gaon","biyeon","ria","byeolha"].slice(0, ${party});
   stageIndex = stages.findIndex((s) => s.id === ${JSON.stringify(stage)});
@@ -225,10 +230,11 @@ const RUN_SHOT = (
      첫 줄에서 false를 돌려주어 「어느 사건이 어느 큐를 부르는가」가
      통째로 0으로 나온다 — 조용한 것과 «끈 것»을 구분하지 못한다. */
   settings.sfx = ${mute ? 0 : 1};
-  /* 파티 전원이 각성하면 2-2의 200은 한 샷에 넘어가고, 승리 화면이 뜨면서
-     실행 컨텍스트가 통째로 사라진다 — 측정이 아니라 크래시가 된다. 판을
-     끝나지 않게 두고 프레임만 본다. */
-  boss.maxHp = boss.hp = 999999; syncBossHealth();
+  /* 기본은 죽지 않는 보스다 — 판이 끝나면 승리 화면으로 넘어가며 실행
+     컨텍스트가 사라져 측정이 크래시가 된다. 그런데 그 «끝나는 구간»이야말로
+     오너 기록에서 가장 긴 프레임 20개가 몰린 곳이다(75~129ms). --kill 은
+     체력을 낮춰 실제로 죽게 두고 죽음 연출과 승리 컷신까지 잰다. */
+  boss.maxHp = boss.hp = ${kill ? 40 : 999999}; syncBossHealth();
   /* 정산이 끝나면 startShot이 g.awake·travel을 즉시 지운다. 끝난 뒤에 읽으면
      언제나 「아무도 안 깨어났다」로 나온다 — 정산 시점에 훅으로 받는다. */
   /* 실험이 실제로 켜진 채 재고 있는지 보고한다. 꺼진 채 재면 「렉이 없다」가
@@ -388,7 +394,12 @@ const RUN_SHOT = (
   /* 플레이어가 실제로 기다리는 것은 프레임이 아니라 «판이 다시 내 것이 될
      때까지»다. 피니셔 큐가 비고 초점이 풀릴 때까지를 잰다. */
   while (performance.now() - settleStart < 16000) {
-    if (!assistShots.length && !finisherFocus) break;
+    // 죽음 연출·승리 컷신이 끝날 때까지 본다. assistShots는 scheduleWin이
+    // 즉시 비우므로, 그것만 보면 가장 무거운 구간을 재기도 전에 나온다.
+    const busy = assistShots.length || finisherFocus ||
+      (typeof bossOutro !== "undefined" && bossOutro) ||
+      (battle && battle.victory);
+    if (!busy) break;
     await wait(40);
   }
   const busyMs = performance.now() - settleStart;
@@ -482,7 +493,7 @@ try {
   };
   await send("Page.enable");
   const running = evaluate(
-    RUN_SHOT(STAGE, PARTY, STAGGER, MUTE, NO_BLUR, NO_GHOST),
+    RUN_SHOT(STAGE, PARTY, STAGGER, MUTE, NO_BLUR, NO_GHOST, KILL),
   );
   await delay(1800); // idle 기준선이 다 모일 때까지
 

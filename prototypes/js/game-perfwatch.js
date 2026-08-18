@@ -28,6 +28,60 @@
     dock = null,
     startedAt = 0;
 
+  /* ── 용의자 스위치 ──────────────────────────────────────────────────
+     프로브로는 판별이 안 된다. 이 기계에서 프로브의 p50은 4.2ms인데 실제
+     플레이는 16.7ms — 하나는 vsync에 안 물려 「얼마나 빨리 만드나」를 재고,
+     다른 하나는 「16.7ms 안에 들어오나」를 잰다. 오너 기록의 긴 프레임이
+     33·50·75·100·117ms로 전부 16.7의 배수인 것이 그 증거다.
+
+     그래서 «그 자리에서» 하나씩 꺼 본다. 렉이 사라지는 스위치가 곧 원인이다.
+       F7  여백 하늘 레이어 (1920 창에서 1898x982 캔버스 — 판의 2.9배)
+       F8  캔버스 흐림 (shadowBlur. 실측으로 프레임 비용의 대부분)
+       F6  화면 반응 (잔상·흔들림·기울기) */
+  var off = { sky: false, blur: false, react: false };
+
+  function toggleSky() {
+    off.sky = !off.sky;
+    ["dawn-sky", "sky-ambience"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = off.sky ? "none" : "";
+    });
+  }
+  var realBlur = null;
+  function toggleBlur() {
+    off.blur = !off.blur;
+    var ctx = window.x;
+    if (!ctx) return;
+    if (off.blur) {
+      realBlur = Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(ctx),
+        "shadowBlur",
+      );
+      Object.defineProperty(ctx, "shadowBlur", {
+        configurable: true,
+        get: function () {
+          return 0;
+        },
+        set: function () {},
+      });
+    } else if (realBlur) {
+      delete ctx.shadowBlur;
+    }
+  }
+  function toggleReact() {
+    off.react = !off.react;
+    // 값을 매 프레임 0으로 눌러 둔다. 원본 코드를 건드리지 않는 방법이다.
+    if (off.react && !toggleReact.timer)
+      toggleReact.timer = setInterval(function () {
+        if (!off.react) return;
+        try {
+          screenGhost = 0;
+          screenShake = 0;
+          screenTilt = 0;
+        } catch (e) {}
+      }, 8);
+  }
+
   function snapshot() {
     var g = function (n) {
       try {
@@ -61,6 +115,17 @@
       bursts: len(g("areaBursts")),
       assists: len(g("assistShots")),
       anims: document.getAnimations ? document.getAnimations().length : -1,
+      // 죽음 연출·승리 컷신. 오너 기록의 가장 긴 20프레임이 여기 몰려 있었는데
+      // 첫 판에는 이 둘을 아예 기록하지 않아 「settling: false」로만 보였다.
+      outro: !!g("bossOutro"),
+      victory: !!(g("battle") && g("battle").victory),
+      complete: !!g("battleComplete"),
+      off:
+        off.sky || off.blur || off.react
+          ? (off.sky ? "sky " : "") +
+            (off.blur ? "blur " : "") +
+            (off.react ? "react" : "")
+          : "",
     };
   }
 
@@ -173,6 +238,21 @@
     } else if (e.code === "F10" && on) {
       e.preventDefault();
       dump();
+    } else if (e.code === "F7" && on) {
+      e.preventDefault();
+      toggleSky();
+      gaps = [];
+      longs = [];
+    } else if (e.code === "F8" && on) {
+      e.preventDefault();
+      toggleBlur();
+      gaps = [];
+      longs = [];
+    } else if (e.code === "F6" && on) {
+      e.preventDefault();
+      toggleReact();
+      gaps = [];
+      longs = [];
     }
   });
   if (location.search.indexOf("perf=1") >= 0) addEventListener("load", start);
