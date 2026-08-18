@@ -44,7 +44,16 @@ function showSettings(onBack) {
     volume("master", tr("master"), "MASTER") +
     volume("bgm", tr("bgm"), "AMBIENT") +
     volume("sfx", tr("sfx"), "PINBALL FX") +
-    '</div><div class="settings-actions"><button id="settingsReset">' +
+    '</div><div class="settings-group"><h3>' +
+    tr("display") +
+    '</h3><label class="setting-row"><span><b>' +
+    tr("plainSky") +
+    "</b><small>" +
+    tr("plainSkyNote") +
+    '</small></span><span><input id="setting-plainSky" type="checkbox"' +
+    (Number(settings.plainSky) >= 0.5 ? " checked" : "") +
+    "></span></label></div>" +
+    '<div class="settings-actions"><button id="settingsReset">' +
     tr("reset") +
     '</button><button id="settingsFirstRun">' +
     tr("firstRun") +
@@ -68,6 +77,14 @@ function showSettings(onBack) {
       saveSettings();
     };
   }
+  /* 배경 소품 끄기. 음량과 달리 체크박스라 위 루프에 섞지 않는다. */
+  const plain = document.querySelector("#setting-plainSky");
+  if (plain)
+    plain.onchange = () => {
+      settings.plainSky = plain.checked ? 1 : 0;
+      playSfx("confirm");
+      saveSettings();
+    };
   /* 「기본값으로」는 음량·언어만 되돌린다. 이 버튼은 저장된 것을 전부 지워
      처음 켠 브라우저와 같은 상태로 만든다 — 프롤로그와 온보딩을 다시 보려면
      진행도뿐 아니라 온보딩 완료·세 번째 슬롯·인트로 세션 표식까지 함께
@@ -84,7 +101,13 @@ function showSettings(onBack) {
     });
   };
   document.querySelector("#settingsReset").onclick = () => {
-    settings = { language: "ko", master: 0.7, bgm: 0.28, sfx: 0.65 };
+    settings = {
+      language: "ko",
+      master: 0.7,
+      bgm: 0.28,
+      sfx: 0.65,
+      plainSky: 0,
+    };
     saveSettings();
     playSfx("unlock");
     showSettings(back);
