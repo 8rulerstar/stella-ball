@@ -780,7 +780,19 @@ main {
    둔다). 관측소 실루엣과 하늘은 그대로 둔다 — 그건 연출의 무대이지 UI가
    아니다. 감추는 쪽이므로 프레임이 멈춰도 위험하지 않다: 멈추면 계속 감춰져
    있을 뿐이고, 드러내는 것은 클래스 제거라 즉시 적용된다. */
-body.oo-intro .ig-copy {
+body.oo-intro .ig-map,
+body.oo-intro .ig-chart,
+body.oo-intro .ig-wm-wrap,
+body.oo-intro .ig-kicker,
+body.oo-intro .ig-cta,
+body.oo-intro .ig-credit {
   opacity: 0;
   pointer-events: none;
+}
+/* 서브 링크만 남긴다. 원래 코드가 「튜토리얼 버튼은 잠그지 않는다」고 못
+   박아 둔 탈출구다 — 문안을 통째로 덮었더니 그 길이 막혀 온보딩 E2E가
+   1분 튜토리얼을 누르지 못했다. 컷신 위에 뜨는 것은 「관측 시작」이었지
+   이쪽이 아니다. */
+body.oo-intro .ig-sub {
+  opacity: 0.55;
 }
