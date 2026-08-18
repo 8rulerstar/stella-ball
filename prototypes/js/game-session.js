@@ -277,6 +277,17 @@ window.StellaTitleReveal = function () {
 function igTitleReveal() {
   const wrap = document.querySelector(".ig-wm-wrap");
   if (!wrap) return;
+  /* 「인트로 다시 보기」로 두 번째 들어올 때, CSS 애니메이션은 이미 끝나 있어
+     저절로 다시 돌지 않는다. animation을 잠깐 none으로 덮고 리플로를 강제한
+     뒤 되돌리면 지연(animation-delay)까지 처음부터 다시 걸린다.
+     요소를 복제해 갈아 끼우는 방법도 있지만 그러면 버튼 핸들러가 함께
+     날아간다 — 여기서는 스타일만 건드린다. */
+  const animated = document.querySelectorAll(
+    ".ig-map,.ig-chart,.ig-wm,.ig-kicker,.ig-cta,.ig-sub,.ig-credit,.ig-ring,.ig-ring2",
+  );
+  animated.forEach((n) => (n.style.animation = "none"));
+  void wrap.offsetWidth;
+  animated.forEach((n) => (n.style.animation = ""));
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
     document.querySelector(".ig-title")?.classList.add("ig-still");
     return;
