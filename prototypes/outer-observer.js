@@ -152,6 +152,17 @@
       "@media (prefers-reduced-motion:reduce){main.oo2-grabbed,main.oo2-shake,",
       "main.oo2-squeeze,main.oo2-kick{animation:none}",
       "#" + LAYER_ID + " *{animation:none!important}}",
+      "@keyframes oo2Diamond{0%{opacity:0;transform:translate(-50%,-50%) ",
+      "rotate(45deg) scale(1.6)}100%{opacity:1;transform:translate(-50%,-50%) ",
+      "rotate(45deg) scale(1)}}",
+      /* 「관측당한다」 신호 전용 수축 링(§1-3). 확장 링과 방향이 반대다 —
+         밖에서 조여 들어오는 것이 이 연출의 문장이다. */
+      "@keyframes oo2Contract{0%{transform:translate(-50%,-50%) scale(1.5);",
+      "opacity:0}18%{opacity:.7}100%{transform:translate(-50%,-50%) ",
+      "scale(.5);opacity:0}}",
+      "@keyframes oo2Flash{0%{opacity:.92}100%{opacity:0}}",
+      "@media (prefers-reduced-motion:reduce){",
+      ".oo2-cine{transition:none!important;animation:none!important}}",
     ].join("");
     document.head.appendChild(s);
   }
@@ -634,6 +645,110 @@
     });
   }
 
+  /* 시네마 레이어 (INTRO_REDESIGN_HANDOFF.md §2-1 추가분).
+     레터박스·캡션·아이컷은 발톱과 같은 이유로 body 직계다 — #dawn-sky 안에
+     두면 관측창 뒤로 깔려 인서트 컷이 되지 못한다. pointer-events:none이라
+     건너뛰기와 CTA는 계속 눌린다. 전부 .oo2-cine을 달고 stop()이 지운다. */
+  function buildCine() {
+    function add(css) {
+      var n = el(
+        "div",
+        "position:fixed;z-index:6;pointer-events:none;" + css,
+        document.body,
+      );
+      n.className = "oo2-cine";
+      return n;
+    }
+    var bars = [
+      add(
+        "left:0;right:0;top:0;height:6.5vh;background:#03020c;transform:translateY(-100%);transition:transform .5s cubic-bezier(.3,.1,.2,1)",
+      ),
+      add(
+        "left:0;right:0;bottom:0;height:6.5vh;background:#03020c;transform:translateY(100%);transition:transform .5s cubic-bezier(.3,.1,.2,1)",
+      ),
+    ];
+    var cap = add(
+      "left:0;right:0;bottom:12vh;display:grid;justify-items:center;opacity:0;transition:opacity .3s",
+    );
+    var kick = el(
+      "small",
+      "display:block;white-space:nowrap;color:#c94ff0;font:700 11px 'Galmuri11',monospace;letter-spacing:.3em;margin-bottom:9px;text-shadow:0 0 12px #c94ff055",
+      cap,
+    );
+    var line = el(
+      "div",
+      "max-width:640px;padding:0 20px;text-align:center;color:#fdf6e8;font:22px 'Galmuri11',sans-serif;line-height:1.6;text-shadow:0 2px 0 #0a0418,0 0 18px #ffd98e33",
+      cap,
+    );
+    var veil = add(
+      "inset:0;background:#070312;opacity:0;transition:opacity .4s ease-out",
+    );
+    var eye = add(
+      "left:50%;top:43%;width:288px;height:288px;transform:translate(-50%,-50%);opacity:0",
+    );
+    el(
+      "div",
+      "position:absolute;left:50%;top:50%;width:330px;height:330px;border:3px solid #e84ff0aa;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 26px #c94ff044,inset 0 0 26px #c94ff022;animation:oo2Diamond .5s cubic-bezier(.2,.85,.3,1) both",
+      eye,
+    );
+    /* 시트는 384×96(96px 4프레임). 3배로 키우면 프레임이 288px이 되어 정수
+       배율이 유지된다 — 시안이 쓰는 1152×288이 바로 그 값이다. */
+    var frame = el(
+      "div",
+      "position:absolute;inset:0;background:url('../assets/redesign/observer-eye-sheet.png') 0 0/1152px 288px no-repeat;image-rendering:pixelated",
+      eye,
+    );
+    var ring1 = el(
+      "div",
+      "position:absolute;left:50%;top:50%;width:380px;height:380px;border:2px solid #c94ff066;border-radius:50%;transform:translate(-50%,-50%);opacity:0",
+      eye,
+    );
+    var ring2 = el(
+      "div",
+      "position:absolute;left:50%;top:50%;width:450px;height:450px;border:2px dashed #ffd98e44;border-radius:50%;transform:translate(-50%,-50%);opacity:0",
+      eye,
+    );
+    return {
+      bars: bars,
+      cap: cap,
+      kick: kick,
+      line: line,
+      veil: veil,
+      eye: eye,
+      frame: frame,
+      ring1: ring1,
+      ring2: ring2,
+    };
+  }
+  function cineBars(C, inward) {
+    C.bars[0].style.transform = inward ? "translateY(0)" : "translateY(-100%)";
+    C.bars[1].style.transform = inward ? "translateY(0)" : "translateY(100%)";
+  }
+  /* 킥커는 즉시, 본문은 한 글자씩 26ms(§1-2). 한 캡션이 끝나기 전에 다음이
+     오면 앞의 타이머가 남아 두 문장이 섞이므로 매번 지우고 시작한다. */
+  function cineCaption(C, kicker, text) {
+    if (live && live.typeIv) clearInterval(live.typeIv);
+    C.cap.style.opacity = "1";
+    C.kick.textContent = kicker;
+    C.line.textContent = "";
+    var i = 0;
+    var iv = setInterval(function () {
+      C.line.textContent = text.slice(0, ++i);
+      if (i >= text.length) clearInterval(iv);
+    }, 26);
+    if (live) live.typeIv = iv;
+  }
+  function cineFlash() {
+    var f = el(
+      "div",
+      "position:fixed;inset:0;z-index:7;background:#fff3d6;pointer-events:none;animation:oo2Flash .2s steps(2) forwards",
+      document.body,
+    );
+    f.className = "oo2-cine";
+    setTimeout(function () {
+      f.remove();
+    }, 240);
+  }
   function startleProps(sky) {
     var move = {
       astronaut: "translate(14vw,-46vh) rotate(414deg)",
@@ -869,8 +984,21 @@
     }
     live.raf = requestAnimationFrame(loop);
 
+    /* 비트 1 · 정적 (§2-1). 아직 아무 일도 없다는 것을 말로 먼저 세운다 —
+       뒤에 오는 「간격이 틀렸다」가 대비를 가지려면 기준이 있어야 한다. */
+    var C = buildCine();
+    at(30, function () {
+      cineBars(C, true);
+      cineCaption(
+        C,
+        "OBSERVATION LOG — 04:17",
+        "마지막 천문대, 여느 때와 같은 밤.",
+      );
+    });
+
     // 비트 2 · 관측 이상. 점이 한 번에 켜지지 않고 계단으로 들어온다.
     at(900, function () {
+      cineCaption(C, "ANOMALY", "…별의 간격이, 틀렸다.");
       P.anomaly.style.opacity = "1";
       Array.prototype.forEach.call(P.grid.children, function (c, i) {
         c.style.opacity = "0";
@@ -907,6 +1035,23 @@
         });
       });
       ringPulse(P, 0);
+      /* 아이컷 인서트 (§2-1). 멀리 있는 몸의 동공이 조여드는 것만으로는
+         「눈이 마주쳤다」가 읽히지 않는다 — 화면을 덮고 눈만 크게 넣는다.
+         플래시로 하드컷을 만든다. 크로스페이드는 픽셀을 뭉갠다(§1-3). */
+      cineFlash();
+      C.veil.style.opacity = "0.86";
+      C.eye.style.transition = "opacity .2s steps(2)";
+      C.eye.style.opacity = "1";
+      [0, 150, 300, 450].forEach(function (d, i) {
+        at(d, function () {
+          C.frame.style.backgroundPosition = -i * 288 + "px 0";
+        });
+      });
+      C.ring1.style.animation =
+        "oo2Contract 1.2s cubic-bezier(.3,.1,.2,1) both";
+      C.ring2.style.animation =
+        "oo2Contract 1.2s cubic-bezier(.3,.1,.2,1) .16s both";
+      cineCaption(C, "CONTACT", "저쪽이 먼저, 이쪽을 보았다.");
     });
     // 알아본 뒤 한 번 더 조인다 — 이 반복이 「보고 있다」를 확정한다.
     at(7100, function () {
@@ -914,6 +1059,14 @@
       at(120, function () {
         P.being.src = P.tight[2];
       });
+      // 인서트 쪽도 같이 조인다. 두 화면이 어긋나면 같은 눈으로 안 읽힌다.
+      C.frame.style.backgroundPosition = "-576px 0";
+      at(120, function () {
+        C.frame.style.backgroundPosition = "-864px 0";
+      });
+      C.ring1.style.animation = "none";
+      void C.ring1.offsetWidth;
+      C.ring1.style.animation = "oo2Contract .8s cubic-bezier(.3,.1,.2,1) both";
     });
 
     // 비트 5 · 붙잡는다. 예비동작 → 스냅 → 그립 플렉스.
@@ -971,6 +1124,10 @@
 
     // 비트 6 · 점등. 발톱이 놓고, 몸은 속도선을 남기고 빠져나간다.
     at(10400, function () {
+      cineFlash();
+      C.veil.style.opacity = "0";
+      C.eye.style.opacity = "0";
+      C.cap.style.opacity = "0";
       claw(P, "out");
       st.phase = "exit";
       streaks(P);
@@ -994,6 +1151,11 @@
        잘못된 쪽을 더 채운다. */
     at(10200, function () {
       window.StellaDawnSky?.missingStar(true);
+    });
+    /* 레터박스는 타이틀 리빌 직전에 열린다 — 화면이 넓어지는 것 자체가
+       「관측이 끝났다」는 신호다(§2-1 9300 점등). */
+    at(11900, function () {
+      cineBars(C, false);
     });
     at(12300, function () {
       // 흔들림 클래스는 반드시 벗긴다. main에 transform이 남으면
@@ -1091,6 +1253,7 @@
   function stop() {
     if (live) {
       live.timers.forEach(clearTimeout);
+      if (live.typeIv) clearInterval(live.typeIv);
       cancelAnimationFrame(live.raf);
       live = null;
     }
@@ -1105,6 +1268,9 @@
     hideSkip();
     // 발톱은 body 직계라 레이어와 같이 지워지지 않는다.
     document.querySelectorAll(".oo2-claw").forEach(function (n) {
+      n.remove();
+    });
+    document.querySelectorAll(".oo2-cine").forEach(function (n) {
       n.remove();
     });
     restoreProps();
