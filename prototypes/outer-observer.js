@@ -1039,7 +1039,11 @@
          「눈이 마주쳤다」가 읽히지 않는다 — 화면을 덮고 눈만 크게 넣는다.
          플래시로 하드컷을 만든다. 크로스페이드는 픽셀을 뭉갠다(§1-3). */
       cineFlash();
-      C.veil.style.opacity = "0.86";
+      /* 시안은 빈 하늘 위에 인서트를 얹지만 게임은 «타이틀 위»다. 0.86으로는
+         워드마크와 CTA가 비쳐 인서트가 아니라 겹쳐 어질러진 화면으로 읽힌다
+         — 실제로 「인트로 때 UI가 가린다」는 제보가 그것이었다. 완전히 덮어야
+         하드컷이 된다. 건너뛰기(z-index 70)는 그대로 위에 남는다. */
+      C.veil.style.opacity = "0.985";
       C.eye.style.transition = "opacity .2s steps(2)";
       C.eye.style.opacity = "1";
       [0, 150, 300, 450].forEach(function (d, i) {
@@ -1371,12 +1375,18 @@
   function startButton() {
     return document.getElementById("enterHub");
   }
+  /* 버튼을 잠그는 것만으로는 부족했다 — 잠긴 「관측 시작」이 컷신 내내 화면에
+     떠 있어서 연출 위에 UI가 겹쳐 보였다(제보). 규격도 타이틀 리빌을 「컷신
+     종료 직후」로 두므로, 잠그는 동안에는 타이틀 문안 자체를 감춘다.
+     푸는 시점은 그대로다(발톱이 관측창을 잡는 7700+280ms). 그 순간 타이틀이
+     리빌 연출과 함께 들어온다 — 보이는 때와 누를 수 있는 때가 같아진다. */
   function holdStart() {
     var b = startButton();
     if (b) {
       b.disabled = true;
       b.setAttribute("aria-disabled", "true");
     }
+    document.body.classList.add("oo-intro");
     clearTimeout(holdTimer);
     holdTimer = setTimeout(releaseStart, 9500);
   }
@@ -1387,6 +1397,11 @@
     if (b) {
       b.disabled = false;
       b.removeAttribute("aria-disabled");
+    }
+    if (document.body.classList.contains("oo-intro")) {
+      document.body.classList.remove("oo-intro");
+      // 감춰 둔 동안 리빌을 미뤄 두었다. 이제 한 번 돌린다.
+      window.StellaTitleReveal?.();
     }
   }
   function watch() {

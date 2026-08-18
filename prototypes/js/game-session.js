@@ -92,8 +92,20 @@ function setupBattle() {
       ? null
       : {
           at: frameClock,
-          span: introSeenStages.has(s.id) ? 600 : 1500,
+          /* 첫 입장을 2400ms로 늘렸다(§2-4). 캔버스 밴드(introBand 0.2~0.72)는
+             그대로이고 늘어난 것은 그 밴드가 걸리는 시간이다 — 거상이 내려앉는
+             동안 이름을 부르고 별지기를 소개할 자리가 필요했다.
+             재도전 600ms는 그대로다. 같은 판을 다시 볼 때까지 4.9초를 강요하면
+             연출이 아니라 벌이 된다. */
+          span: introSeenStages.has(s.id) ? 600 : 2400,
         };
+  /* 입장 오버레이의 시계. setTimeout으로 짜면 캔버스와 어긋난다 — 캔버스는
+     frameClock으로 도는데 벽시계는 탭이 숨거나 프레임이 밀리면 따로 간다.
+     오늘 승리 판정에서 같은 어긋남을 한 번 겪었다. 프레임마다 여기서 읽는다. */
+  battleCine =
+    battleIntro && !introSeenStages.has(s.id)
+      ? { at: frameClock, done: 0 }
+      : null;
   introSeenStages.add(s.id);
   // 판이 세워지는 소리. 거상의 «말»은 아래 setTimeout이 따로 낸다(speechBoss).
   if (battleIntro) combatSfx?.("battleIntro", 0.95);
@@ -114,6 +126,89 @@ function setupBattle() {
 /* 이 스테이지를 이미 본 적이 있는가. 세션 동안만 기억하면 된다 — 재도전이
    잦은 게임이라 「두 번째부터 짧게」가 목적이고, 저장까지 할 값은 아니다. */
 const introSeenStages = new Set();
+let battleCine = null;
+/* 전투 입장 오버레이 (§2-4). 캔버스가 그리는 강하·맺힘 위에 DOM으로 레터박스,
+   착지 충격, 네임플레이트, 별지기 컷인, 조작 프롬프트를 얹는다.
+   비트는 전부 frameClock 기준이라 캔버스와 절대 어긋나지 않는다. */
+const CINE_BEATS = [
+  [0, "cin-bars"],
+  [2178, "cin-land"],
+  [2438, "cin-plate"],
+  [2828, "cin-cut1"],
+  [3108, "cin-cut2"],
+  [3388, "cin-cut3"],
+  [4178, "cin-open"],
+];
+function buildBattleCine() {
+  document.querySelector(".cin")?.remove();
+  const host = document.querySelector("main");
+  if (!host) return null;
+  const party = (typeof deployed !== "undefined" ? deployed : []).filter(
+    Boolean,
+  );
+  const cut = party
+    .slice(0, 3)
+    .map(
+      (id, i) =>
+        '<span class="cin-portrait cin-p' +
+        (i + 1) +
+        '" style="--edge:' +
+        (heroes[id]?.col || "#ffd98e") +
+        '"><i style="background-image:url(' +
+        (heroes[id]?.sprite || "") +
+        ')"></i><b>' +
+        (heroes[id]?.s || "") +
+        "</b></span>",
+    )
+    .join("");
+  const box = document.createElement("div");
+  box.className = "cin";
+  box.setAttribute("aria-hidden", "true");
+  box.innerHTML =
+    '<span class="cin-bar cin-bar-t"></span><span class="cin-bar cin-bar-b"></span>' +
+    '<span class="cin-veil"></span><span class="cin-flash"></span>' +
+    '<span class="cin-ring cin-ring-a"></span><span class="cin-ring cin-ring-b"></span>' +
+    '<span class="cin-dust"></span>' +
+    '<span class="cin-plate"><i class="cin-hair cin-hair-l"></i><b>' +
+    bossDisplayName() +
+    '</b><i class="cin-hair cin-hair-r"></i></span>' +
+    '<span class="cin-cuts">' +
+    cut +
+    "</span>" +
+    '<span class="cin-prompt">SPACE</span>';
+  host.append(box);
+  return box;
+}
+/* 프레임마다 경과를 재서 지나간 비트의 클래스를 «켜기만» 한다. 끄지 않으므로
+   프레임이 밀려 한 비트를 건너뛰어도 상태가 빠지지 않는다. */
+registerRuntimeHook("afterFeedbackUpdate", () => {
+  if (!battleCine) return;
+  const box = document.querySelector(".cin") || buildBattleCine();
+  if (!box) return (battleCine = null);
+  const t = frameClock - battleCine.at;
+  for (const [ms, cls] of CINE_BEATS)
+    if (t >= ms && !box.classList.contains(cls)) {
+      box.classList.add(cls);
+      if (cls === "cin-land") {
+        screenShake = Math.max(screenShake || 0, 26);
+        for (let i = 0; i < 20; i++) {
+          const bit = document.createElement("i"),
+            a = (i / 20) * Math.PI * 2;
+          bit.style.cssText =
+            "--dx:" +
+            Math.round(Math.cos(a) * (60 + i * 4)) +
+            "px;--dy:" +
+            Math.round(Math.sin(a) * (60 + i * 4)) +
+            "px";
+          box.querySelector(".cin-dust").append(bit);
+        }
+      }
+    }
+  if (t > 6000) {
+    box.remove();
+    battleCine = null;
+  }
+});
 /* 입장 연출의 진행도(0~1). 없으면 1을 돌려주므로 호출자는 분기하지 않는다. */
 function introProgress() {
   if (!battleIntro) return 1;
@@ -176,6 +271,9 @@ let titleSequence = 0;
    JS가 맡는 것은 CSS로 못 만드는 둘뿐이다 — 1프레임 플래시 컷과, 워드마크가
    내려앉는 순간 사방으로 튀는 먼지 24개. 타이머로 요소를 하나씩 켜는 방식은
    화면이 바뀌면 유령 타이머가 남으므로 쓰지 않는다. */
+window.StellaTitleReveal = function () {
+  igTitleReveal();
+};
 function igTitleReveal() {
   const wrap = document.querySelector(".ig-wm-wrap");
   if (!wrap) return;
@@ -285,7 +383,10 @@ function renderTitlePresentation() {
     ' 관측 항로</small><i></i></div><div class="ig-wm-wrap"><img class="ig-wm" src="' +
     metaArt.wordmarkDot +
     '" alt="STELLA BALL"><span class="ig-ring" aria-hidden="true"></span><span class="ig-ring2" aria-hidden="true"></span><span class="ig-dust" aria-hidden="true"></span></div><small class="ig-kicker">THE LAST OBSERVATORY · CONSTELLATION RESTORATION</small><button class="ig-cta" id="enterHub">관측 시작<i aria-hidden="true"></i></button><div class="ig-sub"><button class="ig-link" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button><button class="ig-link" id="titleReplayIntro">인트로 다시 보기</button></div><small class="ig-credit">MADE BY <b>8RULERSTAR</b></small></div></section>';
-  igTitleReveal();
+  /* 인트로가 화면을 잡고 있으면 리빌을 미룬다. 지금 돌리면 컷신 뒤에서
+     혼자 슬램이 끝나 버려, 정작 타이틀이 드러날 때는 아무 일도 일어나지
+     않는다. outer-observer가 releaseStart에서 불러 준다. */
+  if (!document.body.classList.contains("oo-intro")) igTitleReveal();
   const enter = document.querySelector("#enterHub");
   /* 인트로 다시 보기(§10). 재생 표식을 첫 실행 단위(localStorage)로 옮기고
      나니 두 번째부터는 전체 연출을 볼 방법이 없어졌다 — 스테이지 지도의
