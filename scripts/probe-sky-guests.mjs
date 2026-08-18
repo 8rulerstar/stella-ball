@@ -49,23 +49,32 @@ for (let i = 0; i < 60; i++) {
 }
 const profile = mkdtempSync(join(tmpdir(), "sky-probe-"));
 const debugPort = port + 1;
-const chrome = spawn(browser, [
-  "--headless=new",
-  `--remote-debugging-port=${debugPort}`,
-  `--user-data-dir=${profile}`,
-  "--window-size=1440,900",
-  "--no-first-run",
-  "--disable-background-networking",
-  `http://127.0.0.1:${port}/prototypes/prism-breakers.html`,
-], { stdio: "ignore" });
+const chrome = spawn(
+  browser,
+  [
+    "--headless=new",
+    `--remote-debugging-port=${debugPort}`,
+    `--user-data-dir=${profile}`,
+    "--window-size=1440,900",
+    "--no-first-run",
+    "--disable-background-networking",
+    `http://127.0.0.1:${port}/prototypes/prism-breakers.html`,
+  ],
+  { stdio: "ignore" },
+);
 
-let cdp, id = 0;
+let cdp,
+  id = 0;
 const pending = new Map();
 async function connect() {
   for (let i = 0; i < 80; i++) {
     try {
-      const list = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();
-      const target = list.find((t) => t.type === "page" && t.url.includes("prism-breakers"));
+      const list = await (
+        await fetch(`http://127.0.0.1:${debugPort}/json/list`)
+      ).json();
+      const target = list.find(
+        (t) => t.type === "page" && t.url.includes("prism-breakers"),
+      );
       if (target) {
         cdp = new WebSocket(target.webSocketDebuggerUrl);
         cdp.addEventListener("message", (e) => {
@@ -75,7 +84,9 @@ async function connect() {
           pending.delete(m.id);
           m.error ? p.reject(new Error(m.error.message)) : p.resolve(m.result);
         });
-        await new Promise((r) => cdp.addEventListener("open", r, { once: true }));
+        await new Promise((r) =>
+          cdp.addEventListener("open", r, { once: true }),
+        );
         return;
       }
     } catch {}
@@ -90,8 +101,13 @@ const send = (method, params = {}) =>
     cdp.send(JSON.stringify({ id: n, method, params }));
   });
 const evaluate = async (expression) => {
-  const r = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-  if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? "eval failed");
+  const r = await send("Runtime.evaluate", {
+    expression,
+    awaitPromise: true,
+    returnByValue: true,
+  });
+  if (r.exceptionDetails)
+    throw new Error(r.exceptionDetails.exception?.description ?? "eval failed");
   return r.result?.value;
 };
 
@@ -138,5 +154,7 @@ try {
   cdp?.close();
   chrome.kill();
   server.kill();
-  try { rmSync(profile, { recursive: true, force: true }); } catch {}
+  try {
+    rmSync(profile, { recursive: true, force: true });
+  } catch {}
 }
