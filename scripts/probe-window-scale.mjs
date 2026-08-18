@@ -94,15 +94,44 @@ async function sample(w, h) {
       cdp.send(JSON.stringify({ id: n, method, params }));
     });
   await send("Runtime.enable");
+  await send("LayerTree.enable");
   for (let i = 0; i < 60; i++) {
-    const r = await send("Runtime.evaluate", {
+    const ready = await send("Runtime.evaluate", {
       expression: "document.readyState === 'complete'",
       returnByValue: true,
     });
-    if (r.result?.value) break;
+    if (ready.result?.value) break;
     await delay(100);
   }
   await delay(1200);
+
+  /* 합성 레이어를 직접 센다. 「transform만 쓰니 안전하다」는 애니메이션도
+     레이어가 크면 매 프레임 그만큼을 GPU가 섞는다 — 안전한 것과 싼 것은
+     다르다. 넓이 순으로 큰 것부터 본다. */
+  const layers = await new Promise((res) => {
+    const seen = [];
+    const h = (e) => {
+      const m = JSON.parse(String(e.data));
+      if (m.method === "LayerTree.layerTreeDidChange")
+        seen.push(...(m.params.layers || []));
+    };
+    cdp.addEventListener("message", h);
+    setTimeout(() => {
+      cdp.removeEventListener("message", h);
+      res(seen);
+    }, 2500);
+  });
+  const uniq = [];
+  for (const l of layers
+    .map((l) => ({
+      w: Math.round(l.width),
+      h: Math.round(l.height),
+      px: Math.round(l.width * l.height),
+    }))
+    .filter((l) => l.px > 50000)
+    .sort((a, b) => b.px - a.px))
+    if (!uniq.some((u) => u.w === l.w && u.h === l.h)) uniq.push(l);
+
   const r = await send("Runtime.evaluate", {
     expression: `(() => {
       const star = [...document.querySelectorAll("canvas")]
@@ -111,11 +140,26 @@ async function sample(w, h) {
       const px = star.reduce((sum, c) => sum + c.w * c.h, 0);
       return JSON.stringify({
         viewport: innerWidth + "x" + innerHeight,
-        dpr: devicePixelRatio,
-        canvases: star,
         canvasPixels: px,
         animations: document.getAnimations().length,
         skyNodes: document.querySelectorAll('#dawn-sky *, #sky-ambience *').length,
+        // 큰 레이어의 «정체». 회전한 요소는 경계상자가 정사각형에 가까워지므로
+        // 레이어 목록만으로는 누구인지 알 수 없다. 실제 요소를 재서 짝짓는다.
+        suspects: [...document.querySelectorAll('#dawn-sky > *, #sky-ambience > *, #sky-ambience *')]
+          .map((e) => {
+            const r = e.getBoundingClientRect();
+            const cs = getComputedStyle(e);
+            return { tag: e.tagName.toLowerCase(),
+                     cls: (typeof e.className === "string" ? e.className : "").slice(0, 24),
+                     w: Math.round(r.width), h: Math.round(r.height),
+                     px: Math.round(r.width * r.height),
+                     anim: cs.animationName === "none" ? "" : cs.animationName,
+                     tf: cs.transform === "none" ? "" : "yes",
+                     op: cs.opacity };
+          })
+          .filter((e) => e.px > 200000)
+          .sort((a, b) => b.px - a.px)
+          .slice(0, 8),
       });
     })()`,
     returnByValue: true,
@@ -125,7 +169,11 @@ async function sample(w, h) {
   try {
     rmSync(dir, { recursive: true, force: true });
   } catch {}
-  return JSON.parse(r.result.value);
+  return {
+    ...JSON.parse(r.result.value),
+    layers: layers.length,
+    bigLayers: uniq.slice(0, 8),
+  };
 }
 
 try {
@@ -145,7 +193,10 @@ try {
       String(s.animations).padStart(3),
       "하늘노드",
       String(s.skyNodes).padStart(3),
-      JSON.stringify(s.canvases),
+      "| layers",
+      s.layers,
+      "| suspects",
+      JSON.stringify(s.suspects),
     );
   }
 } finally {
