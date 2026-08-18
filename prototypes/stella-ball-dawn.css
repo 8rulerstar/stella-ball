@@ -804,6 +804,14 @@ body.oo-intro .ig-sub {
   animation: none !important;
   opacity: 0 !important;
 }
+/* 「인트로 다시 보기」만 막는다. 컷신이 도는 동안 보이지도 않는 이 버튼이
+   클릭을 받고 있어서, 아무 데나 좌클릭하면 연출이 처음부터 다시 시작됐다 —
+   포인터 이벤트를 서브 링크 전체에 남긴 것이 원인이었다.
+   「1분 튜토리얼」은 남긴다. outer-observer.js가 그 버튼은 잠그지 않는다고
+   명시한 탈출구이고, 온보딩 E2E도 그것을 누른다. */
+body.oo-intro #titleReplayIntro {
+  pointer-events: none;
+}
 
 /* 컷신 동안에는 판 자체를 비운다. 문안만 감췄더니 「글은 사라져도 UI 창이
    남아 괴물을 가린다」는 제보가 왔다 — 실제로 .stage(불투명 배경 + 테두리)와
