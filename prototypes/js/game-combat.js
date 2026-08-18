@@ -51,7 +51,8 @@ function billiardAim(dx, dy) {
   if (override) return override;
   const len = Math.hypot(dx, dy) || 1,
     base = Math.atan2(dy, dx);
-  let best = null;
+  let best = null,
+    pull = 0;
   const consider = (target) => {
     const tx = target.x - ball.x,
       ty = target.y - ball.y,
@@ -61,26 +62,31 @@ function billiardAim(dx, dy) {
       Math.sin(Math.atan2(ty, tx) - base),
       Math.cos(Math.atan2(ty, tx) - base),
     );
-    if (
-      Math.abs(delta) < 0.15 &&
-      (!best || Math.abs(delta) < Math.abs(best.delta))
-    )
+    if (Math.abs(delta) >= 0.15) return;
+    /* 보정이 원뿔 경계에서 뚝 끊겨 있었다. 안에서는 각도를 0.58만큼 끌어당기고
+       바깥에서는 그대로 두니, 경계를 한 픽셀 넘는 순간 발사각이
+       0.15rad × 0.58 = 4.98도 튀었다 — 실측 5.05~5.12도. 경계로 갈수록 보정을
+       0으로 데워 없앤다(중심부 손실은 제곱 감쇠라 작다). */
+    const edge = Math.abs(delta) / 0.15;
+    /* 그런데 그 처리는 원뿔의 «바깥» 경계만 덮었다. 가장 가까운 별지기 하나만
+       고르는 방식이라, 겨누는 각을 쓸다가 «가장 가까운»이 바뀌는 순간 delta가
+       통째로 다른 별지기 것으로 갈아타며 부호까지 뒤집힌다 — 마우스 1픽셀에
+       발사각이 2.1~4.0도 튀었고(probeAimTransfer, 6개 중 4개 스테이지),
+       별지기가 하나뿐인 1-1에서만 튀지 않았다.
+       그래서 하나를 고르지 않는다. 원뿔 안의 모든 별지기가 각자의 falloff만큼
+       당기고 그것을 더한다. 각 항이 경계에서 0으로 수렴하므로 별지기가 들어오고
+       나가는 순간에도 합이 이어지고, 넘겨주는 자리에서도 끊기지 않는다.
+       별지기가 하나뿐인 구간의 결과는 예전과 완전히 같다. best는 어느 별지기를
+       돕고 있는지 표시하는 용도로만 남는다. */
+    pull += delta * (1 - edge * edge);
+    if (!best || Math.abs(delta) < Math.abs(best.delta))
       best = { delta, target };
   };
   for (const gate of gates) consider(gate);
   for (const bumper of bumpers) consider(bumper);
   consider(boss);
   if (!best) return { x: dx / len, y: dy / len, assisted: false };
-  /* 보정이 원뿔 경계에서 뚝 끊겨 있었다. 안에서는 각도를 0.58만큼 끌어당기고
-     바깥에서는 그대로 두니, 경계를 한 픽셀 넘는 순간 발사각이
-     0.15rad × 0.58 = 4.98도 튀었다 — 실측 5.05~5.12도, 그리고 튀는 자리가
-     전부 보정 켜짐/꺼짐 경계였다. 겨눈 곳이 한 픽셀 차이로 5도씩 달라지면
-     세밀한 조준 자체가 불가능하다.
-     경계로 갈수록 보정을 0으로 데워 없앤다. 안쪽에서 도와주는 힘은 거의
-     그대로 남고(중심부 손실은 제곱 감쇠라 작다), 불연속만 사라진다. */
-  const edge = Math.abs(best.delta) / 0.15,
-    falloff = 1 - edge * edge;
-  const angle = base + best.delta * 0.58 * falloff;
+  const angle = base + pull * 0.58;
   return {
     x: Math.cos(angle),
     y: Math.sin(angle),
