@@ -114,16 +114,24 @@
       }
     }
   }
-  var realBlur = null;
+  var blurOn = false;
+  /* 캔버스 컨텍스트는 game-data.js에서 top-level `const x`로 선언된다. 고전
+     스크립트의 top-level const는 «전역 렉시컬 환경»에 들어가지 window에는
+     붙지 않는다 — 그래서 window.x는 undefined였고, 이 스위치는 눌러도 조용히
+     아무 일도 하지 않았다. 이름으로 직접 잡는다. */
+  function ctx2d() {
+    try {
+      return typeof x !== "undefined" ? x : null;
+    } catch (e) {
+      return null;
+    }
+  }
   function toggleBlur() {
-    off.blur = !off.blur;
-    var ctx = window.x;
+    var ctx = ctx2d();
     if (!ctx) return;
-    if (off.blur) {
-      realBlur = Object.getOwnPropertyDescriptor(
-        Object.getPrototypeOf(ctx),
-        "shadowBlur",
-      );
+    off.blur = !off.blur;
+    if (off.blur && !blurOn) {
+      blurOn = true;
       Object.defineProperty(ctx, "shadowBlur", {
         configurable: true,
         get: function () {
@@ -131,7 +139,8 @@
         },
         set: function () {},
       });
-    } else if (realBlur) {
+    } else if (!off.blur && blurOn) {
+      blurOn = false;
       delete ctx.shadowBlur;
     }
   }
