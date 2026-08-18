@@ -80,7 +80,7 @@ The infinite training table is the current reference configuration for all three
 - Sample SFX voices are lazy: create them through `sampleSfxPool()` only when the cue is first played. Do not preallocate every audio voice on the title screen.
 - Cache static canvas layers. `game-core-render.js` already caches stage floor and arena layers.
 - Do DOM work on state changes, not inside the frame loop. `sync()` caches each HUD field; extend that cache instead of rebuilding the HUD for a collision-only update.
-- Keep transient effect arrays bounded and compact them in place with `advanceTimed()` or `tickTimed()` rather than chaining `filter()` calls every frame.
+- Keep transient effect arrays bounded and compact them in place with `advanceTimed()` rather than chaining `filter()` calls every frame.
 - Keep UI-only scenes out of the combat loop by going through `setScene()`.
 
 ## Before handoff

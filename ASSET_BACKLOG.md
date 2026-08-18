@@ -70,7 +70,7 @@
 - 화풍·색 규칙: 새벽 관측소 픽셀 아트. 청록-잿빛 밤의 저대비 윤곽과 별이 비어 보이는 음영을 쓴다. 살구색 보상·CTA, 매끈한 3D, 네온 사이버 글리치, 전신 괴물, 명확한 촉수·고어는 금지한다.
 - 기존 후보·재사용 경로: `#dawn-sky`의 별·성운·오로라와 CSS/캔버스 절차 표현을 먼저 검토한다. 새 래스터·SFX는 이 항목이 `제작 준비`가 되기 전에는 만들거나 반입하지 않는다.
 - 코드 연결 지점: `game-session.js`의 `renderTitlePresentation()`, `stella-ball-dawn.js`/`stella-ball-dawn.css`의 `#dawn-sky`, `game-figure.js`의 `figureFx`(5점 이상 판정), `afterBattleWin` 런타임 훅. 전투 판정·입력·보상에는 접근하지 않는다.
-- 결정·검수 메모: 상세 요구서는 [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md) 11절. 2026-08-14에 절차적 픽셀 코드(`prototypes/boss-art.js`)와 인트로 5비트(`prototypes/outer-observer.js`)로 구현했다. **래스터·SFX 반입은 없다** — 전부 코드 표현이라 `ASSET_PLAN.md`·`ASSET_MANIFEST.json` 등재 대상이 아니다. 팔레트는 스펙 4절을 유지하고 채도 재검토를 회신했다([OUTER_OBSERVER_PALETTE_REPLY.md](OUTER_OBSERVER_PALETTE_REPLY.md)). 존재의 정체·봉인 설정·루나 대사·모바일 대응은 여전히 미정이다.
+- 결정·검수 메모: 상세 요구서는 [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md) 11절. 2026-08-14에 절차적 픽셀 코드(`prototypes/boss-art.js`)와 인트로(`prototypes/outer-observer.js`)로 구현했고, 인트로는 2026-08-16 디자인 세션 v2로 교체돼 현재 6비트다. **래스터·SFX 반입은 없다** — 전부 코드 표현이라 `ASSET_PLAN.md`·`ASSET_MANIFEST.json` 등재 대상이 아니다. 팔레트는 스펙 4절을 유지하고 채도 재검토를 회신했다([OUTER_OBSERVER_PALETTE_REPLY.md](OUTER_OBSERVER_PALETTE_REPLY.md)). 존재의 정체·봉인 설정·루나 대사·모바일 대응은 여전히 미정이다.
 
 ### [반입 완료] P1 — 모루 오크 리스타일 본체
 
@@ -132,7 +132,7 @@
 
 **2026-08-13 보스가 월드 구분을 맡는다.** 월드 보스 7종이 반입돼 월드를 구분하는 1차 수단이 됐다.
 
-> **2026-08-14 정정 후 반입 완료.** 낮에 확인했을 때는 `bossArtFor(slug)`에 호출부가 없어 34스테이지가 전부 `boss2/void-colossus.png` 하나를 그리고 있었다. 같은 날 저녁에 이었다 — 팩의 슬러그가 이미 월드 이름으로 지어져 있어 배정에 판단이 필요 없었다(`aries-horngate` … `dipper-crawler`, 북두칠성은 Big Dipper라 `dipper-crawler`). `game-data.js`의 `WORLD_BOSS_SLUG`와 `stageBossArt()`가 대응을 쥐고, 전장 렌더와 텍스처 예열이 그걸 쓴다. 무한 훈련장은 `training-effigy`, 1-1 수업도 양자리라 캠페인 첫 판과 같은 보스를 본다. 8-1만 예외로 절차적 `StellaBossArt`를 그대로 쓴다. 남은 두 슬러그 `pentacle-core`·`erosion-warden`은 아직 어느 스테이지에도 붙지 않았다.
+> **2026-08-14 정정 후 반입 완료.** 낮에 확인했을 때는 `bossArtFor(slug)`에 호출부가 없어 34스테이지가 전부 `boss2/void-colossus.png` 하나를 그리고 있었다. 같은 날 저녁에 이었다 — 팩의 슬러그가 이미 월드 이름으로 지어져 있어 배정에 판단이 필요 없었다(`aries-horngate` … `dipper-crawler`, 북두칠성은 Big Dipper라 `dipper-crawler`). `game-data.js`의 `WORLD_BOSS`와 `stageBossArt()`가 대응을 쥐고, 전장 렌더와 텍스처 예열이 그걸 쓴다. 무한 훈련장은 `training-effigy`, 1-1 수업도 양자리라 캠페인 첫 판과 같은 보스를 본다. 8-1만 예외로 절차적 `StellaBossArt`를 그대로 쓴다. 남은 두 슬러그 `pentacle-core`·`erosion-warden`은 아직 어느 스테이지에도 붙지 않았다.
 
 - 화면 / 트리거: 별자리 캠페인 지도와 스테이지 선택 카드.
 - 플레이 목적: 1-2 이후 새 스테이지의 기믹·분위기를 전투 시작 전에 구분한다.

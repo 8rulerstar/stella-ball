@@ -46,6 +46,26 @@ These are ordered classic scripts sharing one global scope. Do not reorder their
 - `npm run test:onboarding` drives the six-card tutorial, guaranteed pentagram, final battle, and reward in a fresh headless Chromium profile.
 - `npm run check` runs verification, smoke, and onboarding E2E in the handoff order.
 - `npm run format:check` checks formatting; use `npm run format` to apply it.
+
+### Measuring what the preview pane cannot show
+
+The in-app Browser pane reports `document.hidden === true`, so `requestAnimationFrame`
+never fires there and its viewport can read `0x0`. Anything about frame pacing,
+motion or on-screen geometry measured through that pane is a proxy at best - two
+performance passes were tuned against one such proxy and missed the real cost.
+Four probes drive a real Chromium over CDP the way the onboarding E2E does. None
+is wired into a gate; run them by hand when the question is about the screen.
+
+- `node scripts/profile-frames.mjs` - frame times and the composited layer structure.
+- `node scripts/probe-settle-cost.mjs` - the frame cost of a settlement chain.
+- `node scripts/probe-steer-lesson.mjs` - where the steer lesson's hold actually stops on screen.
+- `node scripts/probe-sky-guests.mjs` - margin guest placement, immune to the 0x0 viewport.
+
+`node bot/run-bot.mjs` regenerates `bot/latest-report.json`. The harness is
+deterministic - the same code twice gives byte-identical output - so a diff in
+that file is a real behaviour change, not noise. It loads 14 of the 19 runtime
+scripts; the note on `runtimeFiles` says which five are left out and why.
+
 - Do not edit generated `artifacts/` output or user-owned `.claude/` files.
 - Preserve unrelated changes in a dirty worktree. Do not amend, rebase, or force-push `main`.
 
