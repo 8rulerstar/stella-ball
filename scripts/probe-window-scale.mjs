@@ -104,6 +104,21 @@ async function sample(w, h) {
     await delay(100);
   }
   await delay(1200);
+  /* 인트로 중에 재면 안 된다. 관측자 레이어(oo2-dim 등)가 전체화면으로 여러 장
+     깔려 있어 «전투 중 하늘»과 전혀 다른 그림이 나온다. 실제 판을 세우고 잰다. */
+  await send("Runtime.evaluate", {
+    expression: `(() => {
+      try {
+        stageIndex = stages.findIndex((s) => s.id === "2-2");
+        deployed = ["gaon","biyeon","ria"]; selected = [...deployed];
+        resetBuild(); setupBattle();
+        document.querySelectorAll(".oo2, .cin, #introRoot").forEach((n) => n.remove());
+      } catch (e) {}
+      return 1;
+    })()`,
+    returnByValue: true,
+  });
+  await delay(1500);
 
   /* 합성 레이어를 직접 센다. 「transform만 쓰니 안전하다」는 애니메이션도
      레이어가 크면 매 프레임 그만큼을 GPU가 섞는다 — 안전한 것과 싼 것은
