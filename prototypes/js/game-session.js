@@ -246,13 +246,16 @@ function showRoster() {
   placementPick = null;
   U.over.className = "overlay squad-scene";
   U.over.innerHTML =
-    '<div class="squad-layout"><div class="squad-head"><div><small>STAGE ' +
+    /* 부제는 제목 칸이 아니라 헤더 전체 폭을 쓴다. 예전에는 제목과 같은
+       172px 칸에 갇혀 「STAGE 7-5 · 알리오트 · 기울어진 빛」이 두 줄로 끊기고
+       마지막 글자만 홀로 떨어졌다. 폭을 나눠 갖지 않으면 그럴 일이 없다. */
+    '<div class="squad-layout"><div class="squad-head"><small>STAGE ' +
     s.id +
     " · " +
     s.name +
     "</small><h2>별지기 " +
     slotCount +
-    '명을 자리에 세우세요</h2></div><p>아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.</p></div><div class="squad-field"><div id="slotChoices" class="deployment-map" aria-label="전장 배치"><span class="map-boss" aria-label="보스">◆</span><span class="map-launch" aria-hidden="true">발사석</span></div><div id="squadDetail" class="squad-detail" aria-live="polite"></div></div><div class="squad-tray-shell"><div class="squad-tray-head"><small>보유 별지기</small><b>' +
+    '명을 자리에 세우세요</h2><p>아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.</p></div><div class="squad-field"><div id="slotChoices" class="deployment-map" aria-label="전장 배치"><span class="map-boss" aria-label="보스">◆</span><span class="map-launch" aria-hidden="true">발사석</span></div><div id="squadDetail" class="squad-detail" aria-live="polite"></div></div><div class="squad-tray-shell"><div class="squad-tray-head"><small>보유 별지기</small><b>' +
     owned.length +
     '명</b></div><div id="squadTray" class="squad-tray" aria-label="보유 별지기"></div></div><div class="overlay-actions"><button id="backMeta">뒤로</button><button id="startTeam">시작</button></div></div>';
   const slotBox = document.querySelector("#slotChoices"),
@@ -324,7 +327,12 @@ function showRoster() {
         ? at + 1 + "번 자리 · " + zone.name + "<i>" + zone.hint + "</i>"
         : "대기 중<i>자리로 끌어 놓으세요</i>") +
       "</span>";
-    setPortrait(detail.querySelector(".squad-detail-portrait"), h, 46);
+    /* 초상화는 6프레임 스프라이트 시트다. setPortrait에 넘기는 크기가 한
+       프레임의 크기이므로, 요소의 실제 상자와 같아야 한다. 46을 넘기면서
+       상자는 58px이라 오른쪽에 다음 프레임이 12px 새어 나와, 얼굴 옆에
+       정체 모를 글리프가 붙어 보였다. 같은 화면의 다른 초상화 둘(64, 48)은
+       상자와 정확히 맞아 새지 않는다. */
+    setPortrait(detail.querySelector(".squad-detail-portrait"), h, 58);
   };
   const renderSlots = () => {
     for (const old of slotBox.querySelectorAll(".slot-card")) old.remove();

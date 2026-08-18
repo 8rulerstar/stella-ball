@@ -1928,20 +1928,24 @@ body.onboarding-locked .pause-button {
   padding: 15px 20px 16px;
   text-align: left;
 }
+/* 부제는 한 줄을 통째로 쓰고, 제목과 안내문만 좌우로 나눈다. 셋을 한 줄에
+   밀어 넣으면 제목 칸이 172px까지 눌려 부제와 제목이 함께 끊긴다. */
 .squad-head {
-  display: flex;
+  display: grid;
   flex: 0 0 auto;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 196px);
+  align-items: end;
+  column-gap: 16px;
 }
 .squad-head small {
+  grid-column: 1 / -1;
   display: block;
   color: var(--gold);
+  /* 8px에서는 Galmuri11의 획이 뭉개져 한글 부제를 읽을 수 없었다. */
   font:
-    700 8px ui-monospace,
+    700 11px ui-monospace,
     monospace;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
 }
 .squad-head h2 {
   margin: 5px 0 0 !important;
@@ -1949,8 +1953,9 @@ body.onboarding-locked .pause-button {
   font-size: 22px !important;
 }
 .squad-head p {
+  grid-column: 2;
   margin: 0 !important;
-  max-width: 380px !important;
+  max-width: none !important;
   color: var(--mist);
   font-size: 11px;
   line-height: 1.6;
@@ -1967,7 +1972,10 @@ body.onboarding-locked .pause-button {
 .squad-field {
   display: grid;
   flex: 1 1 auto;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 262px);
+  /* 상세 카드가 262px를 고정으로 가져가면 배치판에 186px밖에 남지 않아,
+     선언해 둔 720/900 비율을 지키지 못하고 0.607로 찌그러졌다(필요한 폭보다
+     59px 부족). 상세는 세로도 307 중 217만 쓰던 칸이므로 폭을 내준다. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 200px);
   grid-template-rows: minmax(0, 1fr);
   gap: 14px;
   min-height: 0;
@@ -1992,9 +2000,9 @@ body.onboarding-locked .pause-button {
   left: 50%;
   color: #52706e;
   font:
-    700 8px ui-monospace,
+    700 11px ui-monospace,
     monospace;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   transform: translateX(-50%);
 }
 .deployment-map .map-boss {
@@ -2049,14 +2057,14 @@ body.onboarding-locked .pause-button {
 }
 .deployment-map .slot-card .slot-zone {
   position: absolute;
-  top: calc(100% + 21px);
+  top: calc(100% + 22px);
   left: 50%;
   margin: 0;
   color: var(--mist);
   font:
-    700 8px ui-monospace,
+    700 10px ui-monospace,
     monospace;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   transform: translateX(-50%);
 }
@@ -2133,8 +2141,9 @@ body.onboarding-locked .pause-button {
   display: block;
   margin-top: 4px;
   color: var(--mist);
+  /* 자리 설명은 배치를 고르는 근거다. 9px로 두면 그 근거를 읽을 수 없다. */
   font:
-    400 9px ui-monospace,
+    400 11px ui-monospace,
     monospace;
   line-height: 1.5;
 }
@@ -2154,10 +2163,11 @@ body.onboarding-locked .pause-button {
 }
 .squad-tray-head small {
   color: var(--gold);
+  /* 「보유 별지기」도 8px이었다. 한글은 이 크기에서 읽히지 않는다. */
   font:
-    700 8px ui-monospace,
+    700 11px ui-monospace,
     monospace;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
 }
 .squad-tray-head b {
   color: #f3ede2;
