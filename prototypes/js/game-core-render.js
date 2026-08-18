@@ -243,8 +243,29 @@ function updateFeedback(d) {
         "deg)"
       : "",
     flashOpacity = screenFlash > 0.005 ? screenFlash.toFixed(2) : "0";
+  /* 흔들림은 .stage가 아니라 «판 자체»를 민다.
+
+     예전에는 .stage에 걸었고, 쉴 때는 transform을 통째로 «지웠다» — 위 주석이
+     설명하듯 non-none transform이 남으면 .stage가 position:fixed의 컨테이닝
+     블록이 되어 전체창 메뉴가 캔버스 칸에 갇히기 때문이다.
+
+     그런데 transform을 제거하면 합성 레이어가 버려지고, 다음 타격에 다시
+     만들어진다. .stage 안에는 720x900 캔버스와 토스트·플래시·안내·온보딩 독이
+     전부 들어 있어서, 그 재생성이 서브트리를 통째로 다시 래스터한다.
+     자동 공명(2026-08-18)이 «모든 접촉»을 impact로 만든 뒤로 이것이 한 샷에
+     수십 번 일어난다 — 각성 정산은 그중 가장 눈에 띄는 경우일 뿐이다.
+
+     오너가 스위치로 확인했다: F6(셋을 0으로 고정 → transform을 아예 안 씀)이
+     각성 렉을 없앴고, 쉴 때 transform을 지우지 않게만 한 F1이 부분적으로
+     나아지게 했다.
+
+     캔버스에는 position:fixed 자식이 없으므로 여기에는 transform을 «항상»
+     남겨 둘 수 있다. 쉴 때도 translate(0px,0px)이라 레이어가 사라지지 않는다.
+     .stage는 이제 transform을 갖지 않으므로 메뉴 문제도 원인부터 없어진다.
+     오버레이(토스트·플래시·안내)는 함께 흔들리지 않게 되는데, 판이 흔들리고
+     그 위의 글자가 가만히 있는 편이 읽기에 낫다. */
   if (stageTransform !== lastStageTransform) {
-    stageEl.style.transform = stageTransform;
+    c.style.transform = stageTransform || "translate(0px,0px)";
     lastStageTransform = stageTransform;
   }
   if (U.flash && flashOpacity !== lastFlashOpacity) {
