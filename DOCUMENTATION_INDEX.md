@@ -26,6 +26,11 @@
 
 ## 에셋과 외부 연동 문서
 
+- [VFX_POLISH_SPEC.md](VFX_POLISH_SPEC.md): 타이틀·소환·패링·별빛 노드 네 건의 연출 요구서와 발주자 결정 (2026-08-16 main 반입)
+- [AGENTS.md](AGENTS.md): 런타임 실행과 검증 절차의 권위 문서. 작업 시작 전에 먼저 읽는다
+- [CLAUDE.md](CLAUDE.md): 세션 규칙 — 문서 순서, 이연 아트 반입, Dawn Observatory 테마 계약
+- [CROSS_PLATFORM.md](CROSS_PLATFORM.md): 윈도우·macOS 직접 실행 계약
+- [FIGURE_ART_SPEC_6_7.md](FIGURE_ART_SPEC_6_7.md): 6·7점 별자리 실루엣의 좌표 규약
 - [ASSET_BACKLOG.md](ASSET_BACKLOG.md): 기능 작업 중 발견한 신규 디자인·애니메이션·SFX 필요사항의 단일 접수처
 - [ASSET_PLAN.md](ASSET_PLAN.md), [assets/ASSET_MANIFEST.json](assets/ASSET_MANIFEST.json), [assets/ATTRIBUTION.md](assets/ATTRIBUTION.md): 실제 반입 에셋의 계획·목록·출처
 - [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md): 무한 훈련장 전용 별자리 도형·실루엣의 좌표 규약과 현재 제약
