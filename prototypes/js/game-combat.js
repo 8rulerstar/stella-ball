@@ -468,8 +468,44 @@ function billiardPointerDown(e) {
   // counter negative in the HUD.
   if (!run || paused || battleComplete || isCombatInputLocked()) return;
   if (!ball?.moving) {
-    if (e.button !== 0) return;
     const p = pointer(e);
+    /* 별빛이 셋 이상이면 조준은 «찍기»다. 오른쪽 버튼은 고른 것을 전부
+       무른다 — 유성이 멈춰 있을 때 오른쪽 버튼은 원래 하는 일이 없다. */
+    if (aimStarReady()) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const hit = aimStarAt(p.x, p.y);
+      /* 오른쪽 버튼은 «별자리용 표시»다. Space로 태운다.
+         유성이 멈춰 있을 때 오른쪽 버튼은 원래 하는 일이 없었다. */
+      if (e.button !== 0) {
+        if (hit < 0) {
+          if (aimPick.length) {
+            aimPick = [];
+            combatSfx?.("parryMiss", 0.5);
+          }
+          return;
+        }
+        const star = aimStars[hit];
+        star.mark = !star.mark;
+        combatSfx?.("node", star.mark ? 0.8 : 0.5);
+        const marked = aimStars.filter((s) => s.mark).length;
+        addPopup(
+          star.x,
+          star.y - 30,
+          star.mark ? "별자리 " + marked + "/3" : "해제",
+          "#ffd27f",
+          true,
+        );
+        return;
+      }
+      if (hit < 0) {
+        if (aimPick.length) toast("별빛을 찍어 조준하세요 · 셋을 고르면 발사");
+        return;
+      }
+      if (pickAimStar(hit)) launchFromAimStars();
+      return;
+    }
+    if (e.button !== 0) return;
     e.stopImmediatePropagation();
     drag = { x: p.x, y: p.y };
     c.setPointerCapture(e.pointerId);
@@ -488,7 +524,15 @@ function cuePull(p) {
   return { x: p.x, y: ball.y + (dy > 0 ? dy * 4.8 : dy) };
 }
 function billiardPointerMove(e) {
-  if (!drag) return;
+  if (!drag) {
+    // 별빛 조준은 끌지 않는다. 그래도 어느 별빛 위에 있는지는 알아야
+    // 미리보기가 나온다.
+    if (!ball?.moving && aimStarReady()) {
+      const at = pointer(e);
+      aimHover = aimStarAt(at.x, at.y);
+    } else if (aimHover !== -1) aimHover = -1;
+    return;
+  }
   e.stopImmediatePropagation();
   const p = pointer(e);
   drag.x = p.x;
@@ -529,8 +573,161 @@ function billiardPointerUp(e) {
     toast("유성을 더 멀리 끌어 당겨보세요.");
     return;
   }
-  const force = clamp(pullLength / 220, 0.28, 1),
-    aim = billiardAim(dx, dy),
+  fireMeteor(dx, dy, clamp(pullLength / 220, 0.28, 1));
+}
+/* ── 별빛 조준 ──────────────────────────────────────────────────────────
+   패링과 안내별이 남긴 별빛이 판에 머무른다. 그중 셋을 순서대로 찍으면
+   그 세 점이 다음 유성을 정한다.
+
+     방향 = 유성 → 세 점의 «무게중심»
+     세기 = 세 점이 이루는 삼각형의 «크기»
+
+   외심(외접원 중심)은 쓰지 않는다. 세 점이 거의 일직선이면 중심이 판 밖
+   무한대로 날아가 조준이 폭발한다. 무게중심은 언제나 삼각형 안에 있다.
+
+   «크기»는 넓이가 아니라 무게중심에서 세 꼭짓점까지의 평균 거리다. 넓이는
+   길이의 제곱으로 자라 손끝에서 비선형으로 느껴진다 — 조금 벌린 것과 두 배
+   벌린 것의 차이가 네 배가 된다.
+
+   여기서 저울질이 생긴다: 크게 벌릴수록 세지만 그렇게 벌릴 수 있는 조합은
+   적고, 작게 모으면 약하지만 고를 수 있는 조합이 촘촘하다. */
+const AIM_STAR = {
+  max: 9, // 화면이 난장판이 되지 않는 상한. 조합은 C(9,3)=84가지다.
+  pickRadius: 26,
+  // 무게중심에서 꼭짓점까지의 평균 거리가 이 값이면 최대 위력이다.
+  // 판이 720x900이므로 250px는 «판을 크게 가로지르는» 삼각형에 해당한다.
+  fullRadius: 250,
+  life: 0, // 0이면 전투 내내 남는다. 소멸 규칙은 아직 넣지 않았다(4번 보류).
+};
+function dropAimStar(x, y, col, label) {
+  if (!battle) return;
+  aimStars.push({
+    x,
+    y,
+    col: col || "#ffd98e",
+    label: label || "",
+    born: 0.36,
+  });
+  // 오래된 것부터 밀어낸다. 방금 만든 별빛이 사라지면 인과가 끊긴다.
+  if (aimStars.length > AIM_STAR.max)
+    aimStars.splice(0, aimStars.length - AIM_STAR.max);
+}
+function resetAimStars() {
+  aimStars = [];
+  aimPick = [];
+  aimHover = -1;
+}
+/* 별빛 조준이 지금 가능한가. 셋 미만이면 예전 드래그 조준으로 떨어진다 —
+   튜토리얼과 온보딩 E2E가 드래그를 쓰므로 그 경로는 살아 있어야 한다. */
+function aimStarReady() {
+  return aimStars.length >= 3;
+}
+function aimStarAt(px, py) {
+  let best = -1,
+    bestDistance = AIM_STAR.pickRadius;
+  for (let i = 0; i < aimStars.length; i++) {
+    const d = Math.hypot(aimStars[i].x - px, aimStars[i].y - py);
+    if (d <= bestDistance) {
+      bestDistance = d;
+      best = i;
+    }
+  }
+  return best;
+}
+/* 고른 셋에서 발사값을 뽑는다. 셋이 안 되면 null이라 호출자가 분기한다. */
+function aimStarShot(picks = aimPick) {
+  if (picks.length < 3) return null;
+  const p = picks.map((i) => aimStars[i]);
+  if (p.some((s) => !s)) return null;
+  const cx = (p[0].x + p[1].x + p[2].x) / 3,
+    cy = (p[0].y + p[1].y + p[2].y) / 3,
+    radius = p.reduce((sum, s) => sum + Math.hypot(s.x - cx, s.y - cy), 0) / 3,
+    dx = cx - ball.x,
+    dy = cy - ball.y;
+  // 무게중심이 유성 위에 겹치면 방향이 없다. 그 조합은 쏠 수 없다.
+  if (Math.hypot(dx, dy) < 1) return null;
+  return {
+    dx,
+    dy,
+    cx,
+    cy,
+    radius,
+    force: clamp(radius / AIM_STAR.fullRadius, 0.28, 1),
+  };
+}
+function pickAimStar(index) {
+  const at = aimPick.indexOf(index);
+  if (at >= 0) {
+    // 다시 찍으면 취소한다. 뒤엣것도 같이 풀지 않는다 — 순서만 당겨진다.
+    aimPick.splice(at, 1);
+    combatSfx?.("node", 0.5);
+    return false;
+  }
+  if (aimPick.length >= 3) return false;
+  aimPick.push(index);
+  combatSfx?.("node", 0.62 + aimPick.length * 0.1);
+  const star = aimStars[index];
+  if (star)
+    addPopup(star.x, star.y - 30, String(aimPick.length), star.col, true);
+  return aimPick.length === 3;
+}
+/* 지금 화면에 그려야 할 조준. 둘을 찍었으면 마우스가 올라간 것을 셋째로
+   가정해 미리 그린다 — 셋째를 찍는 순간 발사되므로, 그 전에 결과가 보이지
+   않으면 «고른다»는 말이 성립하지 않는다. */
+function aimStarPreview() {
+  if (aimPick.length >= 3) return aimStarShot();
+  if (aimPick.length === 2 && aimHover >= 0 && !aimPick.includes(aimHover))
+    return aimStarShot([...aimPick, aimHover]);
+  return null;
+}
+/* Space로 표시한 별빛을 태워 별자리를 그린다. 이것이 노드 경제의 한쪽이다 —
+   태우면 그 별빛은 사라지고, 그만큼 다음 샷의 조준 선택지가 줄어든다. */
+function castMarkedFigure() {
+  if (!battle || ball?.moving || battleComplete) return false;
+  const marked = aimStars.filter((s) => s.mark);
+  if (marked.length < 3) {
+    if (marked.length)
+      toast("별빛 " + marked.length + "/3 · 셋부터 별자리가 됩니다");
+    return false;
+  }
+  const points = marked.map((s) => ({
+    x: s.x,
+    y: s.y,
+    col: s.col,
+    label: s.label,
+  }));
+  // 태운 것은 판에서 사라진다. 조준 선택은 인덱스라 함께 비운다.
+  aimStars = aimStars.filter((s) => !s.mark);
+  aimPick = [];
+  aimHover = -1;
+  resolveFigure?.(points);
+  sync();
+  return true;
+}
+function launchFromAimStars() {
+  const shot = aimStarShot();
+  if (!shot) {
+    aimPick = [];
+    return false;
+  }
+  /* 조준은 별빛을 «쓰지» 않는다. 소모는 별자리 쪽에만 있다 — 태우면 그만큼
+     조준 선택지가 줄어드는 것이 이 설계의 저울질이고, 조준까지 소모하면
+     경제가 적자가 된다: 실측으로 한 샷이 남기는 별빛은 중앙 2개인데
+     조준이 3개를 먹으면 두 발째부터 늘 자유 조준으로 떨어졌다. */
+  aimPick = [];
+  aimHover = -1;
+  fireMeteor(
+    shot.dx,
+    shot.dy,
+    shot.force,
+    "별빛 조준 · 위력 " + Math.round(shot.force * 100) + "%",
+  );
+  return true;
+}
+/* 발사 본체. 조준 경로가 둘이므로(별빛 조준 / 드래그) 한 곳에 모은다 —
+   나뉘어 있으면 한쪽만 고친 채로 다른 쪽이 조용히 남는다. */
+function fireMeteor(dx, dy, force, note = null) {
+  const aim = billiardAim(dx, dy),
     speed = 750 + force * 975;
   ball.launchPower = force;
   ball.vx = aim.x * speed;
@@ -547,9 +744,10 @@ function billiardPointerUp(e) {
   chain = [];
   msg = "유성 발사! 별지기 충돌은 직접 보스 공격과 가속을 함께 만듭니다.";
   toast(
-    aim.assisted
-      ? "항로 보정 · 연쇄 진입"
-      : "유성 발사 · 위력 " + Math.round(force * 100) + "%",
+    note ??
+      (aim.assisted
+        ? "항로 보정 · 연쇄 진입"
+        : "유성 발사 · 위력 " + Math.round(force * 100) + "%"),
   );
   runRuntimeHooks("afterMeteorLaunch", { aim, force, ball });
   sync();

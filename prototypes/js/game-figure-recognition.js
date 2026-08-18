@@ -179,6 +179,11 @@ function addGuideStars(state, contact) {
       : [place(-1), place(1)];
   if (state.nodes.length + guides.length > FIGURE_PARRY.maxNodes) return false;
   state.nodes.push(...guides);
+  /* 안내별은 별빛 조준점으로도 남는다. 그래서 안내별의 값이 「별자리 노드
+     하나 더」에서 「다음 샷의 조준 선택지 하나 더」로 커진다 — 첫 발에는
+     패링이 아직 없으므로 안내별이 유일한 조준점이기도 하다. */
+  for (const guide of guides)
+    dropAimStar?.(guide.x, guide.y, guide.col, guide.label);
   state.guideStarClaimed = true;
   pushParryFx({
     kind: "guide",
@@ -215,7 +220,42 @@ function addGuideStars(state, contact) {
 }
 // Called by the combat collision pass. `mobilePair` has already left the
 // ordinary bounce in place; this consumes only the additional powered contact.
-function consumeTrainingParry(g, contact = null, remembered = false) {
+/* 자동 공명(2026-08-18 실험). 켜면 Space 타이밍 테스트가 사라지고, 별지기와
+   부딪히는 것 자체가 곧 공명이 된다 — 노드도 생기고 가속도 그대로 일어난다.
+
+   근거: 실측으로 한 판이 주는 공명 기회는 중앙값 15회인데 별자리에 필요한
+   노드는 3개다. 게다가 연속 접점 간격의 47%가 무장창(0.4초) 안에 들어와
+   한 번 누르면 다음 것까지 덮인다. 즉 이것은 타이밍 시험이 아니라 「누르는
+   것을 잊었는가」 시험이었다.
+   대신 노드를 «어디에 쓸 것인가»가 결정이 된다 — 별자리로 태울 것인가,
+   다음 샷의 조준점으로 남길 것인가.
+
+   false로 되돌리면 예전 Space 공명이 그대로 돌아온다. */
+const AUTO_PARRY = true;
+/* 수업 중에는 둘 다 끈다. 루나의 수업은 「Space로 공명」과 「샷이 끝나면
+   별자리가 열린다」를 그대로 가르치고, 온보딩 E2E도 그 흐름을 따라간다 —
+   실제로 여기를 안 막았을 때 「guided pentagram resolution timed out」으로
+   게이트가 떨어졌다. 실험은 캠페인에서만 돈다. */
+function onboardingRunning() {
+  return Boolean(StellaRuntime.modules.optional("onboarding")?.isActive());
+}
+function autoParryOn() {
+  return AUTO_PARRY && !onboardingRunning();
+}
+function nodeEconomyOn() {
+  return NODE_ECONOMY && !onboardingRunning();
+}
+/* 별빛을 «자원»으로 만든다. 샷이 끝나도 별자리가 자동으로 터지지 않고,
+   모인 별빛이 판에 남아 두 곳에서 경쟁한다 — 별자리(Space)와 조준(좌클릭).
+   둘 다 값어치가 있고 공급은 유한하므로 매 샷 배분이 결정이 된다.
+   false로 되돌리면 예전처럼 샷 끝에 자동으로 별자리가 발동한다. */
+const NODE_ECONOMY = true;
+function consumeTrainingParry(
+  g,
+  contact = null,
+  remembered = false,
+  forced = false,
+) {
   if (!figureActive()) return false;
   const state = currentFigureShot(),
     onboardingAssist = runtimeHookHandled("consumeParryAssist", {
@@ -232,10 +272,11 @@ function consumeTrainingParry(g, contact = null, remembered = false) {
     state.parry = Math.max(state.parry, FIGURE_PARRY.parryWindow);
   }
   if (
-    state.cooldown > 0 ||
-    (remembered
-      ? !state.contact || state.contact !== contact || contact.t <= 0
-      : state.parry <= 0)
+    !forced &&
+    (state.cooldown > 0 ||
+      (remembered
+        ? !state.contact || state.contact !== contact || contact.t <= 0
+        : state.parry <= 0))
   )
     return false;
   state.parry = 0;
@@ -263,6 +304,10 @@ function consumeTrainingParry(g, contact = null, remembered = false) {
       label: g.s,
       born: PARRY_FX.nodeBorn,
     });
+    /* 같은 접점이 별빛 «조준점»으로도 남는다. 별자리 노드는 샷 끝에
+       정산되며 사라지지만(finishFigureShot), 조준점은 전투 내내 판에
+       머무른다 — 그래서 패링이 곧 다음 샷의 조준권이 된다. */
+    dropAimStar?.(x, y, g.col, g.s);
     addPopup(
       g.x,
       g.y - 52,
@@ -327,6 +372,9 @@ function rememberTrainingParryContact(g, contact) {
   };
 }
 function requestTrainingParry() {
+  // 자동 공명에서는 누를 것이 없다. 훅은 남겨 두어 수업이 여전히 「눌렀다」를
+  // 관찰할 수 있게 하되, 실제 공명은 접촉이 만든다.
+  if (autoParryOn()) return false;
   if (!figureActive() || !ball?.moving) return false;
   const state = currentFigureShot(),
     guided = runtimeHookHandled("assistParryRequest", { state, ball });
@@ -368,6 +416,11 @@ function finishFigureShot({ missed = false } = {}) {
   const nodes = state.nodes,
     spentGuideStars = state.guideStarClaimed;
   clearFigureShot();
+  /* 노드 경제(2026-08-18 실험). 샷이 끝났다고 별자리가 저절로 터지지 않는다.
+     모아 둔 별빛은 판에 남아(dropAimStar가 이미 넣었다) 두 가지로 쓰인다:
+     Space로 태워 별자리를 그리거나, 다음 샷의 조준점으로 남기거나.
+     여기서 자동으로 태워 버리면 그 선택 자체가 존재하지 않는다. */
+  if (nodeEconomyOn()) return finish(false);
   if (nodes.length >= FIGURE_PARRY.minNodes) {
     if (spentGuideStars) battle.guideStarCharges -= 1;
     resolveFigure(nodes);

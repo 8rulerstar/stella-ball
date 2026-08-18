@@ -743,9 +743,15 @@ function simulatePhysics(d) {
             x: (ball.x + g.x) / 2,
             y: (ball.y + g.y) / 2,
           };
+          /* 자동 공명이면 접촉 자체가 공명이다 — 창도 쿨다운도 보지 않는다.
+             가속(resolveMeteorParryContact)은 그대로 일어나므로 판의 에너지는
+             줄지 않는다. 실측: 공명을 아예 없애면 피해 용량이 482 -> 297로
+             38% 사라지는데, 그 대부분이 노드가 아니라 이 가속이었다. */
           const parried =
             typeof consumeTrainingParry === "function" &&
-            consumeTrainingParry(g, contact);
+            (typeof autoParryOn === "function" && autoParryOn()
+              ? consumeTrainingParry(g, contact, false, true)
+              : consumeTrainingParry(g, contact));
           if (!parried) {
             rememberTrainingParryContact?.(g, contact);
             return;
@@ -952,9 +958,22 @@ function drawAimGuide() {
      미리 나와 있는 셈이다 — 「스테이지 진입할 때 경로가 미리 나온다」는
      제보가 이것이었다. 연출이 끝나면 평소대로 돌아온다. */
   if (introProgress() < 1) return;
-  const raw = drag || { x: ball.x, y: ball.y + 145 },
-    p = cuePull(raw),
-    guide = billiardPredict(ball.x - p.x, ball.y - p.y);
+  /* 조준 경로가 둘이다. 별빛이 셋 이상이면 «찍기»가 조준이고, 그때 그리는
+     선은 지금 고른 셋(또는 둘 + 마우스가 올라간 하나)이 정한 방향이다.
+     아직 고른 게 모자라면 그릴 선이 없다 — 예전처럼 기본 아래 방향을 그리면
+     고르지도 않은 항로가 화면에 미리 나와 있는 셈이 된다. */
+  let aimDx, aimDy;
+  if (aimStarReady()) {
+    const preview = aimStarPreview();
+    if (!preview) return;
+    aimDx = preview.dx;
+    aimDy = preview.dy;
+  } else {
+    const p = cuePull(drag || { x: ball.x, y: ball.y + 145 });
+    aimDx = ball.x - p.x;
+    aimDy = ball.y - p.y;
+  }
+  const guide = billiardPredict(aimDx, aimDy);
   x.save();
   // A dot chain rather than a dashed line: the carved floor and the stepped
   // rings are all hard pixels, and an antialiased stroke reads as a different
@@ -1038,6 +1057,77 @@ registerRuntimeHook("afterDraw", function drawSteerPrompt() {
   }
   x.restore();
 });
+/* 별빛 조준점(2026-08-18). 패링과 안내별이 남긴 점, 지금 고른 것, 그리고
+   셋이 모였을 때의 삼각형과 무게중심을 그린다.
+   색은 별지기의 판단색(g.col)을 그대로 쓴다 — 어느 별지기에서 나온 별빛인지가
+   곧 그 점의 정체이고, 표현용 토큰으로 덮으면 그 인과가 사라진다. */
+function drawAimStars() {
+  if (!run || battle?.victory || ball?.moving || !aimStars.length) return;
+  if (introProgress() < 1) return;
+  const preview = aimStarPreview();
+  x.save();
+  if (preview) {
+    // 삼각형과 무게중심. 세기가 «크기»라는 규칙이 눈에 보여야 한다.
+    const p = (aimPick.length >= 3 ? aimPick : [...aimPick, aimHover]).map(
+      (i) => aimStars[i],
+    );
+    if (p.every(Boolean)) {
+      x.globalAlpha = 0.5;
+      x.setLineDash([4, 4]);
+      x.strokeStyle = "#ffe09a";
+      x.lineWidth = 1.5;
+      x.beginPath();
+      x.moveTo(p[0].x, p[0].y);
+      x.lineTo(p[1].x, p[1].y);
+      x.lineTo(p[2].x, p[2].y);
+      x.closePath();
+      x.stroke();
+      x.setLineDash([]);
+      x.globalAlpha = 1;
+      stepRing(preview.cx, preview.cy, 9, "#ffe09acc");
+      x.fillStyle = "#ffe09a";
+      x.font = "700 11px Galmuri11, ui-monospace";
+      x.textAlign = "center";
+      x.fillText(
+        "위력 " + Math.round(preview.force * 100) + "%",
+        preview.cx,
+        preview.cy - 16,
+      );
+    }
+  }
+  for (let i = 0; i < aimStars.length; i++) {
+    const star = aimStars[i],
+      order = aimPick.indexOf(i),
+      picked = order >= 0,
+      hovered = i === aimHover;
+    if (star.born > 0) star.born = Math.max(0, star.born - 1 / 60);
+    const grow = star.born > 0 ? 1 + star.born * 1.6 : 1;
+    pixelGem(star.x, star.y, (picked ? 7 : 5) * grow, [star.col, "#fff4d8"]);
+    // 별자리용 표시는 금색 겹고리다. 조준 선택(숫자)과 «종류»가 다른
+    // 표시라, 밝기가 아니라 모양으로 갈라야 읽힌다.
+    if (star.mark) {
+      stepRing(star.x, star.y, 15, "#ffd27f");
+      stepRing(star.x, star.y, 19, "#ffd27f66");
+    }
+    if (picked || hovered)
+      stepRing(
+        star.x,
+        star.y,
+        picked ? 13 : 11,
+        picked ? "#ffe09a" : "#ffe09a77",
+      );
+    if (picked) {
+      x.fillStyle = "#0f0a1e";
+      x.font = "700 10px Galmuri11, ui-monospace";
+      x.textAlign = "center";
+      x.textBaseline = "middle";
+      x.fillText(String(order + 1), star.x, star.y + 1);
+      x.textBaseline = "alphabetic";
+    }
+  }
+  x.restore();
+}
+registerRuntimeHook("afterDraw", drawAimStars);
 registerRuntimeHook("afterDraw", drawCloneBalls);
 
 const CombatModule = StellaRuntime.modules.register("combat", {

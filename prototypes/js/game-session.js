@@ -58,6 +58,8 @@ function setupBattle() {
   bossRoar = null;
   areaBursts = [];
   fieldFx = [];
+  // 별빛 조준점은 전투 단위다. 남기면 다음 판이 지난 판 자리로 조준된다.
+  resetAimStars?.();
   ball = null;
   assistShots = [];
   hitCombo = 0;
@@ -1312,6 +1314,20 @@ addEventListener("keydown", (e) => {
     StellaRuntime.modules.optional("onboarding")?.isActive()
   )
     return;
+  /* Space는 별자리 확정이다. 자동 공명이 된 뒤로 이 키는 비어 있었고,
+     원래 뜻(별자리를 그린다)이 그대로 남는 자리다. */
+  if (
+    e.code === "Space" &&
+    typeof nodeEconomyOn === "function" &&
+    nodeEconomyOn() &&
+    isRuntimeScene("game") &&
+    battle &&
+    !battleComplete
+  ) {
+    e.preventDefault();
+    castMarkedFigure?.();
+    return;
+  }
   if (
     e.key.toLowerCase() === "r" &&
     !e.altKey &&
