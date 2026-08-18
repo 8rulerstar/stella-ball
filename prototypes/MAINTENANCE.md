@@ -83,6 +83,18 @@ The infinite training table is the current reference configuration for all three
 - Keep transient effect arrays bounded and compact them in place with `advanceTimed()` rather than chaining `filter()` calls every frame.
 - Keep UI-only scenes out of the combat loop by going through `setScene()`.
 
+## Traps this codebase has already fallen into
+
+Each rule below cost real debugging time here. The evidence is in `DEVLOG.md` under 2026-08-14 and 2026-08-18.
+
+- **Never decide on the wall clock what the frame clock presents.** `win()` compared `Date.now()` while the victory animation advanced per frame; when the preview pane suspended `requestAnimationFrame` the verdict raced a frozen presentation and the onboarding E2E hung on macOS for a full day. Verdicts belong on `afterFeedbackUpdate` with the presentation they judge.
+- **Assume frames may never arrive.** Work deferred to `requestAnimationFrame` does not run while `document.hidden` is true. Cleanup and restore paths must be synchronous; force a reflow if the DOM write has to land before the next read.
+- **A running CSS animation overrides the base rule, and without `fill-mode` it starts at 0%.** Do not animate `opacity` up from `0` in an entrance keyframe for anything that must stay visible — one stalled frame pins it invisible. Animate transform instead, or set the fill mode.
+- **`element.dataset.fooBar` is the attribute `data-foo-bar`.** A camelCase attribute selector matches nothing and reports success, so the code appears to run while doing zero work. `outer-observer.js` carries this note at the call site.
+- **Do not edit source by counting braces.** A braceless arrow function with a multi-line body has no closing brace to count, so a range delete takes its head and splices the tail onto the next definition. `npm run smoke` concatenates every runtime file and parses it, which is the only gate that catches this before the browser does.
+- **Tie a trigger point to the thing the player was shown, not to a parallel constant.** The steer lesson froze at a fixed board height while the marked zone was defined separately; nothing connected the two, so the freeze always landed near half the drawn route and never reached the marker. Derive one from the other.
+- **A teaching gate must not demand an input the lesson already requested, and must always release itself.** The parry hold waited for a Space the tutorial copy had just told the player to press, which deadlocked the journey; it also had no timeout, so a player who could not respond stayed stuck. Guard on the state the lesson already sets, and give every hold a grace release.
+
 ## Before handoff
 
 Run this quick handoff check from the repository root:

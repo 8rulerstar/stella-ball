@@ -10,7 +10,7 @@
 2. [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — **현재 구현의 기준선**, 범위 원칙, 다음 우선순위
 3. [PROGRESS_REPORT.md](PROGRESS_REPORT.md) — 지금 플레이 가능한 내용, 알려진 위험, 다음 세션 시작점
 4. [prototypes/ARCHITECTURE.md](prototypes/ARCHITECTURE.md) — 코드 소유 경계와 스크립트 로드 순서
-5. [prototypes/MAINTENANCE.md](prototypes/MAINTENANCE.md) — 기믹·성능·검증 변경 절차
+5. [prototypes/MAINTENANCE.md](prototypes/MAINTENANCE.md) — 기믹·성능·검증 변경 절차와, 이미 한 번 당한 함정 목록
 6. [prototypes/TECH_DEBT.md](prototypes/TECH_DEBT.md) — 영향·위험·공수로 정렬한 유지보수 부채와 단계별 해소 계획
 7. [prototypes/ADR-001-RUNTIME-MODULES.md](prototypes/ADR-001-RUNTIME-MODULES.md), [ADR-002-STABLE-SUBOWNERS.md](prototypes/ADR-002-STABLE-SUBOWNERS.md) — 런타임 훅·모듈 계약과 대형 파일 분리의 결정 근거
 8. [prototypes/ONBOARDING-E2E.md](prototypes/ONBOARDING-E2E.md) — 첫 세션 브라우저 회귀 경로, 단언 범위, 테스트 전용 체력 픽스처와 의도적 공백
