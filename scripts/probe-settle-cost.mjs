@@ -51,6 +51,9 @@ const NO_SHOTS = process.argv.includes("--no-shots");
    메인스레드가 아니라 래스터에서 나온 것이다 — 이 저장소에서 shadowBlur는
    전에도 단일 최대 항목이었다. */
 const NO_BLUR = process.argv.includes("--no-blur");
+/* 창 크기. 별 캔버스가 창 너비를 그대로 쓰고(stella-ball-dawn.js) 여백 하늘도
+   innerWidth로 배치되므로, 프로브의 1280x900만 재면 큰 창의 비용을 못 본다. */
+const WIN = arg("window", "1280,900");
 mkdirSync(shotDir, { recursive: true });
 const browser = [
   process.env.STELLA_BROWSER_PATH,
@@ -88,7 +91,7 @@ const chrome = spawn(
     `--remote-debugging-port=${debugPort}`,
     `--user-data-dir=${profileDir}`,
     "--window-position=0,0",
-    "--window-size=1280,900",
+    "--window-size=" + WIN,
     "--disable-features=CalculateNativeWinOcclusion",
     "--disable-backgrounding-occluded-windows",
     "--disable-renderer-backgrounding",
@@ -542,6 +545,11 @@ try {
     await capture(name).catch(() => {});
   }
   const shot = await running;
+  /* 유효성 관문. idle 구간은 아무 일도 없는 판이라 이 기계에서 p95가 5ms를
+     넘을 이유가 없다 — 넘었다면 창이 뒤로 밀려 스로틀된 것이고, 그 실행의
+     모든 수치는 게임이 아니라 포커스를 잰 것이다. 조용히 통과시키면 창 크기
+     비교 같은 것이 통째로 거짓이 된다. */
+  shot.valid = shot.idle && shot.idle.p95 <= 5;
   shot.screenshots = shots;
 
   /* 정산 구간만 다시 한 발 쏘면서 CPU 프로파일을 뜬다. 위 측정과 같은 판이라
