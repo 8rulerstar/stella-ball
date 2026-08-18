@@ -888,6 +888,11 @@ function billiardPredict(dx, dy) {
 }
 function drawAimGuide() {
   if (!run || battle?.victory || ball?.moving) return;
+  /* 입장 연출이 도는 동안에는 그리지 않는다. 거상이 내려오고 별지기가 맺히는
+     중에 발사 경로가 먼저 떠 있으면, 아직 시작하지도 않은 샷의 답이 화면에
+     미리 나와 있는 셈이다 — 「스테이지 진입할 때 경로가 미리 나온다」는
+     제보가 이것이었다. 연출이 끝나면 평소대로 돌아온다. */
+  if (introProgress() < 1) return;
   const raw = drag || { x: ball.x, y: ball.y + 145 },
     p = cuePull(raw),
     guide = billiardPredict(ball.x - p.x, ball.y - p.y);

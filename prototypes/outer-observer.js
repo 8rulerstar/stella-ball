@@ -171,6 +171,22 @@
      main(z-index:1) 뒤에 남는다. 여백의 클릭 소품 위를 덮지 않는다. */
   function build(sky) {
     injectCss();
+    document.querySelectorAll(".oo2-dim").forEach(function (n) {
+      n.remove();
+    });
+    /* 컷신 동안 화면 전체를 한 톤 죽인다. 판(main)은 이미 비워 두지만 여백의
+       달·우주인·망원경이 그대로 밝아서 「화면 전체가 어두워지지 않아 어색하다」는
+       제보를 받았다.
+       존재 레이어보다 «먼저» 넣는 것이 핵심이다 — 뒤에 넣으면 존재까지 같이
+       어두워져 정작 보여 줄 것이 죽는다. 하늘과 소품만 가라앉고 존재는 그
+       위에 밝게 남는다. */
+    var dim = el(
+      "div",
+      "position:absolute;inset:0;background:#03020c;opacity:0;" +
+        "transition:opacity .6s ease-out;pointer-events:none;z-index:0",
+      sky,
+    );
+    dim.className = "oo2-dim";
     var layer = el(
       "div",
       "position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0",
@@ -988,6 +1004,8 @@
        뒤에 오는 「간격이 틀렸다」가 대비를 가지려면 기준이 있어야 한다. */
     var C = buildCine();
     at(30, function () {
+      var d = document.querySelector(".oo2-dim");
+      if (d) d.style.opacity = "0.72";
       cineBars(C, true);
       cineCaption(
         C,
@@ -1159,6 +1177,8 @@
     /* 레터박스는 타이틀 리빌 직전에 열린다 — 화면이 넓어지는 것 자체가
        「관측이 끝났다」는 신호다(§2-1 9300 점등). */
     at(11900, function () {
+      var d = document.querySelector(".oo2-dim");
+      if (d) d.style.opacity = "0";
       cineBars(C, false);
     });
     at(12300, function () {
@@ -1275,6 +1295,12 @@
       n.remove();
     });
     document.querySelectorAll(".oo2-cine").forEach(function (n) {
+      n.remove();
+    });
+    /* 어둠막은 존재 레이어 «밖»(#dawn-sky 직계)에 있어야 존재가 그 위에 밝게
+       남는다. 그래서 레이어를 지워도 같이 사라지지 않는다 — 따로 지우지
+       않으면 다시 볼 때마다 한 장씩 쌓인다. */
+    document.querySelectorAll(".oo2-dim").forEach(function (n) {
       n.remove();
     });
     restoreProps();
