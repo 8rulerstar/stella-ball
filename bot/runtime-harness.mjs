@@ -987,6 +987,145 @@ function __botDeferredFigureProbe(config) {
     },
   };
 }
+// 한 샷 안에서 궤적이 «언제» 갈라지는가. 같은 판, 같은 정책각에 angleOffset만
+// 아주 작게 얹어 두 번 돌리고 프레임별 위치를 그대로 돌려준다. 발산 계산은
+// Node 쪽에서 한다 — VM 호출 하나가 한 궤적이라 상태가 섞이지 않는다.
+// 접촉 수를 함께 싣는다. 벽/범퍼는 ball.bounces가 세고, 별지기 접촉은
+// afterMobilePairCollision 훅으로 센다(mobilePair가 실제로 임펄스를 준
+// 경우에만 불린다).
+// 별지기와의 충돌이 «읽을 수 있는» 것인가. 당구가 예측 가능한 이유는 맞는
+// 공이 «서 있기» 때문이다 — 서 있는 공은 접점 기하만 보면 튀는 방향이 정해진다.
+// 여기서는 별지기가 물리 몸이라 스스로 속도를 가질 수 있고, 그 속도는 화면에서
+// 읽히지 않는다. 접촉마다 별지기 속도 / 유성 속도를 기록해 「보이지 않는 값이
+// 결과에 얼마나 섞이는가」를 잰다. 유성 속도도 함께 싣는다 — 너무 빠르면
+// 결정론이어도 사람이 못 쫓는다.
+// 별지기에 «질량»을 준다. 지금 mobilePair는 두 몸을 같은 질량으로 놓고
+// 법선 성분을 통째로 넘긴다(impulse = along * 0.98) — 그래서 정통으로 맞출수록
+// 유성이 서 버린다. k=1이면 현재 식과 완전히 같다(검증: 아래 heroMass 1 행).
+//   J = (1 + e) * mu * along,  mu = k / (1 + k),  e = 0.96
+//   k=1 -> dv_ball = -0.98 * along * n   (현재 코드와 동일)
+// 이 함수는 프로브 전용이다. 런타임 물리에는 넣지 않았다.
+function __botInstallHeroMass(k) {
+  if (!k || k === 1) return;
+  var originalPair = mobilePair;
+  mobilePair = function (a, ar, b, br, onHit, kind) {
+    var isBallHero =
+      (a === ball && gates.indexOf(b) >= 0) || (b === ball && gates.indexOf(a) >= 0);
+    if (!isBallHero) return originalPair(a, ar, b, br, onHit, kind);
+    var dx = b.x - a.x, dy = b.y - a.y;
+    var d = Math.hypot(dx, dy) || 1, reach = ar + br;
+    if (d >= reach) return false;
+    var nx = dx / d, ny = dy / d, overlap = reach - d;
+    a.x -= nx * (overlap * 0.5 + 0.12);
+    a.y -= ny * (overlap * 0.5 + 0.12);
+    b.x += nx * (overlap * 0.5 + 0.12);
+    b.y += ny * (overlap * 0.5 + 0.12);
+    var along = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
+    if (along <= 0) return true;
+    var incoming = { x: a.vx, y: a.vy };
+    var mu = k / (1 + k), J = 1.96 * mu * along;
+    var heavyIsB = b !== ball;
+    var lightImpulse = J, heavyImpulse = J / k;
+    if (heavyIsB) {
+      a.vx -= lightImpulse * nx; a.vy -= lightImpulse * ny;
+      b.vx += heavyImpulse * nx; b.vy += heavyImpulse * ny;
+    } else {
+      a.vx -= heavyImpulse * nx; a.vy -= heavyImpulse * ny;
+      b.vx += lightImpulse * nx; b.vy += lightImpulse * ny;
+    }
+    onHit && onHit(nx, ny, along, incoming);
+    runRuntimeHooks("afterMobilePairCollision", { a: a, b: b, nx: nx, ny: ny, along: along, kind: kind });
+    return true;
+  };
+}
+function __botLegibilityProbe(config) {
+  var source = stages[config.campaignIndex];
+  if (!source || source.training) throw new Error("campaign stage is unavailable");
+  var hits = [];
+  var shotNo = 0, inShot = 0;
+  __botInstallHeroMass(config.heroMass);
+  // mobilePair를 감싼다. 훅(afterMobilePairCollision)은 임펄스가 «끝난 뒤»에
+  // 불리므로 별지기의 충돌 전 속도를 읽을 수 없다 — 처음엔 그걸 재고 있었다.
+  var originalPair = mobilePair;
+  mobilePair = function (a, ar, b, br, onHit, kind) {
+    var other = a === ball ? b : b === ball ? a : null;
+    var pre = null;
+    if (other) {
+      var dx = b.x - a.x, dy = b.y - a.y;
+      var d = Math.hypot(dx, dy) || 1;
+      if (d < ar + br) {
+        var nx = dx / d, ny = dy / d;
+        var along = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
+        if (along > 0)
+          pre = {
+            heroSpeed: Math.hypot(other.vx, other.vy),
+            ballSpeed: Math.hypot(ball.vx, ball.vy),
+            heroNormal: Math.abs(other.vx * nx + other.vy * ny),
+            ballNormal: Math.abs(ball.vx * nx + ball.vy * ny),
+          };
+      }
+    }
+    var res = originalPair(a, ar, b, br, onHit, kind);
+    if (pre) {
+      inShot += 1;
+      hits.push({
+        shot: shotNo,
+        nth: inShot,
+        heroSpeed: pre.heroSpeed,
+        ballSpeed: pre.ballSpeed,
+        heroNormal: pre.heroNormal,
+        ballNormal: pre.ballNormal,
+      });
+    }
+    return res;
+  };
+  var originalLaunch = __botLaunch;
+  __botLaunch = function (angle, cfg) {
+    shotNo += 1;
+    inShot = 0;
+    return originalLaunch(angle, cfg);
+  };
+  var result = __botRun({
+    ...config,
+    arena: { ...source, tutorial: false, bossHp: source.bossHp },
+    bossHp: source.bossHp,
+  });
+  return { stageId: source.id, hits: hits, run: result };
+}
+function __botTrajectoryProbe(config) {
+  var source = stages[config.campaignIndex];
+  if (!source || source.training) throw new Error("campaign stage is unavailable");
+  __botStart({
+    ...config,
+    arena: { ...source, tutorial: false, bossHp: source.bossHp },
+    bossHp: source.bossHp,
+  });
+  var heroHits = 0;
+  __botInstallHeroMass(config.heroMass);
+  registerRuntimeHook("afterMobilePairCollision", function (payload) {
+    if (payload && (payload.a === ball || payload.b === ball)) heroHits += 1;
+  });
+  var angle = __botAngle(config.policy, 0, 0) + (config.angleOffset || 0);
+  __botLaunch(angle, config);
+  var path = [];
+  var frames = 0;
+  var limit = config.traceFrames || 1800;
+  while (ball.moving && frames < limit) {
+    if (config.traceParry) __botTryParry(config.policy);
+    update(1 / 60);
+    updateSpecial(1 / 60);
+    updateFeedback(1 / 60);
+    path.push([ball.x, ball.y, (ball.bounces || 0) + heroHits, ball.vx, ball.vy]);
+    frames += 1;
+  }
+  return {
+    angle: angle,
+    frames: frames,
+    radius: ball.r,
+    contacts: (ball.bounces || 0) + heroHits,
+    path: path,
+  };
+}
 `;
 
 function runInRuntime(config, entryPoint = "__botRun") {
@@ -1028,6 +1167,59 @@ export function runPlainArena({
     frameLimit: 7200,
     spread: [-0.1, -0.04, 0.04, 0.1],
   });
+}
+
+export function probeLegibility({
+  campaignIndex = 0,
+  policy = "chain",
+  seed = 1,
+  heroMass = 1,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma: 0.08,
+      spread: [0, 0, 0, 0],
+      heroMass,
+    },
+    "__botLegibilityProbe.bind(null, __botConfig)",
+  );
+}
+
+export function probeTrajectory({
+  campaignIndex = 0,
+  policy = "chain",
+  seed = 1,
+  angleOffset = 0,
+  traceFrames = 1800,
+  traceParry = false,
+  heroMass = 1,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 1,
+      steerAt: 26,
+      frameLimit: 7200,
+      spread: [0, 0, 0, 0],
+      angleOffset,
+      traceFrames,
+      traceParry,
+      heroMass,
+    },
+    "__botTrajectoryProbe.bind(null, __botConfig)",
+  );
 }
 
 export function probeSteerDirection(side) {
@@ -1094,10 +1286,7 @@ export function probeThickness({
   );
 }
 
-export function probeFirstHit({
-  campaignIndex = 0,
-  aimOffset = 0,
-} = {}) {
+export function probeFirstHit({ campaignIndex = 0, aimOffset = 0 } = {}) {
   return runInRuntime(
     {
       campaignIndex,
