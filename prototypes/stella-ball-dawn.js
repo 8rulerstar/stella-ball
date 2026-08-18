@@ -181,22 +181,16 @@
       S.appendChild(d);
       return d;
     }
-    /* 새벽 기운(전체화면)과 은하수 띠는 DOM 판이 아니라 «별 캔버스에 구운
-       그림»이다.
-
-       둘 다 정적인데도 각자 합성 레이어를 하나씩 차지했다. 레이어 트리를 재 보면
-       오너의 1920 창에서 전체화면 판이 1898×982(186만 픽셀), 띠는 회전 때문에
-       경계상자가 2819×835(235만 픽셀)이다. 720×900짜리 판을 꾸미자고 매 프레임
-       그만큼을 GPU가 더 섞고 있었다 — 그리고 창 크기에 제곱으로 커져서, 1280에서
-       괜찮던 것이 1920에서 16.7ms를 넘겼다(vsync 드롭). F2로 이 소품들만 껐을 때
-       렉이 즉시 사라진 것이 그 확인이다.
-
-       별 캔버스는 이미 같은 크기로 한 장 있고 정적이다. 여기에 함께 그리면 표면이
-       늘지 않는다. 오로라는 애니메이션이 있으므로 DOM에 남는다.
-
-       색은 같은 정지점을 그대로 옮겨 적었다. 달라지는 것은 오로라와 이 둘의
-       위아래 관계 하나뿐인데(오로라가 이제 아래에 온다), 셋 다 알파가 0.09~0.18인
-       엷은 판이라 겹침 순서가 바뀌어도 합성 결과가 거의 같다. */
+    add(
+      "position:absolute;inset:0;background:radial-gradient(ellipse 75% 45% at 50% 110%,#e8955f26,#f2b35c12 45%,transparent 72%)",
+    );
+    /* 은하수 띠에는 filter를 걸지 않는다. 이 띠는 뷰포트 1.5배 폭 × 200px인데
+       안에 반짝이는 별 30개가 살아서, blur(2px)라도 dpr 2에서는 ~3840×400
+       텍스처를 사실상 매 프레임 다시 흐리게 만든다(2026-08-15 렉 제보의 두
+       번째 원인). 띠의 부드러움은 그라데이션 정지점이 이미 만든다. */
+    add(
+      "position:absolute;left:-14%;top:16%;width:150%;height:200px;transform:rotate(-13deg);background:linear-gradient(180deg,transparent,#d6cee910 24%,#d6cee916 38%,#f6e8d518 52%,#f6e8d512 62%,#d6cee90c 74%,transparent)",
+    );
     /* 오로라도 filter를 걸지 않는다. 747×170에 blur(15px)이 걸린 채 9초 주기
        변형 애니메이션까지 도는 조합이라, 커널 패딩까지 포함한 큰 중간 표면을
        쉬지 않고 다시 흐리게 만든다 — 은하수·성운의 blur를 걷은 뒤 남아 있던
@@ -238,48 +232,6 @@
         x: 0,
         y: 0,
       });
-    /* 구운 배경. 화면에 붙지 않으므로 합성 비용이 없고, 크기가 바뀔 때만
-       다시 그린다. 반짝임이 별자리를 지웠다 다시 그릴 때 이 그림에서 4×4만
-       되살리면 되므로 그리기 값도 예전과 같다. */
-    var bg = document.createElement("canvas"),
-      bgCtx = bg.getContext("2d");
-    function paintBackdrop(w, h) {
-      bg.width = w;
-      bg.height = h;
-      bgCtx.clearRect(0, 0, w, h);
-      /* radial-gradient(ellipse 75% 45% at 50% 110%, ...) — 캔버스에는 타원
-         그라디언트가 없으므로 원을 그려 놓고 축을 눌러 타원으로 만든다. */
-      bgCtx.save();
-      bgCtx.translate(w * 0.5, h * 1.1);
-      bgCtx.scale(w * 0.75, h * 0.45);
-      var wash = bgCtx.createRadialGradient(0, 0, 0, 0, 0, 1);
-      wash.addColorStop(0, "rgba(232,149,95,0.149)");
-      wash.addColorStop(0.45, "rgba(242,179,92,0.071)");
-      wash.addColorStop(0.72, "rgba(242,179,92,0)");
-      bgCtx.fillStyle = wash;
-      bgCtx.fillRect(-1.5, -1.5, 3, 3);
-      bgCtx.restore();
-      /* 은하수 띠. left:-14% top:16% width:150% height:200px rotate(-13deg).
-         CSS는 요소 중심을 축으로 돌리므로 여기서도 중심에서 돈다. */
-      var bw = w * 1.5,
-        bh = 200,
-        cx = -0.14 * w + bw / 2,
-        cy = 0.16 * h + bh / 2;
-      bgCtx.save();
-      bgCtx.translate(cx, cy);
-      bgCtx.rotate((-13 * Math.PI) / 180);
-      var band = bgCtx.createLinearGradient(0, -bh / 2, 0, bh / 2);
-      band.addColorStop(0, "rgba(214,206,233,0)");
-      band.addColorStop(0.24, "rgba(214,206,233,0.063)");
-      band.addColorStop(0.38, "rgba(214,206,233,0.086)");
-      band.addColorStop(0.52, "rgba(246,232,213,0.094)");
-      band.addColorStop(0.62, "rgba(246,232,213,0.071)");
-      band.addColorStop(0.74, "rgba(214,206,233,0.047)");
-      band.addColorStop(1, "rgba(214,206,233,0)");
-      bgCtx.fillStyle = band;
-      bgCtx.fillRect(-bw / 2, -bh / 2, bw, bh);
-      bgCtx.restore();
-    }
     function starPosition(st, w, h) {
       if (!st.band) {
         st.x = Math.round(st.u * w);
@@ -325,8 +277,6 @@
       var w = (starCanvas.width = S.clientWidth || window.innerWidth),
         h = (starCanvas.height = S.clientHeight || window.innerHeight);
       starCtx.clearRect(0, 0, w, h);
-      if (bg.width !== w || bg.height !== h) paintBackdrop(w, h);
-      starCtx.drawImage(bg, 0, 0);
       var t = performance.now() / 1000;
       for (var k = 0; k < stars.length; k++) {
         starPosition(stars[k], w, h);
@@ -351,20 +301,7 @@
       for (var k = 0; k < stars.length; k++) {
         var st = stars[k];
         if (!st.twinkles || k === missingIndex) continue;
-        /* 예전에는 여기서 지우기만 했다. 배경이 캔버스에 구워진 지금 그러면
-           별마다 4×4 구멍이 남는다. 구운 그림에서 같은 자리만 되살린다. */
         starCtx.clearRect(st.x - 1, st.y - 1, 4, 4);
-        starCtx.drawImage(
-          bg,
-          st.x - 1,
-          st.y - 1,
-          4,
-          4,
-          st.x - 1,
-          st.y - 1,
-          4,
-          4,
-        );
         drawStar(st, t);
       }
       starCtx.globalAlpha = 1;
