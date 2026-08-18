@@ -1161,20 +1161,30 @@ function __botTrajectoryProbe(config) {
   __botLaunch(angle, config);
   var path = [];
   var frames = 0;
+  /* 최댓값으로 잡는다. 마지막 프레임에서 읽으면 안 된다 — 유성이 멈추면
+     simulatePhysics가 endShot -> startShot을 부르고 그때 ball.bounces가
+     «다음 샷» 기준으로 리셋되므로, 접촉을 7회 한 샷이 2로 돌아온다.
+     그 리셋된 값이 경로의 마지막 칸에도 그대로 들어간다. */
+  var maxContacts = 0;
   var limit = config.traceFrames || 1800;
   while (ball.moving && frames < limit) {
     if (config.traceParry) __botTryParry(config.policy);
     update(1 / 60);
     updateSpecial(1 / 60);
     updateFeedback(1 / 60);
-    path.push([ball.x, ball.y, (ball.bounces || 0) + heroHits, ball.vx, ball.vy]);
+    var c = (ball.bounces || 0) + heroHits;
+    if (c > maxContacts) maxContacts = c;
+    path.push([ball.x, ball.y, c, ball.vx, ball.vy]);
     frames += 1;
   }
   return {
     angle: angle,
     frames: frames,
     radius: ball.r,
-    contacts: (ball.bounces || 0) + heroHits,
+    /* 마지막 프레임에서 읽으면 안 된다. 유성이 멈추면 simulatePhysics가
+       endShot -> startShot을 부르고 그때 ball.bounces가 «다음 샷» 기준으로
+       리셋된다 — 접촉을 7회 한 샷이 2로 돌아왔다. 경로에 찍힌 값이 맞다. */
+    contacts: maxContacts,
     path: path,
   };
 }
