@@ -142,6 +142,9 @@ const CINE_BEATS = [
   [3388, "is-cut3"],
   [4178, "is-open"],
 ];
+/* 판이 열리는 시각. 발사 잠금이 이 값을 읽으므로 비트 표에서 끌어온다 —
+   숫자를 두 군데 적어 두면 연출을 손볼 때 한쪽만 움직인다. */
+const CINE_OPEN_MS = CINE_BEATS.find(([, cls]) => cls === "is-open")[0];
 function buildBattleCine() {
   document.querySelector(".cin")?.remove();
   const host = document.querySelector("main");
@@ -222,9 +225,31 @@ function introProgress() {
   }
   return Math.max(0, t);
 }
-// 첫 입력에 건너뛴다. 재도전이 잦은 게임에서 연출은 기다림이 되면 안 된다.
+/* 입장 연출이 아직 화면을 쥐고 있는가 — 유성 발사를 막는 기준이다.
+   시계가 둘인데 길이가 다르다: 캔버스 강하(battleIntro)는 2.4초에 스스로
+   끝나지만 레터박스와 컷인(battleCine)은 4.178초의 `is-open`까지 간다.
+   battleIntro만 보면 그 사이 1.8초가 «연출 중인데 쏠 수 있는» 구간이 된다.
+   늦게 끝나는 쪽을 기준으로 삼는다. is-open 뒤에는 판이 이미 열려 있으므로
+   남은 상자는 잡지 않는다 — 거기서 입력을 삼키면 연출이 아니라 렉이 된다. */
+function battleEntryHoldsInput() {
+  if (battleIntro) return true;
+  if (!battleCine) return false;
+  return frameClock - battleCine.at < CINE_OPEN_MS;
+}
+/* 첫 입력에 건너뛴다. 재도전이 잦은 게임에서 연출은 기다림이 되면 안 된다.
+   실제로 건너뛴 것이 있을 때만 true를 돌려준다 — 호출자는 그때 그 입력을
+   삼켜야 한다. 예전에는 아무것도 돌려주지 않아서, 연출을 넘기려고 누른
+   그 한 번이 그대로 드래그가 되고 떼는 순간 유성이 나갔다.
+   두 시계를 함께 끈다. battleIntro만 끄면 캔버스는 완성됐는데 레터박스는
+   계속 도는, 건너뛰다 만 화면이 남는다. */
 function skipBattleIntro() {
+  if (!battleEntryHoldsInput()) return false;
   battleIntro = null;
+  if (battleCine) {
+    document.querySelector(".cin")?.remove();
+    battleCine = null;
+  }
+  return true;
 }
 function startShot(restingPoint = null) {
   const context = { restingPoint, handled: false };

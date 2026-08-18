@@ -449,9 +449,16 @@ function steerMeteor(side) {
   return true;
 }
 function billiardPointerDown(e) {
-  // 첫 입력에 입장 연출을 건너뛴다. 재도전이 잦은 게임에서 연출이 기다림이
-  // 되면 안 된다 — 누르는 순간 판이 완성된 상태로 있어야 한다.
-  skipBattleIntro();
+  /* 입장 연출 중의 첫 입력은 «건너뛰기»만 하고 끝난다. 재도전이 잦은
+     게임에서 연출이 기다림이 되면 안 되지만, 예전에는 여기서 건너뛴 다음
+     그대로 아래 드래그로 흘러갔다 — 한 번의 누름이 연출을 건너뛰고 조준하고
+     발사까지 했다. 연출을 넘기려던 손이 유성을 쏘고 있었다.
+     건너뛴 입력은 여기서 삼킨다. 조준은 다음 누름부터다. */
+  if (skipBattleIntro()) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    return;
+  }
   // `battleComplete` matters here as much as `run`. scheduleWin freezes the
   // meteor and marks the battle complete but deliberately leaves `run` true
   // for the 2.55s victory cutscene, and every other combat entry point is
