@@ -1,10 +1,12 @@
 /**
  * Runtime balance harness for the current Stella Ball combat scripts.
  *
- * This is deliberately not another physics approximation. It loads the same
- * ordered classic-script combat runtime in a VM with inert DOM/canvas/audio
- * substitutes, then advances `update`, `updateSpecial`, and `updateFeedback`
- * at a fixed step. Rendering and browser timing remain outside its scope.
+ * This is deliberately not another physics approximation. It loads the game's
+ * own combat runtime - the same files, in the same order - in a VM with inert
+ * DOM/canvas/audio substitutes, then advances `update`, `updateSpecial`, and
+ * `updateFeedback` at a fixed step. Rendering and browser timing remain outside
+ * its scope, and so do the screen, boot and presentation files; see the note on
+ * `runtimeFiles` for which ones and why.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -12,6 +14,18 @@ import { resolve } from "node:path";
 import vm from "node:vm";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
+/* 이것은 HTML이 싣는 19개의 부분집합이다 — 화면·부팅·연출만 빠진다.
+ *
+ *   빠진 것: game-onboarding / game-arena-carve / game-bootstrap (화면과 부팅),
+ *            game-speech / game-awaken-fx (연출)
+ *
+ * 연출 둘은 훅으로만 붙고 이 목록의 어떤 파일도 그 이름을 부르지 않으므로
+ * 빼도 오류가 나지 않는다. `game-awaken-fx`가 `impactStop`·`screenShake`를
+ * 쓰기는 하지만, 그 둘을 소비하는 것은 `loop()`이고 하니스는 `loop()`를 거치지
+ * 않고 고정 dt로 update 계열을 직접 부르므로 측정값이 달라지지 않는다.
+ *
+ * 새 파일을 추가할 때 판단 기준: 피해·충돌·판정에 관여하면 여기 넣고,
+ * 화면에만 관여하면 넣지 않는다. 넣지 않기로 했다면 그 이유를 여기 적는다. */
 const runtimeFiles = [
   "prototypes/js/game-platform.js",
   "prototypes/js/game-runtime.js",
