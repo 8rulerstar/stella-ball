@@ -34,10 +34,6 @@ const META_COPY = {
     achNote: "플레이 기록으로 해금되는 전투 이정표입니다.",
     locked: "미해금",
     unlocked: "해금 완료",
-    display: "화면",
-    plainSky: "배경 소품 끄기",
-    plainSkyNote:
-      "여백의 성운·구름·오로라와 지나가는 소품을 숨깁니다. 별밭은 그대로 두며, 프레임이 흔들릴 때 켜세요.",
   },
   en: {
     start: "START",
@@ -71,17 +67,8 @@ const META_COPY = {
     achNote: "Combat milestones unlocked by your play record.",
     locked: "LOCKED",
     unlocked: "UNLOCKED",
-    display: "DISPLAY",
-    plainSky: "PLAIN BACKDROP",
-    plainSkyNote:
-      "Hides the margin nebulae, clouds, aurora and passing props. The starfield stays. Turn on if frames stutter.",
   },
 };
-/* 설정을 화면에 반영한다. 클래스 하나만 걸고 실제 숨기는 일은 CSS가 한다 —
-   자바스크립트가 요소를 지우면 하늘 모듈이 다시 만들 때 어긋난다. */
-function applyPlainSky() {
-  document.body.classList.toggle("plain-sky", Number(settings.plainSky) >= 0.5);
-}
 const SETTINGS_STORAGE = "prism-breakers.settings.v1",
   PROGRESS_STORAGE = "prism-breakers.progress.v1";
 const DEFAULT_SETTINGS = Object.freeze({
@@ -89,34 +76,18 @@ const DEFAULT_SETTINGS = Object.freeze({
   master: 0.7,
   bgm: 0.28,
   sfx: 0.65,
-  /* 여백 하늘의 소품을 끈다. 기본은 켜짐(0)이다.
-
-     오늘 성능 조사에서 오너가 스위치로 두 번 재현한 사실이 하나 있다 — 여백
-     하늘의 소품을 숨기면 렉이 사라진다. 원인을 코드에서 짚으려 다섯 번 시도해
-     다섯 번 다 틀렸고, 이 기계에서 잴 수 있는 게임 작업은 전부 싸게 나온다
-     (draw 0.5~1.0ms, 레이아웃 초당 10.4ms, CPU 70% 유휴). 남는 설명은 합성이고,
-     그 표면이 창 크기에 제곱으로 커진다 — 1280에서 괜찮은 것이 1920에서
-     16.7ms를 넘긴다.
-
-     그래서 추측으로 또 고치는 대신, 확인된 그 지렛대를 플레이어에게 준다.
-     화풍을 잃는 대신 프레임을 얻는 교환이고, 그 선택은 화면을 보는 사람이
-     하는 것이 맞다. */
-  plainSky: 0,
 });
 let settings = appStorage.readRecord(SETTINGS_STORAGE, DEFAULT_SETTINGS);
 settings.language = META_COPY[settings.language]
   ? settings.language
   : DEFAULT_SETTINGS.language;
-for (const key of ["master", "bgm", "sfx", "plainSky"]) {
+for (const key of ["master", "bgm", "sfx"]) {
   const value = Number(settings[key]);
   settings[key] = Number.isFinite(value)
     ? clamp(value, 0, 1)
     : DEFAULT_SETTINGS[key];
 }
 if (document.documentElement) document.documentElement.lang = settings.language;
-// 저장된 값을 첫 프레임부터 반영한다 — 설정을 열어야 켜지면 의미가 없다.
-if (document.body) applyPlainSky();
-else addEventListener("DOMContentLoaded", applyPlainSky);
 let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   clears: 0,
   gold: 0,
@@ -165,7 +136,6 @@ const tr = (key) =>
   META_COPY[settings.language]?.[key] ?? META_COPY.ko[key] ?? key;
 function saveSettings() {
   appStorage.writeRecord(SETTINGS_STORAGE, settings);
-  applyPlainSky();
   if (document.documentElement)
     document.documentElement.lang = settings.language;
   syncAudio();
