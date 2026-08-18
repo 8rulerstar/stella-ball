@@ -395,6 +395,16 @@ function showRoster() {
   };
   const renderTray = () => {
     tray.innerHTML = "";
+    /* 별지기가 늘면 트레이가 가로로 잘렸다. 48px 초상화는 칸 하나에 58px을
+       요구해서 여덟이면 464px이 필요한데 트레이는 436px뿐이다.
+       원본 스프라이트는 192x192이라 48은 1/4, 32는 1/6 — 둘 다 정수 배율이라
+       32로 줄여도 픽셀이 뭉개지지 않는다. 여섯까지는 48을 그대로 쓰고, 일곱
+       부터만 32로 내려 전원이 한 줄에 들어오게 한다.
+       크기를 CSS에만 적으면 setPortrait이 넘겨받는 프레임 크기와 어긋나
+       옆 프레임이 새어 나온다(2026-08-18 상세 카드 건). 한 값으로 둘을
+       함께 움직인다. */
+    const portraitSize = owned.length > 6 ? 32 : 48;
+    tray.style.setProperty("--tray-portrait", portraitSize + "px");
     for (const id of owned) {
       const h = heroes[id],
         at = deployed.indexOf(id),
@@ -415,7 +425,7 @@ function showRoster() {
         h.s +
         "</b>" +
         (at >= 0 ? '<i class="squad-slot-mark">' + (at + 1) + "</i>" : "");
-      setPortrait(b.querySelector(".portrait"), h, 48);
+      setPortrait(b.querySelector(".portrait"), h, portraitSize);
       b.addEventListener("pointerenter", () => focus(id));
       b.addEventListener("click", () => {
         // Tapping a benched unit seats it with no second click: an empty slot
