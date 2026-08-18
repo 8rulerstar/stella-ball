@@ -41,6 +41,16 @@ const PARTY = Number(arg("party", 3));
 const shotDir = arg("out", join(tmpdir(), "settle-shots"));
 // 각성을 한 프레임에 몰 것인가, 유성이 차례로 때리듯 흩을 것인가.
 const STAGGER = !process.argv.includes("--same-frame");
+// 효과음을 끄고도 재 본다 — 첫 재생의 .wav 로드가 프레임을 떨어뜨리는지 가른다.
+const MUTE = process.argv.includes("--mute");
+/* 스크린샷은 전체 페이지 래스터를 강제한다 — 프레임을 재는 중에 찍으면 그
+   프레임이 100ms를 넘고, 그걸 게임의 렉으로 착각하게 된다. 타이밍을 재는
+   실행에서는 끈다. */
+const NO_SHOTS = process.argv.includes("--no-shots");
+/* 흐림만 꺼서 재 본다. draw()의 JS 시간은 그대로인데 rAF 간격이 줄면 그 값은
+   메인스레드가 아니라 래스터에서 나온 것이다 — 이 저장소에서 shadowBlur는
+   전에도 단일 최대 항목이었다. */
+const NO_BLUR = process.argv.includes("--no-blur");
 mkdirSync(shotDir, { recursive: true });
 const browser = [
   process.env.STELLA_BROWSER_PATH,
@@ -167,7 +177,33 @@ async function cpuProfile(ms, top = 16) {
 
 // 판을 세우고 한 발 쏘는 동안 rAF 간격을 구간별로 모은다. 브라우저 안에서
 // 한 번에 돌려야 구간 경계가 실제 게임 상태와 어긋나지 않는다.
-const RUN_SHOT = (stage, party, stagger) => `(async () => {
+
+/* draw()가 싼데 프레임이 길면 남은 곳은 메인스레드의 DOM 작업이다. 이 저장소는
+   전에도 그랬다 — 12Hz 토스트 펌프가 body의 MutationObserver 둘을 깨워 초당
+   13회 강제 리플로우를 냈다. 스타일 재계산·레이아웃 횟수와 동시에 도는 CSS
+   애니메이션 수를 함께 본다. */
+async function domBudget(ms) {
+  await send("Performance.enable");
+  const read = async () => {
+    const { metrics } = await send("Performance.getMetrics");
+    return Object.fromEntries(metrics.map((m) => [m.name, m.value]));
+  };
+  const a = await read();
+  await delay(ms);
+  const b = await read();
+  const per = (k) => Math.round(((b[k] - a[k]) * 1000) / ms);
+  const pct = (k) => +(((b[k] - a[k]) * 100) / (ms / 1000)).toFixed(1);
+  return {
+    layoutsPerSec: per("LayoutCount"),
+    styleRecalcsPerSec: per("RecalcStyleCount"),
+    scriptPct: pct("ScriptDuration"),
+    stylePct: pct("RecalcStyleDuration"),
+    layoutPct: pct("LayoutDuration"),
+    taskPct: pct("TaskDuration"),
+  };
+}
+
+const RUN_SHOT = (stage, party, stagger, mute, noBlur) => `(async () => {
   const pool = ["gaon","biyeon","ria","byeolha"].slice(0, ${party});
   stageIndex = stages.findIndex((s) => s.id === ${JSON.stringify(stage)});
   deployed = [...pool]; selected = [...pool];
@@ -175,13 +211,22 @@ const RUN_SHOT = (stage, party, stagger) => `(async () => {
   /* 소리를 켠 채로 잰다. 예전에는 꺼 두었는데, 그러면 playSampleSfx가
      첫 줄에서 false를 돌려주어 「어느 사건이 어느 큐를 부르는가」가
      통째로 0으로 나온다 — 조용한 것과 «끈 것»을 구분하지 못한다. */
-  settings.sfx = 1;
+  settings.sfx = ${mute ? 0 : 1};
   /* 파티 전원이 각성하면 2-2의 200은 한 샷에 넘어가고, 승리 화면이 뜨면서
      실행 컨텍스트가 통째로 사라진다 — 측정이 아니라 크래시가 된다. 판을
      끝나지 않게 두고 프레임만 본다. */
   boss.maxHp = boss.hp = 999999; syncBossHealth();
   /* 정산이 끝나면 startShot이 g.awake·travel을 즉시 지운다. 끝난 뒤에 읽으면
      언제나 「아무도 안 깨어났다」로 나온다 — 정산 시점에 훅으로 받는다. */
+  /* 실험이 실제로 켜진 채 재고 있는지 보고한다. 꺼진 채 재면 「렉이 없다」가
+     나오는데 그것은 다른 게임을 잰 것이다. */
+  const experiments = {
+    autoParry: typeof autoParryOn === "function" ? autoParryOn() : null,
+    nodeEconomy: typeof nodeEconomyOn === "function" ? nodeEconomyOn() : null,
+    aimAssist: typeof AIM_ASSIST_PULL !== "undefined" ? AIM_ASSIST_PULL : null,
+    onboardingActive:
+      typeof onboardingRunning === "function" ? onboardingRunning() : null,
+  };
   const settled = [];
   registerRuntimeHook("afterPartySettle", (ctx) =>
     settled.push(ctx.awakened.map((g) => g.s)));
@@ -198,6 +243,13 @@ const RUN_SHOT = (stage, party, stagger) => `(async () => {
     if (ok) sfx[kind] = (sfx[kind] || 0) + 1;
     return ok;
   };
+  if (${noBlur ? "true" : "false"}) {
+    const g = x, d = Object.getOwnPropertyDescriptor(
+      Object.getPrototypeOf(g), "shadowBlur");
+    if (d && d.set) Object.defineProperty(g, "shadowBlur", {
+      configurable: true, get: () => 0, set: () => {},
+    });
+  }
   const gaps = { idle: [], flight: [], settle: [] };
   let phase = "idle", last = performance.now(), stop = false;
   const tick = (now) => {
@@ -346,6 +398,7 @@ const RUN_SHOT = (stage, party, stagger) => `(async () => {
       idle: stat(drawMs.idle), flight: stat(drawMs.flight),
       settle: stat(drawMs.settle), duringFocus: stat(drawMs.focus),
     },
+    experiments,
     domWrites: dom,
     sfxByCue: sfx,
     // 「얼어 있던 시간」. 이것이 체감 렉의 후보 2번이다.
@@ -393,7 +446,10 @@ try {
     "new Promise((r) => requestAnimationFrame(() => r(!document.hidden)))",
   );
   if (!alive) throw new Error("rAF not running - window is hidden");
-  await evaluate("document.querySelector('#titleHelp')?.click(), 1");
+  /* 수업으로 들어가면 안 된다. 2026-08-18 실험 셋(AUTO_PARRY·NODE_ECONOMY·
+     조준 보정)이 전부 `onboardingRunning()`으로 수업 중에는 꺼지므로, 여기서
+     #titleHelp를 누르면 캠페인에서 실제로 도는 코드를 한 줄도 재지 못한다.
+     setupBattle이 setScene("game")까지 하므로 타이틀을 거칠 필요가 없다. */
   await delay(600);
 
   /* 수치만으로는 「연출이 붙었다」까지만 알 수 있다. 그림이 판을 가리지 않는지,
@@ -406,7 +462,7 @@ try {
     shots.push(file);
   };
   await send("Page.enable");
-  const running = evaluate(RUN_SHOT(STAGE, PARTY, STAGGER));
+  const running = evaluate(RUN_SHOT(STAGE, PARTY, STAGGER, MUTE, NO_BLUR));
   await delay(1800); // idle 기준선이 다 모일 때까지
 
   /* 진짜 마우스로 쏜다. 발사만 코드로 넣으면 조준 보정도, 위력 곡선도,
@@ -474,12 +530,14 @@ try {
         })`)),
     );
 
-  for (const [ms, name] of [
-    [900, "awaken.png"],
-    [2200, "rolling.png"],
-    [1800, "settle.png"],
-    [700, "settle-late.png"],
-  ]) {
+  for (const [ms, name] of NO_SHOTS
+    ? []
+    : [
+        [900, "awaken.png"],
+        [2200, "rolling.png"],
+        [1800, "settle.png"],
+        [700, "settle-late.png"],
+      ]) {
     await delay(ms);
     await capture(name).catch(() => {});
   }
@@ -498,12 +556,87 @@ try {
   await delay(2200); // 유성이 멈추고 정산이 시작될 때까지
   const cpu = await cpuProfile(4000);
 
+  /* 전투 «입장» 구간을 따로 잰다. 2026-08-18에 들어온 입장 컷신(.cin)은
+     레터박스·베일·플래시·링 둘·먼지 20조각·네임플레이트·컷인 셋을 DOM으로
+     얹고 6초를 산다. 이 저장소의 예산은 「캔버스는 여유, DOM은 없음」이라
+     여기가 가장 유력하다. 판을 새로 세우고 그 4초를 그대로 본다. */
+  await evaluate(`(() => {
+    stageIndex = stages.findIndex((s) => s.id === ${JSON.stringify(STAGE)});
+    introSeenStages.delete(stages[stageIndex].id);
+    resetBuild(); setupBattle(); return 1;
+  })()`).catch(() => {});
+  /* 안전하지 않은 키프레임을 없앴는데도 레이아웃이 남으면, 남은 것은 JS가
+     기하를 «읽어» 강제로 리플로우를 일으키는 경우다. 읽는 API를 감싸고 부른
+     자리를 스택에서 뽑는다 — 「63회」는 증상이고 파일:줄이 주소다. */
+  await evaluate(`(() => {
+    window.__geo = {};
+    const note = () => {
+      const line = (new Error().stack || "").split("
+")
+        .find((l, i) => i > 2 && !l.includes("__geo") && l.includes(".js"));
+      const key = (line || "(unknown)").trim().replace(/^at\s+/, "").slice(0, 96);
+      window.__geo[key] = (window.__geo[key] || 0) + 1;
+    };
+    const rect = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function () { note(); return rect.apply(this, arguments); };
+    for (const prop of ["offsetWidth","offsetHeight","offsetTop","offsetLeft",
+                        "clientWidth","clientHeight","scrollWidth","scrollHeight"]) {
+      const d = Object.getOwnPropertyDescriptor(HTMLElement.prototype, prop)
+             || Object.getOwnPropertyDescriptor(Element.prototype, prop);
+      if (!d || !d.get) continue;
+      const target = prop.startsWith("offset") ? HTMLElement.prototype : Element.prototype;
+      Object.defineProperty(target, prop, {
+        configurable: true,
+        get() { note(); return d.get.call(this); },
+      });
+    }
+    return 1;
+  })()`).catch(() => {});
+  const entryBudget = await domBudget(4000);
+  const geo = await evaluate(
+    "JSON.stringify(Object.fromEntries(Object.entries(window.__geo || {}).sort((a,b)=>b[1]-a[1]).slice(0,10)))",
+  );
+  /* 「39개가 돈다」는 증상이고, «무엇을 움직이는가»가 주소다. transform·opacity
+     말고 다른 속성을 움직이는 키프레임은 컴포지터에 못 올라가 매 프레임 메인
+     스레드를 스타일+레이아웃으로 끌고 간다. 키프레임 규칙을 읽어 이름별로
+     그 속성을 붙인다. */
+  const entryAnimations = await evaluate(`(() => {
+    const props = {};
+    for (const sheet of document.styleSheets) {
+      let rules; try { rules = sheet.cssRules } catch { continue }
+      for (const r of rules || []) {
+        if (r.type !== CSSRule.KEYFRAMES_RULE) continue;
+        const seen = new Set();
+        for (const kf of r.cssRules)
+          for (let i = 0; i < kf.style.length; i++) seen.add(kf.style[i]);
+        props[r.name] = [...seen];
+      }
+    }
+    const SAFE = new Set(["transform", "opacity"]);
+    const out = {};
+    for (const a of document.getAnimations()) {
+      const name = a.animationName || "transition";
+      const moved = props[name] || [];
+      const key = name + " [" + moved.join(",") + "]";
+      out[key] = out[key] || { count: 0, safe: moved.length > 0 && moved.every((p) => SAFE.has(p)) };
+      out[key].count++;
+    }
+    return JSON.stringify({ total: document.getAnimations().length,
+                            cinNodes: document.querySelectorAll(".cin *").length,
+                            byName: out });
+  })()`);
+  const entryCpu = await cpuProfile(3000, 12);
+
   console.log(
     JSON.stringify(
       {
         ...shot,
         consoleErrors: consoleErrors.slice(0, 8),
         cpuDuringSettle: cpu,
+        entryBudget,
+        geometryReads: geo,
+        entryAnimations,
+        entryCpu,
       },
       null,
       2,

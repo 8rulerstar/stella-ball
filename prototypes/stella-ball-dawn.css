@@ -952,10 +952,31 @@ body.oo-intro .title-sequence::after {
     0 3px 0 #0a0418,
     0 0 22px #ffd98e66;
 }
+/* 폭이 아니라 «크기»로 자란다.
+
+   원래는 `width: 0 → 92px`였다. width는 레이아웃 속성이라 컴포지터에 올라가지
+   못하고, 자라는 0.42초 동안 매 프레임 메인스레드를 스타일+레이아웃으로
+   끌고 간다. 실측: 입장 구간의 강제 레이아웃이 초당 111회 · 스타일 재계산
+   240회였고, 같은 순간 동시에 도는 애니메이션 38개 중 이 둘만 안전하지
+   않았다(나머지 36개는 전부 transform·opacity다). 저장소의 최적화 후
+   기준선은 초당 1회다.
+
+   scaleX는 같은 「안쪽에서 바깥으로 뻗는 선」을 레이아웃 없이 그린다. 폭이
+   처음부터 92px로 잡혀 있으므로 자라는 동안 이름표 글자가 밀리지 않는다 —
+   글자가 제자리에 서고 선만 뻗는다. */
 .cin-hair {
-  width: 0;
+  width: 92px;
   height: 2px;
   background: linear-gradient(90deg, transparent, #ffd98e, transparent);
+  transform: scaleX(0);
+  will-change: transform;
+}
+/* 이름표 쪽 끝을 축으로 삼아 바깥으로 뻗는다. */
+.cin-hair-l {
+  transform-origin: 100% 50%;
+}
+.cin-hair-r {
+  transform-origin: 0 50%;
 }
 .cin.is-plate .cin-plate {
   animation: cinSlam 0.5s cubic-bezier(0.2, 0.85, 0.25, 1.1) both;
@@ -1071,7 +1092,7 @@ body.oo-intro .title-sequence::after {
 }
 @keyframes cinHair {
   to {
-    width: 92px;
+    transform: scaleX(1);
   }
 }
 @keyframes cinCut {
