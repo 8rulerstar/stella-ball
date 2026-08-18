@@ -1140,11 +1140,13 @@ function __botLegibilityProbe(config) {
     inShot = 0;
     return originalLaunch(angle, cfg);
   };
+  var hp = config.bossHpOverride != null ? config.bossHpOverride : source.bossHp;
   var result = __botRun({
     ...config,
-    arena: { ...source, tutorial: false, bossHp: source.bossHp },
-    bossHp: source.bossHp,
+    arena: { ...source, tutorial: false, bossHp: hp },
+    bossHp: hp,
   });
+  result.bossHpUsed = hp;
   return { stageId: source.id, hits: hits, awakened: awakened, run: result };
 }
 function __botTrajectoryProbe(config) {
@@ -1289,6 +1291,10 @@ export function probeLegibility({
   policy = "chain",
   seed = 1,
   heroMass = 1,
+  aimSigma = 0.08,
+  angleOffset = 0,
+  noParry = false,
+  bossHpOverride = null,
 } = {}) {
   return runInRuntime(
     {
@@ -1300,9 +1306,14 @@ export function probeLegibility({
       shots: 5,
       steerAt: 26,
       frameLimit: 7200,
-      aimSigma: 0.08,
+      aimSigma,
       spread: [0, 0, 0, 0],
       heroMass,
+      /* __botRun이 읽는 이름은 aimOffset이다. angleOffset으로 넘기면 조용히
+         무시돼 「각도를 훑었는데 전부 같은 값」이 나온다. */
+      aimOffset: angleOffset,
+      noParry,
+      bossHpOverride,
     },
     "__botLegibilityProbe.bind(null, __botConfig)",
   );
