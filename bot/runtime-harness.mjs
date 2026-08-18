@@ -572,6 +572,46 @@ function __botBandRun(config) {
     if (typeof offs[i] === 'function') offs[i]();
   return run;
 }
+/* 「패링을 유닛마다 다른 키에 배정하면 칠 수 있는가」를 재는 계측.
+   키를 고르려면 «어느 별지기가 다음인지 알아본 뒤 누를» 시간이 필요하다.
+   패링 가능 구간에 들어오는 순간들을 프레임으로 적어, 연속한 두 기회 사이가
+   얼마나 벌어지는지 낸다. 간격이 짧으면 키 선택은 반사가 아니라 운이 된다.
+   (VM 템플릿 문자열 안이라 백틱을 쓰지 않는다.) */
+function __botParryWindowProbe(config) {
+  var events = [];
+  var inRange = {};
+  var frame = 0;
+  var origUpdate = update;
+  update = function () {
+    var out = origUpdate.apply(null, arguments);
+    frame += 1;
+    if (ball && ball.moving)
+      for (var i = 0; i < gates.length; i++) {
+        var g = gates[i];
+        var dx = g.x - ball.x, dy = g.y - ball.y;
+        var d = Math.hypot(dx, dy);
+        var closing = (ball.vx * dx + ball.vy * dy) / Math.max(d, 1);
+        var near = closing > 0 && d < g.r + ball.r + 112;
+        if (near && !inRange[i]) events.push({ slot: i, frame: frame });
+        inRange[i] = near;
+      }
+    return out;
+  };
+  var run = __botCampaignRun(config);
+  update = origUpdate;
+  var gaps = [];
+  var sameSlot = 0;
+  for (var k = 1; k < events.length; k++) {
+    gaps.push(events[k].frame - events[k - 1].frame);
+    if (events[k].slot === events[k - 1].slot) sameSlot += 1;
+  }
+  return {
+    stageId: run.stageId,
+    기회수: events.length,
+    간격프레임: gaps,
+    직전과_같은_별지기: sameSlot,
+  };
+}
 var __botStopFrame = 0;
 function __botStopProbe(config) {
   var stops = [];
@@ -846,6 +886,29 @@ export function probeAimTransfer({ campaignIndex = 0, pullDown = 60 } = {}) {
       spread: [0, 0, 0, 0],
     },
     "__botAimProbe.bind(null, __botConfig, " + pullDown + ")",
+  );
+}
+
+export function probeParryWindow({
+  campaignIndex = 0,
+  policy = "chain",
+  aim = "loose",
+  seed = 1,
+} = {}) {
+  return runInRuntime(
+    {
+      campaignIndex,
+      party: PARTY_POOLS[3],
+      policy,
+      seed,
+      steer: false,
+      shots: 5,
+      steerAt: 26,
+      frameLimit: 7200,
+      aimSigma: AIM_LADDER[aim],
+      spread: [0, 0, 0, 0],
+    },
+    "__botParryWindowProbe.bind(null, __botConfig)",
   );
 }
 

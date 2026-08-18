@@ -394,14 +394,16 @@ function steerMeteor(side) {
     // Canvas y grows down, so (uy, -ux) is visually left of travel.
     // `side` is -1 for the left click and +1 for the right click.
     turnX = -uy * side,
-    turnY = ux * side,
-    forwardDrive = 170,
-    turnDrive = 430,
-    driveX = ux * forwardDrive + turnX * turnDrive,
-    driveY = uy * forwardDrive + turnY * turnDrive;
-  ball.vx += driveX;
-  ball.vy += driveY;
-  guaranteeMomentum(ball, driveX, driveY, 760, 1780);
+    turnY = ux * side;
+  /* 정확히 90도. 예전에는 앞으로 170 · 옆으로 430인 «힘»을 더했는데, 그러면
+     실제 꺾임이 atan(430/170) ≈ 68도에 그치고 속도까지 함께 올라갔다 —
+     조종이라기보다 한 번 쓰는 부스터로 읽혔다.
+     속도는 그대로 두고 방향만 진행 수직으로 돌린다. 무엇이 일어났는지가
+     각도 하나로 읽히고, 「어느 방향으로 꺾을까」가 비로소 판단이 된다. */
+  ball.vx = turnX * speed;
+  ball.vy = turnY * speed;
+  // 거의 멈춘 유성이 꺾이면 그 자리에서 죽는다. 하한만 지킨다.
+  guaranteeMomentum(ball, turnX, turnY, 760, 1780);
   ball.steerUsed = true;
   ball.steerFlash = 0.42;
   ball.runeBurst = Math.max(ball.runeBurst || 0, 0.7);
