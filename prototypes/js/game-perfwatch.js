@@ -190,6 +190,64 @@
       st.style.transform = "translate(0px,0px)";
   }
 
+  /* ── 어디에 시간이 쓰이는가 ────────────────────────────────────────
+     오늘 내내 스위치로 «무엇을 끄면 사라지는가»만 물었고, 그 답에서 내가 세운
+     원인 가설 넷이 전부 틀렸다. 끄면 사라지는 것과 시간을 쓰는 것은 다르다.
+
+     그래서 이번에는 그 기계에서 직접 잰다. 게임의 주요 함수를 감싸 프레임마다
+     걸린 시간을 재고, 긴 프레임에는 그 프레임의 내역을 통째로 붙인다. 내 프로브는
+     vsync에 안 물려 있어 이 값을 낼 수 없다 — 여기서만 나온다. */
+  var W_LIST = [
+    "draw",
+    "update",
+    "updateSpecial",
+    "updateFeedback",
+    "sync",
+    "toast",
+  ];
+  var cost = {},
+    frameCost = {},
+    wrapped = false;
+  function wrapAll() {
+    if (wrapped) return;
+    wrapped = true;
+    W_LIST.forEach(function (name) {
+      var real;
+      try {
+        real = eval(name);
+      } catch (e) {
+        return;
+      }
+      if (typeof real !== "function") return;
+      cost[name] = [];
+      var w = function () {
+        var t0 = performance.now();
+        try {
+          return real.apply(this, arguments);
+        } finally {
+          var d = performance.now() - t0;
+          frameCost[name] = (frameCost[name] || 0) + d;
+        }
+      };
+      /* 전역 함수 선언은 재대입이 되지만, 이름이 const로 잡힌 것도 있으므로
+         실패는 조용히 넘긴다 — 못 감싼 것은 아래 표에 아예 안 나온다. */
+      try {
+        eval(name + " = w");
+      } catch (e) {}
+    });
+  }
+  function frameLedger() {
+    var out = {},
+      any = false;
+    for (var k in frameCost)
+      if (frameCost[k] > 0.15) {
+        out[k] = +frameCost[k].toFixed(1);
+        any = true;
+      }
+    frameCost = {};
+    return any ? out : null;
+  }
+
   function snapshot() {
     var g = function (n) {
       try {
@@ -239,6 +297,7 @@
 
   function tick(now) {
     if (!on) return;
+    var ledger = frameLedger();
     if (last) {
       var d = now - last;
       gaps.push(d);
@@ -308,6 +367,7 @@
     last = 0;
     startedAt = performance.now();
     build();
+    wrapAll();
     raf = requestAnimationFrame(tick);
   }
   function stop() {
@@ -323,7 +383,22 @@
     var at = function (p) {
       return s.length ? +s[Math.floor(s.length * p)].toFixed(1) : 0;
     };
+    /* 긴 프레임들이 «어디에» 시간을 썼는지 합산한다. 이 표가 비어 있으면
+       그 프레임들은 JS가 아니라 합성·래스터에서 늦은 것이고, 그러면 끄는
+       실험(F2·F6)이 답이지 코드 안을 더 파도 나오지 않는다. */
+    var spentTotals = {};
+    for (var i = 0; i < longs.length; i++) {
+      var sp = longs[i].spent;
+      if (!sp) continue;
+      for (var k in sp)
+        spentTotals[k] = +((spentTotals[k] || 0) + sp[k]).toFixed(1);
+    }
+    var withJs = longs.filter(function (l) {
+      return l.spent;
+    }).length;
     var out = {
+      spentTotals: spentTotals,
+      longFramesWithJsCost: withJs + "/" + longs.length,
       seconds: +((performance.now() - startedAt) / 1000).toFixed(1),
       viewport: innerWidth + "x" + innerHeight,
       dpr: devicePixelRatio,
