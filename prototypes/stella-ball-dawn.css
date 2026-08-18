@@ -196,3 +196,350 @@ main {
     opacity: 0;
   }
 }
+
+/* ---------------------------------------------------------------------
+   STARLIGHT IGNITION — 타이틀 (INTRO_REDESIGN_HANDOFF.md §2-2)
+   이 블록이 마지막 스타일시트에 있는 이유: 예전 타이틀 규칙이 네 파일
+   (interface·polish·story·theme)에 흩어져 있어 특정도로 싸우면 어느 파일이
+   이겼는지 아무도 추적할 수 없다. 새 이름(`ig-*`)을 쓰고 마지막에 두면
+   싸울 일이 없다. 걷어낸 옛 요소(.title-stars/.title-constellation/
+   .title-copy)는 더 이상 만들어지지 않으므로 그 규칙들은 자연히 죽는다.
+   --------------------------------------------------------------------- */
+.ig-title {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.ig-keyart {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  opacity: 0.92;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.ig-copy {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  margin-bottom: 3vh;
+  padding: 0 24px;
+  text-align: center;
+}
+/* 성도. 선과 별을 골드로만 그린다 — §1-1의 「골드는 조준 대상·보상·CTA·
+   별자리에만」 규칙에서 별자리가 여기다. */
+.ig-map {
+  width: min(250px, 22vh);
+  margin-bottom: 6px;
+  overflow: visible;
+  opacity: 0;
+  animation: igFade 0.8s ease 1s forwards;
+}
+.ig-map line {
+  stroke: var(--star, #ffd98e);
+  stroke-width: 1.6;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 6px #ffd98e);
+}
+.ig-map circle {
+  fill: #fff5c9;
+  filter: drop-shadow(0 0 8px #ffe6a5);
+}
+.ig-map .ig-map-mark {
+  fill: none;
+  stroke: var(--magenta-dim, #c94ff0);
+  stroke-opacity: 0.4;
+  filter: none;
+}
+.ig-chart {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: min(430px, 80vw);
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: igFade 0.5s ease 0.8s forwards;
+}
+.ig-chart i {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c94ff06e, transparent);
+}
+.ig-chart small {
+  color: #e6c9f5;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  white-space: nowrap;
+  text-shadow: 0 0 10px #c94ff055;
+}
+.ig-wm-wrap {
+  position: relative;
+}
+/* 원본 328×224, 8px 유닛. 492px는 정확히 1.5배라 8px 유닛이 12px로 떨어진다 —
+   시안의 440px는 1.34배여서 유닛 폭이 들쭉날쭉해진다. */
+.ig-wm {
+  width: min(492px, 66vw, 46vh);
+  opacity: 0;
+  image-rendering: pixelated;
+  animation:
+    igWmSlam 0.6s cubic-bezier(0.2, 0.85, 0.25, 1.1) 0.1s both,
+    igWmGlow 4s ease-in-out 1.5s infinite;
+}
+.ig-ring,
+.ig-ring2 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.ig-ring {
+  width: 560px;
+  height: 560px;
+  border: 2px solid #ffd98e77;
+  animation: igRing 1s cubic-bezier(0.3, 0.1, 0.2, 1) 0.3s both;
+}
+.ig-ring2 {
+  width: 640px;
+  height: 640px;
+  border: 2px dashed #c94ff055;
+  animation: igRing 1.3s cubic-bezier(0.3, 0.1, 0.2, 1) 0.45s both;
+}
+.ig-dust {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.ig-dust i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--dz, 3px);
+  height: var(--dz, 3px);
+  animation: igDust 0.6s ease-out forwards;
+}
+.ig-kicker {
+  margin: min(20px, 2.2vh) 0 min(30px, 3.2vh);
+  padding-top: min(14px, 1.5vh);
+  border-top: 1px solid #c94ff03a;
+  color: var(--ink-dim, #b9a8d6);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  white-space: nowrap;
+  opacity: 0;
+  animation: igFade 0.5s ease 0.95s forwards;
+}
+.ig-cta {
+  position: relative;
+  min-width: 320px;
+  padding: 17px 44px;
+  overflow: hidden;
+  border: 2px solid #f6c48e !important;
+  border-radius: 0 !important;
+  background: linear-gradient(#f0b078, #a05c32) !important;
+  color: #241304 !important;
+  font:
+    900 19px "Galmuri11",
+    sans-serif !important;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transform: translateY(12px);
+  box-shadow:
+    0 4px 0 #4a2a16,
+    0 0 0 3px #f2b9881a;
+  cursor: pointer;
+  animation:
+    igFadeUp 0.42s cubic-bezier(0.18, 0.9, 0.22, 1.2) 1.1s forwards,
+    igCtaGlow 2.6s ease-in-out 2.2s infinite;
+}
+.ig-cta:hover {
+  filter: brightness(1.12);
+}
+.ig-cta > i {
+  position: absolute;
+  inset: 3px;
+  background: linear-gradient(90deg, transparent, #fff6be77, transparent);
+  transform: translateX(-130%);
+  animation: igCtaShine 2.6s ease 1.8s infinite;
+  pointer-events: none;
+}
+.ig-sub {
+  display: flex;
+  gap: 26px;
+  margin-top: 24px;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: igFadeUp 0.4s ease 1.35s forwards;
+}
+.ig-link {
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: #c6b8e0 !important;
+  font:
+    700 11px "Galmuri11",
+    sans-serif !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ig-link:hover {
+  color: #fff !important;
+}
+.ig-link b {
+  color: #ffe3a1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ig-credit {
+  margin-top: 22px;
+  color: #6f6390;
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  opacity: 0;
+  animation: igFade 0.5s ease 1.55s forwards;
+}
+.ig-credit b {
+  color: #c9b489;
+  font-weight: 600;
+}
+.ig-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #fff3d6;
+  animation: igFlash 0.2s steps(2) forwards;
+  pointer-events: none;
+}
+@keyframes igWmSlam {
+  0% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+  52% {
+    opacity: 1;
+    transform: scale(0.92);
+  }
+  74% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes igWmGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px #ffeec6aa) drop-shadow(0 0 26px #f4cd7877);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px #fff8e6) drop-shadow(0 0 40px #ffd98ecc);
+  }
+}
+@keyframes igRing {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+  18% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+}
+@keyframes igDust {
+  0% {
+    opacity: 0.95;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy));
+  }
+}
+@keyframes igFade {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes igFadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes igCtaGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 0 #4a2a16,
+      0 0 0 3px #f2b9881a,
+      0 0 18px #f2b35c33;
+  }
+  50% {
+    box-shadow:
+      0 4px 0 #4a2a16,
+      0 0 0 3px #f2b98833,
+      0 0 34px #ffd98e77;
+  }
+}
+@keyframes igCtaShine {
+  0%,
+  52% {
+    transform: translateX(-130%);
+  }
+  78%,
+  100% {
+    transform: translateX(130%);
+  }
+}
+@keyframes igFlash {
+  0% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* 움직임을 줄이면 각 장면의 «최종 정지 프레임»만 보여준다(§1-3). */
+.ig-title.ig-still .ig-map,
+.ig-title.ig-still .ig-chart,
+.ig-title.ig-still .ig-wm,
+.ig-title.ig-still .ig-kicker,
+.ig-title.ig-still .ig-cta,
+.ig-title.ig-still .ig-sub,
+.ig-title.ig-still .ig-credit {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ig-map,
+  .ig-chart,
+  .ig-wm,
+  .ig-kicker,
+  .ig-cta,
+  .ig-sub,
+  .ig-credit {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .ig-ring,
+  .ig-ring2,
+  .ig-flash {
+    display: none;
+  }
+}

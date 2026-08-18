@@ -1644,6 +1644,10 @@ const libraryArt = {
 };
 const metaArt = {
   wordmark: "../assets/original/stella-ball-wordmark.svg",
+  /* 「별빛 점화」 타이틀 (INTRO_REDESIGN_HANDOFF.md §2-2·§3). 도트 워드마크는
+     8px 유닛 5×7 비트맵이라 정수 배율로만 키워야 뭉개지지 않는다. */
+  wordmarkDot: "../assets/redesign/wordmark-stella-dot.png",
+  keyartObservatory: "../assets/redesign/keyart-observatory.png",
   luna: "../assets/library/guide/luna-portrait.png",
   daily: "../assets/library/record/daily-challenge-badge.png",
   play: "../assets/library/system/icon-play.png",

@@ -172,6 +172,47 @@ function startShot(restingPoint = null) {
   runRuntimeHooks("afterShotStart", context);
 }
 let titleSequence = 0;
+/* 타이틀 리빌의 «시간»은 전부 CSS animation-delay가 쥔다(§2-2 표 그대로).
+   JS가 맡는 것은 CSS로 못 만드는 둘뿐이다 — 1프레임 플래시 컷과, 워드마크가
+   내려앉는 순간 사방으로 튀는 먼지 24개. 타이머로 요소를 하나씩 켜는 방식은
+   화면이 바뀌면 유령 타이머가 남으므로 쓰지 않는다. */
+function igTitleReveal() {
+  const wrap = document.querySelector(".ig-wm-wrap");
+  if (!wrap) return;
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelector(".ig-title")?.classList.add("ig-still");
+    return;
+  }
+  const flash = document.createElement("div");
+  flash.className = "ig-flash";
+  flash.setAttribute("aria-hidden", "true");
+  document.querySelector(".ig-title")?.append(flash);
+  setTimeout(() => flash.remove(), 260);
+  const dust = wrap.querySelector(".ig-dust");
+  const cols = ["#ffd98e", "#c94ff0", "#fff3d6", "#f2b35c"];
+  setTimeout(() => {
+    if (!dust.isConnected) return;
+    for (let i = 0; i < 24; i++) {
+      const bit = document.createElement("i"),
+        a = (i / 24) * Math.PI * 2 + (i % 3) * 0.4,
+        r = 50 + ((i * 37) % 120);
+      bit.style.cssText =
+        "--dx:" +
+        Math.round(Math.cos(a) * r) +
+        "px;--dy:" +
+        Math.round(Math.sin(a) * r - 40) +
+        "px;--dz:" +
+        (2 + (i % 3)) +
+        "px;background:" +
+        cols[i % cols.length] +
+        ";animation-duration:" +
+        (0.5 + ((i * 13) % 60) / 100).toFixed(2) +
+        "s";
+      dust.append(bit);
+    }
+    setTimeout(() => (dust.textContent = ""), 1400);
+  }, 360);
+}
 function renderTitlePresentation() {
   const sequence = ++titleSequence;
   const stars = Array.from(
@@ -185,16 +226,66 @@ function renderTitlePresentation() {
       ((i % 7) * 0.31).toFixed(2) +
       's"></i>',
   ).join("");
+  /* 「별빛 점화」 타이틀 (INTRO_REDESIGN_HANDOFF.md §2-2).
+     예전 마크업의 오리온 성도·별밭·돔 SVG를 전부 걷어냈다. 배경 하늘은 이미
+     `#dawn-sky`가 그리고 있어 두 벌을 겹쳐 놓을 이유가 없었고, 시안은 하늘을
+     비워 워드마크 하나에 시선을 모은다.
+     성도는 시안처럼 양자리로 고정하지 않고 지금 서 있는 월드를 그린다 —
+     WORLDS[].shape가 이미 월드마다 다른 점 배열을 갖고 있으므로, 고정하면
+     여덟 월드가 같은 그림을 쓰게 된다. */
+  const world = worldOf(currentStage()) ?? WORLDS[0];
+  const pts = (world.shape || WORLDS[0].shape).map(([x, y]) => [
+    12 + x * 2.36,
+    14 + y * 0.92,
+  ]);
+  const mapSvg =
+    '<svg class="ig-map" viewBox="0 0 260 120" aria-hidden="true">' +
+    pts
+      .slice(1)
+      .map(
+        (p, i) =>
+          '<line x1="' +
+          pts[i][0].toFixed(1) +
+          '" y1="' +
+          pts[i][1].toFixed(1) +
+          '" x2="' +
+          p[0].toFixed(1) +
+          '" y2="' +
+          p[1].toFixed(1) +
+          '"></line>',
+      )
+      .join("") +
+    pts
+      .map(
+        (p, i) =>
+          '<circle cx="' +
+          p[0].toFixed(1) +
+          '" cy="' +
+          p[1].toFixed(1) +
+          '" r="' +
+          (i === Math.floor(pts.length / 2) ? 6 : 4.6) +
+          '"></circle>',
+      )
+      .join("") +
+    '<circle class="ig-map-mark" cx="' +
+    pts[Math.floor(pts.length / 2)][0].toFixed(1) +
+    '" cy="' +
+    pts[Math.floor(pts.length / 2)][1].toFixed(1) +
+    '" r="12" fill="none" stroke-dasharray="3 4"></circle></svg>';
   U.over.className = "overlay title-scene";
   U.over.innerHTML =
-    '<section class="title-sequence" aria-label="STELLA BALL 시작 화면"><div class="title-stars" aria-hidden="true">' +
-    stars +
-    '</div><div class="title-dawn" aria-hidden="true"></div><div class="title-constellation" aria-hidden="true"><svg class="title-sky-map" viewBox="0 0 720 410" preserveAspectRatio="xMidYMid meet"><defs><radialGradient id="titleNebula"><stop offset="0%" stop-color="#ffd9ea" stop-opacity=".5"></stop><stop offset="45%" stop-color="#9aa8ff" stop-opacity=".26"></stop><stop offset="100%" stop-color="#9aa8ff" stop-opacity="0"></stop></radialGradient><radialGradient id="titleSkyGlow"><stop offset="0%" stop-color="#8fa4ff" stop-opacity=".2"></stop><stop offset="100%" stop-color="#8fa4ff" stop-opacity="0"></stop></radialGradient></defs><ellipse class="title-sky-halo" cx="352" cy="212" rx="290" ry="200" fill="url(#titleSkyGlow)"></ellipse><g class="title-sky-dome"><path class="title-dome-arc" d="M16 126 Q360 -26 704 126"></path><g class="title-dome-ticks"><line x1="16.0" y1="126.0" x2="20.4" y2="136.1"></line><line x1="59.0" y1="108.2" x2="61.2" y2="113.8"></line><line x1="102.0" y1="92.8" x2="103.9" y2="98.4"></line><line x1="145.0" y1="79.7" x2="146.6" y2="85.5"></line><line x1="188.0" y1="69.0" x2="190.4" y2="79.7"></line><line x1="231.0" y1="60.7" x2="232.0" y2="66.6"></line><line x1="274.0" y1="54.8" x2="274.7" y2="60.7"></line><line x1="317.0" y1="51.2" x2="317.3" y2="57.2"></line><line x1="360.0" y1="50.0" x2="360.0" y2="61.0"></line><line x1="403.0" y1="51.2" x2="402.7" y2="57.2"></line><line x1="446.0" y1="54.8" x2="445.3" y2="60.7"></line><line x1="489.0" y1="60.7" x2="488.0" y2="66.6"></line><line x1="532.0" y1="69.0" x2="529.6" y2="79.7"></line><line x1="575.0" y1="79.7" x2="573.4" y2="85.5"></line><line x1="618.0" y1="92.8" x2="616.1" y2="98.4"></line><line x1="661.0" y1="108.2" x2="658.8" y2="113.8"></line><line x1="704.0" y1="126.0" x2="699.6" y2="136.1"></line></g></g><g class="title-sky-dust"><circle cx="42" cy="152" r="1.4" style="--td:0.00s"></circle><circle cx="86" cy="96" r="1.2" style="--td:0.29s"></circle><circle cx="148" cy="64" r="1.5" style="--td:0.58s"></circle><circle cx="212" cy="116" r="1.2" style="--td:0.87s"></circle><circle cx="252" cy="42" r="1.3" style="--td:1.16s"></circle><circle cx="300" cy="104" r="1.2" style="--td:1.45s"></circle><circle cx="330" cy="152" r="1.1" style="--td:1.74s"></circle><circle cx="404" cy="52" r="1.4" style="--td:2.03s"></circle><circle cx="430" cy="118" r="1.2" style="--td:2.32s"></circle><circle cx="476" cy="86" r="1.3" style="--td:2.61s"></circle><circle cx="524" cy="128" r="1.2" style="--td:2.90s"></circle><circle cx="580" cy="74" r="1.4" style="--td:3.19s"></circle><circle cx="622" cy="142" r="1.2" style="--td:0.28s"></circle><circle cx="664" cy="96" r="1.3" style="--td:0.57s"></circle><circle cx="688" cy="52" r="1.2" style="--td:0.86s"></circle><circle cx="112" cy="196" r="1.2" style="--td:1.15s"></circle><circle cx="600" cy="220" r="1.3" style="--td:1.44s"></circle><circle cx="62" cy="58" r="1.6" style="--td:0.00s"></circle><circle cx="124" cy="132" r="1.3" style="--td:0.37s"></circle><circle cx="92" cy="318" r="1.5" style="--td:0.74s"></circle><circle cx="168" cy="214" r="1.2" style="--td:1.11s"></circle><circle cx="318" cy="68" r="1.4" style="--td:1.48s"></circle><circle cx="286" cy="140" r="1.2" style="--td:1.85s"></circle><circle cx="398" cy="96" r="1.3" style="--td:2.22s"></circle><circle cx="452" cy="140" r="1.2" style="--td:2.59s"></circle><circle cx="560" cy="190" r="1.5" style="--td:2.96s"></circle><circle cx="608" cy="110" r="1.3" style="--td:3.33s"></circle><circle cx="636" cy="290" r="1.4" style="--td:0.30s"></circle><circle cx="542" cy="330" r="1.2" style="--td:0.67s"></circle><circle cx="398" cy="344" r="1.3" style="--td:1.04s"></circle><circle cx="160" cy="388" r="1.2" style="--td:1.41s"></circle><circle cx="672" cy="206" r="1.4" style="--td:1.78s"></circle></g><ellipse class="title-sky-nebula" cx="350" cy="296" rx="62" ry="44" fill="url(#titleNebula)"></ellipse><path class="title-constellation-line line-main" d="M236 352 L286 238 L360 226 L434 214 L488 366"></path><path class="title-constellation-line line-cross" d="M196 84 L286 238"></path><path class="title-constellation-line line-cross line-cross-b" d="M508 66 L434 214"></path><path class="title-constellation-line line-spine" d="M196 84 L508 66"></path><path class="title-constellation-line line-head" d="M196 84 L350 22 L508 66"></path><path class="title-constellation-line line-sword" d="M360 226 L352 282 L347 308 L343 330"></path><g class="title-constellation-nodes"><circle cx="350" cy="22" r="5" style="--sd:0.4s;--td:2.9s"></circle><circle cx="196" cy="84" r="9.5" style="--sd:0.5s;--td:2s"></circle><circle cx="508" cy="66" r="7" style="--sd:0.62s;--td:2.2s"></circle><circle cx="286" cy="238" r="7.5" style="--sd:0.86s;--td:2.4s"></circle><circle cx="360" cy="226" r="7.5" style="--sd:0.98s;--td:2.6s"></circle><circle cx="434" cy="214" r="6.5" style="--sd:1.1s;--td:2.8s"></circle><circle cx="236" cy="352" r="6" style="--sd:1.24s;--td:3s"></circle><circle cx="488" cy="366" r="9.5" style="--sd:1.36s;--td:2.1s"></circle><circle cx="352" cy="282" r="4" style="--sd:1.5s;--td:3.2s"></circle><circle cx="347" cy="308" r="3.4" style="--sd:1.58s;--td:3.4s"></circle><circle cx="343" cy="330" r="3" style="--sd:1.66s;--td:3.6s"></circle></g></svg><span class="title-shooting-star"></span>' +
-    '</div><div class="title-copy"><div class="title-chart" aria-hidden="true"><i></i><small>ORION · 오리온</small><i></i></div><img class="title-wordmark" src="' +
-    metaArt.wordmark +
-    '" alt="STELLA BALL"><small class="title-kicker">CONSTELLATION RESTORATION PROJECT</small><button class="title-enter" id="enterHub"><img src="' +
-    metaArt.play +
-    '" alt="">게임 시작!</button><button class="title-help" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button><button class="title-help" id="titleReplayIntro">인트로 다시 보기</button><small class="title-credit">MADE BY <b>8RULERSTAR</b></small></div></section>';
+    '<section class="title-sequence ig-title" aria-label="STELLA BALL 시작 화면"><img class="ig-keyart" src="' +
+    metaArt.keyartObservatory +
+    '" alt="" aria-hidden="true"><div class="ig-copy">' +
+    mapSvg +
+    '<div class="ig-chart" aria-hidden="true"><i></i><small>' +
+    (world.bayer || "ARIES") +
+    " · " +
+    (world.name || "양자리") +
+    ' 관측 항로</small><i></i></div><div class="ig-wm-wrap"><img class="ig-wm" src="' +
+    metaArt.wordmarkDot +
+    '" alt="STELLA BALL"><span class="ig-ring" aria-hidden="true"></span><span class="ig-ring2" aria-hidden="true"></span><span class="ig-dust" aria-hidden="true"></span></div><small class="ig-kicker">THE LAST OBSERVATORY · CONSTELLATION RESTORATION</small><button class="ig-cta" id="enterHub">관측 시작<i aria-hidden="true"></i></button><div class="ig-sub"><button class="ig-link" id="titleHelp">처음인가요? <b>1분 튜토리얼</b></button><button class="ig-link" id="titleReplayIntro">인트로 다시 보기</button></div><small class="ig-credit">MADE BY <b>8RULERSTAR</b></small></div></section>';
+  igTitleReveal();
   const enter = document.querySelector("#enterHub");
   /* 인트로 다시 보기(§10). 재생 표식을 첫 실행 단위(localStorage)로 옮기고
      나니 두 번째부터는 전체 연출을 볼 방법이 없어졌다 — 스테이지 지도의
