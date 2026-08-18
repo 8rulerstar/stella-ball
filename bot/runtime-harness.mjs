@@ -1295,6 +1295,7 @@ export function probeLegibility({
   angleOffset = 0,
   noParry = false,
   bossHpOverride = null,
+  launchForce = 1,
 } = {}) {
   return runInRuntime(
     {
@@ -1314,6 +1315,7 @@ export function probeLegibility({
       aimOffset: angleOffset,
       noParry,
       bossHpOverride,
+      launchForce,
     },
     "__botLegibilityProbe.bind(null, __botConfig)",
   );
