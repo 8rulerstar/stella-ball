@@ -423,9 +423,9 @@ header button:hover {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  border-color: #406b6e;
-  background: #0c1c25;
-  color: #d6e8df;
+  border-color: #523975;
+  background: #19052c;
+  color: #dad5e9;
 }
 .meta-tab img {
   width: 18px;
@@ -437,15 +437,15 @@ header button:hover {
 .meta-tab:hover,
 .meta-tab:focus-visible {
   border-color: #e7c36f;
-  background: #17303a;
+  background: #280b46;
 }
 .system-panel {
   max-width: 620px;
   margin: 14px auto;
   padding: 16px;
-  border: 1px solid #557c7d;
-  background: linear-gradient(145deg, #10232c, #091720);
-  box-shadow: inset 0 0 0 2px #0a151c;
+  border: 1px solid #655181;
+  background: linear-gradient(145deg, #1e0735, #150524);
+  box-shadow: inset 0 0 0 2px #140422;
 }
 .system-panel h2 {
   margin: 0;
@@ -454,18 +454,18 @@ header button:hover {
 }
 .system-panel > p {
   margin: 5px 0 14px;
-  color: #b9d0c9;
+  color: #bfb8d1;
   font-size: 11px;
 }
 .settings-group {
   margin: 12px 0;
-  border: 1px solid #31555b;
-  background: #0a1820;
+  border: 1px solid #432864;
+  background: #160525;
 }
 .settings-group > h3 {
   margin: 0;
   padding: 8px 10px;
-  border-bottom: 1px solid #31555b;
+  border-bottom: 1px solid #432864;
   color: #d9c182;
   font:
     700 10px ui-monospace,
@@ -480,7 +480,7 @@ header button:hover {
   padding: 10px;
 }
 .setting-row + .setting-row {
-  border-top: 1px solid #203b42;
+  border-top: 1px solid #2f164c;
 }
 .setting-row b {
   display: block;
@@ -489,7 +489,7 @@ header button:hover {
 }
 .setting-row small {
   display: block;
-  color: #8fb1aa;
+  color: #9a8db3;
   font-size: 10px;
   margin-top: 2px;
 }
@@ -532,8 +532,8 @@ header button:hover {
   position: relative;
   min-height: 102px;
   padding: 10px 10px 10px 66px;
-  border: 1px solid #4b7475;
-  background: #0a1921;
+  border: 1px solid #5b467a;
+  background: #160526;
 }
 .achievement-card.locked {
   filter: saturate(0.2);
@@ -556,14 +556,14 @@ header button:hover {
 .achievement-card small {
   display: block;
   margin-top: 4px;
-  color: #b6cec8;
+  color: #bdb5cf;
   font-size: 10px;
   line-height: 1.35;
 }
 .achievement-card em {
   display: block;
   margin-top: 7px;
-  color: #7bd6ca;
+  color: #9a76db;
   font:
     700 9px ui-monospace,
     monospace;
@@ -577,13 +577,13 @@ header button:hover {
 }
 .profile-stat {
   padding: 8px;
-  border: 1px solid #31555b;
-  background: #0b1a22;
+  border: 1px solid #432864;
+  background: #170528;
   text-align: center;
 }
 .profile-stat small {
   display: block;
-  color: #98b9b2;
+  color: #a296bb;
   font-size: 9px;
 }
 .profile-stat b {
@@ -669,10 +669,10 @@ header button:hover {
   align-items: end;
   min-width: 166px;
   padding: 8px 10px 7px;
-  border: 1px solid #586a65;
-  background: linear-gradient(135deg, #091315ef, #162227ef 62%, #17211eee);
+  border: 1px solid #5d566c;
+  background: linear-gradient(135deg, #0e041aef, #1e102def 62%, #181325ee);
   box-shadow:
-    0 3px 0 #020607bb,
+    0 3px 0 #040108bb,
     0 0 18px #0008;
   color: #d7e7db;
   font:
@@ -727,7 +727,7 @@ header button:hover {
 }
 .blaze-score-label {
   align-self: start;
-  color: #9fb6ad;
+  color: #a59eb7;
   font-size: 9px;
   letter-spacing: 0.13em;
 }
@@ -740,16 +740,16 @@ header button:hover {
   letter-spacing: -0.1em;
   color: #ecf5e9;
   text-shadow:
-    2px 2px 0 #07100f,
-    0 0 8px #6cc4a444;
+    2px 2px 0 #090314,
+    0 0 8px #8368c844;
 }
 .blaze-card small {
   grid-column: 1 / -1;
   display: block;
   margin-top: 5px;
   padding-top: 4px;
-  border-top: 1px solid #54706a55;
-  color: #a9c4ba;
+  border-top: 1px solid #5c517355;
+  color: #b0a8c5;
   font-size: 9px;
   white-space: nowrap;
 }
@@ -983,7 +983,7 @@ header button,
 }
 .overlay {
   background: linear-gradient(135deg, #0e0920f7, #1d1236f5);
-  /* 스테이지 전체를 덮는 backdrop blur였는데, 최종 배경이 #0a0f12f2(95%
+  /* 스테이지 전체를 덮는 backdrop blur였는데, 최종 배경이 #0e0616f2(95%
      불투명)라 흐려진 뒷면이 거의 드러나지 않는다. 온보딩 수업 카드·결과
      카드·로스터까지 이 오버레이를 쓰므로 화면 전체 되읽기가 그때마다 켜졌다.
      실제로 뒤가 비치는 pause/confirm/아이콘 선택은 각자 blur(2px)를 따로

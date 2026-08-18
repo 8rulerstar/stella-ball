@@ -5,73 +5,91 @@
    ===================================================================== */
 
 :root {
-  --night-0: #0a0f12;
-  --night-1: #101a1e;
-  --night-2: #16242a;
-  --void: #223438;
-  --moon: #cfdad7;
+  --night-0: #0e0616;
+  --night-1: #170a24;
+  --night-2: #200f31;
+  --void: #2b1b3f;
+  --moon: #d2cedb;
   --star: #ffd2a0;
-  --gold: #c97a45;
-  --mist: #8ba39f;
-  --line: #34494d;
+  --gold: #f2b35c;
+  --mist: #938aa4;
+  --line: #3f2e53;
   --sb-gaon: #d9b269;
   --sb-biyeon: #cf7183;
-  --sb-lumi: #74bfc0;
+  --sb-lumi: #9270c4;
   --sb-haru: #9cc878;
   --sb-sera: #a99bd6;
   --sb-taeo: #d99a66;
   --sb-nyx: #8f7fd0;
   --sb-ria: #bca6d8;
+  /* 「별빛 점화」 팔레트 (INTRO_REDESIGN_HANDOFF.md §1-1, 2026-08-18 전환).
+     기존 새벽 관측소의 청록 계열을 색상 회전으로 보이드 바이올렛에 옮겼다
+     (`scripts/repalette-dawn-to-void.mjs`). 앞으로 만드는 연출은 하드코딩
+     대신 아래 토큰을 쓴다 — 지금 팔레트가 823종으로 흩어져 있는 이유가
+     처음부터 토큰을 안 썼기 때문이다. */
+  --magenta: #e84ff0;
+  --magenta-dim: #c94ff0;
+  --violet: #7e2bb0;
+  --violet-lit: #a360e6;
+  --void-deep: #2a1442;
+  --panel-line: #3a2a5e;
+  --ink: #fdf6e8;
+  --ink-dim: #b9a8d6;
+  --ink-btn: #d9c2f0;
+  /* 패배·냉각 전용. 이 셋이 쓰인 화면에는 골드가 CTA 하나뿐이어야 한다. */
+  --cool-0: #9fb4bd;
+  --cool-1: #7d95a0;
+  --cool-2: #8fb5b2;
 }
 
 body {
   color: var(--moon);
   background: radial-gradient(
     ellipse at 50% -15%,
-    #182428 0%,
-    #101a1e 43%,
-    #0a0f12 82%
+    #1f122e 0%,
+    #170a24 43%,
+    #0e0616 82%
   ) !important;
 }
 body::before {
   opacity: 0.3 !important;
 }
 header {
-  border-color: #2c3f43 !important;
-  background: linear-gradient(100deg, #0c1417ef, #111b20ef) !important;
+  border-color: #362649 !important;
+  background: linear-gradient(100deg, #11071cef, #190b26ef) !important;
   box-shadow:
-    0 8px 24px #03080999,
-    0 0 0 1px #c97a4522 !important;
+    0 8px 24px #06010b99,
+    0 0 0 1px #f2b35c22 !important;
 }
 header .tag,
 .hud-label span,
 .status-line span,
 .boss-name span,
 .blaze-score-label {
-  color: #7d9a97 !important;
+  color: #877c9b !important;
 }
 header h1,
 .boss-name b {
   color: #f3ede2 !important;
-  text-shadow: 0 0 14px #c97a4544 !important;
+  text-shadow: 0 0 14px #f2b35c44 !important;
 }
 header p,
 .status-line {
-  color: #8fa8a5 !important;
+  color: #988ea9 !important;
 }
 
 button {
-  border-color: #42585c !important;
-  background: linear-gradient(180deg, #16262c, #101a1e) !important;
-  color: #c8d8d5 !important;
-  box-shadow: 0 3px 0 #05090b !important;
+  border-color: #4d3d61 !important;
+  background: linear-gradient(180deg, #210e34, #170a24) !important;
+  color: #cdc7d9 !important;
+  box-shadow: 0 3px 0 #08020e !important;
 }
 button:hover {
   border-color: #f6c48e !important;
-  background: linear-gradient(180deg, #1e3238, #16262c) !important;
+  background: linear-gradient(180deg, #2a1541, #210e34) !important;
   box-shadow:
     0 0 0 1px #f6c48e33,
-    0 5px 14px #03080999 !important;
+    0 5px 14px #06010b99 !important;
 }
 .hub-start,
 .title-enter,
@@ -79,33 +97,33 @@ button:hover {
 .onboarding-card button,
 .outcome-cut.win button {
   border-color: #f6c48e !important;
-  background: linear-gradient(#f0b078, #a05c32) !important;
+  background: linear-gradient(#ffd98e, #c98a3e) !important;
   color: #2a1608 !important;
   box-shadow:
     0 4px 0 #4a2a16,
     0 0 0 3px #f2b9881a !important;
 }
 .outcome-cut.fail button {
-  border-color: #7d9a97 !important;
-  background: linear-gradient(#2c4650, #20343c) !important;
+  border-color: #877c9b !important;
+  background: linear-gradient(#3d2359, #2e1745) !important;
 }
 
 .stage {
-  border-color: #42585c !important;
-  background: #0b1316 !important;
+  border-color: #4d3d61 !important;
+  background: #10061b !important;
   box-shadow:
-    0 0 0 1px #c97a4522,
-    0 18px 42px #030809bb !important;
+    0 0 0 1px #f2b35c22,
+    0 18px 42px #06010bbb !important;
 }
 .game-mode .hud-card,
 .game-mode .boss-panel,
 .game-mode .boss-banner,
 .hud-card,
 .boss-panel {
-  border-color: #3a5054 !important;
-  background: linear-gradient(145deg, #111b20f4, #0d1619f4) !important;
+  border-color: #45345a !important;
+  background: linear-gradient(145deg, #190b26f4, #13081ef4) !important;
   box-shadow:
-    0 3px 0 #04080abb,
+    0 3px 0 #07020cbb,
     0 0 20px #0009 !important;
 }
 .hud-label b,
@@ -113,8 +131,8 @@ button:hover {
   color: #ffe3c0 !important;
 }
 .meter {
-  border-color: #1e3238 !important;
-  background: #0b1215 !important;
+  border-color: #2a1541 !important;
+  background: #100719 !important;
 }
 .meter i,
 .meter.hp i {
@@ -127,16 +145,16 @@ button:hover {
 }
 .tip,
 .pinball-flipper-hint {
-  border-color: #34494d !important;
-  background: #0c1417dd !important;
-  color: #cfdad7 !important;
+  border-color: #3f2e53 !important;
+  background: #11071cdd !important;
+  color: #d2cedb !important;
 }
 .tip b {
   color: #ffd2a0 !important;
 }
 .toast {
   border-color: #ecac7c !important;
-  background: #111b20f4 !important;
+  background: #190b26f4 !important;
   color: #f0e3c5 !important;
 }
 /* A queued banner is deliberately short-lived, so it says how many are still
@@ -149,7 +167,7 @@ button:hover {
   margin-left: 7px;
   padding: 1px 5px;
   border-radius: 999px;
-  background: #f0b078;
+  background: #ffd98e;
   color: #241708;
   font:
     700 9px ui-monospace,
@@ -161,23 +179,23 @@ button:hover {
   color: #ffe3c0 !important;
   text-shadow:
     0 0 12px #dd9560,
-    0 0 26px #52707455 !important;
+    0 0 26px #604e7855 !important;
 }
 .blaze-card {
-  border-color: #42585c !important;
+  border-color: #4d3d61 !important;
   background: linear-gradient(
     135deg,
-    #16262cf5,
-    #1a2b30ee 68%,
-    #223438f0
+    #210e34f5,
+    #241238ee 68%,
+    #2b1b3ff0
   ) !important;
-  color: #b2c5c2 !important;
+  color: #b8b1c6 !important;
   box-shadow:
-    0 3px 0 #04080abb,
-    0 0 22px #0a1114bb !important;
+    0 3px 0 #07020cbb,
+    0 0 22px #0f0618bb !important;
 }
 .blaze-score-label {
-  color: #84a09d !important;
+  color: #8e83a1 !important;
 }
 .blaze-card b {
   color: #ffe9d2 !important;
@@ -186,8 +204,8 @@ button:hover {
     0 0 11px #d18a5266 !important;
 }
 .blaze-card small {
-  border-color: #42585c55 !important;
-  color: #8fa8a5 !important;
+  border-color: #4d3d6155 !important;
+  color: #988ea9 !important;
 }
 .blaze-card[data-heat="1"],
 .blaze-card[data-heat="2"],
@@ -195,9 +213,9 @@ button:hover {
   border-color: #e8a670 !important;
   background: linear-gradient(
     135deg,
-    #16262cf5,
-    #26424af0 68%,
-    #33555cec
+    #210e34f5,
+    #361c54f0 68%,
+    #452a65ec
   ) !important;
 }
 .blaze-card[data-heat="1"] b,
@@ -206,11 +224,11 @@ button:hover {
   text-shadow:
     2px 2px 0 #181624,
     0 0 15px #e89e6e,
-    0 0 31px #5f949055 !important;
+    0 0 31px #725c9755 !important;
 }
 .boss-banner.impact-heavy {
   border-color: #ffe9d2 !important;
-  background: #26424af0 !important;
+  background: #361c54f0 !important;
   box-shadow:
     0 0 0 1px #ffe9d2,
     0 0 24px #d18a5288 !important;
@@ -231,7 +249,7 @@ button:hover {
 .tutorial-scene,
 .constellation-map-scene,
 .story-intro-scene {
-  background: #0a0f12f2 !important;
+  background: #0e0616f2 !important;
 }
 .survivor-hub,
 .meta-hub,
@@ -239,43 +257,43 @@ button:hover {
 .stage-select,
 .tutorial-shell,
 .constellation-map-shell {
-  background: linear-gradient(155deg, #111b20e8, #0c1417e8) !important;
+  background: linear-gradient(155deg, #190b26e8, #11071ce8) !important;
 }
 .overlay h2 {
   color: #f3ede2 !important;
-  text-shadow: 0 2px 0 #131e23 !important;
+  text-shadow: 0 2px 0 #1b0d29 !important;
 }
 .overlay p {
-  color: #cfdad7 !important;
+  color: #d2cedb !important;
 }
 .hub-topbar {
-  border-color: #3a5054 !important;
+  border-color: #45345a !important;
 }
 .hub-avatar,
 .hub-resource,
 .hub-party-row,
 .hub-quick {
-  border-color: #2c3f43 !important;
-  background: #101a1e !important;
+  border-color: #362649 !important;
+  background: #170a24 !important;
 }
 .hub-avatar {
   border-color: #b49554 !important;
   color: #ffdcae !important;
   box-shadow:
-    0 3px 0 #05090b,
-    0 0 14px #c97a4533 !important;
+    0 3px 0 #08020e,
+    0 0 14px #f2b35c33 !important;
 }
 .hub-resource b {
   color: #ffd2a0 !important;
 }
 .hub-mission {
-  border-color: #c97a45 !important;
-  background-color: #172329 !important;
+  border-color: #f2b35c !important;
+  background-color: #201030 !important;
   background-image:
-    linear-gradient(90deg, #0a1114ec, #111b20d9 52%, #22343870),
+    linear-gradient(90deg, #0f0618ec, #190b26d9 52%, #2b1b3f70),
     var(--stage-art) !important;
   box-shadow:
-    0 9px 24px #030809bb,
+    0 9px 24px #06010bbb,
     0 0 0 1px #f2b9881a !important;
 }
 .hub-player b,
@@ -287,10 +305,10 @@ button:hover {
 .map-node,
 .stage-select-card,
 .constellation-node {
-  border-color: #42585c !important;
-  background-color: #131e23 !important;
+  border-color: #4d3d61 !important;
+  background-color: #1b0d29 !important;
   background-image:
-    linear-gradient(90deg, #0a1114ed, #111b20db 54%, #2234386b),
+    linear-gradient(90deg, #0f0618ed, #190b26db 54%, #2b1b3f6b),
     var(--stage-art) !important;
 }
 .map-node:hover,
@@ -304,8 +322,8 @@ button:hover {
     0 0 0 2px #f6c48e44 !important;
 }
 .constellation-route path {
-  stroke: #527074 !important;
-  filter: drop-shadow(0 0 5px #628c9066) !important;
+  stroke: #604e78 !important;
+  filter: drop-shadow(0 0 5px #75609266) !important;
 }
 
 .roster-shell,
@@ -314,9 +332,9 @@ button:hover {
 .draft-scene .choice-card,
 .tutorial-card,
 .help-panel {
-  border-color: #3a5054 !important;
-  background: linear-gradient(145deg, #131e23, #0d1619) !important;
-  box-shadow: 0 9px 24px #030809bb !important;
+  border-color: #45345a !important;
+  background: linear-gradient(145deg, #1b0d29, #13081e) !important;
+  box-shadow: 0 9px 24px #06010bbb !important;
 }
 .roster-unit.active {
   opacity: 1;
@@ -325,37 +343,37 @@ button:hover {
   background: linear-gradient(
     145deg,
     #2e2418 0%,
-    #16242a 52%,
-    #101a1e 100%
+    #200f31 52%,
+    #170a24 100%
   ) !important;
   box-shadow:
     0 0 0 1px #f6c48e44,
-    0 0 14px #c97a4526,
+    0 0 14px #f2b35c26,
     inset 0 0 17px #f2b9881a !important;
   color: #fff3e2 !important;
 }
 .roster-unit.active .portrait {
-  filter: saturate(0.85) drop-shadow(0 3px 0 #04080a)
+  filter: saturate(0.85) drop-shadow(0 3px 0 #07020c)
     drop-shadow(0 0 8px #f2b988) !important;
 }
 .slot-card {
   border-color: var(--unit) !important;
-  background: #101a1ede !important;
+  background: #170a24de !important;
   box-shadow:
-    0 0 0 5px #0a0f12,
+    0 0 0 5px #0e0616,
     0 0 16px color-mix(in srgb, var(--unit) 30%, transparent) !important;
 }
 .choice-card:hover,
 .draft-scene .choice-card:hover {
   border-color: #f6c48e !important;
-  background: #16242a !important;
+  background: #200f31 !important;
 }
 
 .outcome-cut {
-  border-color: #4f686c !important;
-  background-color: #101a1ef2 !important;
+  border-color: #5b4b70 !important;
+  background-color: #170a24f2 !important;
   box-shadow:
-    0 18px 44px #030809bb,
+    0 18px 44px #06010bbb,
     0 0 0 1px #e8a67022 !important;
 }
 .outcome-constellation {
@@ -367,12 +385,12 @@ button:hover {
   text-shadow: 0 0 19px #d18a5266 !important;
 }
 .result-card {
-  border-color: #465c60 !important;
-  background: linear-gradient(145deg, #16242a, #101a1e) !important;
+  border-color: #514165 !important;
+  background: linear-gradient(145deg, #200f31, #170a24) !important;
   box-shadow: inset 0 0 0 1px #ffe3c00c !important;
 }
 .result-metric {
-  color: #84a09d !important;
+  color: #8e83a1 !important;
 }
 .result-metric b {
   color: #ffd2a0 !important;
@@ -380,11 +398,11 @@ button:hover {
 .achievement-card,
 .system-panel,
 .settings-group {
-  border-color: #2c3f43 !important;
-  background: #101a1e !important;
+  border-color: #362649 !important;
+  background: #170a24 !important;
 }
 .setting-row input[type="range"] {
-  accent-color: #c97a45 !important;
+  accent-color: #f2b35c !important;
 }
 .language-choice button.active {
   border-color: #e8a874 !important;
@@ -417,11 +435,11 @@ button:hover {
 .hub-avatar img,
 .tutorial-visual img {
   filter: saturate(0.72) hue-rotate(-6deg) brightness(1.04)
-    drop-shadow(0 2px 0 #04080a) !important;
+    drop-shadow(0 2px 0 #07020c) !important;
 }
 .title-wordmark,
 .meta-brand img {
-  filter: saturate(0.8) brightness(1.06) drop-shadow(0 3px 0 #131e23) !important;
+  filter: saturate(0.8) brightness(1.06) drop-shadow(0 3px 0 #1b0d29) !important;
 }
 .achievement-card.locked img {
   filter: grayscale(0.75) brightness(0.62) !important;
@@ -430,9 +448,9 @@ button:hover {
 .title-sequence {
   background: radial-gradient(
     ellipse at 50% 31%,
-    #22343888 0%,
-    #101a1ed9 42%,
-    #0a0f12ef 88%
+    #2b1b3f88 0%,
+    #170a24d9 42%,
+    #0e0616ef 88%
   ) !important;
 }
 .title-sequence::before {
@@ -444,23 +462,23 @@ button:hover {
   box-shadow: 0 0 10px #eea56f !important;
 }
 .title-orb {
-  filter: drop-shadow(0 0 12px #ffe3b8) drop-shadow(0 0 28px #527074) !important;
+  filter: drop-shadow(0 0 12px #ffe3b8) drop-shadow(0 0 28px #604e78) !important;
 }
 .title-kicker {
-  color: #c8d8d5 !important;
-  border-color: #cfdad788 !important;
-  text-shadow: 0 0 10px #cfdad7 !important;
+  color: #cdc7d9 !important;
+  border-color: #d2cedb88 !important;
+  text-shadow: 0 0 10px #d2cedb !important;
 }
 .title-copy p {
-  color: #cfdad7 !important;
-  text-shadow: 0 2px 0 #101a1e !important;
+  color: #d2cedb !important;
+  text-shadow: 0 2px 0 #170a24 !important;
 }
 .title-copy::before {
   background: linear-gradient(
     90deg,
     transparent,
     #ffe3b8,
-    #c2d2cf,
+    #c7c1d3,
     #ffe3b8,
     transparent
   ) !important;
@@ -493,8 +511,8 @@ button:hover {
 }
 .hub-battle-tags span {
   padding: 4px 6px;
-  border: 1px solid #42585c;
-  background: #0c1417cf;
+  border: 1px solid #4d3d61;
+  background: #11071ccf;
   color: #f0bc8c;
   font:
     700 8px ui-monospace,
@@ -505,9 +523,9 @@ button:hover {
   top: 10px;
   right: 10px;
   padding: 5px 7px !important;
-  border-color: #42585c !important;
-  background: #0d1619d9 !important;
-  color: #cfdad7 !important;
+  border-color: #4d3d61 !important;
+  background: #13081ed9 !important;
+  color: #d2cedb !important;
   font-size: 8px !important;
 }
 /* The prototype bench, parked beside the play button so it reads as a second
@@ -517,9 +535,9 @@ button:hover {
   flex: 0 0 auto;
   min-width: 62px;
   padding: 7px 9px !important;
-  border-color: #42585c !important;
-  background: #0d1619d9 !important;
-  color: #cfdad7 !important;
+  border-color: #4d3d61 !important;
+  background: #13081ed9 !important;
+  color: #d2cedb !important;
   font-size: 9px !important;
   line-height: 1.35;
 }
@@ -528,7 +546,7 @@ button:hover {
   min-width: 136px;
   padding: 12px 13px !important;
   border-color: #f6c48e !important;
-  background: linear-gradient(#f0b078, #a05c32) !important;
+  background: linear-gradient(#ffd98e, #c98a3e) !important;
   color: #2a1608 !important;
   font-size: 12px !important;
   font-weight: 900 !important;
@@ -544,7 +562,7 @@ button:hover {
 }
 .hub-gold b {
   color: #ffc98e !important;
-  text-shadow: 0 0 8px #c97a4555;
+  text-shadow: 0 0 8px #f2b35c55;
 }
 .hub-gold b::before,
 .result-gold i {
@@ -572,12 +590,12 @@ button:hover {
   width: min(220px, 100%);
   margin: 12px auto 0;
   padding: 8px 10px;
-  border: 1px solid #c97a45;
-  background: #0b1316d9;
+  border: 1px solid #f2b35c;
+  background: #10061bd9;
   box-shadow:
     inset 0 0 0 1px #ffd2a018,
-    0 3px 0 #04080a;
-  color: #cfdad7;
+    0 3px 0 #07020c;
+  color: #d2cedb;
   font-size: 10px;
 }
 .result-gold i {
@@ -598,9 +616,9 @@ button:hover {
 .hub-party-slot {
   width: 42px;
   height: 42px;
-  border-color: #42585c;
-  background: #0c1417;
-  box-shadow: inset 0 0 0 3px #04080a;
+  border-color: #4d3d61;
+  background: #11071c;
+  box-shadow: inset 0 0 0 3px #07020c;
 }
 .hub-party-slot img {
   width: 36px;
@@ -610,13 +628,13 @@ button:hover {
   align-items: center !important;
   padding: 18px !important;
   background:
-    radial-gradient(circle at 50% 15%, #2f4d5438, transparent 42%), #060d0ff5 !important;
+    radial-gradient(circle at 50% 15%, #3f265d38, transparent 42%), #0a0213f5 !important;
 }
 .gacha-shell {
   width: min(540px, 100%);
   padding: 16px;
-  border: 1px solid #42585c;
-  background: linear-gradient(145deg, #131e23, #0a1114);
+  border: 1px solid #4d3d61;
+  background: linear-gradient(145deg, #1b0d29, #0f0618);
   box-shadow:
     0 14px 36px #000c,
     inset 0 0 0 1px #f2b98813;
@@ -637,7 +655,7 @@ button:hover {
 .gacha-header small,
 .gacha-copy small {
   display: block;
-  color: #8ba39f;
+  color: #938aa4;
   font:
     700 8px ui-monospace,
     monospace;
@@ -656,15 +674,15 @@ button:hover {
   margin: 14px 0 11px;
   overflow: hidden;
   place-items: center;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   background:
-    radial-gradient(circle at 50% 46%, #33555c66, transparent 24%),
+    radial-gradient(circle at 50% 46%, #452a6566, transparent 24%),
     repeating-radial-gradient(
       circle at 50% 50%,
-      #f0b0780b 0 1px,
+      #ffd98e0b 0 1px,
       transparent 2px 20px
     ),
-    #0d1619;
+    #13081e;
 }
 .gacha-ritual::before,
 .gacha-ritual::after {
@@ -675,9 +693,9 @@ button:hover {
 .gacha-ritual::before {
   width: 230px;
   height: 230px;
-  border: 1px solid #c97a4566;
+  border: 1px solid #f2b35c66;
   border-radius: 50%;
-  box-shadow: 0 0 30px #c97a4522;
+  box-shadow: 0 0 30px #f2b35c22;
 }
 .gacha-ritual::after {
   inset: 0;
@@ -734,7 +752,7 @@ button:hover {
   text-shadow: 0 0 16px #ffce9a;
 }
 .gacha-reveal small {
-  color: #cfdad7;
+  color: #d2cedb;
   font-size: 10px;
   line-height: 1.45;
 }
@@ -752,8 +770,8 @@ button:hover {
   width: 72px;
   height: 72px;
   border: 1px solid #f6c48e;
-  background-color: #0d1619;
-  box-shadow: 0 0 18px #f0b07855;
+  background-color: #13081e;
+  box-shadow: 0 0 18px #ffd98e55;
   image-rendering: pixelated;
 }
 .gacha-copy h2 {
@@ -763,19 +781,19 @@ button:hover {
 }
 .gacha-copy p {
   margin: 0;
-  color: #cfdad7;
+  color: #d2cedb;
   font-size: 10px;
   line-height: 1.5;
 }
 .gacha-pool {
   margin-top: 13px;
   padding-top: 10px;
-  border-top: 1px solid #2c3f43;
+  border-top: 1px solid #362649;
 }
 .gacha-pool-heading {
   display: flex;
   justify-content: space-between;
-  color: #8aa6a3;
+  color: #9489a7;
   font-size: 9px;
 }
 .gacha-pool-heading b {
@@ -794,9 +812,9 @@ button:hover {
   align-content: center;
   gap: 2px;
   padding: 5px;
-  border: 1px solid #34494d;
-  background: #0e181c;
-  color: #c8d8d5;
+  border: 1px solid #3f2e53;
+  background: #150822;
+  color: #cdc7d9;
   text-align: center;
 }
 .gacha-pool-unit .portrait {
@@ -810,12 +828,12 @@ button:hover {
   font-size: 9px;
 }
 .gacha-pool-unit small {
-  color: #8ba39f;
+  color: #938aa4;
   font-size: 7px;
 }
 .gacha-pool-unit.unlocked {
   border-color: #8a5f34;
-  background: #141f1e;
+  background: #171023;
 }
 .gacha-pool-unit.unlocked .portrait {
   opacity: 0.8;
@@ -829,16 +847,16 @@ button:hover {
   margin-top: 13px;
   padding: 10px !important;
   border-color: #f6c48e !important;
-  background: linear-gradient(#f0b078, #a05c32) !important;
+  background: linear-gradient(#ffd98e, #c98a3e) !important;
   color: #2a1608 !important;
   font-weight: 900 !important;
   box-shadow: 0 4px 0 #4a2a16 !important;
 }
 .gacha-draw.insufficient {
-  border-color: #42585c !important;
-  background: #1e3038 !important;
-  color: #cfdad7 !important;
-  box-shadow: 0 3px 0 #0e181c !important;
+  border-color: #4d3d61 !important;
+  background: #2b1541 !important;
+  color: #d2cedb !important;
+  box-shadow: 0 3px 0 #150822 !important;
 }
 .gacha-draw.complete {
   opacity: 0.65;
@@ -879,7 +897,7 @@ button:hover {
 /* --- summon sequence (about 10s) --------------------------------------
    Phases come from [data-phase] on .summon-stage; game-meta.js owns the
    clock. Palette is the Dawn Observatory set only: --star #ffd2a0,
-   --gold #c97a45, --moon #cfdad7, --mist #8ba39f over --night-0 #0a0f12. */
+   --gold #f2b35c, --moon #d2cedb, --mist #938aa4 over --night-0 #0e0616. */
 .gacha-ritual.summoning::after {
   animation: none;
 }
@@ -904,7 +922,7 @@ button:hover {
   position: absolute;
   content: "";
   inset: 0;
-  background: #0a0f12;
+  background: #0e0616;
   opacity: 0;
   transition: opacity 0.9s ease;
 }
@@ -919,7 +937,7 @@ button:hover {
   position: absolute;
   width: 64px;
   height: 64px;
-  border: 1px solid #c97a4588;
+  border: 1px solid #f2b35c88;
   border-radius: 50%;
   opacity: 0;
   transition:
@@ -980,7 +998,7 @@ button:hover {
   position: absolute;
   width: 6px;
   height: 6px;
-  background: #cfdad7;
+  background: #d2cedb;
   box-shadow: 0 0 16px #ffd2a0;
   opacity: 0;
 }
@@ -1038,7 +1056,7 @@ button:hover {
   position: absolute;
   top: 9px;
   right: 11px;
-  color: #8ba39f;
+  color: #938aa4;
   font:
     700 8px ui-monospace,
     monospace;
@@ -1060,7 +1078,7 @@ button:hover {
   display: block;
   max-width: 250px;
   margin: 3px auto 0;
-  color: #cfdad7;
+  color: #d2cedb;
   font:
     700 10px/1.55 ui-monospace,
     monospace;
@@ -1073,7 +1091,7 @@ button:hover {
 .summon-lore span {
   display: block;
   margin-top: 2px;
-  color: #8ba39f;
+  color: #938aa4;
   font-weight: 400;
 }
 @keyframes summonGather {
@@ -1218,9 +1236,9 @@ button:hover {
   width: 36px;
   height: 36px;
   padding: 0;
-  border: 1px solid #c97a4566;
+  border: 1px solid #f2b35c66;
   border-radius: 50%;
-  background: #0c1417d9;
+  background: #11071cd9;
   color: #f3ede2;
   font-size: 14px;
   line-height: 1;
@@ -1238,8 +1256,8 @@ body.onboarding-locked .pause-button {
   display: none;
 }
 .pause-button:hover {
-  border-color: #c97a45;
-  background: #15242af2;
+  border-color: #f2b35c;
+  background: #1f0d32f2;
   transform: translateY(-1px);
 }
 .pause-button:focus-visible {
@@ -1247,17 +1265,17 @@ body.onboarding-locked .pause-button {
   outline-offset: 2px;
 }
 .overlay.pause-scene {
-  background: #0a0f12c4 !important;
+  background: #0e0616c4 !important;
   backdrop-filter: blur(2px);
 }
 .pause-card {
   width: min(360px, 88vw);
   padding: 22px 20px 16px;
-  border: 1px solid #c97a4544;
+  border: 1px solid #f2b35c44;
   border-radius: 14px;
-  background: linear-gradient(165deg, #121c21f2, #0c1417f7);
+  background: linear-gradient(165deg, #1a0c27f2, #11071cf7);
   box-shadow:
-    0 20px 60px #03080999,
+    0 20px 60px #06010b99,
     0 0 0 1px #ffffff08 inset;
   text-align: center;
 }
@@ -1287,10 +1305,10 @@ body.onboarding-locked .pause-button {
 .pause-actions button {
   width: 100%;
   padding: 11px 12px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 10px;
-  background: #15242a;
-  color: #bdd0cd;
+  background: #1f0d32;
+  color: #c3bcd1;
   font-size: 13px;
   cursor: pointer;
   transition:
@@ -1299,8 +1317,8 @@ body.onboarding-locked .pause-button {
     color 0.16s ease;
 }
 .pause-actions button:hover {
-  border-color: #c97a45;
-  background: #1a2c32;
+  border-color: #f2b35c;
+  background: #25123a;
   color: #f3ede2;
 }
 .pause-actions button:focus-visible {
@@ -1310,19 +1328,19 @@ body.onboarding-locked .pause-button {
 /* The shared `.overlay button` brass/violet rule is heavy, so the pause
    actions restate their own palette rather than fight it on specificity. */
 .pause-actions button {
-  border: 1px solid #34494d !important;
-  background: #15242a !important;
+  border: 1px solid #3f2e53 !important;
+  background: #1f0d32 !important;
   box-shadow: none !important;
-  color: #bdd0cd !important;
+  color: #c3bcd1 !important;
 }
 .pause-actions button:hover {
-  border-color: #c97a45 !important;
-  background: #1a2c32 !important;
+  border-color: #f2b35c !important;
+  background: #25123a !important;
   color: #f3ede2 !important;
 }
 .pause-actions .pause-primary {
-  border-color: #c97a45 !important;
-  background: linear-gradient(180deg, #f0b078, #a05c32) !important;
+  border-color: #f2b35c !important;
+  background: linear-gradient(180deg, #ffd98e, #c98a3e) !important;
   color: #241708 !important;
   font-weight: 700;
 }
@@ -1331,13 +1349,13 @@ body.onboarding-locked .pause-button {
   color: #241708 !important;
 }
 .pause-actions .pause-exit {
-  border-color: #34494d77 !important;
-  color: #8ba39f !important;
+  border-color: #3f2e5377 !important;
+  color: #938aa4 !important;
 }
 .pause-hint {
   display: block;
   margin-top: 12px;
-  color: #52706e;
+  color: #5c4e74;
   font-size: 10px;
   letter-spacing: 0.04em;
 }
@@ -1382,15 +1400,15 @@ body.onboarding-locked .pause-button {
   /* Must be able to shrink below its content box on short screens. */
   flex-basis: 0;
   overflow: hidden;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 13px;
   background:
-    radial-gradient(circle at 72% 16%, #c97a4514, transparent 34%),
-    radial-gradient(circle at 22% 74%, #33827a1a, transparent 40%),
-    linear-gradient(165deg, #0f191ef2, #0a1114f5);
+    radial-gradient(circle at 72% 16%, #f2b35c14, transparent 34%),
+    radial-gradient(circle at 22% 74%, #4d288d1a, transparent 40%),
+    linear-gradient(165deg, #170924f2, #0f0618f5);
   box-shadow:
     inset 0 0 0 1px #ffffff05,
-    0 10px 26px #03080988;
+    0 10px 26px #06010b88;
 }
 .hub-map .constellation-route {
   position: absolute;
@@ -1400,12 +1418,12 @@ body.onboarding-locked .pause-button {
 }
 .hub-map .constellation-route path {
   fill: none;
-  stroke: #c97a4566;
+  stroke: #f2b35c66;
   stroke-width: 0.7;
   stroke-dasharray: 2 3;
 }
 .hub-map .constellation-route path.future {
-  stroke: #34494d88;
+  stroke: #3f2e5388;
 }
 .hub-map .constellation-node {
   width: 168px;
@@ -1427,11 +1445,11 @@ body.onboarding-locked .pause-button {
   align-items: center;
   gap: 12px;
   padding: 11px 13px;
-  border: 1px solid #c97a4588;
+  border: 1px solid #f2b35c88;
   border-radius: 12px;
-  background: linear-gradient(115deg, #121c21f2, #0c1417f6);
+  background: linear-gradient(115deg, #1a0c27f2, #11071cf6);
   box-shadow:
-    0 8px 22px #03080999,
+    0 8px 22px #06010b99,
     0 0 0 1px #f2b98814;
 }
 .hub-mission-bar .hub-mission-info {
@@ -1441,7 +1459,7 @@ body.onboarding-locked .pause-button {
   min-width: 0;
 }
 .hub-mission-bar small {
-  color: #8aa6a3;
+  color: #9489a7;
   font:
     700 8px ui-monospace,
     monospace;
@@ -1453,7 +1471,7 @@ body.onboarding-locked .pause-button {
   font-size: 17px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-shadow: 0 2px 0 #04080a;
+  text-shadow: 0 2px 0 #07020c;
 }
 .hub-mission-bar .hub-party-slots {
   display: flex;
@@ -1480,23 +1498,23 @@ body.onboarding-locked .pause-button {
   gap: 7px;
   align-items: end;
   padding: 8px 8px 7px;
-  border: 1px solid #3a5054;
+  border: 1px solid #45345a;
   border-radius: 13px;
-  background: linear-gradient(180deg, #101a1ef4, #0a1215f8);
+  background: linear-gradient(180deg, #170a24f4, #0f051af8);
   box-shadow:
-    0 -6px 18px #03080966,
-    0 8px 22px #03080999;
+    0 -6px 18px #06010b66,
+    0 8px 22px #06010b99;
 }
 .hub-tab {
   display: grid;
   gap: 3px;
   justify-items: center;
   padding: 8px 4px 7px;
-  border: 1px solid #34494daa !important;
+  border: 1px solid #3f2e53aa !important;
   border-radius: 10px !important;
-  background: #131e23 !important;
+  background: #1b0d29 !important;
   box-shadow: none !important;
-  color: #cfdad7 !important;
+  color: #d2cedb !important;
   cursor: pointer;
   transition:
     border-color 0.16s ease,
@@ -1504,7 +1522,7 @@ body.onboarding-locked .pause-button {
     transform 0.16s ease;
 }
 .hub-tab span {
-  color: #7d9a97;
+  color: #877c9b;
   font-size: 15px;
   line-height: 1;
 }
@@ -1513,8 +1531,8 @@ body.onboarding-locked .pause-button {
   letter-spacing: 0.06em;
 }
 .hub-tab:hover {
-  border-color: #c97a45 !important;
-  background: #16242a !important;
+  border-color: #f2b35c !important;
+  background: #200f31 !important;
   color: #f3ede2 !important;
   transform: translateY(-2px);
 }
@@ -1527,11 +1545,11 @@ body.onboarding-locked .pause-button {
 }
 .hub-tab.center {
   padding: 12px 4px 10px;
-  border-color: #c97a45 !important;
-  background: linear-gradient(180deg, #f0b078, #a05c32) !important;
+  border-color: #f2b35c !important;
+  background: linear-gradient(180deg, #ffd98e, #c98a3e) !important;
   color: #241708 !important;
   box-shadow:
-    0 6px 16px #c97a4533,
+    0 6px 16px #f2b35c33,
     0 0 0 1px #f3ede233 inset !important;
   transform: translateY(-6px);
 }
@@ -1644,9 +1662,9 @@ body.onboarding-locked .pause-button {
   display: block !important;
   width: 26px;
   height: 26px;
-  border: 1px solid #c97a4566;
+  border: 1px solid #f2b35c66;
   border-radius: 50%;
-  background: #0a1114;
+  background: #0f0618;
   object-fit: cover;
   image-rendering: pixelated;
 }
@@ -1702,11 +1720,11 @@ body.onboarding-locked .pause-button {
   justify-items: center;
   min-width: 190px;
   padding: 11px 18px;
-  border: 1px solid #c97a45;
+  border: 1px solid #f2b35c;
   border-radius: 12px;
-  background: linear-gradient(160deg, #17262bf7, #0c1417fa);
+  background: linear-gradient(160deg, #201032f7, #11071cfa);
   box-shadow:
-    0 12px 30px #030809aa,
+    0 12px 30px #06010baa,
     0 0 0 1px #f3ede226 inset;
   opacity: 0;
   pointer-events: none;
@@ -1743,7 +1761,7 @@ body.onboarding-locked .pause-button {
 .reward-toast b {
   color: #f3ede2;
   font-size: 19px;
-  text-shadow: 0 2px 0 #04080a;
+  text-shadow: 0 2px 0 #07020c;
 }
 .reward-toast span {
   color: var(--mist);
@@ -1821,16 +1839,16 @@ body.onboarding-locked .pause-button {
   gap: 9px;
   justify-items: center;
   padding: 14px 12px 12px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 12px;
-  background: linear-gradient(165deg, #141f24f2, #0b1316f7);
+  background: linear-gradient(165deg, #1c0e2af2, #10061bf7);
   text-align: center;
 }
 .shop-card.active {
-  border-color: #c97a45;
+  border-color: #f2b35c;
   box-shadow:
-    0 0 0 1px #c97a4544,
-    0 8px 20px #03080999;
+    0 0 0 1px #f2b35c44,
+    0 8px 20px #06010b99;
 }
 .shop-orb {
   display: grid;
@@ -1894,7 +1912,7 @@ body.onboarding-locked .pause-button {
     color 0.16s ease;
 }
 .hub-record-chip:hover {
-  border-color: #c97a45 !important;
+  border-color: #f2b35c !important;
   color: #f3ede2 !important;
 }
 .hub-mission-hint {
@@ -1999,16 +2017,16 @@ body.onboarding-locked .pause-button {
   height: 100% !important;
   max-width: 100%;
   aspect-ratio: 720 / 900;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 11px;
-  background: linear-gradient(180deg, #1a1626 0%, #0f191d 62%, #0b1316 100%);
+  background: linear-gradient(180deg, #1a1626 0%, #160923 62%, #10061b 100%);
   box-shadow: inset 0 0 0 1px #ffffff06;
 }
 .deployment-map .map-launch {
   position: absolute;
   bottom: 5px;
   left: 50%;
-  color: #52706e;
+  color: #5c4e74;
   font:
     700 11px ui-monospace,
     monospace;
@@ -2053,7 +2071,7 @@ body.onboarding-locked .pause-button {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #f0b078, #a05c32);
+  background: linear-gradient(180deg, #ffd98e, #c98a3e);
   color: #241708;
   font:
     700 10px ui-monospace,
@@ -2066,7 +2084,7 @@ body.onboarding-locked .pause-button {
   color: #f3ede2;
   font-size: 11px;
   white-space: nowrap;
-  text-shadow: 0 2px 0 #04080a;
+  text-shadow: 0 2px 0 #07020c;
   transform: translateX(-50%);
 }
 .deployment-map .slot-card .slot-zone {
@@ -2083,12 +2101,12 @@ body.onboarding-locked .pause-button {
   transform: translateX(-50%);
 }
 .deployment-map .slot-card.empty {
-  border-color: #3d5459 !important;
-  background: #0f191db8 !important;
-  box-shadow: 0 0 0 5px #07151b !important;
+  border-color: #49375f !important;
+  background: #160923b8 !important;
+  box-shadow: 0 0 0 5px #11041e !important;
 }
 .deployment-map .slot-card.empty .slot-name {
-  color: #52706e;
+  color: #5c4e74;
 }
 .deployment-map .slot-card.dragging {
   opacity: 0.4;
@@ -2096,7 +2114,7 @@ body.onboarding-locked .pause-button {
 .deployment-map .slot-card.drop-ready {
   border-color: #f6c48e !important;
   box-shadow:
-    0 0 0 5px #07151b,
+    0 0 0 5px #11041e,
     0 0 0 7px #f6c48e66 !important;
 }
 
@@ -2108,9 +2126,9 @@ body.onboarding-locked .pause-button {
   align-self: center;
   max-width: 262px;
   padding: 13px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 12px;
-  background: #0f191dd9;
+  background: #160923d9;
 }
 .squad-detail-portrait {
   flex: 0 0 auto;
@@ -2120,7 +2138,7 @@ body.onboarding-locked .pause-button {
   background-position: center;
   background-size: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 2px 0 #04080a);
+  filter: drop-shadow(0 2px 0 #07020c);
 }
 .squad-detail-copy {
   min-width: 0;
@@ -2138,14 +2156,14 @@ body.onboarding-locked .pause-button {
 .squad-detail-copy p {
   margin: 7px 0 0 !important;
   max-width: none !important;
-  color: #a3bab6;
+  color: #aaa2bb;
   font-size: 10px;
   line-height: 1.6;
 }
 .squad-detail-zone {
   margin-top: auto;
   padding-top: 9px;
-  border-top: 1px solid #24363a;
+  border-top: 1px solid #2d1d41;
   color: var(--star);
   font:
     700 10px ui-monospace,
@@ -2168,9 +2186,9 @@ body.onboarding-locked .pause-button {
      그래서 안쪽 트레이의 가로 스크롤이 켜지지 않고 상자가 대신 늘어났다. */
   min-width: 0;
   padding: 9px 12px 10px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 13px;
-  background: #0f191dd9;
+  background: #160923d9;
 }
 .squad-tray-head {
   display: flex;
@@ -2207,10 +2225,10 @@ body.onboarding-locked .pause-button {
   /* 칸 폭은 초상화에서 따라 나온다 — 좌우 여백 4px씩과 테두리 1px씩. */
   width: calc(var(--tray-portrait, 48px) + 10px);
   padding: 7px 4px 6px !important;
-  border: 1px solid #3a5157 !important;
+  border: 1px solid #47345d !important;
   border-radius: 12px !important;
-  background: #16242a !important;
-  box-shadow: 0 3px 0 #05090b !important;
+  background: #200f31 !important;
+  box-shadow: 0 3px 0 #08020e !important;
   cursor: grab;
 }
 .squad-unit .portrait {
@@ -2220,21 +2238,21 @@ body.onboarding-locked .pause-button {
   background-position: center;
   background-size: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 2px 0 #04080a);
+  filter: drop-shadow(0 2px 0 #07020c);
 }
 .squad-unit b {
-  color: #b9cdc9;
+  color: #bfb8ce;
   font-size: 10px;
 }
 .squad-unit:hover {
   border-color: #f6c48e !important;
-  background: #1e3238 !important;
+  background: #2a1541 !important;
 }
 .squad-unit.on {
   border-color: var(--unit) !important;
-  background: #1a2c33 !important;
+  background: #26113c !important;
   box-shadow:
-    0 3px 0 #05090b,
+    0 3px 0 #08020e,
     0 0 0 1px color-mix(in srgb, var(--unit) 42%, transparent) !important;
 }
 .squad-unit.on b {
@@ -2243,7 +2261,7 @@ body.onboarding-locked .pause-button {
 .squad-unit.picked {
   border-color: #f6c48e !important;
   box-shadow:
-    0 3px 0 #05090b,
+    0 3px 0 #08020e,
     0 0 0 2px #f6c48e66 !important;
 }
 .squad-unit.dragging {
@@ -2258,7 +2276,7 @@ body.onboarding-locked .pause-button {
   width: 21px;
   height: 21px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #f0b078, #a05c32);
+  background: linear-gradient(180deg, #ffd98e, #c98a3e);
   color: #241708;
   font:
     700 10px ui-monospace,
@@ -2370,7 +2388,7 @@ body.onboarding-locked .pause-button {
 .achievement-card small {
   display: block;
   margin-top: 4px;
-  color: #a3bab6;
+  color: #aaa2bb;
   font-size: 11px;
   line-height: 1.55;
 }
@@ -2403,16 +2421,16 @@ body.onboarding-locked .pause-button {
   gap: 12px;
   margin: 10px 0;
   padding: 12px 14px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 12px;
-  background: linear-gradient(115deg, #121c21f2, #0c1417f7);
+  background: linear-gradient(115deg, #1a0c27f2, #11071cf7);
   text-align: left;
 }
 .claim-banner.ready {
-  border-color: #c97a45;
+  border-color: #f2b35c;
   box-shadow:
-    0 0 0 1px #c97a4533,
-    0 8px 20px #03080988;
+    0 0 0 1px #f2b35c33,
+    0 8px 20px #06010b88;
 }
 .claim-banner small {
   display: block;
@@ -2430,7 +2448,7 @@ body.onboarding-locked .pause-button {
   color: #f3ede2;
   font-size: 22px;
   line-height: 1.35;
-  text-shadow: 0 2px 0 #04080a;
+  text-shadow: 0 2px 0 #07020c;
 }
 .claim-banner span {
   display: block;
@@ -2447,10 +2465,10 @@ body.onboarding-locked .pause-button {
   cursor: not-allowed;
 }
 .achievement-card.claimable {
-  border-color: #c97a45 !important;
+  border-color: #f2b35c !important;
   box-shadow:
-    0 0 0 1px #c97a4533,
-    0 8px 18px #03080988 !important;
+    0 0 0 1px #f2b35c33,
+    0 8px 18px #06010b88 !important;
 }
 .achievement-reward {
   display: block;
@@ -2469,7 +2487,7 @@ body.onboarding-locked .pause-button {
 .achievement-claim-state {
   display: block;
   margin-top: 7px;
-  color: #52706e;
+  color: #5c4e74;
   font:
     700 9px ui-monospace,
     monospace;
@@ -2519,7 +2537,7 @@ body.onboarding-locked .pause-button {
    map at a glance instead of only in a counter.
    --------------------------------------------------------------------- */
 .constellation-node.cleared {
-  border-color: #c97a45 !important;
+  border-color: #f2b35c !important;
 }
 .constellation-node.cleared .stage-star {
   border-color: #ffd9a8;
@@ -2527,7 +2545,7 @@ body.onboarding-locked .pause-button {
   box-shadow:
     0 0 0 4px #f6b57c22,
     0 0 26px #ffb987aa,
-    0 0 46px #c97a4566;
+    0 0 46px #f2b35c66;
 }
 /* box-shadow의 blur 반경을 애니메이션하면 매 프레임 큰 흐림 영역을 다시
    칠한다. 게다가 클리어한 별 전부에 걸리므로 진행도가 쌓일수록 비싸지고,
@@ -2543,7 +2561,7 @@ body.onboarding-locked .pause-button {
   box-shadow:
     0 0 0 5px #f6b57c33,
     0 0 34px #ffb987ee,
-    0 0 62px #c97a4588;
+    0 0 62px #f2b35c88;
   opacity: 0;
   animation: clearedStarPulse 3.4s ease-in-out infinite;
 }
@@ -2557,7 +2575,7 @@ body.onboarding-locked .pause-button {
   right: -7px;
   padding: 2px 6px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #f0b078, #a05c32);
+  background: linear-gradient(180deg, #ffd98e, #c98a3e);
   color: #241708;
   font:
     700 8px ui-monospace,
@@ -2587,17 +2605,17 @@ body.onboarding-locked .pause-button {
    pause card's language so the two reads the same.
    --------------------------------------------------------------------- */
 .overlay.confirm-scene {
-  background: #0a0f12cc !important;
+  background: #0e0616cc !important;
   backdrop-filter: blur(2px);
 }
 .confirm-card {
   width: min(340px, 88vw);
   padding: 20px 18px 15px;
-  border: 1px solid #c97a4544;
+  border: 1px solid #f2b35c44;
   border-radius: 14px;
-  background: linear-gradient(165deg, #121c21f2, #0c1417f7);
+  background: linear-gradient(165deg, #1a0c27f2, #11071cf7);
   box-shadow:
-    0 20px 60px #03080999,
+    0 20px 60px #06010b99,
     0 0 0 1px #ffffff08 inset;
   text-align: center;
 }
@@ -2628,21 +2646,21 @@ body.onboarding-locked .pause-button {
 .confirm-actions button {
   width: 100%;
   padding: 11px 12px !important;
-  border: 1px solid #34494d !important;
+  border: 1px solid #3f2e53 !important;
   border-radius: 10px !important;
-  background: #15242a !important;
+  background: #1f0d32 !important;
   box-shadow: none !important;
-  color: #bdd0cd !important;
+  color: #c3bcd1 !important;
   font-size: 12px !important;
 }
 .confirm-actions button:hover {
-  border-color: #c97a45 !important;
-  background: #1a2c32 !important;
+  border-color: #f2b35c !important;
+  background: #25123a !important;
   color: #f3ede2 !important;
 }
 .confirm-actions .confirm-yes {
-  border-color: #c97a45 !important;
-  background: linear-gradient(180deg, #f0b078, #a05c32) !important;
+  border-color: #f2b35c !important;
+  background: linear-gradient(180deg, #ffd98e, #c98a3e) !important;
   color: #241708 !important;
   font-weight: 700;
 }
@@ -2698,10 +2716,10 @@ body.onboarding-locked .pause-button {
   align-items: center;
   gap: 12px;
   padding: 11px 13px;
-  border: 1px solid #34494d;
-  border-left: 3px solid #c97a45;
+  border: 1px solid #3f2e53;
+  border-left: 3px solid #f2b35c;
   border-radius: 11px;
-  background: linear-gradient(115deg, #141f24f2, #0c1417f7);
+  background: linear-gradient(115deg, #1c0e2af2, #11071cf7);
 }
 .shop-keeper-art {
   display: grid;
@@ -2710,9 +2728,9 @@ body.onboarding-locked .pause-button {
   height: 58px;
   place-items: center;
   overflow: hidden;
-  border: 1px solid #c97a4566;
+  border: 1px solid #f2b35c66;
   border-radius: 50%;
-  background: radial-gradient(circle, #223438 0%, #0a1114 72%);
+  background: radial-gradient(circle, #2b1b3f 0%, #0f0618 72%);
   color: var(--star);
   font-size: 20px;
 }
@@ -2720,7 +2738,7 @@ body.onboarding-locked .pause-button {
   width: 46px;
   height: auto;
   image-rendering: pixelated;
-  filter: drop-shadow(0 2px 0 #04080a);
+  filter: drop-shadow(0 2px 0 #07020c);
 }
 .shop-keeper small {
   display: block;
@@ -2733,7 +2751,7 @@ body.onboarding-locked .pause-button {
 .shop-keeper p {
   margin: 4px 0 0 !important;
   max-width: none !important;
-  color: #cfdad7;
+  color: #d2cedb;
   font-size: 12px;
   line-height: 1.55;
 }
@@ -2778,9 +2796,9 @@ body.onboarding-locked .pause-button {
   width: 56px;
   height: 56px;
   padding: 0 !important;
-  border: 1px solid #c97a4566 !important;
+  border: 1px solid #f2b35c66 !important;
   border-radius: 50% !important;
-  background: radial-gradient(circle, #223438 0%, #0a1114 72%) !important;
+  background: radial-gradient(circle, #2b1b3f 0%, #0f0618 72%) !important;
   box-shadow: none !important;
   cursor: pointer;
 }
@@ -2792,7 +2810,7 @@ body.onboarding-locked .pause-button {
   max-height: 44px;
   object-fit: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 2px 0 #04080a);
+  filter: drop-shadow(0 2px 0 #07020c);
 }
 .profile-avatar-edit {
   position: absolute;
@@ -2803,7 +2821,7 @@ body.onboarding-locked .pause-button {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #f0b078, #a05c32);
+  background: linear-gradient(180deg, #ffd98e, #c98a3e);
   color: #241708;
   font:
     700 10px ui-monospace,
@@ -2817,7 +2835,7 @@ body.onboarding-locked .pause-button {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: #05090bcc;
+  background: #08020ecc;
   backdrop-filter: blur(2px);
 }
 .icon-picker-card {
@@ -2827,10 +2845,10 @@ body.onboarding-locked .pause-button {
   width: min(560px, 100%);
   max-height: min(78vh, 620px);
   padding: 16px 18px 18px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 14px;
-  background: linear-gradient(150deg, #16242a, #0c1417);
-  box-shadow: 0 22px 50px #03080999;
+  background: linear-gradient(150deg, #200f31, #11071c);
+  box-shadow: 0 22px 50px #06010b99;
   text-align: left;
 }
 .icon-picker-head {
@@ -2864,10 +2882,10 @@ body.onboarding-locked .pause-button {
   justify-items: center;
   gap: 6px;
   padding: 11px 6px 9px !important;
-  border: 1px solid #3a5157 !important;
+  border: 1px solid #47345d !important;
   border-radius: 12px !important;
-  background: #101a1e !important;
-  color: #b9cdc9 !important;
+  background: #170a24 !important;
+  color: #bfb8ce !important;
   font-size: 10px !important;
   cursor: pointer;
 }
@@ -2876,15 +2894,15 @@ body.onboarding-locked .pause-button {
   height: 44px;
   object-fit: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 2px 0 #04080a);
+  filter: drop-shadow(0 2px 0 #07020c);
 }
 .profile-icon-option:hover {
   border-color: #f6c48e !important;
-  background: #1a2c33 !important;
+  background: #26113c !important;
 }
 .profile-icon-option.on {
   border-color: #f6c48e !important;
-  background: #1e3238 !important;
+  background: #2a1541 !important;
   color: #f3ede2 !important;
   box-shadow: 0 0 0 1px #f6c48e55 !important;
 }
@@ -2905,9 +2923,9 @@ body.onboarding-locked .pause-button {
   flex-direction: column;
   gap: 10px;
   padding: 15px 15px 13px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 12px;
-  background: linear-gradient(165deg, #121c21f0, #0b1316f7);
+  background: linear-gradient(165deg, #1a0c27f0, #10061bf7);
 }
 .panel-title small {
   display: block;
@@ -2929,9 +2947,9 @@ body.onboarding-locked .pause-button {
 }
 .profile-panel .profile-stat {
   padding: 9px 10px;
-  border: 1px solid #2b3d41;
+  border: 1px solid #352547;
   border-radius: 9px;
-  background: #0f191d;
+  background: #160923;
 }
 .profile-panel .profile-stat small {
   display: block;
@@ -2957,7 +2975,7 @@ body.onboarding-locked .pause-button {
 }
 .rank-table th {
   padding: 6px 5px;
-  border-bottom: 1px solid #2b3d41;
+  border-bottom: 1px solid #352547;
   color: var(--mist);
   font:
     700 8px ui-monospace,
@@ -2967,8 +2985,8 @@ body.onboarding-locked .pause-button {
 }
 .rank-table td {
   padding: 8px 5px;
-  border-bottom: 1px solid #1c2e3200;
-  color: #cfdad7;
+  border-bottom: 1px solid #25143a00;
+  color: #d2cedb;
 }
 .rank-table tr.you td {
   color: #f3ede2;
@@ -2980,7 +2998,7 @@ body.onboarding-locked .pause-button {
 .rank-note {
   margin: auto 0 0 !important;
   max-width: none !important;
-  color: #52706e;
+  color: #5c4e74;
   font-size: 10px;
   line-height: 1.6;
 }
@@ -2998,9 +3016,9 @@ body.onboarding-locked .pause-button {
   justify-content: space-between;
   gap: 10px;
   padding: 10px 11px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 10px;
-  background: #101a1e;
+  background: #170a24;
 }
 .mail-item.read {
   opacity: 0.55;
@@ -3023,7 +3041,7 @@ body.onboarding-locked .pause-button {
 }
 .mail-state {
   flex: 0 0 auto;
-  color: #52706e;
+  color: #5c4e74;
   font:
     700 9px ui-monospace,
     monospace;
@@ -3031,7 +3049,7 @@ body.onboarding-locked .pause-button {
 .mail-empty {
   margin: 0 !important;
   max-width: none !important;
-  color: #52706e;
+  color: #5c4e74;
   font-size: 11px;
 }
 @media (max-width: 760px) {
@@ -3050,12 +3068,12 @@ body.onboarding-locked .pause-button {
    observatory gradient it was sitting under. */
 .title-sequence:before {
   background:
-    linear-gradient(180deg, #0a1114a8 0%, transparent 34%, #0a0f12f2 92%),
+    linear-gradient(180deg, #0f0618a8 0%, transparent 34%, #0e0616f2 92%),
     radial-gradient(
       ellipse at 50% 26%,
-      #22343866 0%,
-      #101a1ee6 46%,
-      #0a0f12 88%
+      #2b1b3f66 0%,
+      #170a24e6 46%,
+      #0e0616 88%
     ) !important;
   opacity: 1 !important;
 }
@@ -3163,7 +3181,7 @@ body.onboarding-locked .pause-button {
   font:
     700 15px ui-monospace,
     monospace;
-  text-shadow: 0 2px 0 #04080a;
+  text-shadow: 0 2px 0 #07020c;
   pointer-events: none;
   animation: claimFloat 0.95s cubic-bezier(0.15, 0.8, 0.3, 1) forwards;
 }
@@ -3234,11 +3252,11 @@ body.onboarding-locked .pause-button {
   width: min(444px, calc(100% - 34px)) !important;
   max-height: none !important;
   padding: 17px 19px 15px !important;
-  border: 1px solid #4f686c !important;
+  border: 1px solid #5b4b70 !important;
   border-radius: 15px !important;
-  background: linear-gradient(150deg, #17262cf7, #0c1417f7) !important;
+  background: linear-gradient(150deg, #210f34f7, #11071cf7) !important;
   box-shadow:
-    0 22px 52px #030809cc,
+    0 22px 52px #06010bcc,
     0 0 0 1px #f6c48e2e !important;
   overflow: visible !important;
 }
@@ -3254,11 +3272,11 @@ body.onboarding-locked .pause-button {
   color: #f3ede2 !important;
   font-size: 17px !important;
   line-height: 1.45 !important;
-  text-shadow: 0 2px 0 #04080a !important;
+  text-shadow: 0 2px 0 #07020c !important;
 }
 .onboarding-dock .onboarding-card p,
 .onboarding-dock .onboarding-card .onboarding-copy {
-  color: #bdd0cc !important;
+  color: #c3bcd1 !important;
   font-size: 13px !important;
   line-height: 1.7 !important;
 }
@@ -3324,9 +3342,9 @@ body.onboarding-locked .pause-button {
   gap: 12px;
   margin: 0 0 6px;
   padding: 8px 12px;
-  border: 1px solid #34494d;
+  border: 1px solid #3f2e53;
   border-radius: 12px;
-  background: #0f191dd9;
+  background: #160923d9;
   text-align: left;
 }
 .world-name {
@@ -3386,25 +3404,25 @@ body.onboarding-locked .pause-button {
   place-items: center;
   width: 40px;
   height: 40px;
-  border: 2px solid #4f686c;
+  border: 2px solid #5b4b70;
   border-radius: 50%;
-  background: radial-gradient(circle, #1d2e34 0%, #0b1316 74%);
-  color: #7d9a97;
+  background: radial-gradient(circle, #28153c 0%, #10061b 74%);
+  color: #877c9b;
   font-size: 15px;
 }
 .hub-map .constellation-node.cleared .stage-star {
   border-color: #f6c48e;
   color: #ffd2a0;
   box-shadow:
-    0 0 0 3px #0a0f12,
+    0 0 0 3px #0e0616,
     0 0 16px #f6c48e66;
 }
 .hub-map .constellation-node.active .stage-star {
-  border-color: #9adfc9;
-  color: #cfe8e0;
+  border-color: #ad97e2;
+  color: #d6cee9;
   box-shadow:
-    0 0 0 3px #0a0f12,
-    0 0 18px #7cc6bb88;
+    0 0 0 3px #0e0616,
+    0 0 18px #9578ca88;
 }
 .hub-map .constellation-node.locked {
   opacity: 0.42;
@@ -3426,7 +3444,7 @@ body.onboarding-locked .pause-button {
   margin-top: 1px;
   color: #f3ede2;
   font-size: 10px;
-  text-shadow: 0 2px 0 #04080a;
+  text-shadow: 0 2px 0 #07020c;
 }
 /* The rule text and the status word belong to the mission bar, not to a node
    that has to sit inside a constellation. */
@@ -3446,15 +3464,15 @@ body.onboarding-locked .pause-button {
 }
 .archive-tab {
   padding: 9px 18px !important;
-  border: 1px solid #3a5157 !important;
+  border: 1px solid #47345d !important;
   border-radius: 999px !important;
-  background: #101a1e !important;
-  color: #8ba39f !important;
+  background: #170a24 !important;
+  color: #938aa4 !important;
   font-size: 11px !important;
 }
 .archive-tab.on {
   border-color: #f6c48e !important;
-  background: linear-gradient(#f0b078, #a05c32) !important;
+  background: linear-gradient(#ffd98e, #c98a3e) !important;
   color: #2a1608 !important;
 }
 .codex-split {
@@ -3482,10 +3500,10 @@ body.onboarding-locked .pause-button {
   display: flex;
   gap: 11px;
   padding: 11px 12px;
-  border: 1px solid #2c3f43;
+  border: 1px solid #362649;
   border-left: 3px solid var(--unit);
   border-radius: 12px;
-  background: #101a1e;
+  background: #170a24;
   text-align: left;
 }
 .codex-card.locked {
@@ -3522,7 +3540,7 @@ body.onboarding-locked .pause-button {
 .codex-copy p {
   margin: 5px 0 0 !important;
   max-width: none !important;
-  color: #a3bab6;
+  color: #aaa2bb;
   font-size: 10px;
   line-height: 1.55;
 }
@@ -3546,9 +3564,9 @@ body.onboarding-locked .pause-button {
   flex-direction: column;
   gap: 9px;
   padding: 13px;
-  border: 1px solid #2c3f43;
+  border: 1px solid #362649;
   border-radius: 12px;
-  background: #101a1e;
+  background: #170a24;
   text-align: left;
 }
 .codex-table {
@@ -3558,7 +3576,7 @@ body.onboarding-locked .pause-button {
 }
 .codex-table th {
   padding: 5px 4px;
-  border-bottom: 1px solid #24363a;
+  border-bottom: 1px solid #2d1d41;
   color: var(--gold);
   font:
     700 8px ui-monospace,
@@ -3568,8 +3586,8 @@ body.onboarding-locked .pause-button {
 }
 .codex-table td {
   padding: 6px 4px;
-  border-bottom: 1px solid #1a2a2e;
-  color: #cfdad7;
+  border-bottom: 1px solid #231335;
+  color: #d2cedb;
 }
 .codex-table td:last-child {
   color: var(--star);
@@ -3577,7 +3595,7 @@ body.onboarding-locked .pause-button {
   text-align: right;
 }
 .codex-table tr.down td:last-child {
-  color: #8ba39f;
+  color: #938aa4;
 }
 .codex-note {
   margin: 4px 0 0 !important;
@@ -3603,7 +3621,7 @@ body.onboarding-locked .pause-button {
 }
 
 .claim-banner.attendance {
-  border-left: 3px solid #c97a45;
+  border-left: 3px solid #f2b35c;
 }
 .hero-skin-list {
   display: grid;
@@ -3615,10 +3633,10 @@ body.onboarding-locked .pause-button {
   gap: 12px;
   align-items: center;
   padding: 10px 12px;
-  border: 1px solid #2c3f43;
+  border: 1px solid #362649;
   border-left: 3px solid var(--unit);
   border-radius: 12px;
-  background: #101a1e;
+  background: #170a24;
   text-align: left;
 }
 .hero-skin-name b {
@@ -3645,26 +3663,26 @@ body.onboarding-locked .pause-button {
   gap: 3px;
   width: 86px;
   padding: 7px 4px 6px !important;
-  border: 1px solid #3a5157 !important;
+  border: 1px solid #47345d !important;
   border-radius: 11px !important;
-  background: #16242a !important;
-  color: #b9cdc9 !important;
+  background: #200f31 !important;
+  color: #bfb8ce !important;
   font-size: 9px !important;
 }
 .hero-skin-chip:hover {
   border-color: #f6c48e !important;
-  background: #1e3238 !important;
+  background: #2a1541 !important;
 }
 .hero-skin-chip.on {
   border-color: #f6c48e !important;
-  background: #1e3238 !important;
+  background: #2a1541 !important;
   box-shadow: 0 0 0 1px #f6c48e55 !important;
 }
 .hero-skin-chip.buy small {
   color: var(--star);
 }
 .hero-skin-chip b {
-  color: #cfdad7;
+  color: #d2cedb;
   font-size: 10px;
 }
 .hero-skin-swatch {
@@ -3701,7 +3719,7 @@ body.onboarding-locked .pause-button {
   flex: 1;
   height: 4px;
   border-radius: 2px;
-  background: #2b3a3e;
+  background: #342544;
 }
 .world-band i.open {
   background: oklch(0.5 0.06 var(--wh));
@@ -3730,16 +3748,16 @@ body.onboarding-locked .pause-button {
   padding: 0 !important;
   gap: 3px !important;
   flex-direction: column !important;
-  border-color: color-mix(in oklab, var(--w-node) 55%, #0a0f12) !important;
-  background: #0c1418e8 !important;
+  border-color: color-mix(in oklab, var(--w-node) 55%, #0e0616) !important;
+  background: #12071de8 !important;
 }
 .constellation-map-scene .constellation-node .stage-star {
   width: 38px !important;
   height: 38px !important;
   overflow: hidden;
   border-radius: 50%;
-  border: 1px solid color-mix(in oklab, var(--w-node) 45%, #0a0f12);
-  background: #0a0f12;
+  border: 1px solid color-mix(in oklab, var(--w-node) 45%, #0e0616);
+  background: #0e0616;
   display: grid;
   place-items: center;
 }
@@ -3751,7 +3769,7 @@ body.onboarding-locked .pause-button {
 }
 .constellation-map-scene .constellation-node .stage-id {
   font-size: 11px !important;
-  color: #cfdad7 !important;
+  color: #d2cedb !important;
 }
 .constellation-map-scene .constellation-node.picked {
   border-color: var(--w-glow) !important;
@@ -3782,15 +3800,15 @@ body.onboarding-locked .pause-button {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #0a0f12;
+  background: #0e0616;
   /* 요구서가 9px 설명문을 문제로 짚었으므로 새로 넣는 글자도 그 아래로
      내려가지 않게 한다. 이건 문장이 아니라 상태 글리프 하나다. */
   font-size: 10px;
   line-height: 1;
 }
 .constellation-map-scene .constellation-node .stage-mark.locked {
-  color: #7d8b8e;
-  border: 1px solid #3a4b4f;
+  color: #857c8f;
+  border: 1px solid #433554;
 }
 .constellation-map-scene .constellation-node .stage-mark.cleared {
   color: #ffd2a0;
@@ -3804,9 +3822,9 @@ body.onboarding-locked .pause-button {
   gap: 11px;
   margin: 10px 0 0;
   padding: 9px 11px;
-  border: 1px solid color-mix(in oklab, var(--w-node) 40%, #0a0f12);
+  border: 1px solid color-mix(in oklab, var(--w-node) 40%, #0e0616);
   border-radius: 10px;
-  background: linear-gradient(100deg, #0b131699, #0e181cdd);
+  background: linear-gradient(100deg, #10061b99, #150822dd);
 }
 .stage-drawer-face {
   flex: none;
@@ -3815,8 +3833,8 @@ body.onboarding-locked .pause-button {
   display: grid;
   place-items: center;
   border-radius: 8px;
-  border: 1px solid color-mix(in oklab, var(--w-node) 35%, #0a0f12);
-  background: #080d10;
+  border: 1px solid color-mix(in oklab, var(--w-node) 35%, #0e0616);
+  background: #0c0414;
   overflow: hidden;
 }
 .stage-drawer-face img {
@@ -3839,7 +3857,7 @@ body.onboarding-locked .pause-button {
   font-size: 13px;
 }
 .stage-drawer-head small {
-  color: #8ba39f;
+  color: #938aa4;
   font-size: 10px;
   letter-spacing: 0.1em;
 }
@@ -3851,7 +3869,7 @@ body.onboarding-locked .pause-button {
 }
 .stage-drawer-copy p {
   margin: 0;
-  color: #c3cfd2;
+  color: #cac2d3;
   font-size: 10px;
   line-height: 1.5;
 }
@@ -3863,8 +3881,8 @@ body.onboarding-locked .pause-button {
 .stage-drawer-meta span {
   padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid #34494d;
-  color: #a9bcbe;
+  border: 1px solid #3f2e53;
+  color: #b2a8bf;
   /* 이 화면에서 9px 아래로 내려가는 글자를 두지 않는다. */
   font-size: 10px;
 }
@@ -3874,14 +3892,14 @@ body.onboarding-locked .pause-button {
   padding: 0 13px;
   border: 1px solid var(--w-glow);
   border-radius: 8px;
-  background: color-mix(in oklab, var(--w-deep) 70%, #0a0f12);
+  background: color-mix(in oklab, var(--w-deep) 70%, #0e0616);
   color: var(--w-text);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
 }
 .stage-drawer-go:hover {
-  background: color-mix(in oklab, var(--w-line) 30%, #0a0f12);
+  background: color-mix(in oklab, var(--w-line) 30%, #0e0616);
 }
 
 /* 월드 별자리 형상. 항로선과 노드 뒤에 아주 옅게 깔려 「여기가 어느 별자리인가」를
@@ -3915,7 +3933,7 @@ body.onboarding-locked .pause-button {
   border: 1px solid #8f7ad0;
   border-radius: 12px;
   background: linear-gradient(100deg, #14102bf2, #1b1638ee);
-  box-shadow: 0 10px 26px #02030cbb;
+  box-shadow: 0 10px 26px #09020cbb;
   opacity: 0;
   pointer-events: none;
   transition:
@@ -3933,7 +3951,7 @@ body.onboarding-locked .pause-button {
   height: 64px;
   border-radius: 10px;
   border: 1px solid #8f7ad0;
-  background: #0a0f12;
+  background: #0e0616;
   object-fit: cover;
   image-rendering: pixelated;
 }
@@ -3963,17 +3981,17 @@ body.onboarding-locked .pause-button {
   bottom: 18px;
   z-index: 70;
   padding: 7px 14px;
-  border: 1px solid #4d7f80;
+  border: 1px solid #614885;
   border-radius: 999px;
-  background: #0a0f12cc;
-  color: #a9c6c2;
+  background: #0e0616cc;
+  color: #b3a8c7;
   font-size: 11px;
   letter-spacing: 0.08em;
   cursor: pointer;
 }
 .oo2-skip:hover {
-  border-color: #7cc6bb;
-  color: #dff3ea;
+  border-color: #9578ca;
+  color: #e3def4;
 }
 
 /* ---------------------------------------------------------------------
@@ -3997,7 +4015,7 @@ body.onboarding-locked .pause-button {
   flex: 1;
   height: 4px;
   border-radius: 2px;
-  background: #2b3a3e;
+  background: #342544;
 }
 .hub-map-mode .world-band i.open {
   background: oklch(0.5 0.06 var(--wh));
@@ -4014,7 +4032,7 @@ body.onboarding-locked .pause-button {
   stroke: var(--w-line) !important;
 }
 .hub-map .constellation-node {
-  border-color: color-mix(in oklab, var(--w-node) 55%, #0a0f12) !important;
+  border-color: color-mix(in oklab, var(--w-node) 55%, #0e0616) !important;
 }
 .hub-map .constellation-node.active {
   border-color: var(--w-glow) !important;
@@ -4023,8 +4041,8 @@ body.onboarding-locked .pause-button {
 .hub-map .constellation-node .stage-star {
   overflow: hidden;
   border-radius: 50%;
-  border: 1px solid color-mix(in oklab, var(--w-node) 45%, #0a0f12);
-  background: #0a0f12;
+  border: 1px solid color-mix(in oklab, var(--w-node) 45%, #0e0616);
+  background: #0e0616;
   display: grid;
   place-items: center;
 }

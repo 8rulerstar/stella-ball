@@ -1,7 +1,7 @@
 /* Premium feedback pass: quiet surfaces, readable hierarchy, one bright event at a time. */
 .stage {
   isolation: isolate;
-  background: #080c20 !important;
+  background: #190424 !important;
 }
 .stage:before {
   content: "";
@@ -9,11 +9,11 @@
   z-index: 1;
   inset: 8px;
   pointer-events: none;
-  border: 1px solid #cbd8ff16;
+  border: 1px solid #ebd1f916;
   border-radius: 10px;
   box-shadow:
-    inset 0 0 0 1px #050713aa,
-    inset 0 0 44px #7385d216;
+    inset 0 0 0 1px #0f0315aa,
+    inset 0 0 44px #b46ed716;
 }
 .stage canvas {
   position: relative;
@@ -28,7 +28,7 @@
   position: relative;
   overflow: hidden;
 }
-/* 배너 전체 폭을 도는 무한 스윕이 있었다. 쓸어가는 그라디언트는 #aab9ff11,
+/* 배너 전체 폭을 도는 무한 스윕이 있었다. 쓸어가는 그라디언트는 #e0b3f611,
    알파 7%인데 배너 배경은 96% 불투명이라 화면에서 사실상 보이지 않았다.
    그 대가로 전투 내내 배너 폭만 한 합성 레이어가 고정 승격되고 부모의
    overflow 클립이 계속 살아 있었다. 눈에 보이는 것 대비 비용이 가장 나빴다. */
@@ -38,7 +38,7 @@
 }
 .phase {
   letter-spacing: 0.12em !important;
-  color: #aebce2 !important;
+  color: #d0abe5 !important;
 }
 .boss-name b {
   font-variant-numeric: tabular-nums;
@@ -57,7 +57,7 @@
   background: repeating-linear-gradient(
     90deg,
     transparent 0 18%,
-    #080b1b66 18.5% 19.5%,
+    #16041f66 18.5% 19.5%,
     transparent 20%
   );
   pointer-events: none;
@@ -71,7 +71,7 @@
   color: #fff0bb !important;
   text-shadow:
     0 0 12px #f0c768,
-    0 0 26px #8898ff !important;
+    0 0 26px #d595f2 !important;
   animation: comboIgnite 0.28s ease-out;
 }
 .blaze-card {
@@ -107,8 +107,8 @@
   max-height: 142px;
   object-fit: contain;
   image-rendering: auto !important;
-  filter: drop-shadow(0 5px 0 #080a1b) drop-shadow(0 0 13px #f4cd78aa)
-    drop-shadow(0 0 32px #97a6ff77) !important;
+  filter: drop-shadow(0 5px 0 #17041f) drop-shadow(0 0 13px #f4cd78aa)
+    drop-shadow(0 0 32px #daa2f477) !important;
 }
 .title-copy:before {
   content: "";
@@ -119,7 +119,7 @@
     90deg,
     transparent,
     #f7d889,
-    #c8d4ff,
+    #eacef9,
     #f7d889,
     transparent
   );
@@ -129,9 +129,9 @@
 }
 .title-kicker {
   padding: 4px 9px;
-  border-top: 1px solid #c7d4ff44;
-  border-bottom: 1px solid #c7d4ff44;
-  text-shadow: 0 0 10px #9cabff;
+  border-top: 1px solid #eacdf944;
+  border-bottom: 1px solid #eacdf944;
+  text-shadow: 0 0 10px #dba7f4;
 }
 .title-copy p {
   max-width: 430px !important;
@@ -149,8 +149,8 @@
 }
 .survivor-hub {
   background:
-    radial-gradient(circle at 80% 6%, #6675c829, transparent 26%),
-    linear-gradient(160deg, #0e1535ed, #070a1aef) !important;
+    radial-gradient(circle at 80% 6%, #aa61cd29, transparent 26%),
+    linear-gradient(160deg, #2a073ced, #15041def) !important;
 }
 .hub-topbar {
   padding: 4px 0 13px !important;
@@ -192,7 +192,7 @@
   position: absolute;
   inset: auto 10px 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #c4d0ff, transparent);
+  background: linear-gradient(90deg, transparent, #e9caf9, transparent);
   opacity: 0;
   transition: opacity 0.18s;
 }
@@ -200,7 +200,7 @@
   opacity: 1;
 }
 .hub-party-slot {
-  box-shadow: inset 0 0 10px #9babff1a;
+  box-shadow: inset 0 0 10px #dba6f41a;
 }
 .hub-record {
   border-radius: 0 3px 3px 0;
@@ -220,10 +220,10 @@
 .deploy-unit:hover,
 .choice-card:hover {
   transform: translateY(-2px);
-  border-color: #cbd8ff !important;
+  border-color: #ebd1f9 !important;
   box-shadow:
-    0 6px 16px #02030c99,
-    0 0 0 1px #cbd8ff24 !important;
+    0 6px 16px #09020c99,
+    0 0 0 1px #ebd1f924 !important;
 }
 .roster-unit.selected,
 .party-chip.active,
@@ -233,10 +233,10 @@
 .outcome-cut {
   position: relative;
   overflow: hidden;
-  border-color: #7b8ec7 !important;
-  background-color: #0b1028f2 !important;
+  border-color: #ad77cb !important;
+  background-color: #20062df2 !important;
   box-shadow:
-    0 18px 44px #01020bbb,
+    0 18px 44px #08010bbb,
     0 0 0 1px #f3d27a22 !important;
 }
 .outcome-cut:before {
@@ -246,7 +246,7 @@
   pointer-events: none;
   background:
     radial-gradient(circle, #fff3bb20 0 2%, transparent 2.4%),
-    radial-gradient(circle, #b9c8ff18 0 1.5%, transparent 2.2%);
+    radial-gradient(circle, #e5c1f718 0 1.5%, transparent 2.2%);
   background-size:
     53px 47px,
     71px 67px;
@@ -289,12 +289,12 @@
   text-shadow: 0 0 19px #e8bd6088;
 }
 .outcome-cut .tag {
-  color: #cdd9ff !important;
+  color: #ecd3fa !important;
   letter-spacing: 0.17em;
 }
 .result-card {
-  border-color: #6c80b5 !important;
-  background: linear-gradient(145deg, #121a3d, #0b1028) !important;
+  border-color: #9c68b9 !important;
+  background: linear-gradient(145deg, #320946, #20062d) !important;
   box-shadow: inset 0 0 0 1px #fff0bb0c;
 }
 .result-medal,
@@ -302,7 +302,7 @@
   filter: drop-shadow(0 0 7px #e1bc6c88) !important;
 }
 .result-metric {
-  color: #b8c5e6 !important;
+  color: #d6b6e8 !important;
 }
 .result-metric b {
   color: #ffe4a2 !important;
@@ -313,8 +313,8 @@
   color: #1b1430 !important;
 }
 .outcome-cut.fail button {
-  border-color: #aebde9 !important;
-  background: linear-gradient(#3b4c83, #26345f) !important;
+  border-color: #d5abec !important;
+  background: linear-gradient(#6d328c, #4f186d) !important;
 }
 @keyframes panelScan {
   42%,
@@ -331,9 +331,9 @@
 @keyframes constellationCrown {
   50% {
     box-shadow:
-      0 3px 0 #02030bbb,
+      0 3px 0 #08010cbb,
       0 0 28px #f3cd7688,
-      0 0 52px #8998ff55;
+      0 0 52px #d596f255;
   }
 }
 /* `filter`는 단축 속성이라 여기서 brightness만 쓰면 기반 규칙의 blur(0.3px)이
@@ -403,10 +403,10 @@
   inset: 0 auto 0 0;
   width: 54%;
   height: 100%;
-  border-right: 1px solid #9aaaff2b;
+  border-right: 1px solid #daa5f42b;
   background:
-    radial-gradient(circle at 50% 27%, #aab8ff16, transparent 35%),
-    linear-gradient(90deg, #0a102a4d, transparent);
+    radial-gradient(circle at 50% 27%, #e0b3f616, transparent 35%),
+    linear-gradient(90deg, #21062e4d, transparent);
 }
 .title-mode .title-sky-map {
   top: 2%;
@@ -418,7 +418,7 @@
   min-height: 100%;
   justify-content: center;
   padding: 24px 34px 22px;
-  background: linear-gradient(90deg, transparent, #05081752 18%, #05071599);
+  background: linear-gradient(90deg, transparent, #12031952 18%, #11031799);
 }
 .title-mode .title-wordmark {
   width: min(410px, 98%) !important;
@@ -438,7 +438,7 @@
   padding: 4px 8px !important;
   border: 0 !important;
   background: transparent !important;
-  color: #aebbe3 !important;
+  color: #d1abe6 !important;
   box-shadow: none !important;
   font-size: 10px !important;
   opacity: 0;
@@ -451,7 +451,7 @@
   text-underline-offset: 3px;
 }
 .title-help:hover {
-  color: #f0f4ff !important;
+  color: #f9f2fd !important;
   transform: translateY(-1px);
 }
 /* Signature. It arrives last, after the CTA and the tutorial line, so it reads
@@ -461,7 +461,7 @@
 .title-credit {
   display: block;
   margin-top: 22px;
-  color: var(--mist, #8ba39f);
+  color: var(--mist, #938aa4);
   opacity: 0;
   font-size: 8px;
   letter-spacing: 0.32em;
@@ -493,7 +493,7 @@
     width: 100%;
     height: 43%;
     border-right: 0;
-    border-bottom: 1px solid #9aaaff24;
+    border-bottom: 1px solid #daa5f424;
   }
   .title-mode .title-sky-map {
     top: -4%;
@@ -527,7 +527,7 @@
 .constellation-map-scene {
   padding: 0 !important;
   place-content: stretch !important;
-  background: #050713f5 !important;
+  background: #0f0315f5 !important;
 }
 .constellation-map-shell {
   width: min(760px, 100%);
@@ -537,8 +537,8 @@
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(circle at 52% 8%, #424a9433, transparent 33%),
-    linear-gradient(160deg, #0d1431, #060816 76%);
+    radial-gradient(circle at 52% 8%, #7e3b9b33, transparent 33%),
+    linear-gradient(160deg, #270737, #120319 76%);
 }
 .constellation-map-head {
   display: flex;
@@ -546,7 +546,7 @@
   align-items: end;
   gap: 15px;
   padding: 4px 2px 13px;
-  border-bottom: 1px solid #6477a655;
+  border-bottom: 1px solid #8f61a955;
 }
 .constellation-map-head h2 {
   margin: 3px 0 0 !important;
@@ -556,7 +556,7 @@
 .constellation-map-head p {
   max-width: 230px;
   margin: 0 !important;
-  color: #aebce0 !important;
+  color: #ceace3 !important;
   font-size: 10px !important;
   line-height: 1.5;
   text-align: right;
@@ -580,7 +580,7 @@
   pointer-events: none;
   background-image:
     radial-gradient(circle, #f7e3a7aa 0 1px, transparent 1.6px),
-    radial-gradient(circle, #b7c6ff88 0 0.8px, transparent 1.4px);
+    radial-gradient(circle, #e4bff788 0 0.8px, transparent 1.4px);
   background-size:
     97px 113px,
     167px 149px;
@@ -591,7 +591,7 @@
   position: absolute;
   inset: 12% 5%;
   pointer-events: none;
-  background: radial-gradient(ellipse at 49% 45%, #8494ee17, transparent 46%);
+  background: radial-gradient(ellipse at 49% 45%, #cc82f017, transparent 46%);
 }
 .constellation-route {
   position: absolute;
@@ -603,15 +603,15 @@
 }
 .constellation-route path {
   fill: none;
-  stroke: #8293d0;
+  stroke: #b67ed4;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 4 8;
-  filter: drop-shadow(0 0 5px #92a2ef99);
+  filter: drop-shadow(0 0 5px #d190f199);
 }
 .constellation-route .future {
-  stroke: #6674a766;
+  stroke: #9263aa66;
   stroke-dasharray: 2 11;
 }
 .constellation-node {
@@ -622,12 +622,12 @@
   gap: 9px;
   width: 184px;
   padding: 7px 9px 7px 7px;
-  border: 1px solid #6679ae !important;
+  border: 1px solid #9562b2 !important;
   border-radius: 7px !important;
-  background: linear-gradient(105deg, #10183cf4, #0b1028e8) !important;
-  color: #edf2ff !important;
+  background: linear-gradient(105deg, #300844f4, #20062de8) !important;
+  color: #f8effd !important;
   text-align: left;
-  box-shadow: 0 8px 18px #01020c99 !important;
+  box-shadow: 0 8px 18px #09010c99 !important;
   transform: translate(-50%, -50%);
   cursor: pointer;
 }
@@ -636,22 +636,22 @@
   border-color: #ffe2a0 !important;
   box-shadow:
     0 0 0 1px #ffe2a044,
-    0 10px 22px #02030cbf,
-    0 0 21px #9caaff44 !important;
+    0 10px 22px #09020cbf,
+    0 0 21px #dba7f444 !important;
   --node-y: -53%;
 }
 /* 가장자리 카드가 안쪽으로 열리게 하던 보정은 더 이상 필요 없다. 노드가
    호버에서 커지지 않으므로 잘릴 것 자체가 없다 — 펼침은 하단 서랍이 맡는다. */
 .constellation-node.locked {
-  border-color: #49577e !important;
-  background: #0a0e20d9 !important;
-  color: #8794b9 !important;
+  border-color: #6d4384 !important;
+  background: #1a0525d9 !important;
+  color: #a884bc !important;
   cursor: default;
   filter: saturate(0.45);
 }
 .constellation-node.locked:hover {
-  border-color: #49577e !important;
-  box-shadow: 0 8px 18px #01020c99 !important;
+  border-color: #6d4384 !important;
+  box-shadow: 0 8px 18px #09010c99 !important;
   transform: translate(-50%, -50%);
 }
 .constellation-node .stage-star {
@@ -667,7 +667,7 @@
     #fff2bc 0 7%,
     #d9a952 12% 22%,
     #313565 29% 48%,
-    #0a0e21 70%
+    #1b0526 70%
   );
   color: #fff8d5;
   font-size: 20px;
@@ -676,23 +676,23 @@
     0 0 17px #f0c66d77;
 }
 .constellation-node.locked .stage-star {
-  border-color: #65719b;
+  border-color: #89629e;
   background: radial-gradient(
     circle,
-    #98a6cd 0 7%,
-    #4b577f 12% 23%,
-    #151b38 29% 48%,
-    #080b19 70%
+    #bb95d0 0 7%,
+    #6f4684 12% 23%,
+    #310944 29% 48%,
+    #15041d 70%
   );
-  color: #aab5d3;
-  box-shadow: 0 0 0 4px #8491bb0d;
+  color: #c5a8d5;
+  box-shadow: 0 0 0 4px #a981be0d;
 }
 .constellation-node .stage-copy {
   min-width: 0;
 }
 .constellation-node small {
   display: block;
-  color: #b7c5e8;
+  color: #d7b5ea;
   font-size: 8px;
   letter-spacing: 0.12em;
 }
@@ -706,7 +706,7 @@
 .constellation-node strong {
   display: block;
   margin: 1px 0 2px;
-  color: #dce7ff;
+  color: #f1e0fb;
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
@@ -715,20 +715,20 @@
 }
 .constellation-node span {
   display: block;
-  color: #b5c1e0;
+  color: #d1b3e2;
   font-size: 9px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .constellation-node.locked b {
-  color: #aeb8d1;
+  color: #c5acd3;
 }
 .constellation-node.locked strong {
-  color: #8794b9;
+  color: #a884bc;
 }
 .constellation-node.locked span {
-  color: #707d9f;
+  color: #8f6ea1;
 }
 .constellation-node .node-status {
   margin-left: auto;
@@ -736,7 +736,7 @@
   font-size: 10px;
 }
 .constellation-node.locked .node-status {
-  color: #7987aa;
+  color: #9977ac;
 }
 .constellation-node.s1 {
   left: 16%;
@@ -831,20 +831,20 @@
   align-items: center;
   gap: 10px;
   padding-top: 12px;
-  border-top: 1px solid #6477a644;
-  color: #aebce0;
+  border-top: 1px solid #8f61a944;
+  color: #ceace3;
   font-size: 10px;
 }
 .constellation-map-foot button {
   min-width: 112px;
 }
 .constellation-training {
-  border-color: #6779ac !important;
-  background: #111a3c !important;
-  color: #c4d0ef !important;
+  border-color: #9464af !important;
+  background: #300845 !important;
+  color: #e0c2f1 !important;
 }
 .constellation-training:hover {
-  border-color: #cbd8ff !important;
+  border-color: #ebd1f9 !important;
 }
 @media (max-width: 680px) {
   .constellation-map-shell {
@@ -905,10 +905,10 @@
   bottom: 16px;
   width: min(320px, calc(100% - 32px));
   padding: 12px 13px 11px;
-  border: 1px solid #9daee6;
-  background: linear-gradient(145deg, #121a3df5, #090e24f4);
+  border: 1px solid #ce99ea;
+  background: linear-gradient(145deg, #320946f5, #1c0528f4);
   box-shadow:
-    0 9px 26px #01020cb8,
+    0 9px 26px #09010cb8,
     0 0 0 1px #ffe3a522;
 }
 .onboarding-card:before {
@@ -919,7 +919,7 @@
   background: linear-gradient(
     110deg,
     transparent 35%,
-    #d5e0ff12 48%,
+    #efdafa12 48%,
     transparent 61%
   );
   animation: onboardingSweep 3.8s ease-in-out infinite;
@@ -949,13 +949,13 @@
 .onboarding-helper small {
   display: block;
   margin-top: 2px;
-  color: #aab8e2;
+  color: #cfa7e5;
   font-size: 8px;
 }
 .onboarding-kicker {
   display: flex;
   justify-content: space-between;
-  color: #c4d1fa;
+  color: #e6c6f8;
   font-size: 9px;
   letter-spacing: 0.12em;
 }
@@ -969,7 +969,7 @@
 }
 .onboarding-card p {
   margin: 0;
-  color: #c1cbe6;
+  color: #d9bfe8;
   font-size: 10px;
   line-height: 1.55;
 }
@@ -981,7 +981,7 @@
 .onboarding-progress i {
   width: 22px;
   height: 3px;
-  background: #3d4d7d;
+  background: #693486;
 }
 .onboarding-progress i.active {
   background: #f1ca72;
@@ -999,7 +999,7 @@
 .onboarding-card.waiting {
   border-color: #f0ca72;
   box-shadow:
-    0 9px 26px #01020cb8,
+    0 9px 26px #09010cb8,
     0 0 20px #f0ca7255;
 }
 .onboarding-card.complete {
@@ -1070,7 +1070,7 @@ body.onboarding-locked canvas {
   box-shadow:
     0 9px 26px #000c,
     0 0 0 1px #ffe3a533,
-    0 0 16px #8798e926;
+    0 0 16px #ca82ee26;
   transition:
     transform 0.35s ease,
     opacity 0.35s ease;
@@ -1096,7 +1096,7 @@ body.onboarding-locked canvas {
   display: none;
 }
 .onboarding-dock .onboarding-helper b {
-  color: #c3c9d6;
+  color: #cfc2d7;
   font-size: 8px;
   letter-spacing: 0.04em;
 }
@@ -1241,17 +1241,17 @@ body.onboarding-locked canvas {
 /* The title opens on the star-guardians rebuilding a constellation. Keep the
    scene hopeful and readable; enemies belong beyond the start button. */
 .title-scene {
-  background: #070a21 !important;
+  background: #1a0424 !important;
 }
 .title-sequence {
   background:
-    radial-gradient(ellipse at 50% 14%, #8fa9ff42 0%, transparent 32%),
+    radial-gradient(ellipse at 50% 14%, #d49bf342 0%, transparent 32%),
     radial-gradient(ellipse at 50% 46%, #725cc62e 0%, transparent 45%),
-    linear-gradient(180deg, #101943 0%, #0b1130 50%, #050717 100%) !important;
+    linear-gradient(180deg, #34094a 0%, #260635 50%, #120319 100%) !important;
 }
 .title-sequence:before {
   background:
-    linear-gradient(180deg, #09102a26 0%, #070b2094 65%, #03040ddd 100%),
+    linear-gradient(180deg, #20062d26 0%, #19042394 65%, #0a020edd 100%),
     radial-gradient(circle at 50% 18%, #ffeab71f 0 1px, transparent 2px),
     url("../assets/library/brand/video-title-card.png") center/cover !important;
   filter: hue-rotate(24deg) saturate(0.58) brightness(0.72) !important;
@@ -1259,8 +1259,8 @@ body.onboarding-locked canvas {
 }
 .title-sequence:after {
   background:
-    linear-gradient(90deg, transparent 8%, #cbd4ff0d 50%, transparent 92%),
-    repeating-linear-gradient(0deg, #dce7ff04 0 1px, transparent 1px 5px) !important;
+    linear-gradient(90deg, transparent 8%, #ecd1f90d 50%, transparent 92%),
+    repeating-linear-gradient(0deg, #f1e0fb04 0 1px, transparent 1px 5px) !important;
   opacity: 0.38;
 }
 .title-stars {
@@ -1273,7 +1273,7 @@ body.onboarding-locked canvas {
   background: #fff3c7 !important;
   box-shadow:
     0 0 7px #fff4c9,
-    0 0 14px #93a9ff !important;
+    0 0 14px #d79ff3 !important;
 }
 .title-dawn {
   position: absolute;
@@ -1286,7 +1286,7 @@ body.onboarding-locked canvas {
   background: radial-gradient(
     ellipse,
     #fff0b32b 0%,
-    #93a8ff18 37%,
+    #d79ff318 37%,
     transparent 70%
   );
   transform: translateX(-50%);
@@ -1309,13 +1309,13 @@ body.onboarding-locked canvas {
 }
 .title-constellation-line {
   fill: none;
-  stroke: #dbe2ff;
+  stroke: #f2dffb;
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 900;
   stroke-dashoffset: 900;
-  filter: drop-shadow(0 0 6px #97a8ff);
+  filter: drop-shadow(0 0 6px #d9a2f4);
   opacity: 0.72;
   animation: titleConstellationDraw 1.25s cubic-bezier(0.22, 0.78, 0.22, 1)
     0.12s forwards;
@@ -1329,12 +1329,12 @@ body.onboarding-locked canvas {
 }
 .title-constellation-nodes circle {
   fill: #fff5c9;
-  stroke: #aebcff;
+  stroke: #e1b7f6;
   stroke-width: 2;
   opacity: 0;
   transform-box: fill-box;
   transform-origin: center;
-  filter: drop-shadow(0 0 8px #fff0a4) drop-shadow(0 0 12px #8ba0ff);
+  filter: drop-shadow(0 0 8px #fff0a4) drop-shadow(0 0 12px #d498f2);
   animation: titleConstellationStar 0.5s steps(3) 0.82s forwards;
 }
 .title-constellation-nodes circle:nth-child(2),
@@ -1353,8 +1353,8 @@ body.onboarding-locked canvas {
   width: 132px;
   height: 2px;
   border-radius: 99px;
-  background: linear-gradient(90deg, transparent, #eaf0ff 66%, #fff8d4);
-  box-shadow: 0 0 8px #aebcff;
+  background: linear-gradient(90deg, transparent, #f7ecfd 66%, #fff8d4);
+  box-shadow: 0 0 8px #e1b7f6;
   opacity: 0;
   transform: rotate(-20deg);
   animation: titleShootingStar 5.6s ease-in-out 1.5s infinite;
@@ -1385,8 +1385,8 @@ body.onboarding-locked canvas {
   width: min(470px, 88%) !important;
   max-height: 116px;
   margin-bottom: 6px;
-  filter: drop-shadow(0 4px 0 #080a1b) drop-shadow(0 0 12px #f4cd78aa)
-    drop-shadow(0 0 26px #97a6ff66) !important;
+  filter: drop-shadow(0 4px 0 #17041f) drop-shadow(0 0 12px #f4cd78aa)
+    drop-shadow(0 0 26px #daa2f466) !important;
   animation-delay: 1.12s;
 }
 .title-kicker {
@@ -1397,7 +1397,7 @@ body.onboarding-locked canvas {
 .title-copy p {
   max-width: 460px !important;
   margin-bottom: 13px !important;
-  color: #e8edff !important;
+  color: #f6ebfc !important;
   animation-delay: 1.36s;
 }
 .title-enter {
@@ -1490,7 +1490,7 @@ body.onboarding-locked canvas {
   opacity: 0.95;
 }
 .title-mode .title-constellation-nodes circle {
-  filter: drop-shadow(0 0 9px #fff4bb) drop-shadow(0 0 22px #93a6ff);
+  filter: drop-shadow(0 0 9px #fff4bb) drop-shadow(0 0 22px #d79ff3);
 }
 .title-mode .title-dome-arc {
   stroke-width: 1.6;
@@ -1500,7 +1500,7 @@ body.onboarding-locked canvas {
   stroke-width: 1.6;
 }
 .title-mode .title-sky-dust circle {
-  fill: #f2f6ff;
+  fill: #faf3fe;
 }
 .title-mode .title-shooting-star {
   top: 9%;
@@ -1528,8 +1528,8 @@ body.onboarding-locked canvas {
   inset: 2% -20% -6%;
   background: radial-gradient(
     ellipse at 50% 58%,
-    #05070fe8 0%,
-    #05070fb8 40%,
+    #0d0212e8 0%,
+    #0d0212b8 40%,
     transparent 70%
   );
   pointer-events: none;
@@ -1538,7 +1538,7 @@ body.onboarding-locked canvas {
   width: min(600px, 94%) !important;
   max-height: 200px;
   margin-bottom: 26px;
-  filter: drop-shadow(0 3px 0 #05070f) drop-shadow(0 0 6px #ffeec6)
+  filter: drop-shadow(0 3px 0 #0d0212) drop-shadow(0 0 6px #ffeec6)
     drop-shadow(0 0 18px #f4cd7899) !important;
   animation:
     titleLogo 0.66s cubic-bezier(0.18, 0.88, 0.23, 1.22) 1.12s forwards,
@@ -1547,19 +1547,19 @@ body.onboarding-locked canvas {
 @keyframes titleWordmarkGlow {
   0%,
   100% {
-    filter: drop-shadow(0 3px 0 #05070f) drop-shadow(0 0 6px #ffeec6)
+    filter: drop-shadow(0 3px 0 #0d0212) drop-shadow(0 0 6px #ffeec6)
       drop-shadow(0 0 18px #f4cd7899);
   }
   50% {
-    filter: drop-shadow(0 3px 0 #05070f) drop-shadow(0 0 8px #fff8e6)
+    filter: drop-shadow(0 3px 0 #0d0212) drop-shadow(0 0 8px #fff8e6)
       drop-shadow(0 0 26px #ffd98ebb);
   }
 }
 .title-mode .title-kicker {
   margin: 0 0 44px !important;
   padding-top: 18px;
-  border-top: 1px solid #9aaaff2e;
-  color: #8ba39f !important;
+  border-top: 1px solid #daa5f42e;
+  color: #938aa4 !important;
   font-size: 10px !important;
   letter-spacing: 0.3em !important;
   white-space: nowrap;
@@ -1647,7 +1647,7 @@ body.onboarding-locked canvas {
    않는다. 깜빡임은 불투명도만 남기고, 그마저도 셋 중 하나만 돌린다. 캔버스
    별밭도 이미 다섯 중 하나 비율로 반짝인다. */
 .title-sky-dust circle {
-  fill: #e9efff;
+  fill: #f6ebfd;
   opacity: 0;
   animation: titleDustIn 1.4s ease-out 0.9s forwards;
 }
@@ -1761,7 +1761,7 @@ body.onboarding-locked canvas {
   position: relative;
   flex: 1 1 auto;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #9aaaff5e, transparent);
+  background: linear-gradient(90deg, transparent, #daa5f45e, transparent);
 }
 .title-chart i::before,
 .title-chart i::after {
@@ -1770,7 +1770,7 @@ body.onboarding-locked canvas {
   content: "";
   width: 1px;
   height: 7px;
-  background: #9aaaff66;
+  background: #daa5f466;
 }
 .title-chart i::before {
   left: 26%;
@@ -1779,12 +1779,12 @@ body.onboarding-locked canvas {
   right: 26%;
 }
 .title-chart small {
-  color: #cfdad7;
+  color: #d2cedb;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.3em;
   white-space: nowrap;
-  text-shadow: 0 0 10px #9aaaff55;
+  text-shadow: 0 0 10px #daa5f455;
 }
 @media (max-height: 760px) {
   .title-chart {
@@ -1803,7 +1803,7 @@ body.onboarding-locked canvas {
    is the one straight-edged instrument on a screen made of stars. */
 .title-dome-arc {
   fill: none;
-  stroke: #9aaaff;
+  stroke: #daa5f4;
   stroke-width: 1.2;
   stroke-dasharray: 1400;
   stroke-dashoffset: 1400;
@@ -1812,7 +1812,7 @@ body.onboarding-locked canvas {
     forwards;
 }
 .title-dome-ticks line {
-  stroke: #9aaaff;
+  stroke: #daa5f4;
   stroke-width: 1.2;
   opacity: 0;
   animation: titleDomeTick 0.8s ease-out 1s forwards;
@@ -1872,13 +1872,13 @@ body.onboarding-locked canvas {
   z-index: 9;
   pointer-events: none;
   padding: 9px 16px;
-  border: 1px solid #3f6669;
+  border: 1px solid #503870;
   border-radius: 3px;
-  background: #070b0deb;
+  background: #0a0410eb;
   box-shadow:
-    0 0 0 1px #0a0f12,
-    0 6px 18px #04080a99;
-  color: #cfdad7;
+    0 0 0 1px #0e0616,
+    0 6px 18px #07020c99;
+  color: #d2cedb;
   font:
     700 13px/1.5 "Galmuri11",
     ui-monospace,
@@ -1920,16 +1920,16 @@ body.onboarding-locked canvas {
    stars returned rather than on the thing outside the window.
    --------------------------------------------------------------------- */
 .outcome-cut.ending {
-  border-color: #4e6f72;
-  background-color: #050d12f2;
+  border-color: #5d4a76;
+  background-color: #0c0314f2;
   background-image: radial-gradient(
     ellipse 70% 50% at 50% 0%,
-    #2c4a4e5c,
+    #3a23575c,
     transparent 70%
   );
 }
 .outcome-cut.ending h2 {
-  color: #cfdad7;
+  color: #d2cedb;
 }
 .ending-lines {
   margin: 14px auto 18px;
@@ -1938,11 +1938,11 @@ body.onboarding-locked canvas {
   gap: 7px;
 }
 .ending-lines p {
-  color: #9fb3b0;
+  color: #a69eb4;
   line-height: 1.7;
 }
 .ending-lines b {
-  color: #cfdad7;
+  color: #d2cedb;
   letter-spacing: 0.08em;
 }
 .ending-metrics {
@@ -1957,9 +1957,9 @@ body.onboarding-locked canvas {
   gap: 2px;
   min-width: 92px;
   padding: 8px 12px;
-  border: 1px solid #3a5457;
-  background: #08161bcc;
-  color: #7f9996;
+  border: 1px solid #46345d;
+  background: #11041fcc;
+  color: #887e9a;
   font-size: 11px;
 }
 .ending-metrics b {

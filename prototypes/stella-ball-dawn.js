@@ -118,7 +118,7 @@
       var px = Math.round(cx + Math.cos(rad) * 21),
         py = Math.round(cy + Math.sin(rad) * 6);
       if (Math.sin(rad) < 0 && Math.abs(px - cx) < 9) continue;
-      g.fillStyle = a % 20 < 10 ? "#7cc6bb" : "#e8c9a0";
+      g.fillStyle = a % 20 < 10 ? "#9578ca" : "#e8c9a0";
       g.fillRect(px, py, 1, 1);
     }
   }
@@ -164,7 +164,7 @@
       x +
       "px;top:" +
       y +
-      "px;color:#ffd2a0;font:12px Galmuri11,ui-monospace,monospace;text-shadow:0 1px 0 #04080a;pointer-events:none;z-index:60;animation:dawnPop .9s ease-out forwards";
+      "px;color:#ffd2a0;font:12px Galmuri11,ui-monospace,monospace;text-shadow:0 1px 0 #07020c;pointer-events:none;z-index:60;animation:dawnPop .9s ease-out forwards";
     document.body.appendChild(p);
     setTimeout(function () {
       p.remove();
@@ -182,21 +182,21 @@
       return d;
     }
     add(
-      "position:absolute;inset:0;background:radial-gradient(ellipse 75% 45% at 50% 110%,#e8955f26,#c97a4512 45%,transparent 72%)",
+      "position:absolute;inset:0;background:radial-gradient(ellipse 75% 45% at 50% 110%,#e8955f26,#f2b35c12 45%,transparent 72%)",
     );
     /* 은하수 띠에는 filter를 걸지 않는다. 이 띠는 뷰포트 1.5배 폭 × 200px인데
        안에 반짝이는 별 30개가 살아서, blur(2px)라도 dpr 2에서는 ~3840×400
        텍스처를 사실상 매 프레임 다시 흐리게 만든다(2026-08-15 렉 제보의 두
        번째 원인). 띠의 부드러움은 그라데이션 정지점이 이미 만든다. */
     add(
-      "position:absolute;left:-14%;top:16%;width:150%;height:200px;transform:rotate(-13deg);background:linear-gradient(180deg,transparent,#cfe8e010 24%,#cfe8e016 38%,#f6e8d518 52%,#f6e8d512 62%,#cfe8e00c 74%,transparent)",
+      "position:absolute;left:-14%;top:16%;width:150%;height:200px;transform:rotate(-13deg);background:linear-gradient(180deg,transparent,#d6cee910 24%,#d6cee916 38%,#f6e8d518 52%,#f6e8d512 62%,#d6cee90c 74%,transparent)",
     );
     /* 오로라도 filter를 걸지 않는다. 747×170에 blur(15px)이 걸린 채 9초 주기
        변형 애니메이션까지 도는 조합이라, 커널 패딩까지 포함한 큰 중간 표면을
        쉬지 않고 다시 흐리게 만든다 — 은하수·성운의 blur를 걷은 뒤 남아 있던
        마지막이자 가장 비싼 하나였다. 부드러움은 정지점을 넓혀 대신한다. */
     add(
-      "position:absolute;left:16%;top:-2%;width:56%;height:170px;background:linear-gradient(100deg,transparent,#7cc6bb14 22%,#9adfc924 40%,#9adfc92e 52%,#c9b48a1e 64%,#eea56f12 78%,transparent);animation:dawnAurora 9s ease-in-out infinite alternate",
+      "position:absolute;left:16%;top:-2%;width:56%;height:170px;background:linear-gradient(100deg,transparent,#9578ca14 22%,#ad97e224 40%,#ad97e22e 52%,#c9b48a1e 64%,#eea56f12 78%,transparent);animation:dawnAurora 9s ease-in-out infinite alternate",
     );
     /* 별밭은 DOM이 아니라 캔버스 한 장이다.
 
@@ -270,7 +270,7 @@
     }
     function drawStar(st, t) {
       starCtx.globalAlpha = starAlpha(st, t);
-      starCtx.fillStyle = st.warm ? "#ffd2a0" : "#cfe8e0";
+      starCtx.fillStyle = st.warm ? "#ffd2a0" : "#d6cee9";
       starCtx.fillRect(st.x, st.y, 2, 2);
     }
     function paintStars() {
@@ -283,7 +283,7 @@
         if (k === missingIndex) {
           // 빈 좌표만 남는다. 별이 아니라 «자리»가 보여야 한다.
           starCtx.globalAlpha = 0.5;
-          starCtx.strokeStyle = "#6b7f86";
+          starCtx.strokeStyle = "#786a87";
           starCtx.lineWidth = 1;
           starCtx.beginPath();
           starCtx.arc(stars[k].x + 1, stars[k].y + 1, 4.5, 0, Math.PI * 2);

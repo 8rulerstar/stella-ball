@@ -19,10 +19,10 @@
   } catch (e) {}
 
   var COL = {
-    far: "#7cc6bb",
-    mid: "#cfe8e0",
+    far: "#9578ca",
+    mid: "#d6cee9",
     warm: "#ffd2a0",
-    void: "#0a0f12",
+    void: "#0e0616",
   };
   // 계층 규약: 시차 계수 / 불투명도 상한 / 입력
   var LAYERS = [
@@ -68,7 +68,7 @@
     el(
       l0,
       "position:absolute;left:2%;top:22%;width:300px;height:240px;border-radius:50%;" +
-        "background:radial-gradient(ellipse at 50% 50%,#7cc6bb55,#5b9a9026 34%,#47837c14 58%,transparent 82%)" +
+        "background:radial-gradient(ellipse at 50% 50%,#9578ca55,#70589d26 34%,#5b418914 58%,transparent 82%)" +
         (RM ? "" : ";animation:skyDriftA 360s linear infinite"),
     );
     el(
@@ -107,7 +107,7 @@
     var ring = el(
       l1,
       "position:absolute;top:26%;width:170px;height:170px;border-radius:50%;" +
-        "border:1px solid #7cc6bb55;box-shadow:inset 0 0 0 9px #7cc6bb0f,0 0 0 15px #7cc6bb0a",
+        "border:1px solid #9578ca55;box-shadow:inset 0 0 0 9px #9578ca0f,0 0 0 15px #9578ca0a",
     );
     ring.id = "sky-gauge-ring";
     for (var t = 0; t < 24; t++) {
@@ -136,8 +136,8 @@
     hud = el(
       l2,
       "position:absolute;left:50%;bottom:14px;transform:translateX(-50%);" +
-        "font:10px Galmuri11,ui-monospace,monospace;color:#8ba39f;letter-spacing:.04em;" +
-        "text-shadow:0 1px 0 #04080a;opacity:0;transition:opacity .4s",
+        "font:10px Galmuri11,ui-monospace,monospace;color:#938aa4;letter-spacing:.04em;" +
+        "text-shadow:0 1px 0 #07020c;opacity:0;transition:opacity .4s",
     );
     wireProps();
     layoutBands();
@@ -467,7 +467,7 @@
         (left ? "left:-16%" : "right:-16%") +
         ";top:" +
         (10 + Math.random() * 70).toFixed(0) +
-        "%;width:230px;height:70px;border-radius:50%;background:radial-gradient(ellipse,#cfe8e018,#cfe8e00a 45%,transparent 78%);animation:skyCloud " +
+        "%;width:230px;height:70px;border-radius:50%;background:radial-gradient(ellipse,#d6cee918,#d6cee90a 45%,transparent 78%);animation:skyCloud " +
         (16 + Math.random() * 10).toFixed(0) +
         "s linear forwards",
     );
@@ -491,7 +491,7 @@
     );
     el(
       w,
-      "width:64px;height:2px;background:linear-gradient(90deg,transparent,#cfe8e0aa);animation:dawnMeteor 2.4s linear forwards",
+      "width:64px;height:2px;background:linear-gradient(90deg,transparent,#d6cee9aa);animation:dawnMeteor 2.4s linear forwards",
     );
     setTimeout(function () {
       w.remove();
@@ -625,7 +625,7 @@
   function staticFallback(kind) {
     say("모션 감소 · 정지 한 장으로 대체 (" + kind + ")");
     var ring = document.getElementById("sky-gauge-ring");
-    if (ring) ring.style.borderColor = "#7cc6bb99";
+    if (ring) ring.style.borderColor = "#9578ca99";
   }
 
   var API = {
@@ -665,7 +665,7 @@
       for (var i = 0; i < ids.length; i++) {
         var n = root.querySelector('[data-sky-layer="' + ids[i] + '"]');
         n.style.outline = on
-          ? "1px dashed " + ["#7cc6bb", "#eea56f", "#cfe8e0"][i]
+          ? "1px dashed " + ["#9578ca", "#eea56f", "#d6cee9"][i]
           : "";
         n.style.outlineOffset = on ? -(i + 1) * 6 + "px" : "";
       }

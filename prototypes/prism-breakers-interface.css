@@ -1,14 +1,14 @@
 /* Stella Ball palette: an observatory night with starlight reserved for meaning. */
 :root {
-  background: #08151d;
+  background: #130421;
   color: #edf1e9;
 }
 body {
   background: radial-gradient(
     ellipse 90% 55% at 50% -12%,
-    #2b5660 0%,
-    #17323d 39%,
-    #08151d 78%
+    #421f6c 0%,
+    #2a0a4a 39%,
+    #130421 78%
   );
 }
 .tag,
@@ -18,11 +18,11 @@ header .tag {
 h1 {
   color: #f7efd9;
   text-shadow:
-    0 3px 0 #1a3139,
+    0 3px 0 #291043,
     0 0 24px #d4a04d44;
 }
 header p {
-  color: #c4d5cf;
+  color: #c8c3d6;
 }
 header button,
 .overlay button {
@@ -38,28 +38,28 @@ header button:hover {
 }
 .stage {
   border-color: #b79555;
-  background: #0d1a24;
+  background: #1a052c;
   box-shadow:
-    0 28px 88px #02080b99,
+    0 28px 88px #07010c99,
     0 0 0 1px #cfb36a38 inset;
 }
 .hud-card,
 .boss-panel {
-  border-color: #557e80;
-  background: #0a151df2;
+  border-color: #665184;
+  background: #150423f2;
   box-shadow:
-    0 3px 0 #02070abb,
+    0 3px 0 #06010bbb,
     0 0 18px #0008;
 }
 .hud-label {
-  color: #bfd1ca;
+  color: #c3bed2;
 }
 .hud-label b,
 .status-line b {
   color: #f2cf7d;
 }
 .status-line {
-  color: #d3e0db;
+  color: #d6d2e1;
 }
 .phase {
   color: #d9c184;
@@ -68,28 +68,28 @@ header button:hover {
   color: #edf0df;
 }
 .meter {
-  border-color: #385c61;
-  background: #172b32;
+  border-color: #493069;
+  background: #240d3c;
 }
 .meter.hp i {
   background: linear-gradient(90deg, #b34f48, #dd9852);
   box-shadow: 0 0 12px #cb694dcc;
 }
 .combo-readout {
-  color: #bed6cf;
+  color: #c5bdd7;
 }
 .tip {
-  border-color: #5c8886;
-  background: #0a161fe8;
+  border-color: #6c5a8a;
+  background: #160524e8;
   color: #e6eee9;
-  box-shadow: 0 2px 0 #03080a99;
+  box-shadow: 0 2px 0 #06010c99;
 }
 .tip b {
   color: #f4cc78;
 }
 .toast {
   border-color: #d0a95d;
-  background: #182328f4;
+  background: #20122ef4;
   color: #fff0c7;
 }
 .impact-flash {
@@ -101,63 +101,63 @@ header button:hover {
   );
 }
 .overlay {
-  background: linear-gradient(135deg, #07131bf7, #112630f5);
+  background: linear-gradient(135deg, #12041ef7, #21073af5);
 }
 .overlay h2 {
   color: #f6edcf;
-  text-shadow: 0 2px 0 #152a31;
+  text-shadow: 0 2px 0 #220b3b;
 }
 .overlay p {
-  color: #d8e4df;
+  color: #dbd7e5;
 }
 .choice-card {
-  border-color: #527479;
-  background: #13242d;
+  border-color: #634e7d;
+  background: #210937;
   color: #e8f0ea;
-  box-shadow: 0 2px 0 #03080a88;
+  box-shadow: 0 2px 0 #06010c88;
 }
 .choice-card:hover {
   border-color: #edc66d;
-  background: #1d3640;
+  background: #2e124b;
   box-shadow: 0 5px 16px #0008;
 }
 .choice-card small {
-  color: #c8d9d4;
+  color: #cdc7da;
 }
 .choice-card strong {
   color: #f4edd8;
 }
 .deployment-map {
-  border-color: #62868a;
-  background: radial-gradient(circle at 68% 58%, #244552, #0c1922 70%);
+  border-color: #73608c;
+  background: radial-gradient(circle at 68% 58%, #3a185e, #180529 70%);
 }
 .deployment-map:before {
   background-image:
-    linear-gradient(#6c9c9733 1px, transparent 1px),
-    linear-gradient(90deg, #6c9c9733 1px, transparent 1px);
+    linear-gradient(#7d6a9e33 1px, transparent 1px),
+    linear-gradient(90deg, #7d6a9e33 1px, transparent 1px);
 }
 .deployment-map:after {
   color: #d5c58c;
 }
 .slot-card {
-  border-color: #789b98;
-  background: #0c1821f2;
+  border-color: #84769d;
+  background: #180528f2;
 }
 .slot-card small {
-  color: #d6e2dd;
+  color: #d9d5e3;
 }
 .slot-card.drop-ready {
   border-color: #f1cb70;
-  background: #34565a;
+  background: #432c62;
   box-shadow: 0 0 0 3px #e0b55a55;
 }
 .map-boss {
   color: #df7e62;
 }
 .runes div {
-  border-color: #456b70;
-  background: #0e1d26;
-  color: #dbe7e2;
+  border-color: #573f76;
+  background: #1b062e;
+  color: #dedae8;
 }
 .runes b {
   color: #f2cb79;
@@ -166,8 +166,8 @@ header button:hover {
   border-color: var(--unit);
   background: linear-gradient(
     145deg,
-    color-mix(in srgb, var(--unit) 34%, #17323a) 0%,
-    color-mix(in srgb, var(--unit) 12%, #0d2028) 100%
+    color-mix(in srgb, var(--unit) 34%, #270b46) 0%,
+    color-mix(in srgb, var(--unit) 12%, #1a062f) 100%
   );
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--unit) 70%, transparent),
@@ -175,13 +175,13 @@ header button:hover {
   color: #fff;
 }
 .roster-unit.active .portrait {
-  filter: drop-shadow(0 3px 0 #07151b) drop-shadow(0 0 7px var(--unit));
+  filter: drop-shadow(0 3px 0 #11041e) drop-shadow(0 0 7px var(--unit));
 }
 .roster-unit.active {
   opacity: 1;
   filter: none;
   border-color: #f2c65f;
-  background: linear-gradient(145deg, #4d3b18 0%, #243229 52%, #10242a 100%);
+  background: linear-gradient(145deg, #4d3b18 0%, #243229 52%, #1c0634 100%);
   box-shadow:
     0 0 0 2px #f2c65faa,
     0 0 19px #e5ad485c,
@@ -189,7 +189,7 @@ header button:hover {
   color: #fff8df;
 }
 .roster-unit.active .portrait {
-  filter: drop-shadow(0 3px 0 #07151b) drop-shadow(0 0 8px #ffd66e);
+  filter: drop-shadow(0 3px 0 #11041e) drop-shadow(0 0 8px #ffd66e);
 }
 .result-card {
   display: grid;
@@ -199,8 +199,8 @@ header button:hover {
   width: min(430px, 100%);
   margin: 14px auto;
   padding: 10px;
-  border: 1px solid #63878a;
-  background: #0b1921;
+  border: 1px solid #73618c;
+  background: #170527;
   color: #e8efea;
   text-align: left;
 }
@@ -246,7 +246,7 @@ header button:hover {
 .overlay.title-scene,
 .overlay.meta-scene {
   padding: 0;
-  background: #07131bf4;
+  background: #12041ef4;
   place-content: stretch;
 }
 /* 옛 키아트(video-title-card.png)에는 「PRISM BREAKERS」가 픽셀 글씨로 크게
@@ -255,7 +255,7 @@ header button:hover {
    글씨가 더 밝게 떴다. 이 화면의 배경은 .title-sequence가 가지고 있으므로
    여기서는 바탕색만 남긴다. */
 .title-scene {
-  background: #07131b !important;
+  background: #12041e !important;
 }
 .title-wordmark {
   width: min(440px, 80%);
@@ -287,7 +287,7 @@ header button:hover {
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 14px;
-  border-bottom: 1px solid #4d7677;
+  border-bottom: 1px solid #5d487c;
 }
 .meta-brand img {
   width: 230px;
@@ -297,7 +297,7 @@ header button:hover {
   filter: hue-rotate(145deg) saturate(0.68) brightness(1.08);
 }
 .meta-profile {
-  color: #c6d9d3;
+  color: #cbc5da;
   font:
     700 10px ui-monospace,
     monospace;
@@ -350,8 +350,8 @@ header button:hover {
 .help-panel {
   margin: 18px 0;
   padding: 16px;
-  border: 1px solid #63878a;
-  background: #0b1a23;
+  border: 1px solid #73618c;
+  background: #180529;
 }
 .help-panel h2 {
   margin: 0;
@@ -359,7 +359,7 @@ header button:hover {
 }
 .help-panel > p {
   margin: 6px 0 16px;
-  color: #cdded8;
+  color: #d1ccdf;
   font-size: 12px;
 }
 .help-controls {
@@ -370,8 +370,8 @@ header button:hover {
 .help-control {
   min-height: 132px;
   padding: 10px;
-  border: 1px solid #416b6e;
-  background: #10212a;
+  border: 1px solid #533a75;
+  background: #1e0634;
   text-align: center;
 }
 .help-control img {
@@ -391,18 +391,18 @@ header button:hover {
 .help-control small {
   display: block;
   margin-top: 3px;
-  color: #b6cec8;
+  color: #bdb5cf;
   font-size: 10px;
   line-height: 1.35;
 }
 .outcome-cut {
   width: min(560px, 100%);
   padding: 46px 24px 28px;
-  background-color: #07151ce8;
+  background-color: #12041fe8;
   background-position: center top;
   background-repeat: no-repeat;
   background-size: 100% auto;
-  border: 1px solid #66888a;
+  border: 1px solid #75648c;
   box-shadow: 0 12px 32px #0009;
 }
 .outcome-cut.win {
@@ -617,20 +617,20 @@ header,
   background-position: center;
   background-size: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 3px 0 #061015);
+  filter: drop-shadow(0 3px 0 #0e0318);
 }
 .deployment-scene .deployment-map {
   height: 250px;
   margin: 0 auto;
-  border: 1px solid #668c8b;
+  border: 1px solid #74648e;
   border-radius: 12px;
-  background: #0b1d25;
+  background: #18052b;
   overflow: hidden;
 }
 .deployment-scene .deployment-map:before {
   background-image:
-    linear-gradient(#6c9c9726 1px, transparent 1px),
-    linear-gradient(90deg, #6c9c9726 1px, transparent 1px);
+    linear-gradient(#7d6a9e26 1px, transparent 1px),
+    linear-gradient(90deg, #7d6a9e26 1px, transparent 1px);
   background-size: 26px 26px;
 }
 .deployment-scene .deployment-map:after {
@@ -644,9 +644,9 @@ header,
   padding: 3px;
   border: 2px dashed var(--unit);
   border-radius: 50%;
-  background: #10262dde;
+  background: #1d0736de;
   box-shadow:
-    0 0 0 5px #07151b,
+    0 0 0 5px #11041e,
     0 0 16px color-mix(in srgb, var(--unit) 34%, transparent);
   transform: translate(-50%, -50%);
 }
@@ -657,7 +657,7 @@ header,
   background-position: center;
   background-size: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 3px 0 #061015);
+  filter: drop-shadow(0 3px 0 #0e0318);
 }
 .slot-card .slot-index {
   position: absolute;
@@ -669,7 +669,7 @@ header,
   height: 20px;
   border: 1px solid var(--unit);
   border-radius: 50%;
-  background: #08161d;
+  background: #130421;
   color: #f7efd5;
   font:
     700 10px ui-monospace,
@@ -677,9 +677,9 @@ header,
   transform: translateX(-50%);
 }
 .slot-card.drop-ready {
-  background: #1b4346;
+  background: #2b0e53;
   box-shadow:
-    0 0 0 5px #07151b,
+    0 0 0 5px #11041e,
     0 0 0 3px #f1cb70,
     0 0 22px #e0b55a88;
 }
@@ -745,7 +745,7 @@ header,
   align-items: center;
   gap: 8px;
   margin-top: 10px;
-  color: #a8c4bd;
+  color: #b0a7c5;
   font-size: 10px;
 }
 .map-foot button {

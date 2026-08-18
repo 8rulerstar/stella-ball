@@ -35,10 +35,10 @@
 .game-mode .hud-card,
 .game-mode .boss-panel {
   min-height: 0;
-  border: 1px solid #557e80;
-  background: #0a151df2;
+  border: 1px solid #665184;
+  background: #150423f2;
   box-shadow:
-    0 3px 0 #02070abb,
+    0 3px 0 #06010bbb,
     0 0 18px #0008;
 }
 .game-mode .hud-card {
@@ -146,11 +146,11 @@
   display: block;
   width: 100%;
   padding: 9px 13px;
-  border-color: #668b89;
-  background: #0a151dcc;
+  border-color: #74648d;
+  background: #150423cc;
   text-align: center;
   /* backdrop-filter는 뒤에 그려진 것을 되읽어 흐리는데, 이 배너의 배경은
-     stella-ball-theme.css에서 #111b20f4(96% 불투명)로 !important 덮어쓰기
+     stella-ball-theme.css에서 #190b26f4(96% 불투명)로 !important 덮어쓰기
      되므로 흐려진 결과가 사실상 보이지 않는다. 매 프레임 갱신되는 스테이지
      바로 위에서 그 되읽기를 하고 있었다. */
   box-shadow: 0 3px 14px #0009;
@@ -193,13 +193,13 @@
   justify-content: space-between;
   gap: 10px;
   padding: 0 0 12px;
-  border-bottom: 1px solid #436b6e;
+  border-bottom: 1px solid #543c75;
 }
 .hub-player {
   display: flex;
   align-items: center;
   gap: 9px;
-  color: #dce9e4;
+  color: #dfdbea;
   font:
     700 10px ui-monospace,
     monospace;
@@ -211,9 +211,9 @@
   height: 42px;
   border: 2px solid #d6b55f;
   border-radius: 12px;
-  background: #102731;
+  background: #20073a;
   color: #ffe6a5;
-  box-shadow: 0 3px 0 #061015;
+  box-shadow: 0 3px 0 #0e0318;
 }
 .hub-avatar img {
   width: 34px;
@@ -229,7 +229,7 @@
 .hub-player small {
   display: block;
   margin-top: 3px;
-  color: #90b9b2;
+  color: #9d8ebb;
 }
 .hub-resources {
   display: flex;
@@ -238,9 +238,9 @@
 .hub-resource {
   min-width: 68px;
   padding: 6px 7px;
-  border: 1px solid #41686b;
-  background: #0b1b23;
-  color: #a8c9c2;
+  border: 1px solid #523a72;
+  background: #170529;
+  color: #b2a6cb;
   font:
     700 9px ui-monospace,
     monospace;
@@ -259,9 +259,9 @@
   padding: 18px;
   overflow: hidden;
   border: 2px solid #d2b05c;
-  background-color: #122932;
+  background-color: #22073d;
   background-image:
-    linear-gradient(90deg, #08171fd9 0%, #0a1b22c9 52%, #152f3288 100%),
+    linear-gradient(90deg, #140423d9 0%, #160527c9 52%, #200b3c88 100%),
     var(--stage-art);
   background-size: cover;
   background-position: center;
@@ -283,7 +283,7 @@
   max-width: 72%;
 }
 .hub-mission small {
-  color: #9ec7be;
+  color: #ab9cc9;
   font:
     700 10px ui-monospace,
     monospace;
@@ -293,11 +293,11 @@
   margin: 5px 0 4px;
   color: #fff0c7;
   font-size: 24px;
-  text-shadow: 0 2px 0 #081218;
+  text-shadow: 0 2px 0 #11041c;
 }
 .hub-mission p {
   margin: 0;
-  color: #d0e1db;
+  color: #d4cfe2;
   font-size: 11px;
   line-height: 1.4;
 }
@@ -324,8 +324,8 @@
   gap: 10px;
   align-items: center;
   padding: 9px 10px;
-  border: 1px solid #40696d;
-  background: #0b1b23;
+  border: 1px solid #523974;
+  background: #170529;
 }
 .hub-party-label {
   color: #d9c182;
@@ -343,12 +343,12 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  border: 1px solid #426a6d;
+  border: 1px solid #533b74;
   border-radius: 50%;
-  background: #10252d;
+  background: #1e0736;
 }
 .hub-party-slot.empty {
-  color: #617f7f;
+  color: #6d5f81;
   font: 700 15px ui-monospace;
 }
 .hub-party-slot img {
@@ -370,14 +370,14 @@
 .hub-quick {
   min-height: 78px;
   padding: 8px 5px !important;
-  border: 1px solid #426a6d !important;
-  background: #0d2029 !important;
+  border: 1px solid #533b74 !important;
+  background: #1b0630 !important;
   color: #e5eee9 !important;
   font-size: 10px !important;
 }
 .hub-quick:hover {
   border-color: #e8c46d !important;
-  background: #17333b !important;
+  background: #270b47 !important;
 }
 .hub-quick img {
   display: block;
@@ -395,7 +395,7 @@
 .hub-quick small {
   display: block;
   margin-top: 2px;
-  color: #9ebbb4;
+  color: #a79dbc;
   font-size: 8px;
 }
 .hub-record {
@@ -405,14 +405,14 @@
   margin-top: 10px;
   padding: 8px 10px;
   border-left: 2px solid #d1ac58;
-  background: #091920;
-  color: #a9c4bd;
+  background: #140524;
+  color: #b1a8c5;
   font-size: 10px;
 }
 .tutorial-scene {
   padding: 0 !important;
   place-content: stretch !important;
-  background: #07131bf5 !important;
+  background: #12041ef5 !important;
 }
 .tutorial-shell {
   width: min(620px, 100%);
@@ -430,8 +430,8 @@
   align-items: center;
   margin-top: 16px;
   padding: 22px;
-  border: 1px solid #5b8385;
-  background: linear-gradient(145deg, #102933, #091820);
+  border: 1px solid #6c5888;
+  background: linear-gradient(145deg, #21073c, #150524);
   box-shadow: 0 10px 24px #000a;
 }
 .tutorial-visual {
@@ -439,18 +439,18 @@
   place-items: center;
   width: 150px;
   height: 150px;
-  border: 1px solid #638e8d;
-  background: radial-gradient(circle, #1d4247, #0b1922 68%);
+  border: 1px solid #736190;
+  background: radial-gradient(circle, #2e1054, #170528 68%);
 }
 .tutorial-visual img {
   width: 108px;
   height: 108px;
   object-fit: contain;
   image-rendering: pixelated;
-  filter: hue-rotate(145deg) saturate(0.72) drop-shadow(0 0 12px #6dd9cb88);
+  filter: hue-rotate(145deg) saturate(0.72) drop-shadow(0 0 12px #9268de88);
 }
 .tutorial-copy small {
-  color: #a4c8c1;
+  color: #afa2ca;
   font:
     700 10px ui-monospace,
     monospace;
@@ -463,7 +463,7 @@
 }
 .tutorial-copy p {
   margin: 0;
-  color: #d2e0da;
+  color: #d5d1e1;
   font-size: 13px;
   line-height: 1.65;
 }
@@ -475,7 +475,7 @@
 .tutorial-progress i {
   flex: 1;
   height: 4px;
-  background: #27494c;
+  background: #351d56;
 }
 .tutorial-progress i.active {
   background: #e5bd64;
