@@ -38,14 +38,81 @@
        F7  여백 하늘 레이어 (1920 창에서 1898x982 캔버스 — 판의 2.9배)
        F8  캔버스 흐림 (shadowBlur. 실측으로 프레임 비용의 대부분)
        F6  화면 반응 (잔상·흔들림·기울기) */
-  var off = { sky: false, blur: false, react: false };
+  var off = {
+    sky: false,
+    blur: false,
+    react: false,
+    stars: false,
+    decor: false,
+    guests: false,
+    twinkle: false,
+  };
 
+  function hide(id, flag) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = flag ? "none" : "";
+  }
   function toggleSky() {
     off.sky = !off.sky;
-    ["dawn-sky", "sky-ambience"].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) el.style.display = off.sky ? "none" : "";
+    hide("dawn-sky", off.sky);
+    hide("sky-ambience", off.sky);
+    off.stars = off.decor = off.guests = off.sky;
+  }
+  /* F7이 하늘 전체를 껐을 때 렉이 사라졌다. 하늘 안에서 무엇이 값을 치르는지
+     세 조각으로 더 가른다 — 고칠 자리가 셋 다 다르기 때문이다.
+       F4  별 캔버스 자체 (뷰포트 크기 1898x982, 판의 2.9배)
+       F3  반짝임만 (setInterval 84ms = 12Hz로 그 큰 캔버스를 건드린다)
+       F2  하늘 소품 DOM (구름·유성·오로라 등 CSS 애니메이션) */
+  function toggleStars() {
+    off.stars = !off.stars;
+    var sky = document.getElementById("dawn-sky");
+    var cv =
+      sky &&
+      [].slice.call(sky.children).filter(function (e) {
+        return e.tagName === "CANVAS";
+      })[0];
+    if (cv) cv.style.display = off.stars ? "none" : "";
+  }
+  function toggleDecor() {
+    off.decor = !off.decor;
+    var sky = document.getElementById("dawn-sky");
+    if (!sky) return;
+    [].slice.call(sky.children).forEach(function (e) {
+      if (e.tagName !== "CANVAS") e.style.display = off.decor ? "none" : "";
     });
+  }
+  function toggleGuests() {
+    off.guests = !off.guests;
+    hide("sky-ambience", off.guests);
+  }
+  /* 반짝임만 멈춘다. 캔버스는 그대로 두고 «건드리는 것»만 없앤다 — 큰 레이어를
+     12Hz로 더럽히는 것이 값인지, 레이어가 커서 값인지를 가른다. */
+  function toggleTwinkle() {
+    off.twinkle = !off.twinkle;
+    if (off.twinkle && !toggleTwinkle.saved) {
+      toggleTwinkle.saved = CanvasRenderingContext2D.prototype.fillRect;
+      var sky = document.getElementById("dawn-sky");
+      var cv =
+        sky &&
+        [].slice.call(sky.children).filter(function (e) {
+          return e.tagName === "CANVAS";
+        })[0];
+      toggleTwinkle.ctx = cv && cv.getContext("2d");
+      if (toggleTwinkle.ctx) {
+        toggleTwinkle.realFill = toggleTwinkle.ctx.fillRect.bind(
+          toggleTwinkle.ctx,
+        );
+        toggleTwinkle.realClear = toggleTwinkle.ctx.clearRect.bind(
+          toggleTwinkle.ctx,
+        );
+        toggleTwinkle.ctx.fillRect = function () {
+          if (!off.twinkle) toggleTwinkle.realFill.apply(null, arguments);
+        };
+        toggleTwinkle.ctx.clearRect = function () {
+          if (!off.twinkle) toggleTwinkle.realClear.apply(null, arguments);
+        };
+      }
+    }
   }
   var realBlur = null;
   function toggleBlur() {
@@ -251,6 +318,22 @@
     } else if (e.code === "F6" && on) {
       e.preventDefault();
       toggleReact();
+      gaps = [];
+      longs = [];
+    } else if (e.code === "F4" && on) {
+      e.preventDefault();
+      toggleStars();
+      gaps = [];
+      longs = [];
+    } else if (e.code === "F3" && on) {
+      e.preventDefault();
+      toggleTwinkle();
+      gaps = [];
+      longs = [];
+    } else if (e.code === "F2" && on) {
+      e.preventDefault();
+      toggleDecor();
+      toggleGuests();
       gaps = [];
       longs = [];
     }
