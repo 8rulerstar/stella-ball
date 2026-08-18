@@ -2028,8 +2028,11 @@ body.onboarding-locked .pause-button {
 .deployment-map .slot-card {
   display: grid !important;
   place-items: center;
-  width: 76px !important;
-  height: 76px !important;
+  /* 말의 크기는 초상화 하나에서 나온다. CSS와 `setPortrait`이 서로 다른 값을
+     쓰면 옆 프레임이 새므로(2026-08-18) 한 변수로 묶는다. 원본 스프라이트가
+     192×192이라 48은 1/4 — 정수 배율이라 픽셀이 뭉개지지 않는다. */
+  width: calc(var(--slot-portrait, 48px) + 12px) !important;
+  height: calc(var(--slot-portrait, 48px) + 12px) !important;
   min-width: 0 !important;
   min-height: 0 !important;
   padding: 4px !important;
@@ -2037,8 +2040,8 @@ body.onboarding-locked .pause-button {
   cursor: grab;
 }
 .deployment-map .slot-card .portrait {
-  width: 64px !important;
-  height: 64px !important;
+  width: var(--slot-portrait, 48px) !important;
+  height: var(--slot-portrait, 48px) !important;
 }
 .deployment-map .slot-card .slot-index {
   position: absolute;
@@ -2046,8 +2049,9 @@ body.onboarding-locked .pause-button {
   left: -3px;
   display: grid;
   place-items: center;
-  width: 21px;
-  height: 21px;
+  /* 말이 작아졌으므로 번호 표식도 같은 비율로 줄인다. */
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: linear-gradient(180deg, #f0b078, #a05c32);
   color: #241708;

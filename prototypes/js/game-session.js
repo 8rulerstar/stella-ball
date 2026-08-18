@@ -282,6 +282,23 @@ function showRoster() {
   const touchSlot = (slot) => {
     fillOrder = [...fillOrder.filter((entry) => entry !== slot), slot];
   };
+  /* 잘못 놓은 별지기를 되돌리는 길이 드래그밖에 없었다. 판 위의 말이나
+     트레이의 배치된 칸을 더블클릭하면 그 자리를 비운다. 자리를 비우면 시작
+     버튼이 인원 수 검사에 걸리므로, 빈 채로 전투에 들어갈 수는 없다. */
+  const unplace = (slot) => {
+    const id = deployed[slot];
+    if (!id) return;
+    deployed[slot] = null;
+    touchSlot(slot);
+    selected = [...deployed];
+    rosterFocus = id;
+    placementPick = null;
+    playSfx?.("card");
+    renderAll();
+    // 이름 뒤에 조사를 붙이면 받침에 따라 「샛별을」과 「미리내를」이 갈린다.
+    // 가운뎃점으로 끊어 조사 자체를 쓰지 않는다.
+    toast(heroes[id].s + " · 자리에서 뺐습니다");
+  };
   // Dropping a deployed hero swaps the two slots; dropping a benched one takes
   // the slot over and sends its previous occupant back to the tray.
   const place = (id, slot) => {
@@ -348,8 +365,14 @@ function showRoster() {
       slot.draggable = Boolean(h);
       slot.setAttribute(
         "aria-label",
-        i + 1 + "번 자리 · " + zone.name + " · " + (h ? h.s : "비어 있음"),
+        i +
+          1 +
+          "번 자리 · " +
+          zone.name +
+          " · " +
+          (h ? h.s + " · 더블클릭하면 뺍니다" : "비어 있음"),
       );
+      if (h) slot.title = "더블클릭하면 자리에서 뺍니다";
       slot.innerHTML =
         '<span class="slot-index">' +
         (i + 1) +
@@ -358,7 +381,9 @@ function showRoster() {
         '</b><small class="slot-zone">' +
         zone.name +
         "</small>";
-      if (h) setPortrait(slot.querySelector(".portrait"), h, 64);
+      // CSS의 `--slot-portrait`과 같은 값이어야 한다. 어긋나면 스프라이트
+      // 시트의 옆 프레임이 말 옆으로 새어 나온다.
+      if (h) setPortrait(slot.querySelector(".portrait"), h, 48);
       slot.addEventListener("pointerenter", () => {
         if (h) focus(id);
       });
@@ -369,6 +394,10 @@ function showRoster() {
           focus(id);
           renderTray();
         }
+      });
+      slot.addEventListener("dblclick", (e) => {
+        e.preventDefault();
+        unplace(i);
       });
       slot.addEventListener("dragstart", (e) => {
         if (!h) return e.preventDefault();
@@ -439,6 +468,11 @@ function showRoster() {
         placementPick = placementPick === id ? null : id;
         focus(id);
         renderTray();
+      });
+      b.addEventListener("dblclick", (e) => {
+        if (at < 0) return;
+        e.preventDefault();
+        unplace(at);
       });
       b.addEventListener("dragstart", (e) => {
         e.dataTransfer.effectAllowed = "move";
