@@ -106,6 +106,15 @@ Each rule below cost real debugging time here. The evidence is in `DEVLOG.md` un
 - **Korean text below 10px is unreadable in this project.** Galmuri11 is drawn for 11px, so 8px labels turn to mush. Check `font: 700 8px` before shipping any new label.
 - **A teaching gate must not demand an input the lesson already requested, and must always release itself.** The parry hold waited for a Space the tutorial copy had just told the player to press, which deadlocked the journey; it also had no timeout, so a player who could not respond stayed stuck. Guard on the state the lesson already sets, and give every hold a grace release.
 
+### Measuring (added 2026-08-19, after four of these in one day)
+
+- **How many _places_ the sample came from matters more than how many samples.** Two conclusions were reversed on the same day because the sweep drew 16 points from a single aim angle per stage. Widening to 238 points across ±40° flipped both. Before trusting a number, ask where the samples sit, not just how many there are.
+- **Check when a hook fires before reading a value through it.** `afterMobilePairCollision` runs _after_ the impulse, so reading a body's "pre-collision" speed there returns the post-collision value — every starkeeper looked like it was moving at the settlement cap. Wrap the function instead.
+- **A wrapper must forward every argument.** A probe wrapped `mobilePair` with six parameters after a seventh was added; the knob it was measuring silently never reached the physics and the report did not move.
+- **A counter read at the end of a shot is the next shot's counter.** `endShot → startShot` resets `ball.bounces` before the loop's final read, so a seven-contact shot reports two. Take the maximum over the run, not the last value.
+- **A config key that nothing reads fails silently.** A probe passed `angleOffset` where `__botRun` reads `aimOffset`; the sweep ran 121 times and returned 121 identical rows. When a sweep produces no variation, suspect the plumbing before the physics.
+- **Before adding a file to the harness's `runtimeFiles`, grep it for `Math.random`.** That harness's seed reproducibility assumes randomness is drawn in exactly one place (`aimSigma`). One presentation file with twenty draws invalidates every past report. This is why `game-figure-cinematics.js` is excluded and why `CINE.orionKnock` ships off.
+
 ## Before handoff
 
 Run this quick handoff check from the repository root:
