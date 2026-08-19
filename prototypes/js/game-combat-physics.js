@@ -1105,60 +1105,60 @@ function drawAimStars() {
     x.restore();
   }
   if (preview) {
-    /* 화살표를 그린다. 꼬리(앞서 찍은 것들의 중점)에서 촉(마지막에 찍은 것)
-       으로 가는 선이 곧 유성이 갈 방향이다 — 삼각형을 그리던 예전 방식은
-       무게중심 조준의 그림이라 지금 규칙과 맞지 않는다. */
+    /* 무게중심 조준을 그린다. 유성에서 가운데점까지 «갈 길»을 직접 긋고,
+       훑은 별빛들이 그 점으로 모이는 선을 얹는다.
+
+       화살표를 그리던 때는 선이 별빛들 사이에서 시작해 유성과 떨어져 있었다.
+       그래서 「어디로 쏘는지」를 머릿속에서 평행이동해야 했다 — 오너가
+       「너무 힘들다」고 한 것이 이것이다. 유성에서 시작하는 선은 그 단계가
+       없다. */
     const previewPicks =
-      aimPick.length >= 3 || aimHover < 0 || aimPick.includes(aimHover)
+      aimStroke || aimHover < 0 || aimPick.includes(aimHover)
         ? aimPick
         : [...aimPick, aimHover];
     const p = previewPicks.map((i) => aimStars[i]);
     if (p.length && p.every(Boolean)) {
-      const tx = preview.tx,
-        ty = preview.ty,
-        hx = preview.hx,
-        hy = preview.hy,
-        ux = preview.dx / (preview.length || 1),
-        uy = preview.dy / (preview.length || 1);
-      x.globalAlpha = 0.55;
+      const cx = preview.cx,
+        cy = preview.cy;
+      // 훑은 별빛 -> 가운데점. 어느 별빛이 이 조준을 만들었는지가 읽힌다.
+      x.globalAlpha = 0.45;
       x.setLineDash([4, 4]);
       x.strokeStyle = "#ffe09a";
       x.lineWidth = 1.5;
-      // 꼬리 별빛들과 꼬리점을 잇는 깃
-      for (const s of p.slice(0, -1)) {
+      for (const s of p) {
         x.beginPath();
         x.moveTo(s.x, s.y);
-        x.lineTo(tx, ty);
+        x.lineTo(cx, cy);
         x.stroke();
       }
       x.setLineDash([]);
       x.globalAlpha = 1;
-      // 화살대
+      // 유성 -> 가운데점. 이것이 갈 길이다.
+      const dx = cx - ball.x,
+        dy = cy - ball.y,
+        len = Math.hypot(dx, dy) || 1,
+        ux = dx / len,
+        uy = dy / len;
       x.strokeStyle = "#ffe09a";
       x.lineWidth = 3;
       x.beginPath();
-      x.moveTo(tx, ty);
-      x.lineTo(hx, hy);
+      x.moveTo(ball.x, ball.y);
+      x.lineTo(cx, cy);
       x.stroke();
-      // 촉
       const px = -uy,
         py = ux;
       x.fillStyle = "#ffe09a";
       x.beginPath();
-      x.moveTo(hx + ux * 13, hy + uy * 13);
-      x.lineTo(hx - ux * 6 + px * 9, hy - uy * 6 + py * 9);
-      x.lineTo(hx - ux * 6 - px * 9, hy - uy * 6 - py * 9);
+      x.moveTo(cx + ux * 13, cy + uy * 13);
+      x.lineTo(cx - ux * 6 + px * 9, cy - uy * 6 + py * 9);
+      x.lineTo(cx - ux * 6 - px * 9, cy - uy * 6 - py * 9);
       x.closePath();
       x.fill();
-      stepRing(tx, ty, 6, "#ffe09a99");
+      stepRing(cx, cy, 10, "#ffe09acc");
       x.fillStyle = "#ffe09a";
       x.font = "700 12px Galmuri11, ui-monospace";
       x.textAlign = "center";
-      x.fillText(
-        "위력 " + Math.round(preview.force * 100) + "%",
-        (tx + hx) / 2,
-        (ty + hy) / 2 - 12,
-      );
+      x.fillText("위력 " + Math.round(preview.force * 100) + "%", cx, cy - 18);
     }
   }
 
@@ -1222,8 +1222,8 @@ function drawAimStars() {
   x.font = "600 11px Galmuri11, ui-monospace";
   x.fillText(
     aimPick.length
-      ? "마지막에 지난 별빛이 «촉»입니다 · 빈 곳에서 놓으면 취소"
-      : "끌어서 별빛을 훑으세요 · 훑은 순서가 꼬리에서 촉입니다",
+      ? "훑은 별빛들의 가운데로 갑니다 · 빈 곳에서 놓으면 취소"
+      : "끌어서 별빛을 훑으세요 · 넓게 훑을수록 세게 나갑니다",
     W / 2,
     H - 10,
   );
