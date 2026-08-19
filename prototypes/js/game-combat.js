@@ -166,7 +166,10 @@ function damage(weak = false) {
   if (boss.hp <= 0) scheduleWin();
   ball.power = 0;
   ball.openingBossContact = false;
-  if (weak) ball.mark = false;
+  if (weak) {
+    ball.mark = false;
+    if (dealt > 0) dropWeakpointStars();
+  }
   chain = [];
   sync();
   // Named for its scope: this is the DIRECT meteor-on-colossus path only.
@@ -631,6 +634,35 @@ const AIM_STAR = {
   fullRadius: 250,
   life: 0, // 0이면 전투 내내 남는다. 소멸 규칙은 아직 넣지 않았다(4번 보류).
 };
+/* 약점을 때리면 보스 둘레에 별빛 둘이 떨어진다.
+
+   조준과 별자리의 재료를 «보스 근처»에 놓는다는 것이 이 규칙의 핵심이다 —
+   별자리는 둘러싼 것을 때리므로(실측: 보스를 감싸면 42, 못 감싸면 0), 보스
+   둘레의 별빛은 그대로 다음 별자리의 자리가 된다. 약점을 노릴 이유가 피해
+   1.7배 하나에서 「다음 판을 짜는 재료」로 늘어난다.
+
+   Math.random을 쓰지 않는다. 이 파일은 하니스가 읽는 목록에 있고, 그 시드
+   재현성은 「난수를 aimSigma 한 곳에서만 쓴다」는 전제 위에 있다(BOT_REPORT
+   0-3·0-7). 대신 황금각(2.39996rad)으로 돌린다 — 연속으로 떨어져도 한쪽에
+   뭉치지 않아 눈에는 흩뿌린 것으로 보이고, 같은 입력이면 같은 결과가 난다.
+   판마다 0에서 시작하므로 리플레이도 재현된다. */
+const WEAK_STAR_COUNT = 2;
+let weakStarSeq = 0;
+function dropWeakpointStars(count = WEAK_STAR_COUNT) {
+  if (!battle || !boss || battleComplete) return;
+  if (typeof nodeEconomyOn === "function" && !nodeEconomyOn()) return;
+  for (let i = 0; i < count; i++) {
+    weakStarSeq += 1;
+    const a = weakStarSeq * 2.39996,
+      r = 96 + ((weakStarSeq * 37) % 58);
+    dropAimStar(
+      clamp(boss.x + Math.cos(a) * r, 30, W - 30),
+      clamp(boss.y + Math.sin(a) * r, 30, H - 30),
+      "#ffb0d8",
+      "약점",
+    );
+  }
+}
 function dropAimStar(x, y, col, label) {
   if (!battle) return;
   aimStars.push({
@@ -648,6 +680,7 @@ function resetAimStars() {
   aimStars = [];
   aimPick = [];
   aimHover = -1;
+  weakStarSeq = 0;
 }
 /* 별빛이 하나라도 있으면 별빛 조준이다. 0개일 때만 예전 드래그로 떨어진다 —
    첫 발에는 별빛이 없고, 튜토리얼과 온보딩 E2E도 드래그를 쓴다.
@@ -1597,6 +1630,8 @@ function cloneDamage(o, weak = false) {
     d: 0.35,
     col: "#70dce1",
   });
+  // 분열체의 약점 타격도 같은 규칙이다 — 오너 지시가 「전체 적용」이다.
+  if (weak && dealt > 0) dropWeakpointStars();
   if (boss.hp <= 0) scheduleWin();
   sync();
 }
