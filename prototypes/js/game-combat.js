@@ -490,7 +490,7 @@ function billiardPointerDown(e) {
         return;
       }
       aimPick = [];
-      aimStroke = { pts: [{ x: p.x, y: p.y }] };
+      aimStroke = { pts: [{ x: p.x, y: p.y }], travel: 0 };
       sweepAimStroke(p.x, p.y);
       c.setPointerCapture?.(e.pointerId);
       return;
@@ -540,6 +540,7 @@ function billiardPointerMove(e) {
         last.x + ((at.x - last.x) * i) / steps,
         last.y + ((at.y - last.y) * i) / steps,
       );
+    aimStroke.travel += Math.hypot(at.x - last.x, at.y - last.y);
     aimStroke.pts.push({ x: at.x, y: at.y });
     if (aimStroke.pts.length > 96)
       aimStroke.pts.splice(0, aimStroke.pts.length - 96);
@@ -567,9 +568,19 @@ function billiardPointerMove(e) {
 function billiardPointerUp(e) {
   if (aimStroke) {
     e.stopImmediatePropagation();
+    /* 탭은 발사가 아니다. 별빛 위를 그냥 누르면 pointerdown이 하나를 집고
+       pointerup이 곧바로 쏴 버렸다 — 「좌클릭에 바로 발사된다」는 제보가
+       이것이다. 그리기 조작이므로 획이 실제로 움직여야 한 획이다. */
+    const drawn = (aimStroke.travel || 0) >= AIM_STAR.minStroke;
     aimStroke = null;
-    // 아무 별빛도 안 지났으면 취소다. 빈 곳을 긋는 것으로 무를 수 있다.
-    if (!aimPick.length) return;
+    // 아무 별빛도 안 지났거나 긋지 않았으면 취소다.
+    if (!aimPick.length || !drawn) {
+      if (aimPick.length) {
+        aimPick = [];
+        toast("끌어서 별빛을 훑으세요 · 놓으면 발사");
+      }
+      return;
+    }
     if (isCombatInputLocked()) {
       aimPick = [];
       toast("루나의 설명을 읽고 아래 버튼을 눌러 주세요.");
@@ -650,6 +661,9 @@ const AIM_MODE = "centroid";
 const AIM_STAR = {
   max: 9, // 화면이 난장판이 되지 않는 상한. 조합은 C(9,3)=84가지다.
   pickRadius: 26,
+  /* 이만큼은 그어야 한 획으로 친다. 별빛 하나 위를 탭하는 것과 그 별빛을
+     지나며 긋는 것을 가르는 값이다 — pickRadius(26)의 절반쯤. */
+  minStroke: 14,
   // 화살표 길이가 이 값이면 최대 위력이다. 250으로 재니 위력 중앙이 0.94로
   // 붙박여 세기 선택이 죽었다 — 화살표는 무게중심보다 길게 나온다.
   fullLength: 420,
@@ -822,7 +836,10 @@ function launchAimStarShot() {
    벽은 조준이 나빠도 맞는다(실측 샷당 중앙 2회). 그래서 벽 별빛은
    «실패해도 재료가 생긴다»는 안전망이 되어 그 고리를 끊는다.
    오너의 원안도 「별지기」가 아니라 「충돌」이었다. */
+/* 끄고 켜는 스위치. 껐을 때 굶는지 다시 확인하려면 true로 되돌린다. */
+const WALL_STARS = false;
 registerRuntimeHook("afterTableWall", () => {
+  if (!WALL_STARS) return;
   if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
   if (!battle || battleComplete || !ball?.moving) return;
   // 벽에 붙어 미끄러질 때 같은 자리에 겹쳐 쌓이지 않게 최소 간격을 둔다.
