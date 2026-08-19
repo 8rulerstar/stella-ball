@@ -1091,6 +1091,19 @@ function drawAimStars() {
   x.fillRect(0, 0, W, H);
   x.globalAlpha = 1;
 
+  /* 손이 그은 획. 어디를 지나왔는지가 보여야 「그리고 있다」가 읽힌다. */
+  if (aimStroke?.pts?.length > 1) {
+    x.save();
+    x.globalAlpha = 0.5;
+    x.strokeStyle = "#fff6e2";
+    x.lineWidth = 2;
+    x.lineJoin = "round";
+    x.beginPath();
+    x.moveTo(aimStroke.pts[0].x, aimStroke.pts[0].y);
+    for (const q of aimStroke.pts) x.lineTo(q.x, q.y);
+    x.stroke();
+    x.restore();
+  }
   if (preview) {
     /* 화살표를 그린다. 꼬리(앞서 찍은 것들의 중점)에서 촉(마지막에 찍은 것)
        으로 가는 선이 곧 유성이 갈 방향이다 — 삼각형을 그리던 예전 방식은
@@ -1195,13 +1208,13 @@ function drawAimStars() {
   x.font = "700 13px Galmuri11, ui-monospace";
   x.textAlign = "center";
   x.fillText(
-    "조준 " +
+    "훑은 별빛 " +
       aimPick.length +
-      "/3   ·   남은 " +
+      "   ·   남은 " +
       restCount +
       "개가 별자리" +
       (restCount >= 3 ? "" : " (셋부터)") +
-      "   ·   Space 발사",
+      "   ·   놓으면 발사",
     W / 2,
     H - 26,
   );
@@ -1209,8 +1222,8 @@ function drawAimStars() {
   x.font = "600 11px Galmuri11, ui-monospace";
   x.fillText(
     aimPick.length
-      ? "마지막에 찍은 별빛이 «촉»입니다 · 우클릭으로 무르기"
-      : "화살표 방향으로 날아가고, 화살이 길수록 세게 나갑니다",
+      ? "마지막에 지난 별빛이 «촉»입니다 · 빈 곳에서 놓으면 취소"
+      : "끌어서 별빛을 훑으세요 · 훑은 순서가 꼬리에서 촉입니다",
     W / 2,
     H - 10,
   );

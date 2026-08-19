@@ -471,27 +471,28 @@ function billiardPointerDown(e) {
     const p = pointer(e);
     /* 별빛이 셋 이상이면 조준은 «찍기»다. 오른쪽 버튼은 고른 것을 전부
        무른다 — 유성이 멈춰 있을 때 오른쪽 버튼은 원래 하는 일이 없다. */
+    /* 조준은 «그리기»다. 누른 채로 별빛을 훑으면 지나간 순서가 그대로
+       꼬리와 촉이 되고, 놓으면 나간다.
+
+       찍기(클릭 세 번 + Space)에서 바꿨다. 규칙은 같은데 손이 하는 일이
+       다르다 — 당기는 감각이 없어진 것이 새 조준의 가장 큰 손실이었다.
+       한 획으로 훑으면 미리보기가 손끝을 따라오므로 「보고 무르기」도
+       드래그 자체로 된다. */
     if (aimStarReady()) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      const hit = aimStarAt(p.x, p.y);
-      /* 오른쪽 버튼은 «무르기»다. 별자리용 표시가 없어졌으므로(고르지 않은
-         것이 곧 별자리다) 이 버튼은 다시 비었다. */
       if (e.button !== 0) {
-        if (aimPick.length) {
+        if (aimPick.length || aimStroke) {
           aimPick = [];
+          aimStroke = null;
           combatSfx?.("parryMiss", 0.5);
         }
         return;
       }
-      if (hit < 0) {
-        if (!aimPick.length)
-          toast("별빛을 찍어 조준하세요 · 셋까지 · Space로 발사");
-        return;
-      }
-      // 셋을 채워도 바로 나가지 않는다. 발사는 Space다 — 고른 뒤에 미리보기를
-      // 보고 무를 수 있어야 「고른다」가 성립한다.
-      pickAimStar(hit);
+      aimPick = [];
+      aimStroke = { pts: [{ x: p.x, y: p.y }] };
+      sweepAimStroke(p.x, p.y);
+      c.setPointerCapture?.(e.pointerId);
       return;
     }
     if (e.button !== 0) return;
@@ -512,10 +513,40 @@ function cuePull(p) {
   const dy = p.y - ball.y;
   return { x: p.x, y: ball.y + (dy > 0 ? dy * 4.8 : dy) };
 }
+/* 획이 지나간 별빛을 집는다. 이미 집은 것은 다시 집지 않는다 — 되짚어
+   지나가도 순서가 헝클어지지 않아야 한다. */
+function sweepAimStroke(px, py) {
+  const hit = aimStarAt(px, py);
+  if (hit < 0 || aimPick.includes(hit)) return;
+  aimPick.push(hit);
+  combatSfx?.("node", 0.6 + Math.min(3, aimPick.length) * 0.1);
+  const star = aimStars[hit];
+  if (star)
+    addPopup(star.x, star.y - 30, String(aimPick.length), star.col, true);
+}
 function billiardPointerMove(e) {
+  if (aimStroke) {
+    e.stopImmediatePropagation();
+    const at = pointer(e);
+    const last = aimStroke.pts[aimStroke.pts.length - 1];
+    /* 프레임이 성기면 두 점 사이를 건너뛰어 그 사이의 별빛을 놓친다.
+       사이를 나눠 훑는다 — 빠르게 그어도 지나간 것은 다 집힌다. */
+    const steps = Math.max(
+      1,
+      Math.ceil(Math.hypot(at.x - last.x, at.y - last.y) / 12),
+    );
+    for (let i = 1; i <= steps; i++)
+      sweepAimStroke(
+        last.x + ((at.x - last.x) * i) / steps,
+        last.y + ((at.y - last.y) * i) / steps,
+      );
+    aimStroke.pts.push({ x: at.x, y: at.y });
+    if (aimStroke.pts.length > 96)
+      aimStroke.pts.splice(0, aimStroke.pts.length - 96);
+    return;
+  }
   if (!drag) {
-    // 별빛 조준은 끌지 않는다. 그래도 어느 별빛 위에 있는지는 알아야
-    // 미리보기가 나온다.
+    // 그리는 중이 아닐 때는 어느 별빛 위에 있는지만 본다.
     if (!ball?.moving && aimStarReady()) {
       const at = pointer(e);
       aimHover = aimStarAt(at.x, at.y);
@@ -534,6 +565,19 @@ function billiardPointerMove(e) {
   );
 }
 function billiardPointerUp(e) {
+  if (aimStroke) {
+    e.stopImmediatePropagation();
+    aimStroke = null;
+    // 아무 별빛도 안 지났으면 취소다. 빈 곳을 긋는 것으로 무를 수 있다.
+    if (!aimPick.length) return;
+    if (isCombatInputLocked()) {
+      aimPick = [];
+      toast("루나의 설명을 읽고 아래 버튼을 눌러 주세요.");
+      return;
+    }
+    launchAimStarShot();
+    return;
+  }
   if (!drag || ball?.moving || battleComplete) return;
   e.stopImmediatePropagation();
   // Lesson cards and the short constellation-result beat both lock launch.
@@ -630,6 +674,7 @@ function resetAimStars() {
   aimStars = [];
   aimPick = [];
   aimHover = -1;
+  aimStroke = null;
 }
 /* 별빛이 하나라도 있으면 별빛 조준이다. 0개일 때만 예전 드래그로 떨어진다 —
    첫 발에는 별빛이 없고, 튜토리얼과 온보딩 E2E도 드래그를 쓴다.
@@ -710,26 +755,13 @@ function aimStarShot(picks = aimPick) {
     force: clamp(length / AIM_STAR.fullLength, 0.28, 1),
   };
 }
-function pickAimStar(index) {
-  const at = aimPick.indexOf(index);
-  if (at >= 0) {
-    // 다시 찍으면 취소한다. 뒤엣것도 같이 풀지 않는다 — 순서만 당겨진다.
-    aimPick.splice(at, 1);
-    combatSfx?.("node", 0.5);
-    return false;
-  }
-  if (aimPick.length >= 3) return false;
-  aimPick.push(index);
-  combatSfx?.("node", 0.62 + aimPick.length * 0.1);
-  const star = aimStars[index];
-  if (star)
-    addPopup(star.x, star.y - 30, String(aimPick.length), star.col, true);
-  return aimPick.length === 3;
-}
 /* 지금 화면에 그려야 할 조준. 둘을 찍었으면 마우스가 올라간 것을 셋째로
    가정해 미리 그린다 — 셋째를 찍는 순간 발사되므로, 그 전에 결과가 보이지
    않으면 «고른다»는 말이 성립하지 않는다. */
 function aimStarPreview() {
+  // 그리는 중에는 획이 집은 것만 본다. hover는 찍기 시절의 값이라 섞이면
+  // 손끝을 따라오지 않는 선이 그려진다.
+  if (aimStroke) return aimPick.length ? aimStarShot() : null;
   if (aimPick.length >= 3) return aimStarShot();
   // 마우스가 올라간 것을 «다음 하나»로 가정해 미리 그린다. 아무것도 안 고른
   // 상태에서 별빛 위에 올리기만 해도 그 한 발이 어디로 갈지 바로 보인다.
@@ -758,6 +790,7 @@ function launchAimStarShot() {
   const fire = () => {
     aimPick = [];
     aimHover = -1;
+    aimStroke = null;
     fireMeteor(
       shot.dx,
       shot.dy,
