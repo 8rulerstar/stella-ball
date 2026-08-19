@@ -36,6 +36,7 @@ const expectedScripts = [
   "./js/game-combat-physics.js",
   "./js/game-figure-recognition.js",
   "./js/game-figure.js",
+  "./js/game-figure-cinematics.js",
   "./js/game-feedback.js",
   "./js/game-onboarding.js",
   // 화자별 말풍선. 훅으로만 붙고 전역을 만들지 않으므로 온보딩 뒤, 전장

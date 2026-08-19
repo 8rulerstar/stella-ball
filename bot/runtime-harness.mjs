@@ -24,6 +24,14 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
  * 쓰기는 하지만, 그 둘을 소비하는 것은 `loop()`이고 하니스는 `loop()`를 거치지
  * 않고 고정 dt로 update 계열을 직접 부르므로 측정값이 달라지지 않는다.
  *
+ * game-figure-cinematics도 뺀다 — 별자리 캐스트 연출이고 판정·피해는 전부
+ * 기존 FIGURE_ABILITIES가 낸다. 더 중요한 이유가 있다: 그 파일은 파티클과
+ * 별빛비에 Math.random을 스무 곳 넘게 쓰는데, 이 하니스의 시드 재현성은
+ * 「난수를 aimSigma 한 곳에서만 쓴다」는 전제 위에 있다(BOT_REPORT 0-3·0-7).
+ * 여기 넣으면 그 전제가 깨져 과거 리포트와 비교가 불가능해진다.
+ * 그래서 그 파일의 CINE.orionKnock(유성을 실제로 밀어내는 유일한 항목)은
+ * false로 반입했다. true로 켜려면 그 난수 문제를 먼저 풀어야 한다.
+ *
  * 새 파일을 추가할 때 판단 기준: 피해·충돌·판정에 관여하면 여기 넣고,
  * 화면에만 관여하면 넣지 않는다. 넣지 않기로 했다면 그 이유를 여기 적는다. */
 const runtimeFiles = [

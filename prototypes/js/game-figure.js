@@ -288,6 +288,11 @@ function huntersVolley(ctx) {
 function polestarBoon(ctx) {
   const hit = figureFieldDamage(ctx, "북두칠성");
   grantFigureBoon({ aim: true });
+  /* 전원 각성. 시네마틱 반입(CINEMATICS_HANDOFF §2)과 함께 들어왔다 —
+     game-figure-cinematics.js가 별지기마다 빛기둥을 세우는데 능력이 깨우지
+     않으면 「연출만 각성처럼 보이는」 상태가 된다. 화면이 거짓말을 하느니
+     능력을 시안에 맞춘다. */
+  for (const g of gates) if (!g.awake) wakeUnit(g);
   const state = currentFigureShot();
   if ((state.refunds || 0) >= FIGURE_REFUND_LIMIT)
     return hit ? hit + "체 타격 · 되돌릴 발사 없음" : "되돌릴 발사 없음";
