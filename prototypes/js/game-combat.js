@@ -779,6 +779,24 @@ function launchAimStarShot() {
   fire();
   return true;
 }
+/* 벽에 튕겨도 별빛이 남는다.
+
+   별지기 접촉만 별빛을 만들었더니 악순환이 생겼다 — 실측으로 별빛 풀이
+   중앙 1개, 쓸 수 있는 조준 조합도 중앙 1개였다. 「고른다」가 아니라
+   「그거밖에 없다」였고, 그 상태에서 조준이 보스 방향에서 중앙 30도 빗나가면
+   별지기를 또 못 맞혀 별빛이 더 줄었다.
+
+   벽은 조준이 나빠도 맞는다(실측 샷당 중앙 2회). 그래서 벽 별빛은
+   «실패해도 재료가 생긴다»는 안전망이 되어 그 고리를 끊는다.
+   오너의 원안도 「별지기」가 아니라 「충돌」이었다. */
+registerRuntimeHook("afterTableWall", () => {
+  if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
+  if (!battle || battleComplete || !ball?.moving) return;
+  // 벽에 붙어 미끄러질 때 같은 자리에 겹쳐 쌓이지 않게 최소 간격을 둔다.
+  const last = aimStars[aimStars.length - 1];
+  if (last && Math.hypot(last.x - ball.x, last.y - ball.y) < 40) return;
+  dropAimStar(ball.x, ball.y, "#9fd8ff", "쿠션");
+});
 /* 샷이 끝나면 무엇이 남았는지 말한다. 판만 보고는 별빛이 몇 개 생겼는지,
    지금 무엇을 할 수 있는지가 안 읽힌다는 제보가 있었다. */
 registerRuntimeHook("afterShotEnd", () => {
