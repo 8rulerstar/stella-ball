@@ -580,11 +580,36 @@ function billiardPointerUp(e) {
 
    여기서 저울질이 생긴다: 크게 벌릴수록 세지만 그렇게 벌릴 수 있는 조합은
    적고, 작게 모으면 약하지만 고를 수 있는 조합이 촘촘하다. */
+/* 조준 방식. "arrow"가 지금 값이고, "centroid"로 되돌리면 예전 무게중심
+   방식이 그대로 돌아온다.
+
+   화살표: 마지막에 찍은 별빛이 «촉», 그 앞의 것들이 «꼬리»다. 방향은 꼬리
+   중점에서 촉으로, 세기는 그 거리다. 하나만 찍으면 유성 자신이 꼬리가 된다.
+
+   무게중심에서 바꾼 이유는 실측이다(실제 별빛 16판):
+
+                        무게중심      화살표
+     겨눌 수 있는 방향   1.9칸(57도)   5.9칸(177도)
+     선택지 수(중앙)     1             3
+     위력 중앙           0.63          0.94
+
+   무게중심은 «항상 삼각형 안»이라 겨눌 수 있는 곳이 자기 별빛의 안쪽으로
+   갇힌다 — 선택지 중앙값이 1이었다. 「고른다」가 성립하지 않고 있었다.
+   화살표는 점들 사이의 벡터라 그 제약이 없고, 같은 세 점이라도 촉을 누구로
+   하느냐에 따라 세 가지가 나온다.
+
+   잃는 것: 무게중심에는 「별빛을 보스 근처에 남기면 보스를 겨눌 수 있다」는
+   성질이 있었다. 화살표는 위치가 아니라 «상대 배치»만 본다. 다만 위치는
+   별자리 쪽에 그대로 남는다(둘러싼 것을 때린다) — 오히려 역할이 갈린다:
+   조준은 「어떻게 놓였나」, 별자리는 「어디에 있나」. */
+const AIM_MODE = "arrow";
 const AIM_STAR = {
   max: 9, // 화면이 난장판이 되지 않는 상한. 조합은 C(9,3)=84가지다.
   pickRadius: 26,
-  // 무게중심에서 꼭짓점까지의 평균 거리가 이 값이면 최대 위력이다.
-  // 판이 720x900이므로 250px는 «판을 크게 가로지르는» 삼각형에 해당한다.
+  // 화살표 길이가 이 값이면 최대 위력이다. 250으로 재니 위력 중앙이 0.94로
+  // 붙박여 세기 선택이 죽었다 — 화살표는 무게중심보다 길게 나온다.
+  fullLength: 420,
+  // "centroid" 모드에서 쓰는 값. 무게중심에서 꼭짓점까지의 평균 거리다.
   fullRadius: 250,
   life: 0, // 0이면 전투 내내 남는다. 소멸 규칙은 아직 넣지 않았다(4번 보류).
 };
@@ -635,21 +660,54 @@ function aimStarShot(picks = aimPick) {
   if (!picks.length) return null;
   const p = picks.map((i) => aimStars[i]);
   if (p.some((s) => !s)) return null;
-  const cx = p.reduce((sum, s) => sum + s.x, 0) / p.length,
-    cy = p.reduce((sum, s) => sum + s.y, 0) / p.length,
-    radius =
-      p.reduce((sum, s) => sum + Math.hypot(s.x - cx, s.y - cy), 0) / p.length,
-    dx = cx - ball.x,
-    dy = cy - ball.y;
-  // 무게중심이 유성 위에 겹치면 방향이 없다. 그 조합은 쏠 수 없다.
-  if (Math.hypot(dx, dy) < 1) return null;
+  if (AIM_MODE === "centroid") {
+    const cx = p.reduce((sum, s) => sum + s.x, 0) / p.length,
+      cy = p.reduce((sum, s) => sum + s.y, 0) / p.length,
+      radius =
+        p.reduce((sum, s) => sum + Math.hypot(s.x - cx, s.y - cy), 0) /
+        p.length,
+      dx = cx - ball.x,
+      dy = cy - ball.y;
+    if (Math.hypot(dx, dy) < 1) return null;
+    return {
+      dx,
+      dy,
+      cx,
+      cy,
+      tx: ball.x,
+      ty: ball.y,
+      hx: cx,
+      hy: cy,
+      radius,
+      force: clamp(radius / AIM_STAR.fullRadius, 0.28, 1),
+    };
+  }
+  /* 마지막에 찍은 것이 촉이다. 앞의 것들의 중점이 꼬리이고, 하나만 찍었으면
+     유성 자신이 꼬리가 된다 — 그러면 「그 별빛 쪽으로, 멀수록 세게」가 된다. */
+  const head = p[p.length - 1],
+    tail = p.slice(0, -1),
+    tx = tail.length
+      ? tail.reduce((sum, s) => sum + s.x, 0) / tail.length
+      : ball.x,
+    ty = tail.length
+      ? tail.reduce((sum, s) => sum + s.y, 0) / tail.length
+      : ball.y,
+    dx = head.x - tx,
+    dy = head.y - ty,
+    length = Math.hypot(dx, dy);
+  // 촉과 꼬리가 겹치면 방향이 없다. 그 조합은 쏠 수 없다.
+  if (length < 1) return null;
   return {
     dx,
     dy,
-    cx,
-    cy,
-    radius,
-    force: clamp(radius / AIM_STAR.fullRadius, 0.28, 1),
+    tx,
+    ty,
+    hx: head.x,
+    hy: head.y,
+    cx: (tx + head.x) / 2,
+    cy: (ty + head.y) / 2,
+    length,
+    force: clamp(length / AIM_STAR.fullLength, 0.28, 1),
   };
 }
 function pickAimStar(index) {

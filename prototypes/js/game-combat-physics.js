@@ -1092,33 +1092,59 @@ function drawAimStars() {
   x.globalAlpha = 1;
 
   if (preview) {
+    /* 화살표를 그린다. 꼬리(앞서 찍은 것들의 중점)에서 촉(마지막에 찍은 것)
+       으로 가는 선이 곧 유성이 갈 방향이다 — 삼각형을 그리던 예전 방식은
+       무게중심 조준의 그림이라 지금 규칙과 맞지 않는다. */
     const previewPicks =
       aimPick.length >= 3 || aimHover < 0 || aimPick.includes(aimHover)
         ? aimPick
         : [...aimPick, aimHover];
     const p = previewPicks.map((i) => aimStars[i]);
-    if (p.every(Boolean)) {
-      x.globalAlpha = 0.62;
-      x.setLineDash([5, 4]);
+    if (p.length && p.every(Boolean)) {
+      const tx = preview.tx,
+        ty = preview.ty,
+        hx = preview.hx,
+        hy = preview.hy,
+        ux = preview.dx / (preview.length || 1),
+        uy = preview.dy / (preview.length || 1);
+      x.globalAlpha = 0.55;
+      x.setLineDash([4, 4]);
       x.strokeStyle = "#ffe09a";
-      x.lineWidth = 2;
-      if (p.length > 1) {
+      x.lineWidth = 1.5;
+      // 꼬리 별빛들과 꼬리점을 잇는 깃
+      for (const s of p.slice(0, -1)) {
         x.beginPath();
-        x.moveTo(p[0].x, p[0].y);
-        for (let i = 1; i < p.length; i++) x.lineTo(p[i].x, p[i].y);
-        if (p.length > 2) x.closePath();
+        x.moveTo(s.x, s.y);
+        x.lineTo(tx, ty);
         x.stroke();
       }
       x.setLineDash([]);
       x.globalAlpha = 1;
-      stepRing(preview.cx, preview.cy, 10, "#ffe09a");
+      // 화살대
+      x.strokeStyle = "#ffe09a";
+      x.lineWidth = 3;
+      x.beginPath();
+      x.moveTo(tx, ty);
+      x.lineTo(hx, hy);
+      x.stroke();
+      // 촉
+      const px = -uy,
+        py = ux;
+      x.fillStyle = "#ffe09a";
+      x.beginPath();
+      x.moveTo(hx + ux * 13, hy + uy * 13);
+      x.lineTo(hx - ux * 6 + px * 9, hy - uy * 6 + py * 9);
+      x.lineTo(hx - ux * 6 - px * 9, hy - uy * 6 - py * 9);
+      x.closePath();
+      x.fill();
+      stepRing(tx, ty, 6, "#ffe09a99");
       x.fillStyle = "#ffe09a";
       x.font = "700 12px Galmuri11, ui-monospace";
       x.textAlign = "center";
       x.fillText(
         "위력 " + Math.round(preview.force * 100) + "%",
-        preview.cx,
-        preview.cy - 18,
+        (tx + hx) / 2,
+        (ty + hy) / 2 - 12,
       );
     }
   }
@@ -1183,8 +1209,8 @@ function drawAimStars() {
   x.font = "600 11px Galmuri11, ui-monospace";
   x.fillText(
     aimPick.length
-      ? "별자리가 먼저 그려지고 그다음 유성이 나갑니다 · 우클릭으로 무르기"
-      : "고른 별빛의 가운데로 날아가고, 벌린 만큼 세게 나갑니다",
+      ? "마지막에 찍은 별빛이 «촉»입니다 · 우클릭으로 무르기"
+      : "화살표 방향으로 날아가고, 화살이 길수록 세게 나갑니다",
     W / 2,
     H - 10,
   );
