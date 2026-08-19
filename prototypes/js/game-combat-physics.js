@@ -1091,19 +1091,6 @@ function drawAimStars() {
   x.fillRect(0, 0, W, H);
   x.globalAlpha = 1;
 
-  /* 손이 그은 획. 어디를 지나왔는지가 보여야 「그리고 있다」가 읽힌다. */
-  if (aimStroke?.pts?.length > 1) {
-    x.save();
-    x.globalAlpha = 0.5;
-    x.strokeStyle = "#fff6e2";
-    x.lineWidth = 2;
-    x.lineJoin = "round";
-    x.beginPath();
-    x.moveTo(aimStroke.pts[0].x, aimStroke.pts[0].y);
-    for (const q of aimStroke.pts) x.lineTo(q.x, q.y);
-    x.stroke();
-    x.restore();
-  }
   if (preview) {
     /* 무게중심 조준을 그린다. 유성에서 가운데점까지 «갈 길»을 직접 긋고,
        훑은 별빛들이 그 점으로 모이는 선을 얹는다.
@@ -1113,7 +1100,7 @@ function drawAimStars() {
        「너무 힘들다」고 한 것이 이것이다. 유성에서 시작하는 선은 그 단계가
        없다. */
     const previewPicks =
-      aimStroke || aimHover < 0 || aimPick.includes(aimHover)
+      aimHover < 0 || aimPick.includes(aimHover)
         ? aimPick
         : [...aimPick, aimHover];
     const p = previewPicks.map((i) => aimStars[i]);
@@ -1214,7 +1201,7 @@ function drawAimStars() {
       restCount +
       "개가 별자리" +
       (restCount >= 3 ? "" : " (셋부터)") +
-      "   ·   놓으면 발사",
+      "   ·   Space 발사",
     W / 2,
     H - 26,
   );
@@ -1222,8 +1209,8 @@ function drawAimStars() {
   x.font = "600 11px Galmuri11, ui-monospace";
   x.fillText(
     aimPick.length
-      ? "훑은 별빛들의 가운데로 갑니다 · 빈 곳에서 놓으면 취소"
-      : "끌어서 별빛을 훑으세요 · 넓게 훑을수록 세게 나갑니다",
+      ? "고른 별빛들의 가운데로 갑니다 · 우클릭으로 무르기"
+      : "별빛을 찍어 조준하세요 · 넓게 고를수록 세게 나갑니다",
     W / 2,
     H - 10,
   );
