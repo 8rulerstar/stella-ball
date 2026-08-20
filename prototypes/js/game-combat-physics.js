@@ -1100,8 +1100,9 @@ function drawAimStars() {
 
   // 별자리 후보 = 고르지 않은 «별빛»만. 별지기 노드는 태울 수 없으므로
   // 세지 않는다. (아래 노드 루프와 HUD도 이 값을 쓴다.)
-  const pickedStars = aimPick.filter((i) => i >= unitCount).length,
-    restCount = aimStars.length - pickedStars;
+  let pickedStars = 0;
+  for (const i of aimPick) if (i >= unitCount) pickedStars++;
+  const restCount = aimStars.length - pickedStars;
   /* 함께 탈 별빛들을 잇는 실. 「안 찍은 것들이 별자리가 된다」를 금색
      고리(아래)만으로는 묶음으로 못 읽는다는 전제에서, 떨어진 순서대로
      흐린 실로 이어 «이것들이 한 도형»임을 보인다. 실제 도형은 발동 때

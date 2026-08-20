@@ -743,12 +743,33 @@ function resetAimStars() {
    든다. 별빛 배열은 비행 중에만 늘고 줄며(약점·접점·안내별), 그때
    aimPick은 항상 비어 있으므로 인덱스가 낡지 않는다. gates는 전투 중
    불변이다. */
+/* 프레임당 한 번만 짓는다. 조준 화면 한 프레임이 이 목록을 서너 번
+   요청하고(그리기·미리보기·호버 판정), 매번 새 배열과 별지기 래퍼를
+   만들면 조준하는 내내 GC 부스러기가 쌓인다 — 이 저장소가 이미 「조준
+   계산의 반복 할당」을 줄여 온 계보다. 조준이 가능한 동안(유성 정지)
+   별지기는 움직이지 않으므로, 같은 프레임 + 같은 개수면 그대로 쓴다. */
+let aimNodesCache = { key: NaN, gatesRef: null, starsRef: null, list: [] };
 function aimNodes() {
+  const c = aimNodesCache;
+  // 배열 «정체»로 무효화한다. setupBattle이 gates를, 소각·리셋이 aimStars를
+  // 통째로 갈아 끼우므로, 개수가 우연히 같아도 낡은 목록을 돌려주지 않는다.
+  if (
+    c.key === frameClock &&
+    c.gatesRef === gates &&
+    c.starsRef === aimStars &&
+    c.list.length ===
+      gates.length * (AIM_STAR.unitNodes ? 1 : 0) + aimStars.length
+  )
+    return c.list;
   const nodes = [];
   if (AIM_STAR.unitNodes)
     for (const g of gates)
       nodes.push({ x: g.x, y: g.y, col: g.col, label: g.s, unit: g });
   for (const s of aimStars) nodes.push(s);
+  c.key = frameClock;
+  c.gatesRef = gates;
+  c.starsRef = aimStars;
+  c.list = nodes;
   return nodes;
 }
 /* 노드가 셋 이상이면 조준은 «찍기»다. 별지기가 늘 셋이므로 실전에서는
@@ -836,7 +857,7 @@ function aimStarShot(picks = aimPick) {
    가정해 미리 그린다 — 셋째를 찍는 순간 발사되므로, 그 전에 결과가 보이지
    않으면 «고른다»는 말이 성립하지 않는다. */
 function aimStarPreview() {
-  if (aimPick.length >= 3) return aimStarShot();
+  if (aimPick.length >= AIM_STAR.minPick) return aimStarShot();
   // 마우스가 올라간 것을 «다음 하나»로 가정해 미리 그린다. 아무것도 안 고른
   // 상태에서 별빛 위에 올리기만 해도 그 한 발이 어디로 갈지 바로 보인다.
   if (aimHover >= 0 && !aimPick.includes(aimHover))
@@ -887,6 +908,14 @@ function launchAimStarShot() {
     y: nodes[i].y,
     col: nodes[i].col,
   }));
+  /* 픽은 발사가 확정된 «지금» 비운다. fire까지 미루면 별자리 연출이 도는
+     1~3초 동안 aimPick이 «걸러지기 전» 노드 목록의 인덱스로 남아, 조준
+     화면이 엉뚱한 노드에 순서 배지를 붙인다. 연출 상태도 여기서 끊는다 —
+     성립 플래시가 다음 조준까지 새어 들면 안 찍은 선이 빛난다. */
+  aimPick = [];
+  aimHover = -1;
+  aimReadyFlash = 0;
+  aimDenyT = 0;
   const fire = () => {
     aimPick = [];
     aimHover = -1;
