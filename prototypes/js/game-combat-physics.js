@@ -1005,7 +1005,7 @@ function drawAimGuide() {
     x.strokeStyle = path.target.col;
     // No glow: it softens the edge against the pixel floor.  The starkeeper's
     // own colour is contrast enough.
-    x.shadowBlur = 0;
+    x.shadowBlur = combatFxBlur(0);
     x.beginPath();
     x.moveTo(path.from.x, path.from.y);
     x.lineTo(path.to.x, path.to.y);
@@ -1077,19 +1077,71 @@ function pixelSparkle(cx, cy, r, col, thick = 3) {
   }
 }
 function drawAimStars() {
-  if (!run || battle?.victory || ball?.moving || !aimStars.length) return;
+  if (!run || battle?.victory || ball?.moving || !aimStarReady()) return;
   if (introProgress() < 1) return;
-  const preview = aimStarPreview(),
+  const nodes = aimNodes(),
+    unitCount = nodes.length - aimStars.length,
+    preview = aimStarPreview(),
     // 맥동. 지금이 «고르는 시간»이라는 것이 가만히 있어도 읽혀야 한다.
     pulse = 0.5 + 0.5 * Math.sin(frameClock / 260);
   x.save();
   /* 판을 살짝 덮는다. 별빛이 5px짜리 보석이라 판의 다른 것들에 묻혀
      「안 보인다」는 제보가 있었다 — 크기만 키우면 판이 시끄러워지므로,
-     주위를 낮추고 별빛만 남긴다. 판단색을 바꾸지는 않는다(§1-4). */
-  x.globalAlpha = 0.34;
-  x.fillStyle = "#0b0718";
-  x.fillRect(0, 0, W, H);
-  x.globalAlpha = 1;
+     주위를 낮추고 별빛만 남긴다. 판단색을 바꾸지는 않는다(§1-4).
+     별지기 노드만 있을 때는 덮지 않는다 — 별지기는 스프라이트가 커서 묻힐
+     일이 없고, 노드 조준이 이제 샷 사이 상시라 늘 덮으면 판의 평시 얼굴이
+     어두운 판으로 바뀌어 버린다. */
+  if (aimStars.length) {
+    x.globalAlpha = 0.34;
+    x.fillStyle = "#0b0718";
+    x.fillRect(0, 0, W, H);
+    x.globalAlpha = 1;
+  }
+
+  // 별자리 후보 = 고르지 않은 «별빛»만. 별지기 노드는 태울 수 없으므로
+  // 세지 않는다. (아래 노드 루프와 HUD도 이 값을 쓴다.)
+  const pickedStars = aimPick.filter((i) => i >= unitCount).length,
+    restCount = aimStars.length - pickedStars;
+  /* 함께 탈 별빛들을 잇는 실. 「안 찍은 것들이 별자리가 된다」를 금색
+     고리(아래)만으로는 묶음으로 못 읽는다는 전제에서, 떨어진 순서대로
+     흐린 실로 이어 «이것들이 한 도형»임을 보인다. 실제 도형은 발동 때
+     뼈대 교정을 거치므로 여기서는 모양을 주장하지 않고 잇기만 한다. */
+  if (restCount >= 3) {
+    x.strokeStyle = "#ffd27f";
+    x.globalAlpha = 0.22;
+    x.setLineDash([3, 5]);
+    x.lineWidth = 1.5;
+    x.beginPath();
+    let moved = false;
+    for (let i = 0; i < aimStars.length; i++) {
+      if (aimPick.includes(unitCount + i)) continue;
+      const s = aimStars[i];
+      moved ? x.lineTo(s.x, s.y) : x.moveTo(s.x, s.y);
+      moved = true;
+    }
+    x.stroke();
+    x.setLineDash([]);
+    x.globalAlpha = 1;
+  }
+  /* 고른 노드를 순서대로 잇는 실. 조준이 «세 점으로 도형을 긋는 일»이라는
+     것이 손끝에서 보인다 - 넓게 그리면 세다는 규칙도 이 실의 크기로 읽힌다. */
+  if (aimPick.length >= 2) {
+    x.strokeStyle = "#fff6e2";
+    x.globalAlpha = 0.3;
+    x.setLineDash([4, 4]);
+    x.lineWidth = 1.5;
+    x.beginPath();
+    aimPick.forEach((idx, i) => {
+      const n = nodes[idx];
+      if (!n) return;
+      i ? x.lineTo(n.x, n.y) : x.moveTo(n.x, n.y);
+    });
+    x.stroke();
+    x.setLineDash([]);
+    x.globalAlpha = 1;
+  }
+  // 셋째를 찍은 «성립» 플래시의 시계. 그리는 곳은 조준선(아래)이다.
+  if (aimReadyFlash > 0) aimReadyFlash = Math.max(0, aimReadyFlash - 1 / 60);
 
   if (preview) {
     /* 무게중심 조준을 그린다. 유성에서 가운데점까지 «갈 길»을 직접 긋고,
@@ -1103,7 +1155,7 @@ function drawAimStars() {
       aimHover < 0 || aimPick.includes(aimHover)
         ? aimPick
         : [...aimPick, aimHover];
-    const p = previewPicks.map((i) => aimStars[i]);
+    const p = previewPicks.map((i) => nodes[i]);
     if (p.length && p.every(Boolean)) {
       const cx = preview.cx,
         cy = preview.cy;
@@ -1125,13 +1177,36 @@ function drawAimStars() {
         dy = cy - ball.y,
         len = Math.hypot(dx, dy) || 1,
         ux = dx / len,
-        uy = dy / len;
+        uy = dy / len,
+        // 마우스가 올라간 노드를 «다음 하나»로 가정해 그린 선인가. 가정은
+        // 점선으로 갈라 「아직 찍은 게 아니다」를 말한다.
+        assumed = p.length > aimPick.length,
+        ready = p.length >= AIM_STAR.minPick,
+        // 위력이 선의 굵기다 - 넓게 벌린 조준은 선부터 무겁다.
+        lineW = ready ? 2 + preview.force * 2.5 : 2.5;
+      if (assumed) {
+        x.setLineDash([7, 5]);
+        x.globalAlpha = 0.8;
+      }
       x.strokeStyle = "#ffe09a";
-      x.lineWidth = 3;
+      x.lineWidth = lineW;
       x.beginPath();
       x.moveTo(ball.x, ball.y);
       x.lineTo(cx, cy);
       x.stroke();
+      x.setLineDash([]);
+      x.globalAlpha = 1;
+      // 셋째를 찍은 순간, 성립한 조준선이 한 박자 희게 빛난다.
+      if (aimReadyFlash > 0) {
+        x.globalAlpha = (aimReadyFlash / 0.4) * 0.75;
+        x.strokeStyle = "#ffffff";
+        x.lineWidth = lineW + 2;
+        x.beginPath();
+        x.moveTo(ball.x, ball.y);
+        x.lineTo(cx, cy);
+        x.stroke();
+        x.globalAlpha = 1;
+      }
       const px = -uy,
         py = ux;
       x.fillStyle = "#ffe09a";
@@ -1141,82 +1216,187 @@ function drawAimStars() {
       x.lineTo(cx - ux * 6 - px * 9, cy - uy * 6 - py * 9);
       x.closePath();
       x.fill();
-      stepRing(cx, cy, 10, "#ffe09acc");
+      // 과녁 링도 위력을 입는다 - 큰 조준은 과녁부터 크다.
+      stepRing(cx, cy, ready ? 8 + preview.force * 7 : 10, "#ffe09acc");
       x.fillStyle = "#ffe09a";
       x.font = "700 12px Galmuri11, ui-monospace";
       x.textAlign = "center";
-      x.fillText("위력 " + Math.round(preview.force * 100) + "%", cx, cy - 18);
+      // 하한 미달이면 위력 대신 몇 개 모자란지를 말한다 — 이 선은 아직
+      // 쏠 수 있는 조준이 아니라 «되어가는 중»이다.
+      x.fillText(
+        p.length >= AIM_STAR.minPick
+          ? "위력 " + Math.round(preview.force * 100) + "%"
+          : "노드 " + p.length + "/" + AIM_STAR.minPick,
+        cx,
+        cy - 18,
+      );
     }
   }
 
-  for (let i = 0; i < aimStars.length; i++) {
-    const star = aimStars[i],
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i],
       order = aimPick.indexOf(i),
       picked = order >= 0,
       hovered = i === aimHover;
-    if (star.born > 0) star.born = Math.max(0, star.born - 1 / 60);
-    const grow = star.born > 0 ? 1 + star.born * 1.8 : 1,
-      // 고르지 않은 것이 맥동한다. 이미 고른 것은 흔들리면 오히려 읽기 어렵다.
-      breathe = picked ? 1 : 1 + pulse * 0.22,
-      r = (picked ? 11 : 9) * grow * breathe;
-    // 바깥 무리 + 뾰족한 별. 어두워진 판 위에서 이것이 「여기 있다」를 만든다.
-    stepRing(star.x, star.y, r + 10 + pulse * 3, star.col + "33", 3, 2);
-    pixelSparkle(star.x, star.y, r + 10, star.col + "aa", 2);
-    pixelSparkle(star.x, star.y, r + 5, "#fff6e2", 3);
-    pixelGem(star.x, star.y, Math.max(3, r - 3), [star.col, "#fff6e2"]);
-    // 고르지 않은 것은 별자리가 될 후보다. 셋 이상 남아야 실제로 그려지므로
-    // 그때만 금색 무리를 둘러 「이것들이 별자리가 된다」를 보여준다.
-    if (!picked && aimStars.length - aimPick.length >= 3)
-      stepRing(star.x, star.y, r + 8, "#ffd27f55", 3, 2);
-    if (picked || hovered)
-      stepRing(star.x, star.y, r + 6, picked ? "#ffffff" : "#ffffff88", 3, 3);
+    let chipY;
+    if (node.unit) {
+      /* 별지기 노드. 스프라이트가 이미 「여기 있다」를 만드니 표식은 고리만 —
+         별빛과 같은 보석으로 그리면 판 위에서 같은 물건으로 읽힌다
+         (위의 모양 규칙 그대로). */
+      const g = node.unit,
+        rr = g.r + 5 + (picked ? 0 : pulse * 3);
+      stepRing(
+        node.x,
+        node.y,
+        rr,
+        picked ? "#ffffff" : node.col + (hovered ? "cc" : "55"),
+        3,
+        picked || hovered ? 3 : 2,
+      );
+      // 찍는 순간의 플래시: 흰 고리가 바깥으로 번지며 사라진다.
+      if (g.aimFlash > 0) {
+        g.aimFlash = Math.max(0, g.aimFlash - 1 / 60);
+        const fk = g.aimFlash / 0.3;
+        x.globalAlpha = fk;
+        stepRing(node.x, node.y, g.r + 8 + (1 - fk) * 20, "#ffffff", 3, 3);
+        x.globalAlpha = 1;
+      }
+      chipY = node.y - g.r - 20;
+    } else {
+      const star = node;
+      if (star.born > 0) star.born = Math.max(0, star.born - 1 / 60);
+      const grow = star.born > 0 ? 1 + star.born * 1.8 : 1,
+        // 고르지 않은 것이 맥동한다. 이미 고른 것은 흔들리면 오히려 읽기
+        // 어렵다.
+        breathe = picked ? 1 : 1 + pulse * 0.22,
+        r = (picked ? 11 : 9) * grow * breathe;
+      // 바깥 무리 + 뾰족한 별. 어두워진 판 위에서 이것이 「여기 있다」를
+      // 만든다.
+      stepRing(star.x, star.y, r + 10 + pulse * 3, star.col + "33", 3, 2);
+      pixelSparkle(star.x, star.y, r + 10, star.col + "aa", 2);
+      pixelSparkle(star.x, star.y, r + 5, "#fff6e2", 3);
+      pixelGem(star.x, star.y, Math.max(3, r - 3), [star.col, "#fff6e2"]);
+      // 고르지 않은 것은 별자리가 될 후보다. 셋 이상 남아야 실제로 그려지므로
+      // 그때만 금색 무리를 둘러 「이것들이 별자리가 된다」를 보여준다.
+      if (!picked && restCount >= 3)
+        stepRing(star.x, star.y, r + 8, "#ffd27f55", 3, 2);
+      if (picked || hovered)
+        stepRing(star.x, star.y, r + 6, picked ? "#ffffff" : "#ffffff88", 3, 3);
+      // 찍는 순간의 플래시 - 별지기와 같은 언어.
+      if (star.pickFlash > 0) {
+        star.pickFlash = Math.max(0, star.pickFlash - 1 / 60);
+        const fk = star.pickFlash / 0.3;
+        x.globalAlpha = fk;
+        stepRing(star.x, star.y, r + 8 + (1 - fk) * 18, "#ffffff", 3, 3);
+        x.globalAlpha = 1;
+      }
+      chipY = star.y - r - 16;
+    }
     if (picked) {
-      // 번호는 별빛 «위»에 칩으로 띄운다. 안에 넣으면 별 모양에 묻힌다.
-      const bx = star.x,
-        by = star.y - r - 16;
+      // 번호는 노드 «위»에 칩으로 띄운다. 안에 넣으면 모양에 묻힌다.
+      const bx = node.x;
       x.fillStyle = "#ffe09a";
-      x.fillRect(bx - 9, by - 9, 18, 18);
+      x.fillRect(bx - 9, chipY - 9, 18, 18);
       x.fillStyle = "#0f0a1e";
       x.font = "700 13px Galmuri11, ui-monospace";
       x.textAlign = "center";
       x.textBaseline = "middle";
-      x.fillText(String(order + 1), bx, by + 1);
+      x.fillText(String(order + 1), bx, chipY + 1);
       x.textBaseline = "alphabetic";
     }
   }
 
+  /* 하한을 넘겨 쏠 수 있는 상태면 유성이 그것을 말한다 - 금빛 고리가
+     맥동하며 「Space를 기다린다」. 발사 가능 여부를 HUD 글씨까지 내려가
+     읽게 하지 않는다. */
+  if (aimPick.length >= AIM_STAR.minPick && ball)
+    stepRing(ball.x, ball.y, ball.r + 7 + pulse * 3, "#ffe09a88", 3, 2);
+
   /* 조작 안내. 튜토리얼이 아직 이 전투를 안 가르치므로(전투 확정 뒤에 다시
      짠다) 화면이 스스로 말해야 한다. */
-  const restCount = aimStars.length - aimPick.length;
   x.globalAlpha = 0.92;
   x.fillStyle = "#0b0718cc";
   x.fillRect(0, H - 46, W, 46);
-  x.fillStyle = "#ffe09a";
+  /* 하한 미달 Space의 거절: 카운트 줄이 잠깐 붉어지며 가로로 떨린다.
+     토스트는 위에 뜨는데 시선은 아래 카운트에 있어, 거절의 이유가 바로
+     그 줄에서 읽혀야 한다. */
+  if (aimDenyT > 0) aimDenyT = Math.max(0, aimDenyT - 1 / 60);
+  const denyK = aimDenyT / 0.5,
+    denyShake = denyK > 0 ? Math.sin(frameClock / 16) * 3.5 * denyK : 0;
+  x.fillStyle = denyK > 0.05 ? "#ff9d9d" : "#ffe09a";
   x.font = "700 13px Galmuri11, ui-monospace";
   x.textAlign = "center";
   x.fillText(
-    "훑은 별빛 " +
+    "고른 노드 " +
       aimPick.length +
-      "   ·   남은 " +
+      "/" +
+      AIM_STAR.minPick +
+      "   ·   남은 별빛 " +
       restCount +
       "개가 별자리" +
       (restCount >= 3 ? "" : " (셋부터)") +
       "   ·   Space 발사",
-    W / 2,
+    W / 2 + denyShake,
     H - 26,
   );
   x.fillStyle = "#cfc4e8";
   x.font = "600 11px Galmuri11, ui-monospace";
   x.fillText(
     aimPick.length
-      ? "고른 별빛들의 가운데로 갑니다 · 우클릭으로 무르기"
-      : "별빛을 찍어 조준하세요 · 넓게 고를수록 세게 나갑니다",
+      ? "고른 노드들의 가운데로 갑니다 · 우클릭으로 무르기"
+      : "별지기·별빛을 셋 이상 찍으세요 · 넓게 벌릴수록 세게 나갑니다",
     W / 2,
     H - 10,
   );
   x.restore();
 }
+/* 발사 순간의 수렴. 고른 노드들에서 무게중심으로 빛이 «걷혀 들어가는»
+   한 박자(0.42초)다 — 안내선이 조준 화면과 함께 뚝 꺼지면 발사가 조준과
+   무관한 사건처럼 읽힌다. 조준 화면(drawAimStars)은 유성이 구르면
+   돌지 않으므로 따로 그린다. */
+function drawAimLaunchFx() {
+  if (!aimLaunchFx || !run) {
+    if (aimLaunchFx && !run) aimLaunchFx = null;
+    return;
+  }
+  const fx = aimLaunchFx;
+  fx.t -= 1 / 60;
+  if (fx.t <= 0) {
+    // 다 모이면 무게중심에서 마지막 불꽃이 한 번 터진다.
+    fieldFx.push({
+      type: "spark",
+      x: fx.cx,
+      y: fx.cy,
+      t: 0,
+      d: 0.32,
+      col: "#ffe09a",
+    });
+    aimLaunchFx = null;
+    return;
+  }
+  const k = fx.t / fx.dur; // 1 → 0
+  x.save();
+  x.strokeStyle = "#ffe09a";
+  x.lineWidth = 2;
+  for (const p of fx.points) {
+    // 노드 쪽 끝이 무게중심으로 끌려 들어간다 - 남은 구간만 긋는다.
+    const sx = p.x + (fx.cx - p.x) * (1 - k),
+      sy = p.y + (fx.cy - p.y) * (1 - k);
+    x.globalAlpha = k * 0.8;
+    x.beginPath();
+    x.moveTo(sx, sy);
+    x.lineTo(fx.cx, fx.cy);
+    x.stroke();
+    pixelSparkle(sx, sy, 5 + k * 5, (p.col || "#ffe09a") + "cc", 2);
+  }
+  // 무게중심 링은 조여든다 - 「여기로 모였다」.
+  x.globalAlpha = k * 0.9;
+  stepRing(fx.cx, fx.cy, 7 + k * 24, "#ffe09a", 3, 2);
+  x.globalAlpha = 1;
+  x.restore();
+}
 registerRuntimeHook("afterDraw", drawAimStars);
+registerRuntimeHook("afterDraw", drawAimLaunchFx);
 registerRuntimeHook("afterDraw", drawCloneBalls);
 
 const CombatModule = StellaRuntime.modules.register("combat", {

@@ -1668,6 +1668,11 @@ function loadTexture(path) {
     const im = new Image();
     im.decoding = "async";
     im.src = path;
+    // Starting a decode now keeps the first collision/cut-in from paying image
+    // decode plus texture upload in the impact frame. decode() waits for the
+    // network load itself and failure still falls through to the old fallback.
+    const decode = im.decode?.();
+    decode?.catch?.(() => {});
     textures[path] = im;
   }
   return textures[path];
@@ -1730,6 +1735,13 @@ let build,
   // 마우스가 올라간 별빛. 셋째를 «찍는 순간» 발사되므로, 그 전에 무엇이
   // 나올지 보여주려면 후보를 알아야 한다.
   aimHover = -1,
+  // 발사 순간의 수렴 연출. 고른 노드에서 무게중심으로 빛이 모여드는 한 박자 -
+  // 조준 화면(drawAimStars)은 유성이 구르면 꺼지므로 따로 산다.
+  aimLaunchFx = null,
+  // 하한 미달 Space의 거절 연출 타이머. HUD 카운트가 잠깐 붉게 흔들린다.
+  aimDenyT = 0,
+  // 셋째 노드를 찍어 «조준이 성립한» 순간의 플래시. 조준선이 한 박자 빛난다.
+  aimReadyFlash = 0,
   run = false,
   chain = [],
   popups = [],
@@ -1748,6 +1760,9 @@ let build,
   bossOutro = null,
   frameClock = 0,
   last = 0,
+  lastRafFrame = 0,
+  nextPresentedFrame = 0,
+  fastRafSamples = 0,
   toastTimer = 0,
   currentToastText = "",
   impactStop = 0,
@@ -1765,6 +1780,30 @@ let build,
   battleComplete = false,
   msg = "파티를 편성하세요.",
   flippers = { left: 0, right: 0 };
+
+// Canvas shadowBlur re-rasterizes every affected primitive and measured 83 ms
+// impact frames even on the real Chromium probe. The same scene without that
+// kernel stayed below 17 ms. Geometry, colour, additive rings and flashes carry
+// the bloom vocabulary without making collisions depend on GPU acceleration.
+function combatFxBlur(_amount) {
+  return 0;
+}
+function setCombatFont(context, font) {
+  if (context.font !== font) context.font = font;
+}
+function safeVibrate(pattern) {
+  if (
+    typeof navigator === "undefined" ||
+    typeof navigator.vibrate !== "function" ||
+    (navigator.userActivation && !navigator.userActivation.hasBeenActive)
+  )
+    return false;
+  try {
+    return navigator.vibrate(pattern);
+  } catch {
+    return false;
+  }
+}
 
 // Short-lived combat arrays are updated every frame. Compacting them in place
 // avoids new arrays and garbage-collection hitches during busy combos.

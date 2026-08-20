@@ -213,7 +213,7 @@ function drawPinballTable() {
   for (const pad of boostPads) {
     x.save();
     x.fillStyle = pad.on > 0 ? "#d7ffb4" : "#5c9d73";
-    x.shadowBlur = pad.on > 0 ? 24 : 10;
+    x.shadowBlur = combatFxBlur(pad.on > 0 ? 24 : 10);
     x.shadowColor = "#b9ef86";
     x.fillRect(pad.x - pad.w / 2, pad.y - pad.h / 2, pad.w, pad.h);
     x.fillStyle = "#1a473d";
@@ -321,13 +321,13 @@ function drawPinballTable() {
     x.fillStyle = "#12242a";
     x.strokeStyle = orbit.hitCooldown > 0 ? "#ffe3c0" : "#7cc6bb";
     x.lineWidth = 4;
-    x.shadowBlur = orbit.hitCooldown > 0 ? 22 : 10;
+    x.shadowBlur = combatFxBlur(orbit.hitCooldown > 0 ? 22 : 10);
     x.shadowColor = "#7cc6bb";
     x.beginPath();
     x.rect(-orbit.r, -orbit.r * 0.62, orbit.r * 2, orbit.r * 1.24);
     x.fill();
     x.stroke();
-    x.shadowBlur = 0;
+    x.shadowBlur = combatFxBlur(0);
     x.fillStyle = "#9adfc9";
     x.fillRect(-orbit.r + 4, -3, (orbit.r * 2 - 8) * life, 6);
     x.restore();
@@ -345,7 +345,7 @@ function drawPinballTable() {
       x.save();
       x.lineCap = "butt";
       x.strokeStyle = "#ffe3c0";
-      x.shadowBlur = 16;
+      x.shadowBlur = combatFxBlur(16);
       x.shadowColor = "#9adfc9";
       x.lineWidth = 7;
       for (let i = 0; i < bossShield.shattered.count; i++) {
@@ -381,7 +381,7 @@ function drawPinballTable() {
         r = 76 + (justBroke ? 14 * (1 - bossShield.flash / 0.45) + lift : lift);
       x.globalAlpha = justBroke ? bossShield.flash / 0.45 : hot ? 0.95 : 0.72;
       x.strokeStyle = hot ? "#ffe3c0" : "#7cc6bb";
-      x.shadowBlur = hot ? 20 : 9;
+      x.shadowBlur = combatFxBlur(hot ? 20 : 9);
       x.shadowColor = "#9adfc9";
       // 판 하나는 두꺼운 호 + 안쪽 테두리. 두 겹이라 「판」으로 읽힌다.
       x.lineWidth = 7;
@@ -390,7 +390,7 @@ function drawPinballTable() {
       x.stroke();
       x.globalAlpha *= 0.55;
       x.lineWidth = 2;
-      x.shadowBlur = 0;
+      x.shadowBlur = combatFxBlur(0);
       x.strokeStyle = "#dff3ea";
       x.beginPath();
       x.arc(boss.x, boss.y, r - 5, a0 + 0.03, a0 + span - 0.03);
@@ -472,9 +472,9 @@ function billiardPointerDown(e) {
   if (!run || paused || battleComplete || isCombatInputLocked()) return;
   if (!ball?.moving) {
     const p = pointer(e);
-    /* 별빛이 셋 이상이면 조준은 «찍기»다. 오른쪽 버튼은 고른 것을 전부
-       무른다 — 유성이 멈춰 있을 때 오른쪽 버튼은 원래 하는 일이 없다. */
-    /* 조준은 «찍기»다. 별빛을 클릭해 고르고 Space로 쏜다.
+    /* 조준은 «찍기»다. 별지기·별빛을 클릭해 셋 이상 고르고 Space로 쏜다.
+       오른쪽 버튼은 고른 것을 전부 무른다 — 유성이 멈춰 있을 때 오른쪽
+       버튼은 원래 하는 일이 없다.
 
        한 번 드래그로 훑는 방식으로 갔다가 돌아왔다. 손맛은 그쪽이 나았지만
        탭과 획의 경계가 계속 문제였고(탭이 곧 발사가 됐다), 무엇보다 고른 뒤
@@ -492,7 +492,8 @@ function billiardPointerDown(e) {
       }
       const hit = aimStarAt(p.x, p.y);
       if (hit < 0) {
-        if (!aimPick.length) toast("별빛을 찍어 조준하세요 · Space로 발사");
+        if (!aimPick.length)
+          toast("별지기·별빛을 셋 이상 찍고 Space로 발사하세요");
         return;
       }
       pickAimStar(hit);
@@ -516,22 +517,49 @@ function cuePull(p) {
   const dy = p.y - ball.y;
   return { x: p.x, y: ball.y + (dy > 0 ? dy * 4.8 : dy) };
 }
-/* 별빛을 고르고 무른다. 개수 제한은 두지 않는다 — 무게중심은 고른 개수가
-   많을수록 위치가 촘촘해지고, 실측으로 «3개 고정»이 방향 자유도를 크게
-   깎았다(보스에서 31도 대 2도). */
+/* 노드(별지기·별빛)를 고르고 무른다. 상한은 없고 하한이 3이다 — 근거는
+   AIM_STAR.minPick 주석. 개수가 많을수록 무게중심 위치가 촘촘해지는 성질은
+   그대로다. */
 function pickAimStar(index) {
-  const at = aimPick.indexOf(index);
+  const at = aimPick.indexOf(index),
+    node = aimNodes()[index];
   if (at >= 0) {
     // 다시 찍으면 무른다. 뒤엣것은 그대로 두고 순서만 당겨진다.
     aimPick.splice(at, 1);
     combatSfx?.("node", 0.5);
+    // 무른 자리에 잿빛 불씨 - 「빠졌다」가 소리로만 남으면 놓친다.
+    if (node)
+      fieldFx.push({
+        type: "spark",
+        x: node.x,
+        y: node.y,
+        t: 0,
+        d: 0.3,
+        col: "#8f83ad",
+      });
     return false;
   }
   aimPick.push(index);
   combatSfx?.("node", 0.6 + Math.min(3, aimPick.length) * 0.1);
-  const star = aimStars[index];
-  if (star)
-    addPopup(star.x, star.y - 30, String(aimPick.length), star.col, true);
+  if (node) {
+    /* 찍는 순간의 플래시. 별지기는 게이트 객체에, 별빛은 별빛 객체에 남긴다 —
+       별지기 래퍼는 aimNodes()가 매번 새로 만들어 상태를 못 든다. */
+    if (node.unit) node.unit.aimFlash = 0.3;
+    else node.pickFlash = 0.3;
+    addPopup(
+      node.x,
+      node.y - (node.unit ? 44 : 30),
+      String(aimPick.length),
+      node.col,
+      true,
+    );
+  }
+  /* 셋째를 찍는 순간이 «조준 성립»이다. 하한이 생기면서 이 순간이 규칙의
+     문턱이 됐으니, 문턱을 넘었다는 것이 보이고 들려야 한다. */
+  if (aimPick.length === AIM_STAR.minPick) {
+    aimReadyFlash = 0.4;
+    combatSfx?.("mult", 0.55);
+  }
   return true;
 }
 function billiardPointerMove(e) {
@@ -585,12 +613,13 @@ function billiardPointerUp(e) {
   }
   fireMeteor(dx, dy, clamp(pullLength / 220, 0.28, 1));
 }
-/* ── 별빛 조준 ──────────────────────────────────────────────────────────
-   패링과 안내별이 남긴 별빛이 판에 머무른다. 그중 셋을 순서대로 찍으면
-   그 세 점이 다음 유성을 정한다.
+/* ── 노드 조준 ──────────────────────────────────────────────────────────
+   조준 노드는 두 종류다 — 배치된 별지기 셋(항상 있다), 그리고 공명과
+   약점이 남긴 별빛(벌어야 있다). 그중 셋 이상을 순서대로 찍으면 그 점들이
+   다음 유성을 정한다.
 
-     방향 = 유성 → 세 점의 «무게중심»
-     세기 = 세 점이 이루는 삼각형의 «크기»
+     방향 = 유성 → 고른 점들의 «무게중심»
+     세기 = 고른 점들이 이루는 도형의 «크기»
 
    외심(외접원 중심)은 쓰지 않는다. 세 점이 거의 일직선이면 중심이 판 밖
    무한대로 날아가 조준이 폭발한다. 무게중심은 언제나 삼각형 안에 있다.
@@ -626,6 +655,23 @@ function billiardPointerUp(e) {
 const AIM_MODE = "centroid";
 const AIM_STAR = {
   max: 9, // 화면이 난장판이 되지 않는 상한. 조합은 C(9,3)=84가지다.
+  /* 최소 3픽 + 별지기 노드(2026-08-20, 오너 결정). 되돌리려면 minPick을
+     1로, unitNodes를 false로.
+
+     1픽을 열어 두면 «유성→그 별빛» 확정 레이가 항상 한 클릭 거리에 있다.
+     약점 별빛이 보스 링(96~154px)에 깔리므로 보스행 저격이 공짜가 되고,
+     위력 페널티(벌림 0 = 0.28)는 방향만 필요한 순간(마무리·약점 농사)에
+     아무것도 물지 않는다 — 초속 1023이어도 마찰 적분상 주행 2000px라
+     판을 두 번 가로지른다. 값을 매기거나(위력 연동) 라벨을 바꾸는(깎기)
+     설계는 전부 같은 분할 선택 공간이라 레이가 살아남았다.
+
+     최소 3이면 방향이 언제나 삼각형의 무게중심이라 한 점 레이가 구조적으로
+     없다. 남는 구멍은 «셋이 한곳에 뭉친» 경우뿐인데, 그건 벌림 0이라 위력
+     최소이고 판이 우연히 줘야만 생기므로 버튼이 아니다. 예전 «3개 고정»
+     실측(선택지 4, 보스에서 31도)은 별빛 기근 시절 값이다 — 지금은 별지기
+     3 + 약점 별빛 +2/타라 조합 바닥이 C(3,3)=1이 아니라 위로 열려 있다. */
+  minPick: 3,
+  unitNodes: true,
   pickRadius: 26,
   // 화살표 길이가 이 값이면 최대 위력이다. 250으로 재니 위력 중앙이 0.94로
   // 붙박여 세기 선택이 죽었다 — 화살표는 무게중심보다 길게 나온다.
@@ -680,36 +726,61 @@ function resetAimStars() {
   aimStars = [];
   aimPick = [];
   aimHover = -1;
+  aimLaunchFx = null;
+  aimDenyT = 0;
+  aimReadyFlash = 0;
   weakStarSeq = 0;
 }
-/* 별빛이 하나라도 있으면 별빛 조준이다. 0개일 때만 예전 드래그로 떨어진다 —
-   첫 발에는 별빛이 없고, 튜토리얼과 온보딩 E2E도 드래그를 쓴다.
+/* 조준 노드 = 배치된 별지기 + 판에 남은 별빛.
 
-   셋을 요구하지 않는 이유: 규칙이 이미 일반화된다. 무게중심은 «고른 점들의
-   평균»이고 세기는 «무게중심에서 각 점까지의 평균 거리»라, 하나면 그 점
-   자체(거리 0 = 최소 세기), 둘이면 중점(반거리), 셋이면 삼각형이다.
-   그래서 「별빛이 많을수록 세게 칠 수 있다」가 규칙 하나로 나온다 — 모으면
-   세지고 별자리로 태우면 약해진다는 대가가 저절로 생긴다.
-   셋 미만을 드래그로 떨어뜨리면 조작이 조용히 바뀌어 오히려 헷갈린다. */
+   별지기를 노드에 넣는 이유(2026-08-20, 오너 결정): 최소 3픽을 걸려면
+   «노드가 3개 미만이라 못 쏘는 판»이 없어야 하는데, 캠페인 파티가 정확히
+   3명이라 별지기가 그 최저 보장이 된다. 별지기 위치는 매 샷 물리로
+   재배치되므로, 이번 샷에서 파티를 어떻게 밀어두느냐가 다음 샷의 조준
+   메뉴가 된다 — 당구 포지션 플레이가 조준에 직결된다.
+
+   순서 계약: 별지기 먼저, 별빛 나중. aimPick은 이 합친 목록의 인덱스를
+   든다. 별빛 배열은 비행 중에만 늘고 줄며(약점·접점·안내별), 그때
+   aimPick은 항상 비어 있으므로 인덱스가 낡지 않는다. gates는 전투 중
+   불변이다. */
+function aimNodes() {
+  const nodes = [];
+  if (AIM_STAR.unitNodes)
+    for (const g of gates)
+      nodes.push({ x: g.x, y: g.y, col: g.col, label: g.s, unit: g });
+  for (const s of aimStars) nodes.push(s);
+  return nodes;
+}
+/* 노드가 셋 이상이면 조준은 «찍기»다. 별지기가 늘 셋이므로 실전에서는
+   항상 참이고, 드래그는 수업(온보딩·E2E, nodeEconomyOn이 끔)과 노드가
+   모자란 예외 판에만 남는다. 첫 샷부터 조준 규칙이 하나로 통일된다. */
 function aimStarReady() {
-  return aimStars.length >= 1;
+  if (typeof nodeEconomyOn === "function" && !nodeEconomyOn()) return false;
+  return aimNodes().length >= AIM_STAR.minPick;
 }
 function aimStarAt(px, py) {
+  const nodes = aimNodes();
   let best = -1,
-    bestDistance = AIM_STAR.pickRadius;
-  for (let i = 0; i < aimStars.length; i++) {
-    const d = Math.hypot(aimStars[i].x - px, aimStars[i].y - py);
-    if (d <= bestDistance) {
+    bestDistance = Infinity;
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i],
+      // 별지기는 토큰이 크니 잡는 반경도 그만큼 넓힌다.
+      reach = node.unit
+        ? Math.max(AIM_STAR.pickRadius, node.unit.r + 8)
+        : AIM_STAR.pickRadius,
+      d = Math.hypot(node.x - px, node.y - py);
+    if (d <= reach && d < bestDistance) {
       bestDistance = d;
       best = i;
     }
   }
   return best;
 }
-/* 고른 셋에서 발사값을 뽑는다. 셋이 안 되면 null이라 호출자가 분기한다. */
+/* 고른 노드들에서 발사값을 뽑는다. 없으면 null이라 호출자가 분기한다. */
 function aimStarShot(picks = aimPick) {
   if (!picks.length) return null;
-  const p = picks.map((i) => aimStars[i]);
+  const nodes = aimNodes();
+  const p = picks.map((i) => nodes[i]);
   if (p.some((s) => !s)) return null;
   if (AIM_MODE === "centroid") {
     const cx = p.reduce((sum, s) => sum + s.x, 0) / p.length,
@@ -783,21 +854,54 @@ function aimStarPreview() {
    발사를 이어 준다 — 없으면 별자리가 뜨는 위로 유성이 먼저 지나간다. */
 function launchAimStarShot() {
   if (!battle || ball?.moving || battleComplete) return false;
-  const shot = aimStarShot();
-  if (!shot) {
-    toast("별빛을 골라 조준하세요 · 최대 셋");
+  /* 하한 3. 근거는 AIM_STAR.minPick 주석 — 셋부터 방향이 «만든 점»이 된다.
+     마우스가 올라가 있기만 한 노드는 세지 않는다. 미리보기는 가정을 그려도
+     되지만, 발사가 가정을 쏘면 놀란다. */
+  if (aimPick.length < AIM_STAR.minPick) {
+    toast(
+      "노드 " +
+        aimPick.length +
+        "/" +
+        AIM_STAR.minPick +
+        " · 별지기·별빛을 셋 이상 찍으세요",
+    );
+    // 거절도 연출이다 — HUD 카운트가 잠깐 붉게 흔들리고 낮게 톡 소리가 난다.
+    aimDenyT = 0.5;
+    combatSfx?.("wall", 0.45);
     return false;
   }
-  const picked = new Set(aimPick.map((i) => aimStars[i])),
+  const shot = aimStarShot();
+  if (!shot) {
+    toast("이 조합은 조준이 되지 않습니다 · 다른 노드로 바꿔보세요");
+    return false;
+  }
+  const nodes = aimNodes(),
+    // 별지기 노드는 태울 수 없다 — 별자리 재료는 별빛뿐이다. 별빛 노드는
+    // aimNodes가 같은 객체를 그대로 넘기므로 Set 동일성으로 걸러진다.
+    picked = new Set(aimPick.map((i) => nodes[i])),
     rest = aimStars.filter((s) => !picked.has(s));
+  /* 발사 순간의 수렴 연출 재료를 지금 뜬다 — fire가 별자리 연출 뒤로
+     미뤄질 수 있고, 그때는 aimPick이 이미 비어 있다. */
+  const fxPoints = aimPick.map((i) => ({
+    x: nodes[i].x,
+    y: nodes[i].y,
+    col: nodes[i].col,
+  }));
   const fire = () => {
     aimPick = [];
     aimHover = -1;
+    aimLaunchFx = {
+      t: 0.42,
+      dur: 0.42,
+      points: fxPoints,
+      cx: shot.hx,
+      cy: shot.hy,
+    };
     fireMeteor(
       shot.dx,
       shot.dy,
       shot.force,
-      "별빛 조준 · 위력 " + Math.round(shot.force * 100) + "%",
+      "노드 조준 · 위력 " + Math.round(shot.force * 100) + "%",
     );
   };
   if (rest.length >= 3) {
@@ -841,13 +945,9 @@ registerRuntimeHook("afterShotEnd", () => {
   if (!battle || battleComplete) return;
   if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
   const n = aimStars.length;
-  if (!n) return toast("별빛 없음 · 끌어서 조준하세요");
+  if (!n) return toast("별빛 없음 · 별지기 셋을 찍어 조준하세요");
   toast(
-    "별빛 " +
-      n +
-      " · 셋을 골라 조준 · 남은 " +
-      Math.max(0, n - 3) +
-      "개가 별자리가 됩니다",
+    "별빛 " + n + " · 별지기와 합쳐 셋 이상 조준 · 안 찍은 별빛은 별자리로",
   );
 });
 /* 발사 본체. 조준 경로가 둘이므로(별빛 조준 / 드래그) 한 곳에 모은다 —
@@ -855,6 +955,20 @@ registerRuntimeHook("afterShotEnd", () => {
 function fireMeteor(dx, dy, force, note = null) {
   const aim = billiardAim(dx, dy),
     speed = 750 + force * 975;
+  /* 발사 자체의 손맛: 위력만큼의 작은 킥과 발사 자리의 불꽃. 정산 쉐이크
+     (34)에 비하면 잔진동 수준이라 판독을 해치지 않는다. */
+  screenShake = Math.max(
+    Number.isFinite(screenShake) ? screenShake : 0,
+    3 + force * 5,
+  );
+  fieldFx.push({
+    type: "spark",
+    x: ball.x,
+    y: ball.y,
+    t: 0,
+    d: 0.38,
+    col: "#ffe09a",
+  });
   ball.launchPower = force;
   ball.vx = aim.x * speed;
   ball.vy = aim.y * speed;
@@ -1025,7 +1139,7 @@ function drawAbilityAccent(b, p) {
   x.globalAlpha = Math.min(1, p * 1.25);
   x.strokeStyle = b.col;
   x.fillStyle = b.col;
-  x.shadowBlur = 18;
+  x.shadowBlur = combatFxBlur(18);
   x.shadowColor = b.col;
   x.lineCap = "round";
   if (b.kind === "slash") {
@@ -1151,7 +1265,7 @@ function drawAbilityFx() {
       x.translate(burst.x, burst.y);
       x.rotate(burst.angle || 0);
       x.imageSmoothingEnabled = false;
-      x.shadowBlur = 16;
+      x.shadowBlur = combatFxBlur(16);
       x.shadowColor = burst.col;
       x.drawImage(
         sheet,
@@ -1175,7 +1289,7 @@ function drawAbilityFx() {
     x.translate(burst.x, burst.y);
     x.rotate(burst.angle || 0);
     x.imageSmoothingEnabled = false;
-    x.shadowBlur = 9;
+    x.shadowBlur = combatFxBlur(9);
     x.shadowColor = burst.col;
     x.drawImage(image, -size / 2, -size / 2, size, size);
     x.restore();
@@ -1198,7 +1312,7 @@ function drawVictoryFx() {
     const ring = p * (92 + i * 35) + i * 16;
     x.globalAlpha = Math.max(0, 1 - p) * (0.72 - i * 0.11);
     x.strokeStyle = i % 2 ? "#f4cf7a" : "#e3e9ff";
-    x.shadowBlur = 18;
+    x.shadowBlur = combatFxBlur(18);
     x.shadowColor = x.strokeStyle;
     x.lineWidth = 3;
     x.beginPath();
@@ -1230,11 +1344,11 @@ function drawVictoryFx() {
   x.fillStyle = "#080a1d";
   x.fillText("STAR RETURN!", 2, 2);
   x.fillStyle = "#fff2b2";
-  x.shadowBlur = 20;
+  x.shadowBlur = combatFxBlur(20);
   x.shadowColor = "#b8c3ff";
   x.fillText("STAR RETURN!", 0, 0);
   x.font = "bold 13px ui-monospace";
-  x.shadowBlur = 0;
+  x.shadowBlur = combatFxBlur(0);
   x.fillStyle = "#f3f5ff";
   x.fillText("별이 하늘로 돌아갑니다", 0, 28);
   x.restore();
