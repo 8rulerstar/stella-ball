@@ -59,7 +59,10 @@ function drawPixelDust() {
   if (!pixelDust.length) return;
   x.save();
   x.globalCompositeOperation = "lighter";
-  for (const p of pixelDust) {
+  // 다른 연출과 같은 저하 규칙: 예산 초과면 최근 것만 그린다.
+  const start = isVfxOverBudget() ? Math.max(0, pixelDust.length - 36) : 0;
+  for (let index = start; index < pixelDust.length; index++) {
+    const p = pixelDust[index];
     const life = 1 - p.t / p.d,
       size = Math.max(1, Math.round(p.size * (0.55 + life * 0.45))),
       px = Math.round(p.x / 2) * 2,
@@ -86,7 +89,11 @@ function replayCssClass(element, className) {
 }
 function feedbackBeat(kind, px, py, col = "#fff1a6", power = 1, label = "") {
   if (!Number.isFinite(px) || !Number.isFinite(py)) return;
-  pixelDustBurst(kind, px, py, col, Math.min(1.5, power));
+  // 예산 초과 프레임에는 먼지를 새로 만들지 않는다. 비트·필드FX는 초과 시
+  // 마지막 6개로 줄이는데 먼지만 상한 112를 lighter 합성으로 다 그리면,
+  // 저하 장치가 덜어 준 만큼을 도로 얹는 셈이다.
+  if (!isVfxOverBudget())
+    pixelDustBurst(kind, px, py, col, Math.min(1.5, power));
   feedbackBeats.push({
     kind,
     x: px,
@@ -816,9 +823,13 @@ registerRuntimeHook("afterPartySettle", ({ awakened, figureActive }) => {
     combatSfx("settlement", 0.92);
   }
 });
-registerRuntimeHook("afterFigureShot", ({ missed, resolved, state }) => {
-  if (missed || !resolved || !state?.nodes?.length) return;
-  const center = figureCentroid(state.nodes);
+/* 별자리 발동 순간의 먼지. afterFigureShot에 걸려 있던 예전 판은 한 번도
+   돌지 못했다 — finishFigureShot이 훅을 부르기 전에 clearFigureShot으로
+   state.nodes를 비우고, 노드 경제 모드에서는 resolved가 항상 false다.
+   발동의 단일 관문인 resolveFigure가 쏘는 훅으로 옮긴다. */
+registerRuntimeHook("afterFigureResolve", ({ points }) => {
+  if (!points?.length) return;
+  const center = figureCentroid(points);
   pixelDustBurst("riposte", center.x, center.y, "#fff0b8", 1.35);
 });
 function updateAssists(d) {

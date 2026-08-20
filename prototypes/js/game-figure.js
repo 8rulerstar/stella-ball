@@ -361,6 +361,10 @@ function deferFigureResolution(afterCast) {
 function resolveFigure(points) {
   if (!figureActive() || battleComplete) return;
   if (!points || points.length < FIGURE_PARRY.minNodes) return;
+  /* 별자리가 «실제로» 발동하는 유일한 관문이 여기다. 연출 훅은 이 지점에서
+     불러야 한다 — finishFigureShot의 afterFigureShot은 state.nodes를 비운
+     뒤에 돌아 발동 좌표를 잃고, 노드 경제에서는 resolved가 아예 서지 않는다. */
+  runRuntimeHooks("afterFigureResolve", { points });
   flushPendingFigure();
   const ring = figureRing(points),
     segment = ring.length === 2,

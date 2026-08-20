@@ -1331,6 +1331,11 @@ addEventListener("keydown", (e) => {
     !battleComplete
   ) {
     e.preventDefault();
+    /* 입장 연출 중의 Space는 포인터와 같은 규칙으로 컷신을 넘긴다. 예전에는
+       이 확인이 없어 거절 토스트·효과음이 컷신 위에 울리고, aimDenyT는
+       조준 화면이 잠긴 탓에 얼었다가 판이 열리는 순간 입력 없이 뒤늦게
+       떨렸다. */
+    if (skipBattleIntro()) return;
     launchAimStarShot?.();
     return;
   }

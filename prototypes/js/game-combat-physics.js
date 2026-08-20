@@ -1076,9 +1076,33 @@ function pixelSparkle(cx, cy, r, col, thick = 3) {
     x.fillRect(Math.round(cx) - taper, py, taper * 2, step);
   }
 }
+/* 연출 시계의 실시간 보폭. 이 파일의 조준 연출 감쇠는 draw 훅에서 도는데,
+   draw는 60Hz가 아니라 «제시된 프레임»마다 온다 — 120~165Hz 패널은 rAF
+   상한이 일부러 원주사율로 두므로, 고정 1/60을 빼면 모든 박자가 2배속이
+   된다(시네마틱의 cineFrameDelta와 같은 병). frameClock은 제시 프레임의
+   rAF 타임스탬프라, 그 차가 곧 실경과다. 한 프레임에 여러 함수가 불러도
+   같은 값을 돌려준다. */
+let aimFxDtFrame = NaN,
+  aimFxDtPrev = NaN,
+  aimFxDtValue = 1 / 60;
+function aimFxDelta() {
+  if (frameClock !== aimFxDtFrame) {
+    aimFxDtValue = Number.isFinite(aimFxDtPrev)
+      ? Math.min(0.05, Math.max(0, (frameClock - aimFxDtPrev) / 1000))
+      : 1 / 60;
+    aimFxDtPrev = frameClock;
+    aimFxDtFrame = frameClock;
+  }
+  return aimFxDtValue;
+}
 function drawAimStars() {
   if (!run || battle?.victory || ball?.moving || !aimStarReady()) return;
   if (introProgress() < 1) return;
+  /* 별자리 캐스트(입력 잠금) 동안에는 조준 화면을 접는다. 클릭도 Space도
+     조용히 먹히는데 호버 링·«Space 발사» 안내만 살아 있으면, 판이 응답을
+     멈춘 것처럼 읽힌다 — 잠긴 동안은 시네마틱이 화면의 주인이다. */
+  if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
+    return;
   const nodes = aimNodes(),
     unitCount = nodes.length - aimStars.length,
     preview = aimStarPreview(),
@@ -1142,7 +1166,8 @@ function drawAimStars() {
     x.globalAlpha = 1;
   }
   // 셋째를 찍은 «성립» 플래시의 시계. 그리는 곳은 조준선(아래)이다.
-  if (aimReadyFlash > 0) aimReadyFlash = Math.max(0, aimReadyFlash - 1 / 60);
+  const fxDt = aimFxDelta();
+  if (aimReadyFlash > 0) aimReadyFlash = Math.max(0, aimReadyFlash - fxDt);
 
   if (preview) {
     /* 무게중심 조준을 그린다. 유성에서 가운데점까지 «갈 길»을 직접 긋고,
@@ -1152,8 +1177,14 @@ function drawAimStars() {
        그래서 「어디로 쏘는지」를 머릿속에서 평행이동해야 했다 — 오너가
        「너무 힘들다」고 한 것이 이것이다. 유성에서 시작하는 선은 그 단계가
        없다. */
+    /* 호버를 «다음 하나»로 가정하는 규칙은 aimStarPreview와 한 몸이어야
+       한다. 저쪽은 하한(minPick)을 채우면 호버를 무시하는데 여기만 무조건
+       붙이면, 확정된 3픽 조준선이 «가정» 점선으로 그려지고 안내선은 호버까지
+       이어져 — 점선이 보여준 것과 다른 곳으로 쏘게 된다. */
     const previewPicks =
-      aimHover < 0 || aimPick.includes(aimHover)
+      aimPick.length >= AIM_STAR.minPick ||
+      aimHover < 0 ||
+      aimPick.includes(aimHover)
         ? aimPick
         : [...aimPick, aimHover];
     const p = previewPicks.map((i) => nodes[i]);
@@ -1256,7 +1287,7 @@ function drawAimStars() {
       );
       // 찍는 순간의 플래시: 흰 고리가 바깥으로 번지며 사라진다.
       if (g.aimFlash > 0) {
-        g.aimFlash = Math.max(0, g.aimFlash - 1 / 60);
+        g.aimFlash = Math.max(0, g.aimFlash - fxDt);
         const fk = g.aimFlash / 0.3;
         x.globalAlpha = fk;
         stepRing(node.x, node.y, g.r + 8 + (1 - fk) * 20, "#ffffff", 3, 3);
@@ -1265,7 +1296,7 @@ function drawAimStars() {
       chipY = node.y - g.r - 20;
     } else {
       const star = node;
-      if (star.born > 0) star.born = Math.max(0, star.born - 1 / 60);
+      if (star.born > 0) star.born = Math.max(0, star.born - fxDt);
       const grow = star.born > 0 ? 1 + star.born * 1.8 : 1,
         // 고르지 않은 것이 맥동한다. 이미 고른 것은 흔들리면 오히려 읽기
         // 어렵다.
@@ -1285,7 +1316,7 @@ function drawAimStars() {
         stepRing(star.x, star.y, r + 6, picked ? "#ffffff" : "#ffffff88", 3, 3);
       // 찍는 순간의 플래시 - 별지기와 같은 언어.
       if (star.pickFlash > 0) {
-        star.pickFlash = Math.max(0, star.pickFlash - 1 / 60);
+        star.pickFlash = Math.max(0, star.pickFlash - fxDt);
         const fk = star.pickFlash / 0.3;
         x.globalAlpha = fk;
         stepRing(star.x, star.y, r + 8 + (1 - fk) * 18, "#ffffff", 3, 3);
@@ -1321,7 +1352,7 @@ function drawAimStars() {
   /* 하한 미달 Space의 거절: 카운트 줄이 잠깐 붉어지며 가로로 떨린다.
      토스트는 위에 뜨는데 시선은 아래 카운트에 있어, 거절의 이유가 바로
      그 줄에서 읽혀야 한다. */
-  if (aimDenyT > 0) aimDenyT = Math.max(0, aimDenyT - 1 / 60);
+  if (aimDenyT > 0) aimDenyT = Math.max(0, aimDenyT - fxDt);
   const denyK = aimDenyT / 0.5,
     denyShake = denyK > 0 ? Math.sin(frameClock / 16) * 3.5 * denyK : 0;
   x.fillStyle = denyK > 0.05 ? "#ff9d9d" : "#ffe09a";
@@ -1361,7 +1392,7 @@ function drawAimLaunchFx() {
     return;
   }
   const fx = aimLaunchFx;
-  fx.t -= 1 / 60;
+  fx.t -= aimFxDelta();
   if (fx.t <= 0) {
     // 다 모이면 무게중심에서 마지막 불꽃이 한 번 터진다.
     fieldFx.push({

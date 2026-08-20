@@ -501,19 +501,74 @@ try {
   const running = evaluate(
     RUN_SHOT(STAGE, PARTY, STAGGER, MUTE, NO_BLUR, NO_GHOST, KILL),
   );
+  /* 이 장수 evaluate는 한참 뒤에야 await된다. 그 사이 컨텍스트가 죽으면
+     (렌더러 크래시 등) 거부가 «비처리»로 잡혀 노드 전체가 즉사했다 —
+     핸들러를 하나 붙여 두면 나중의 await가 같은 오류를 정상 경로로 받는다. */
+  running.catch(() => {});
   await delay(1800); // idle 기준선이 다 모일 때까지
 
   /* 2026-08-20부터 실전 조준은 «노드 찍기 + Space»다(별지기 셋 + 최소 3픽).
-     드래그 이벤트는 이제 픽 경로가 가로채서 발사되지 않는다 — 실전과 같은
-     경로로 별지기 셋을 찍어 쏜다. 노드 조준이 꺼진 판(수업 등)만 예전
-     드래그로 떨어진다. */
-  const nodeLaunched = await evaluate(
-    "typeof aimStarReady === 'function' && aimStarReady() ? (aimPick = [0, 1, 2], launchAimStarShot()) : false",
+     드래그와 같은 실입력 원칙을 지킨다 — 별지기 셋을 진짜 마우스로 찍고
+     진짜 Space로 쏜다. 코드로만 발사하면 픽 경로·입력 잠금·거절 연출을
+     전부 건너뛰는데, 그것까지가 재려는 실전이다. 첫 클릭 하나는 입장
+     컷신을 넘기는 데 쓰인다(포인터 규칙 그대로). 노드 조준이 꺼진 판
+     (수업 등)만 예전 드래그로 떨어진다. */
+  const nodeMode = await evaluate(
+    "typeof aimStarReady === 'function' && aimStarReady()",
   );
-  /* 진짜 마우스로 쏜다. 발사만 코드로 넣으면 조준 보정도, 위력 곡선도,
-     별지기를 하나씩 때리며 흩어지는 접촉도 전부 건너뛴다 — 그 흩어짐이
-     바로 재려는 것이다. */
-  const p = nodeLaunched
+  if (nodeMode) {
+    const spots = await evaluate(`(() => {
+      const rect = document.querySelector("#game").getBoundingClientRect();
+      const css = (px, py) => ({
+        x: rect.left + (px * rect.width) / 720,
+        y: rect.top + (py * rect.height) / 900,
+      });
+      return { skip: css(360, 640), picks: gates.map((g) => css(g.x, g.y)) };
+    })()`);
+    const click = async (pt) => {
+      await send("Input.dispatchMouseEvent", {
+        type: "mouseMoved",
+        ...pt,
+        button: "none",
+        buttons: 0,
+      });
+      await send("Input.dispatchMouseEvent", {
+        type: "mousePressed",
+        ...pt,
+        button: "left",
+        buttons: 1,
+        clickCount: 1,
+      });
+      await send("Input.dispatchMouseEvent", {
+        type: "mouseReleased",
+        ...pt,
+        button: "left",
+        buttons: 0,
+        clickCount: 1,
+      });
+    };
+    await click(spots.skip); // 입장 컷신 소비 (이미 끝났다면 빈 클릭)
+    await delay(150);
+    for (const pt of spots.picks) await click(pt);
+    await send("Input.dispatchKeyEvent", {
+      type: "keyDown",
+      code: "Space",
+      key: " ",
+      windowsVirtualKeyCode: 32,
+    });
+    await send("Input.dispatchKeyEvent", {
+      type: "keyUp",
+      code: "Space",
+      key: " ",
+      windowsVirtualKeyCode: 32,
+    });
+    // 거절됐다면(퇴화 조합 등) 남은 픽이 진단 상태를 오염시키지 않게 지운다.
+    await evaluate("ball && ball.moving ? true : ((aimPick = []), false)");
+  }
+  /* 드래그 폴백. 발사만 코드로 넣으면 조준 보정도, 위력 곡선도, 별지기를
+     하나씩 때리며 흩어지는 접촉도 전부 건너뛴다 — 그 흩어짐이 바로 재려는
+     것이다. */
+  const p = nodeMode
     ? null
     : await evaluate(`(() => {
     const rect = document.querySelector("#game").getBoundingClientRect();

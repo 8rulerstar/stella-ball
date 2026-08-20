@@ -143,10 +143,6 @@ function damage(weak = false) {
         : "몸체";
   const dealt = applyBossHit(amount);
   if (dealt > 0) {
-    // Said explicitly rather than inferred from the popup's wording: every
-    // direct meteor hit shakes, flashes and extends the combo, including the
-    // unrouted 직격 and 첫 직격 that the old label test silently skipped.
-    registerBossHit(weak);
     impact(weak);
     addPopup(
       ball.x,
@@ -163,6 +159,11 @@ function damage(weak = false) {
       "#ef718d",
     );
   toast(weak ? label + " " + amount + " 피해" : "몸체 " + amount + " 피해");
+  /* 피해 토스트 «뒤»에 콤보를 센다. 원래 setTimeout(…,0)이 이 순서를
+     지켰는데, 그 지연을 걷어내며 「연타!」가 자기를 만든 피해보다 먼저
+     재생되게 뒤집혔다 — 타이머 없이 호출 순서로 같은 계약을 지킨다.
+     (모든 직격이 콤보를 늘린다는 원 규칙 그대로: 미경유 직격·첫 직격 포함.) */
+  if (dealt > 0) registerBossHit(weak);
   if (boss.hp <= 0) scheduleWin();
   ball.power = 0;
   ball.openingBossContact = false;
@@ -486,6 +487,10 @@ function billiardPointerDown(e) {
       if (e.button !== 0) {
         if (aimPick.length) {
           aimPick = [];
+          // 성립 플래시·거절 연출도 함께 무른다 — 하한 미달로 돌아간 선이
+          // «성립» 빛을 물고 있으면 안 된다.
+          aimReadyFlash = 0;
+          aimDenyT = 0;
           combatSfx?.("parryMiss", 0.5);
         }
         return;
@@ -526,6 +531,8 @@ function pickAimStar(index) {
   if (at >= 0) {
     // 다시 찍으면 무른다. 뒤엣것은 그대로 두고 순서만 당겨진다.
     aimPick.splice(at, 1);
+    // 하한 아래로 내려가면 «조준 성립» 플래시도 성립을 잃는다.
+    if (aimPick.length < AIM_STAR.minPick) aimReadyFlash = 0;
     combatSfx?.("node", 0.5);
     // 무른 자리에 잿빛 불씨 - 「빠졌다」가 소리로만 남으면 놓친다.
     if (node)
@@ -565,7 +572,9 @@ function pickAimStar(index) {
 function billiardPointerMove(e) {
   if (!drag) {
     // 어느 별빛 위에 있는지만 본다. 미리보기가 그것을 «다음 하나»로 잡는다.
-    if (!ball?.moving && aimStarReady()) {
+    // 별자리 캐스트 등으로 입력이 잠긴 동안에는 호버도 잡지 않는다 —
+    // 클릭이 먹히지 않는데 호버 링·가정 선만 살아 있으면 거짓 광고다.
+    if (!ball?.moving && aimStarReady() && !isCombatInputLocked()) {
       const at = pointer(e);
       aimHover = aimStarAt(at.x, at.y);
     } else if (aimHover !== -1) aimHover = -1;
@@ -811,7 +820,35 @@ function aimStarShot(picks = aimPick) {
         p.length,
       dx = cx - ball.x,
       dy = cy - ball.y;
-    if (Math.hypot(dx, dy) < 1) return null;
+    if (Math.hypot(dx, dy) < 1) {
+      /* 무게중심이 유성 바로 위에 얹힌 퇴화 조합. 별빛 0개 판에서는 조합이
+         «별지기 셋» 하나뿐이라, 여기서 null만 돌려주면 드래그 폴백도 없는
+         소프트락이 된다 — 가장 먼 픽 방향으로 최소 위력을 쏘는 재배치 샷으로
+         떨어뜨린다. 픽이 전부 유성 1px 안일 수는 없으므로(별지기 몸통 r=31)
+         사실상 항상 탈출된다. */
+      let far = null,
+        farD = 1;
+      for (const s of p) {
+        const d2 = Math.hypot(s.x - ball.x, s.y - ball.y);
+        if (d2 > farD) {
+          farD = d2;
+          far = s;
+        }
+      }
+      if (!far) return null;
+      return {
+        dx: far.x - ball.x,
+        dy: far.y - ball.y,
+        cx: far.x,
+        cy: far.y,
+        tx: ball.x,
+        ty: ball.y,
+        hx: far.x,
+        hy: far.y,
+        radius: 0,
+        force: 0.28,
+      };
+    }
     return {
       dx,
       dy,
@@ -916,7 +953,18 @@ function launchAimStarShot() {
   aimHover = -1;
   aimReadyFlash = 0;
   aimDenyT = 0;
+  // 노드에 남긴 «방금 찍힘» 플래시도 여기서 끊는다. drawAimStars에서만
+  // 감쇠하므로 비행 동안 얼었다가, 정산 뒤 자리가 바뀐 별지기 위에서
+  // 유령처럼 재생됐다 — 순서 배지와 같은 낡은-상태 계열이다.
+  for (const g of gates) g.aimFlash = 0;
+  for (const s of aimStars) s.pickFlash = 0;
   const fire = () => {
+    /* 별자리 연출이 도는 사이 판이 끝났을 수 있다. 캐스트 피해가 보스를
+       잡으면 scheduleWin이 battleComplete를 세우는데 afterCast는 그대로
+       이어지므로, 여기서 삼키지 않으면 승리 컷신 중에 유성이 발사되고
+       battle.shots가 줄어 결과 카드의 샷 수·메달이 틀어진다 — 발사 진입점
+       마다 걸어 둔 battleComplete 가드(포인터 경로 주석)와 같은 규칙이다. */
+    if (!battle || battleComplete || ball?.moving) return;
     aimPick = [];
     aimHover = -1;
     aimLaunchFx = {

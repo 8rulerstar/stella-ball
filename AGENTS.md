@@ -53,13 +53,18 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Four probes drive a real Chromium over CDP the way the onboarding E2E does. None
+Five probes drive a real Chromium over CDP the way the onboarding E2E does. None
 is wired into a gate; run them by hand when the question is about the screen.
 
 - `node scripts/profile-frames.mjs` - frame times and the composited layer structure.
 - `node scripts/probe-settle-cost.mjs` - the frame cost of a settlement chain.
 - `node scripts/probe-steer-lesson.mjs` - where the steer lesson's hold actually stops on screen.
 - `node scripts/probe-sky-guests.mjs` - margin guest placement, immune to the 0x0 viewport.
+- `node scripts/probe-aim-nodes.mjs` - the node-aiming rules (starkeeper floor, 3-pick
+  minimum, centroid direction, starkeeper non-burn) plus the direction-freedom menu.
+
+New probes build on `scripts/lib/probe-harness.mjs` instead of copying the
+Chromium/CDP boilerplate; the older four predate it and still carry their own.
 
 `node bot/run-bot.mjs` regenerates `bot/latest-report.json`. The harness is
 deterministic - the same code twice gives byte-identical output - so a diff in

@@ -19,6 +19,7 @@ const StellaRuntime = (() => {
     "afterFeedbackUpdate",
     "afterFigureShot",
     "afterFieldFxDraw",
+    "afterFigureResolve",
     "afterMeteorLaunch",
     "afterMeteorSteer",
     "afterMobilePairCollision",
