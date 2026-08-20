@@ -1458,12 +1458,35 @@
        콜백에서 곧바로 하면 body 아래 어디서든 노드가 하나 붙고 떨어질 때마다
        레이아웃이 한 번씩 돈다. 타이틀이 나타나고 사라지는 건 초 단위 사건이니
        프레임 뒤로 미뤄 한 번만 재도 결과는 같다. */
-    function scheduleCheck() {
+    function scheduleCheck(records) {
+      var touchesTitle = false;
+      for (var i = 0; i < records.length && !touchesTitle; i++) {
+        var groups = [records[i].addedNodes, records[i].removedNodes];
+        for (var g = 0; g < groups.length && !touchesTitle; g++) {
+          for (var j = 0; j < groups[g].length; j++) {
+            var node = groups[g][j];
+            if (
+              node.nodeType === 1 &&
+              (node.matches(".title-sequence") ||
+                node.querySelector(".title-sequence"))
+            ) {
+              touchesTitle = true;
+              break;
+            }
+          }
+        }
+      }
+      if (!touchesTitle) return;
       if (pending) return;
       pending = setTimeout(check, 150);
     }
     observer = new MutationObserver(scheduleCheck);
-    observer.observe(document.body, { childList: true, subtree: true });
+    /* 타이틀은 #overlay 안에서만 생성·제거된다. body 전체를 보면 전투 HUD와
+       토스트까지 콜백을 깨우므로, 타이틀을 소유한 안정된 루트만 감시한다. */
+    observer.observe(document.querySelector("#overlay") || document.body, {
+      childList: true,
+      subtree: true,
+    });
     check();
   }
 

@@ -31,6 +31,7 @@ const CINE = {
   ringBudget: 24,
 };
 let cine = null; // { id, t, evts, ei, end, ...per-id state }
+let cineFrameDelta = 1 / 60;
 let cineParts = [],
   cineRings = [],
   cinePillars = [],
@@ -47,6 +48,10 @@ registerRuntimeHook("afterBattleSetup", () => {
   cineFrags = [];
   cineKnock = null;
   cineDark = 0;
+  // Silhouettes otherwise decode on the first cast, exactly when the screen is
+  // already busiest. Battle setup gives all seven images several shots of lead.
+  for (const tier of Object.values(FIGURE_SHAPES))
+    for (const shape of tier) loadTexture(shape.art);
 });
 /* --- tiny fx helpers (mirror the game's ring/popup vocabulary) ----------- */
 function cineRing(cx, cy, r0, r1, d, col, w = 3) {
@@ -75,6 +80,18 @@ function cineBurst(cx, cy, col, n, sp, d, size = 3, grav = 120) {
 function cinePart(p) {
   cineParts.push(p);
   if (cineParts.length > CINE.partBudget) cineParts.shift();
+}
+// Draw hooks can run at 60, 120 or 240 Hz. Convert the old 60-fps per-frame
+// particle probabilities to a time-based chance so high-refresh monitors do
+// not fill the particle budget several times faster than intended.
+function cineChance(chanceAt60Fps) {
+  return Math.random() < 1 - Math.pow(1 - chanceAt60Fps, cineFrameDelta * 60);
+}
+function compactCine(items) {
+  let write = 0;
+  for (let i = 0; i < items.length; i++)
+    if (items[i].t < items[i].d) items[write++] = items[i];
+  items.length = write;
 }
 function cinePillar(cx, cy, col) {
   cinePillars.push({ x: cx, y: cy, col, t: 0, d: 1.1 });
@@ -294,6 +311,7 @@ function cineShieldFrags() {
 }
 /* --- clock ---------------------------------------------------------------- */
 registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
+  cineFrameDelta = Math.min(0.05, Math.max(0, d));
   if (!CINE.enabled) return;
   // Start when the reveal's own clock crosses the cast beat.
   if (
@@ -318,16 +336,16 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
     if (cine.t >= cine.end) cine = null;
   }
   for (const r of cineRings) r.t += d;
-  cineRings = cineRings.filter((r) => r.t < r.d);
+  compactCine(cineRings);
   for (const p of cineParts) {
     p.t += d;
     p.vy += p.grav * d;
     p.x += p.vx * d;
     p.y += p.vy * d;
   }
-  cineParts = cineParts.filter((p) => p.t < p.d);
+  compactCine(cineParts);
   for (const p of cinePillars) p.t += d;
-  cinePillars = cinePillars.filter((p) => p.t < p.d);
+  compactCine(cinePillars);
   for (const f of cineFrags) {
     f.t += d;
     f.x += f.vx * d;
@@ -335,7 +353,7 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
     f.vy += 300 * d;
     f.a += d * 6;
   }
-  cineFrags = cineFrags.filter((f) => f.t < f.d);
+  compactCine(cineFrags);
   // orion vignette
   if (cine && cine.orion) {
     const s = cine.t;
@@ -464,7 +482,7 @@ registerRuntimeHook("afterDraw", function drawCine() {
     x.save();
     x.globalAlpha = 1 - k;
     x.strokeStyle = r.col;
-    x.shadowBlur = 16;
+    x.shadowBlur = combatFxBlur(16);
     x.shadowColor = r.col;
     x.lineWidth = r.w;
     x.beginPath();
@@ -475,7 +493,7 @@ registerRuntimeHook("afterDraw", function drawCine() {
   for (const s of cineStreaks) {
     x.save();
     x.strokeStyle = "#ffe6b0";
-    x.shadowBlur = 8;
+    x.shadowBlur = combatFxBlur(8);
     x.shadowColor = "#ffd2a0";
     x.lineWidth = 2.5;
     x.globalAlpha = 0.9;
@@ -545,7 +563,7 @@ function drawCineRam(s) {
   if (s >= t1 + 0.5) return;
   const fade = s > t1 ? 1 - (s - t1) / 0.5 : 1;
   x.save();
-  x.shadowBlur = 30;
+  x.shadowBlur = combatFxBlur(30);
   x.shadowColor = "#f2c56b";
   for (let i = 2; i >= 0; i--) {
     x.globalAlpha = (i ? 0.18 : 0.9) * fade;
@@ -559,7 +577,7 @@ function drawCineRam(s) {
     );
   }
   x.restore();
-  if (k < 1 && Math.random() < 0.7) {
+  if (k < 1 && cineChance(0.7)) {
     cinePart({
       x: px - 60,
       y: py + 70,
@@ -582,7 +600,7 @@ function drawCineArrow(A) {
     x.translate(cx, cy);
     x.rotate(Math.atan2(A.uy, A.ux));
     x.globalAlpha = alpha;
-    x.shadowBlur = 22;
+    x.shadowBlur = combatFxBlur(22);
     x.shadowColor = "#ffd2a0";
     x.strokeStyle = "#fff6e6";
     x.lineWidth = 6;
@@ -617,7 +635,7 @@ function drawCineArrow(A) {
   if (A.phase === 0) {
     const mat = Math.min(1, s / 0.55),
       pull = s > 0.55 ? Math.min(1, (s - 0.55) / 0.23) * 30 : 0;
-    if (mat < 1 && Math.random() < 0.8) {
+    if (mat < 1 && cineChance(0.8)) {
       const an = Math.random() * Math.PI * 2,
         r = 90 + Math.random() * 60;
       cinePart({
@@ -641,7 +659,7 @@ function drawCineArrow(A) {
     x.save();
     x.globalAlpha = 0.55;
     x.strokeStyle = "#ffd2a0";
-    x.shadowBlur = 18;
+    x.shadowBlur = combatFxBlur(18);
     x.shadowColor = "#ffd2a0";
     x.lineWidth = 5;
     x.beginPath();
@@ -657,7 +675,7 @@ function drawCineArrow(A) {
     x.globalAlpha = 0.35 * life;
     x.strokeStyle = "#ffd2a0";
     x.lineWidth = 3;
-    x.shadowBlur = 12;
+    x.shadowBlur = combatFxBlur(12);
     x.shadowColor = "#ffd2a0";
     x.beginPath();
     x.moveTo(A.from.x, A.from.y);
@@ -679,7 +697,7 @@ function drawCineCrows(cr, s) {
     x.fillStyle = "#232d3a";
     x.strokeStyle = "#7cc6bb";
     x.lineWidth = 1.5;
-    x.shadowBlur = 8;
+    x.shadowBlur = combatFxBlur(8);
     x.shadowColor = "#47837c";
     const flap = Math.sin(now * 16 + px) * 8 * sc;
     x.beginPath();
@@ -742,7 +760,7 @@ function drawCineCrows(cr, s) {
     x.scale(k, k);
     x.globalAlpha = 0.9 * br;
     x.strokeStyle = "#ffd2a0";
-    x.shadowBlur = 14;
+    x.shadowBlur = combatFxBlur(14);
     x.shadowColor = "#ffd2a0";
     x.lineWidth = 2.5;
     x.beginPath();
@@ -779,7 +797,7 @@ function drawCineCass(st, s) {
     segs = 4 * grow;
   x.save();
   x.strokeStyle = "#dff3ea";
-  x.shadowBlur = 18;
+  x.shadowBlur = combatFxBlur(18);
   x.shadowColor = "#9adfc9";
   x.lineCap = "round";
   const surge = s > 0.6 ? 0.7 + 0.3 * Math.sin(now * 18) : 0.8;
@@ -799,7 +817,7 @@ function drawCineCass(st, s) {
   for (let i = 0; i < 5; i++) {
     if (grow * 5 < i) break;
     x.fillStyle = "#fff6e6";
-    x.shadowBlur = 12;
+    x.shadowBlur = combatFxBlur(12);
     x.beginPath();
     x.arc(pts[i].x, pts[i].y, 5, 0, Math.PI * 2);
     x.fill();
@@ -810,7 +828,7 @@ function drawCineCass(st, s) {
     x.save();
     x.globalAlpha = Math.max(0, life);
     x.strokeStyle = "#eafff7";
-    x.shadowBlur = 26;
+    x.shadowBlur = combatFxBlur(26);
     x.shadowColor = "#9adfc9";
     x.lineWidth = 5;
     x.lineCap = "round";
@@ -866,7 +884,7 @@ function drawCineSwan(st, s) {
       x.globalAlpha =
         (L ? 0.18 : 0.3) * Math.max(0, 1 - Math.max(0, s - 2.2) / 1.0);
       x.lineWidth = L ? 16 : 7;
-      x.shadowBlur = 18;
+      x.shadowBlur = combatFxBlur(18);
       x.shadowColor = "#7cc6bb";
       x.stroke();
     }
@@ -877,7 +895,7 @@ function drawCineSwan(st, s) {
       fade = k > 0.92 ? (1 - k) / 0.08 : 1;
     x.save();
     x.globalAlpha = 0.95 * fade;
-    x.shadowBlur = 24;
+    x.shadowBlur = combatFxBlur(24);
     x.shadowColor = "#bfe9ff";
     const size = 210 * flap;
     x.drawImage(
@@ -888,7 +906,7 @@ function drawCineSwan(st, s) {
       size,
     );
     x.restore();
-    if (Math.random() < 0.6)
+    if (cineChance(0.6))
       cinePart({
         x: px - 30,
         y: py + 30,
@@ -911,7 +929,7 @@ function drawCineMagicCircle(t, o) {
   x.translate(o.x, o.y);
   x.scale(1, 0.62);
   x.strokeStyle = "#ffcf8a";
-  x.shadowBlur = 20;
+  x.shadowBlur = combatFxBlur(20);
   x.shadowColor = "#ffcf8a";
   x.globalAlpha = 0.65 * dim * ignite;
   x.lineWidth = 4;
@@ -952,7 +970,7 @@ function drawCineMagicCircle(t, o) {
       x.fillRect(-4, -4, 8, 8);
       x.restore();
     }
-    if (t > 1.0 && t < 2.4 && Math.random() < 0.5) {
+    if (t > 1.0 && t < 2.4 && cineChance(0.5)) {
       const an = Math.random() * Math.PI * 2,
         r = Math.random() * 250;
       cinePart({
@@ -979,7 +997,7 @@ function drawCineOrion(s) {
       x.save();
       x.globalAlpha = 1 - k;
       x.fillStyle = "#fff6e6";
-      x.shadowBlur = 20;
+      x.shadowBlur = combatFxBlur(20);
       x.shadowColor = "#ffd2a0";
       x.beginPath();
       x.arc(W / 2 - 80 + i * 60, 110 + i * 12, 6 + k * 8, 0, Math.PI * 2);
@@ -1020,7 +1038,7 @@ function drawCineOrion(s) {
   x.translate(W / 2, cy + strikeOff);
   x.rotate(rot);
   x.scale(scl, scl);
-  x.shadowBlur = 40;
+  x.shadowBlur = combatFxBlur(40);
   x.shadowColor = "#ffd2a0";
   x.globalCompositeOperation = "lighter";
   x.globalAlpha *= 0.35;
@@ -1029,7 +1047,7 @@ function drawCineOrion(s) {
   x.globalAlpha = Math.min(0.92, rise) * (1 - dissolve);
   x.drawImage(img, -260, -260, 520, 520);
   x.restore();
-  if (dissolve > 0 && Math.random() < 0.8)
+  if (dissolve > 0 && cineChance(0.8))
     cinePart({
       x: W / 2 + (Math.random() - 0.5) * 380,
       y: cy + (Math.random() - 0.5) * 380,
@@ -1059,7 +1077,7 @@ function drawCineDipper(st, s) {
     const px = from.x + (to.x - from.x) * fly,
       py = from.y + (to.y - from.y) * fly;
     x.save();
-    x.shadowBlur = 14;
+    x.shadowBlur = combatFxBlur(14);
     x.shadowColor = "#ffe6b0";
     x.fillStyle = "#fff6e6";
     x.globalAlpha = 0.95;
@@ -1067,7 +1085,7 @@ function drawCineDipper(st, s) {
     x.arc(px, py, 5, 0, Math.PI * 2);
     x.fill();
     x.restore();
-    if (fly < 1 && Math.random() < 0.4)
+    if (fly < 1 && cineChance(0.4))
       cinePart({
         x: px,
         y: py,
@@ -1089,7 +1107,7 @@ function drawCineDipper(st, s) {
     x.translate(-skyC.x, -skyC.y);
     x.globalAlpha = 0.5 * fade;
     x.strokeStyle = "#dff3ea";
-    x.shadowBlur = 14;
+    x.shadowBlur = combatFxBlur(14);
     x.shadowColor = "#9adfc9";
     x.lineWidth = 2.5;
     x.beginPath();
@@ -1122,7 +1140,7 @@ function drawCineDipper(st, s) {
     x.translate(W - 106, 84);
     x.globalAlpha = br;
     x.strokeStyle = "#fff6e6";
-    x.shadowBlur = 22;
+    x.shadowBlur = combatFxBlur(22);
     x.shadowColor = "#fff1bd";
     x.lineWidth = 3;
     const R = 20 * k;
@@ -1143,7 +1161,7 @@ function drawCineDipper(st, s) {
     x.save();
     x.globalAlpha = 0.85;
     x.strokeStyle = "#fff1bd";
-    x.shadowBlur = 10;
+    x.shadowBlur = combatFxBlur(10);
     x.shadowColor = "#fff1bd";
     x.lineWidth = 2.5;
     x.setLineDash([7, 8]);

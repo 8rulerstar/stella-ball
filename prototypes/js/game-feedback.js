@@ -2,11 +2,78 @@
 // each get their own readable beat.  The short stop is intentionally paired
 // with a longer ring/popup so the player has time to register the result.
 let feedbackBeats = [],
+  pixelDust = [],
+  pixelDustSerial = 0,
   feedbackCooldown = 0,
   finisherFocus = null,
   finisherImpacts = [],
   settlementBeat = null;
 const cssReplayTokens = new WeakMap();
+const PIXEL_DUST_BUDGET = 112;
+function pixelDustBurst(kind, px, py, col, power) {
+  const count =
+      kind === "riposte"
+        ? 24
+        : kind === "weak" || kind === "awaken"
+          ? 18
+          : kind === "unit"
+            ? 12
+            : kind === "wall"
+              ? 6
+              : 10,
+    speed = (kind === "wall" ? 86 : kind === "riposte" ? 230 : 150) * power,
+    base = pixelDustSerial++ * 0.754877666;
+  for (let i = 0; i < count; i++) {
+    const angle = base + i * 2.39996323,
+      spread = 0.42 + ((i * 37 + pixelDustSerial * 17) % 61) / 100,
+      size = i % 7 === 0 ? 4 : i % 3 === 0 ? 3 : 2;
+    pixelDust.push({
+      x: Math.round(px / 2) * 2,
+      y: Math.round(py / 2) * 2,
+      vx: Math.cos(angle) * speed * spread,
+      vy: Math.sin(angle) * speed * spread - (kind === "awaken" ? 62 : 18),
+      grav: kind === "awaken" ? -16 : 135,
+      col,
+      size,
+      t: 0,
+      d: 0.28 + (i % 5) * 0.045,
+    });
+  }
+  if (pixelDust.length > PIXEL_DUST_BUDGET)
+    pixelDust.splice(0, pixelDust.length - PIXEL_DUST_BUDGET);
+}
+function updatePixelDust(d) {
+  let write = 0;
+  for (let i = 0; i < pixelDust.length; i++) {
+    const p = pixelDust[i];
+    p.t += d;
+    if (p.t >= p.d) continue;
+    p.vy += p.grav * d;
+    p.x += p.vx * d;
+    p.y += p.vy * d;
+    pixelDust[write++] = p;
+  }
+  pixelDust.length = write;
+}
+function drawPixelDust() {
+  if (!pixelDust.length) return;
+  x.save();
+  x.globalCompositeOperation = "lighter";
+  for (const p of pixelDust) {
+    const life = 1 - p.t / p.d,
+      size = Math.max(1, Math.round(p.size * (0.55 + life * 0.45))),
+      px = Math.round(p.x / 2) * 2,
+      py = Math.round(p.y / 2) * 2;
+    x.globalAlpha = Math.min(1, life * 1.5);
+    x.fillStyle = p.col;
+    x.fillRect(px, py, size, size);
+    if (p.size >= 4 && life > 0.46) {
+      x.fillRect(px - size, py + 1, size * 3, 1);
+      x.fillRect(px + 1, py - size, 1, size * 3);
+    }
+  }
+  x.restore();
+}
 function replayCssClass(element, className) {
   if (!element) return;
   const token = (cssReplayTokens.get(element) || 0) + 1;
@@ -19,6 +86,7 @@ function replayCssClass(element, className) {
 }
 function feedbackBeat(kind, px, py, col = "#fff1a6", power = 1, label = "") {
   if (!Number.isFinite(px) || !Number.isFinite(py)) return;
+  pixelDustBurst(kind, px, py, col, Math.min(1.5, power));
   feedbackBeats.push({
     kind,
     x: px,
@@ -42,6 +110,8 @@ function feedbackBeat(kind, px, py, col = "#fff1a6", power = 1, label = "") {
    온보딩은 수업마다 setupBattle을 다시 부르므로 여기가 가장 잘 드러났다. */
 registerRuntimeHook("afterBattleSetup", () => {
   feedbackBeats = [];
+  pixelDust = [];
+  pixelDustSerial = 0;
   finisherImpacts = [];
   finisherFocus = null;
   settlementBeat = null;
@@ -293,7 +363,7 @@ function paintFeedbackAsset(
   x.globalAlpha = Math.max(0, Math.min(1, alpha));
   x.globalCompositeOperation = "screen";
   x.imageSmoothingEnabled = false;
-  x.shadowBlur = 12;
+  x.shadowBlur = combatFxBlur(12);
   x.shadowColor = "#ffe9ad";
   x.drawImage(image, -size / 2, -size / 2, size, size);
   x.restore();
@@ -424,7 +494,7 @@ function drawFeedbackBeats() {
     x.translate(beat.x, beat.y);
     x.strokeStyle = beat.col;
     x.fillStyle = beat.col;
-    x.shadowBlur = 16;
+    x.shadowBlur = combatFxBlur(16);
     x.shadowColor = beat.col;
     if (beat.kind === "unit" || beat.kind === "awaken") {
       for (let i = 0; i < 8; i++) {
@@ -485,7 +555,7 @@ function drawFeedbackBeats() {
       const ray = 10 + size * 0.16;
       x.fillStyle = "#fff7d2";
       x.shadowColor = "#f2ca70";
-      x.shadowBlur = 20;
+      x.shadowBlur = combatFxBlur(20);
       x.beginPath();
       for (let i = 0; i < 16; i++) {
         const a = -Math.PI / 2 + (i * Math.PI) / 8,
@@ -497,17 +567,19 @@ function drawFeedbackBeats() {
     }
     if (beat.label && p < 0.72) {
       x.globalAlpha = fade * 1.35;
-      x.font =
+      setCombatFont(
+        x,
         (beat.kind === "weak" || beat.kind === "riposte"
           ? "bold 15px"
-          : "bold 12px") + " Galmuri11, ui-monospace";
+          : "bold 12px") + " Galmuri11, ui-monospace",
+      );
       x.textAlign = "center";
       x.fillStyle = "#080a1d";
-      x.shadowBlur = 0;
+      x.shadowBlur = combatFxBlur(0);
       x.fillText(beat.label, 2, -size * 0.55 + 2);
       x.fillStyle =
         beat.kind === "weak" || beat.kind === "riposte" ? "#fff3bd" : "#f0f4ff";
-      x.shadowBlur = 12;
+      x.shadowBlur = combatFxBlur(12);
       x.shadowColor = beat.col;
       x.fillText(beat.label, 0, -size * 0.55);
     }
@@ -634,8 +706,7 @@ function impact(
   if (heavy && !contact) replayCssClass(stageEl, "impact-heavy");
   const banner = document.querySelector(".boss-banner");
   if (heavy && !contact && banner) replayCssClass(banner, "impact-heavy");
-  if (navigator.vibrate)
-    navigator.vibrate(contact ? 5 : heavy ? [10, 16, 12] : 7);
+  safeVibrate(contact ? 5 : heavy ? [10, 16, 12] : 7);
 }
 registerRuntimeHook("afterBossHitRegistered", () => {
   if (hitCombo >= 3) {
@@ -745,6 +816,11 @@ registerRuntimeHook("afterPartySettle", ({ awakened, figureActive }) => {
     combatSfx("settlement", 0.92);
   }
 });
+registerRuntimeHook("afterFigureShot", ({ missed, resolved, state }) => {
+  if (missed || !resolved || !state?.nodes?.length) return;
+  const center = figureCentroid(state.nodes);
+  pixelDustBurst("riposte", center.x, center.y, "#fff0b8", 1.35);
+});
 function updateAssists(d) {
   let writeImpact = 0;
   for (let index = 0; index < finisherImpacts.length; index++) {
@@ -832,7 +908,7 @@ function drawFinisherMotif(gate, heroX, heroY, release, alpha) {
   x.globalAlpha = alpha * 0.72;
   x.strokeStyle = gate.col;
   x.fillStyle = gate.col;
-  x.shadowBlur = 13;
+  x.shadowBlur = combatFxBlur(13);
   x.shadowColor = gate.col;
   x.lineWidth = 3;
   if (fx === "slash") {
@@ -959,7 +1035,7 @@ function drawFinisherFocus() {
   x.strokeStyle = "#fff2bd";
   x.fillStyle = gate.col;
   x.lineWidth = 2;
-  x.shadowBlur = 12;
+  x.shadowBlur = combatFxBlur(12);
   x.shadowColor = gate.col;
   const focusNodes = isVfxOverBudget() ? 4 : 6,
     focusRadius = 124 + Math.sin(finisherFocus.focusT * 4) * 8;
@@ -1004,7 +1080,7 @@ function drawFinisherFocus() {
       travelY = H * 0.6 + (boss.y - H * 0.6) * streak;
     x.globalAlpha = (0.18 + release * 0.56) * p;
     x.strokeStyle = gate.col;
-    x.shadowBlur = 18;
+    x.shadowBlur = combatFxBlur(18);
     x.lineCap = "square";
     for (let i = -2; i <= 2; i++) {
       x.lineWidth = i === 0 ? 6 : 2;
@@ -1047,7 +1123,7 @@ function drawFinisherFocus() {
   x.save();
   x.globalAlpha = p * (launching ? 0.7 : 0.92);
   x.strokeStyle = "#fff4c9";
-  x.shadowBlur = 18;
+  x.shadowBlur = combatFxBlur(18);
   x.shadowColor = gate.col;
   x.lineWidth = 2;
   x.beginPath();
@@ -1080,7 +1156,7 @@ function drawFinisherFocus() {
   x.globalAlpha = p;
   x.textAlign = "left";
   x.fillStyle = gate.col;
-  x.font = "bold 10px Galmuri11, ui-monospace";
+  setCombatFont(x, "bold 10px Galmuri11, ui-monospace");
   x.fillText(
     "STELLAR ART // " +
       String(finisherFocus.finisherOrder + 1).padStart(2, "0"),
@@ -1088,19 +1164,19 @@ function drawFinisherFocus() {
     H * 0.39,
   );
   x.fillStyle = "#070a1e";
-  x.font = "bold 30px Galmuri11, ui-monospace";
+  setCombatFont(x, "bold 30px Galmuri11, ui-monospace");
   x.fillText(gate.s + " · 각성", W * 0.5 + 3, H * 0.47 + 3);
   x.fillStyle = "#fff4c9";
-  x.shadowBlur = 20;
+  x.shadowBlur = combatFxBlur(20);
   x.shadowColor = gate.col;
   x.fillText(gate.s + " · 각성", W * 0.5, H * 0.47);
-  x.font = "bold 14px Galmuri11, ui-monospace";
+  setCombatFont(x, "bold 14px Galmuri11, ui-monospace");
   x.fillStyle = "#f0ecff";
   x.fillText(label, W * 0.5, H * 0.535);
   x.fillStyle = gate.col;
   x.fillRect(W * 0.5, H * 0.575, (132 + release * 72) * p, 4);
   x.fillStyle = "#d8dcff";
-  x.font = "9px Galmuri11, ui-monospace";
+  setCombatFont(x, "9px Galmuri11, ui-monospace");
   x.fillText(launching ? "RELEASE" : "FOCUSING...", W * 0.5, H * 0.615);
   if (launching && release > 0.82) {
     const flash = (release - 0.82) / 0.18;
@@ -1131,14 +1207,14 @@ function drawSettlementBeat() {
   x.fillRect(W * Math.max(0, 1 - p * 2.4), H - bar, W, 3);
   x.globalAlpha = fade;
   x.textAlign = "center";
-  x.font = "bold 10px Galmuri11, ui-monospace";
+  setCombatFont(x, "bold 10px Galmuri11, ui-monospace");
   x.fillStyle = settlementBeat.col;
   x.fillText(settlementBeat.kicker, W / 2, H * 0.46);
-  x.font = "bold 22px Galmuri11, ui-monospace";
+  setCombatFont(x, "bold 22px Galmuri11, ui-monospace");
   x.fillStyle = "#050718";
   x.fillText(settlementBeat.label, W / 2 + 2, H * 0.52 + 2);
   x.fillStyle = "#fff4c9";
-  x.shadowBlur = 16;
+  x.shadowBlur = combatFxBlur(16);
   x.shadowColor = settlementBeat.col;
   x.fillText(settlementBeat.label, W / 2, H * 0.52);
   x.restore();
@@ -1157,7 +1233,7 @@ function drawFinisherImpactMotif(impact, p, radius) {
   x.globalAlpha = fade * 0.9;
   x.strokeStyle = impact.col;
   x.fillStyle = "#fff5ca";
-  x.shadowBlur = 18;
+  x.shadowBlur = combatFxBlur(18);
   x.shadowColor = impact.col;
   x.lineWidth = 3 + fade * 3;
   if (fx === "slash") {
@@ -1237,7 +1313,7 @@ function drawFinisherImpacts() {
     const core = Math.max(4, 22 * fade);
     x.fillRect(boss.x - core, boss.y - core, core * 2, core * 2);
     x.strokeStyle = "#fff4c9";
-    x.shadowBlur = 22;
+    x.shadowBlur = combatFxBlur(22);
     x.shadowColor = impact.col;
     x.lineWidth = 5 * fade + 1;
     for (let i = 0; i < 3; i++) {
@@ -1292,7 +1368,7 @@ function drawBladeWheels() {
     x.globalAlpha = Math.min(0.92, 0.35 + strength * 0.62);
     x.strokeStyle = gate.col;
     x.fillStyle = "#fff4c9";
-    x.shadowBlur = 10;
+    x.shadowBlur = combatFxBlur(10);
     x.shadowColor = gate.col;
     x.lineWidth = 3 + strength * 2;
     x.setLineDash([12, 8]);
@@ -1334,9 +1410,11 @@ registerRuntimeHook("afterSpecialDraw", () => {
   drawFinisherFocus();
   drawFinisherImpacts();
   drawVictoryFx();
+  drawPixelDust();
 });
 registerRuntimeHook("afterFeedbackUpdate", (d) => {
   advanceTimed(feedbackBeats, d);
+  updatePixelDust(d);
   feedbackCooldown = Math.max(0, feedbackCooldown - d);
 });
 function resetInactiveCanvasFeedback() {
@@ -1358,7 +1436,30 @@ function resetInactiveCanvasFeedback() {
   }
 }
 function loop(t) {
-  const d = Math.min(0.033, (t - last) / 1000 || 0);
+  // Very high refresh displays used to redraw the complete 720x900 combat
+  // canvas 180-240 times per second. Detect that cadence over several frames,
+  // then distribute 120 presentations across it. A simple "skip one" rule
+  // dropped 170 Hz straight to 85 Hz; the independent deadline avoids that
+  // cliff while 60/120/144/165 Hz panels retain their native cadence.
+  const rafGap = lastRafFrame ? t - lastRafFrame : 0;
+  lastRafFrame = t;
+  if (rafGap > 0 && rafGap < 6)
+    fastRafSamples = Math.min(12, fastRafSamples + 1);
+  else fastRafSamples = Math.max(0, fastRafSamples - 1);
+  if (isRuntimeScene("game") && fastRafSamples >= 6) {
+    const interval = 1000 / 120;
+    if (nextPresentedFrame && t < nextPresentedFrame - 0.25) {
+      requestAnimationFrame(loop);
+      return;
+    }
+    if (!nextPresentedFrame || t - nextPresentedFrame > interval)
+      nextPresentedFrame = t;
+    nextPresentedFrame += interval;
+  } else {
+    nextPresentedFrame = 0;
+  }
+  const rawDelta = (t - last) / 1000 || 0,
+    d = Math.min(0.033, rawDelta);
   last = t;
   frameClock = t;
   // Title, map and roster screens are DOM-only. Skipping the canvas solver,

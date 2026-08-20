@@ -33,7 +33,7 @@ function drawAssistProjectile(a, px, py, t) {
   x.translate(px, py);
   x.rotate(angle);
   x.globalAlpha = 0.55 + 0.45 * t;
-  x.shadowBlur = 14;
+  x.shadowBlur = combatFxBlur(14);
   x.shadowColor = a.col;
   if (visual === "longshot") {
     x.strokeStyle = "#ff9eba";
@@ -111,7 +111,7 @@ function drawAssists() {
     x.save();
     x.strokeStyle = a.col + "88";
     x.lineWidth = a.visual === "longshot" ? 1.5 : 2;
-    x.shadowBlur = 12;
+    x.shadowBlur = combatFxBlur(12);
     x.shadowColor = a.col;
     x.setLineDash(a.visual === "longshot" ? [7, 5] : []);
     x.beginPath();
@@ -124,7 +124,7 @@ function drawAssists() {
       x.save();
       x.globalAlpha = (t - 0.82) * 5;
       x.strokeStyle = "#fff3bb";
-      x.shadowBlur = 18;
+      x.shadowBlur = combatFxBlur(18);
       x.shadowColor = a.col;
       x.lineWidth = 3;
       x.beginPath();
@@ -148,7 +148,7 @@ function registerBossHit(weak) {
   }
   if (riposte) {
     const combo = hitCombo;
-    setTimeout(() => toast("연타! 연속 명중 " + combo + "회"), 0);
+    toast("연타! 연속 명중 " + combo + "회");
   }
   runRuntimeHooks("afterBossHitRegistered", { weak, combo: hitCombo, riposte });
 }
@@ -303,7 +303,7 @@ function glowBlit(col, cx, cy, radius, alpha = 1) {
 function circle(a, b, r, col, glow = 0) {
   x.save();
   x.fillStyle = col;
-  x.shadowBlur = glow;
+  x.shadowBlur = combatFxBlur(glow);
   x.shadowColor = col;
   x.beginPath();
   x.arc(a, b, r, 0, Math.PI * 2);
@@ -316,22 +316,60 @@ function circle(a, b, r, col, glow = 0) {
 //
 // This oversamples on purpose and must keep doing so. 180 angles paint only
 // ~36 distinct grid cells at r=19, and it is measurably the largest single
-// cost in draw() - 540 of a frame's 632 fillRect calls, about 150us of a 224us
-// draw. Every cheaper form was measured and every one changes the picture:
+// cost in draw() - 540 of a frame's 632 fillRect calls. Every lower-density
+// form changes the picture:
 // a wider angular step lands on a different set of cells; baking the ring once
 // and blitting it at a grid-snapped centre shifts the whole ring (78-134% of
 // painted pixels differ); and batching the cells into one path removes the
 // repeat paints, which two of the three callers depend on - they pass 0x44 and
 // 0x33 alpha, so ~5 overlapping fills per cell are what make those rings read
 // as solid. Since draw() is ~1.3% of a 16.7ms frame, none of that is worth a
-// visual regression. Leave it alone.
+// visual regression. The angle vectors below are the same 0.035-radian samples
+// baked once. Samples landing on one cell are counted, then source-over alpha
+// is solved as 1-(1-a)^n; that preserves the oversampled brightness while
+// replacing roughly 180 tiny draw calls with at most six batched paths.
+const STEP_RING_DIRECTIONS = [];
+for (let angle = 0; angle < Math.PI * 2; angle += 0.035)
+  STEP_RING_DIRECTIONS.push([Math.cos(angle), Math.sin(angle)]);
+const STEP_RING_COUNTS = new Map(),
+  STEP_RING_BUCKETS = Array.from({ length: 16 }, () => []);
+const stepRingAlphaHex = (alpha) =>
+  Math.max(0, Math.min(255, Math.round(alpha * 255)))
+    .toString(16)
+    .padStart(2, "0");
 function stepRing(cx, cy, r, col, step = 3, thick = 3) {
-  x.fillStyle = col;
-  for (let a = 0; a < Math.PI * 2; a += 0.035) {
-    const px = Math.round((cx + Math.cos(a) * r) / step) * step,
-      py = Math.round((cy + Math.sin(a) * r) / step) * step;
-    x.fillRect(px, py, step, thick);
+  STEP_RING_COUNTS.clear();
+  for (const bucket of STEP_RING_BUCKETS) bucket.length = 0;
+  for (let i = 0; i < STEP_RING_DIRECTIONS.length; i++) {
+    const direction = STEP_RING_DIRECTIONS[i],
+      px = Math.round((cx + direction[0] * r) / step) * step,
+      py = Math.round((cy + direction[1] * r) / step) * step,
+      key = px * 2048 + py;
+    STEP_RING_COUNTS.set(key, (STEP_RING_COUNTS.get(key) || 0) + 1);
   }
+  for (const [key, count] of STEP_RING_COUNTS)
+    STEP_RING_BUCKETS[Math.min(15, count)].push(key);
+  const hasAlpha = /^#[0-9a-f]{8}$/i.test(col),
+    sourceAlpha = hasAlpha ? parseInt(col.slice(7, 9), 16) / 255 : 1,
+    base = hasAlpha ? col.slice(0, 7) : col,
+    previousAlpha = x.globalAlpha,
+    effectiveSource = sourceAlpha * previousAlpha;
+  x.globalAlpha = 1;
+  for (let count = 1; count < STEP_RING_BUCKETS.length; count++) {
+    const bucket = STEP_RING_BUCKETS[count];
+    if (!bucket.length) continue;
+    const alpha = 1 - Math.pow(1 - effectiveSource, count);
+    x.fillStyle = base + stepRingAlphaHex(alpha);
+    x.beginPath();
+    for (let i = 0; i < bucket.length; i++) {
+      const px = Math.floor(bucket[i] / 2048),
+        py = bucket[i] - px * 2048;
+      x.rect(px, py, step, thick);
+    }
+    x.fill();
+  }
+  x.globalAlpha = previousAlpha;
+  x.fillStyle = col;
 }
 // Pixel diamond shared by the weak-point gem and the meteor core, three-tone.
 // `ramp` runs dark to bright and the radius shrinks with the index, so the
@@ -380,7 +418,7 @@ function drawFieldFx() {
     x.globalAlpha = Math.max(0, p);
     x.strokeStyle = f.col;
     x.fillStyle = f.col;
-    x.shadowBlur = 16;
+    x.shadowBlur = combatFxBlur(16);
     x.shadowColor = f.col;
     x.lineWidth = 2;
     if (orbitalFieldFxTypes.has(f.type)) {
@@ -440,7 +478,7 @@ function drawSpecial() {
     x.save();
     x.globalAlpha = Math.min(1, ball.runeBurst * 3);
     x.strokeStyle = "#fff5b5";
-    x.shadowBlur = 18;
+    x.shadowBlur = combatFxBlur(18);
     x.shadowColor = "#ffcb64";
     x.lineWidth = 3;
     x.beginPath();
@@ -637,7 +675,7 @@ function buildStageArenaLayer() {
   layerX.save();
   layerX.strokeStyle = crackColor;
   layerX.lineWidth = 1.4;
-  layerX.shadowBlur = 7;
+  layerX.shadowBlur = combatFxBlur(7);
   layerX.shadowColor = crackColor;
   for (const path of arenaCrackPaths) {
     layerX.beginPath();
@@ -692,7 +730,7 @@ function drawDefaultStageArena() {
   x.save();
   x.strokeStyle = crackColor;
   x.lineWidth = 1.4;
-  x.shadowBlur = 7;
+  x.shadowBlur = combatFxBlur(7);
   x.shadowColor = crackColor;
   for (const path of arenaCrackPaths) {
     x.beginPath();
@@ -1137,7 +1175,7 @@ function draw() {
     if (!drawFrame(g, g.x, g.y, actionFrame, g.scale))
       circle(g.x, g.y, 16, g.col, 12);
     x.fillStyle = "#fff4dc";
-    x.font = "10px ui-monospace";
+    setCombatFont(x, "10px ui-monospace");
     x.textAlign = "center";
     x.fillText(g.s, g.x, g.y + 45);
     if (born < 1) x.restore();
@@ -1168,7 +1206,7 @@ function draw() {
     x.save();
     x.globalAlpha = 1 - t;
     x.strokeStyle = burst.col;
-    x.shadowBlur = 16;
+    x.shadowBlur = combatFxBlur(16);
     x.shadowColor = burst.col;
     x.lineWidth = 3;
     x.beginPath();
@@ -1365,7 +1403,7 @@ function draw() {
   stepRing(wx, wy, 17, "#ffd2a044");
   pixelGem(wx, wy, 15, ["#b06a3d", "#eea56f", "#ffd2a0"]);
   x.fillStyle = "#cfdad7";
-  x.font = "700 12px Galmuri11, ui-monospace";
+  setCombatFont(x, "700 12px Galmuri11, ui-monospace");
   x.textAlign = "center";
   x.fillText(bossDisplayName(), boss.x, boss.y + 105);
   if (drag && !ball.moving) {
@@ -1405,6 +1443,29 @@ function draw() {
     );
     circle(ball.x, ball.y, 4, "#ffffff", 2);
   }
+  // A four-step pixel wake makes speed readable without another particle
+  // system. It is derived from velocity, so it allocates nothing and remains
+  // stable at every refresh rate.
+  if (ball.moving) {
+    const speed = Math.hypot(ball.vx, ball.vy),
+      nx = speed > 1 ? ball.vx / speed : 0,
+      ny = speed > 1 ? ball.vy / speed : 0;
+    x.save();
+    x.fillStyle = orbCol;
+    for (let i = 1; i <= 4; i++) {
+      const gap = 8 + i * 7,
+        flicker = ((Math.floor(frameClock / 45) + i) & 1) * 2,
+        size = Math.max(2, 6 - i);
+      x.globalAlpha = 0.32 - i * 0.052;
+      x.fillRect(
+        Math.round((ball.x - nx * gap + ny * flicker) / 2) * 2,
+        Math.round((ball.y - ny * gap - nx * flicker) / 2) * 2,
+        size,
+        size,
+      );
+    }
+    x.restore();
+  }
   for (const p of popups) {
     const a = 1 - p.t / 0.9;
     x.save();
@@ -1413,9 +1474,12 @@ function draw() {
     /* §9-2. 지금 모든 팝업이 같은 모노 서체·같은 크기라 「루나가 준 별」이
        피해량과 구별되지 않았다. 화자가 말하는 것은 다른 서체로 쓴다 —
        숫자가 아니라 말이라는 신호다. */
-    x.font = p.voice
-      ? (p.big ? "bold 19px" : "bold 15px") + " Galmuri11, ui-monospace"
-      : (p.big ? "bold 22px" : "bold 16px") + " ui-monospace";
+    setCombatFont(
+      x,
+      p.voice
+        ? (p.big ? "bold 19px" : "bold 15px") + " Galmuri11, ui-monospace"
+        : (p.big ? "bold 22px" : "bold 16px") + " ui-monospace",
+    );
     x.textAlign = "center";
     x.fillText(p.text, p.x + 2, p.y - p.t * 34 + 2);
     x.fillStyle = p.col;
@@ -1547,11 +1611,11 @@ function drawCombo() {
   x.translate(boss.x, boss.y - 112);
   x.scale(scale, scale);
   x.textAlign = "center";
-  x.font = (riposte ? "bold 22px" : "bold 15px") + " ui-monospace";
+  setCombatFont(x, (riposte ? "bold 22px" : "bold 15px") + " ui-monospace");
   x.fillStyle = "#071117";
   x.fillText(riposte ? "연타!" : "COMBO x" + hitCombo, 2, 2);
   x.fillStyle = riposte ? "#fff08f" : "#d1efe2";
-  x.shadowBlur = riposte ? 18 : 8;
+  x.shadowBlur = combatFxBlur(riposte ? 18 : 8);
   x.shadowColor = x.fillStyle;
   x.fillText(riposte ? "연타!" : "COMBO x" + hitCombo, 0, 0);
   x.restore();

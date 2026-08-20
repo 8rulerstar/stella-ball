@@ -167,7 +167,7 @@ function drawTeachingHoldCue() {
   x.stroke();
   x.globalAlpha = 1;
   x.fillStyle = "#fff0bd";
-  x.shadowBlur = 12;
+  x.shadowBlur = combatFxBlur(12);
   x.shadowColor = "#ffd36f";
   x.textAlign = "center";
   x.font = "bold 13px Galmuri11, ui-monospace";
@@ -1116,7 +1116,7 @@ function drawConstellationReveal() {
   x.save();
   x.globalAlpha = Math.min(1, p * 2.5);
   x.strokeStyle = "#f7d67c";
-  x.shadowBlur = 10;
+  x.shadowBlur = combatFxBlur(10);
   x.shadowColor = "#e5ae52";
   x.lineWidth = 1.5;
   x.setLineDash([5, 5]);
@@ -1173,7 +1173,7 @@ function drawOnboardingGuide() {
          물러난다. */
       x.globalAlpha = held ? 0.24 : 0.85;
       x.strokeStyle = route.col;
-      x.shadowBlur = held ? 0 : 11;
+      x.shadowBlur = combatFxBlur(held ? 0 : 11);
       x.shadowColor = route.col;
       x.lineWidth = 2;
       x.setLineDash([6, 5]);
@@ -1192,7 +1192,7 @@ function drawOnboardingGuide() {
       );
       x.globalAlpha = held ? 0.95 : 0.34 + near * 0.5;
       x.strokeStyle = holdAt.col;
-      x.shadowBlur = 12;
+      x.shadowBlur = combatFxBlur(12);
       x.shadowColor = "#ffd36f";
       x.lineWidth = held ? 3 : 2;
       x.setLineDash(held ? [] : [4, 6]);
@@ -1225,7 +1225,7 @@ function drawOnboardingGuide() {
         x.save();
         x.strokeStyle = side < 0 ? "#8ee7ff" : "#ffd18d";
         x.fillStyle = side < 0 ? "#8ee7ff" : "#ffd18d";
-        x.shadowBlur = 10;
+        x.shadowBlur = combatFxBlur(10);
         x.shadowColor = x.strokeStyle;
         x.lineWidth = 3;
         x.beginPath();
@@ -1244,7 +1244,7 @@ function drawOnboardingGuide() {
 
       x.save();
       x.strokeStyle = "#ffe6a1";
-      x.shadowBlur = 11;
+      x.shadowBlur = combatFxBlur(11);
       x.shadowColor = "#ffd36f";
       x.lineWidth = 2;
       x.beginPath();
@@ -1261,7 +1261,7 @@ function drawOnboardingGuide() {
         x.save();
         x.strokeStyle = target.col;
         x.fillStyle = "#fff0bd";
-        x.shadowBlur = 11;
+        x.shadowBlur = combatFxBlur(11);
         x.shadowColor = target.col;
         x.lineWidth = 2;
         x.beginPath();
@@ -1285,7 +1285,7 @@ function drawOnboardingGuide() {
   x.lineWidth = 1.5;
   x.setLineDash([5, 5]);
   x.strokeStyle = "#ffe6a1";
-  x.shadowBlur = 11;
+  x.shadowBlur = combatFxBlur(11);
   x.shadowColor = "#ffd36f";
   if (target) {
     x.beginPath();
@@ -1373,7 +1373,7 @@ registerRuntimeHook("afterSpecialDraw", () => {
   x.translate(wx, wy - p * (H * 0.58));
   x.rotate(p * 0.45);
   x.imageSmoothingEnabled = false;
-  x.shadowBlur = 20;
+  x.shadowBlur = combatFxBlur(20);
   x.shadowColor = "#ffe38e";
   if (image?.complete && image.naturalWidth)
     x.drawImage(image, -19, -19, 38, 38);

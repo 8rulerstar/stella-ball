@@ -511,7 +511,7 @@ function drawParryFxLayer() {
     if (fx.kind === "hit") {
       // Outward: a ring leaving the contact plus six spokes thrown clear.
       x.strokeStyle = fx.col || PARRY_FX.core;
-      x.shadowBlur = 12;
+      x.shadowBlur = combatFxBlur(12);
       x.shadowColor = fx.col || PARRY_FX.core;
       x.globalAlpha = life * 0.9;
       x.lineWidth = 1 + life * 3;
@@ -539,7 +539,7 @@ function drawParryFxLayer() {
       const fromX = W / 2,
         fromY = H + 40;
       x.strokeStyle = "#ffd27f";
-      x.shadowBlur = 16;
+      x.shadowBlur = combatFxBlur(16);
       x.shadowColor = "#ffd27f";
       x.globalAlpha = life * 0.8;
       x.lineWidth = 2 + life * 2;
@@ -632,7 +632,7 @@ function drawParryFxLayer() {
       x.globalAlpha = life * 0.85;
       x.strokeStyle = PARRY_FX.core;
       x.lineWidth = 1 + life * 2;
-      x.shadowBlur = 12;
+      x.shadowBlur = combatFxBlur(12);
       x.shadowColor = PARRY_FX.window;
       x.beginPath();
       fx.ring.forEach((n, i) => (i ? x.lineTo(n.x, n.y) : x.moveTo(n.x, n.y)));
@@ -682,7 +682,7 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
     x.globalAlpha = 0.4 + remain * 0.45;
     x.strokeStyle = PARRY_FX.window;
     x.lineWidth = 1.5 + remain * 3;
-    x.shadowBlur = 16;
+    x.shadowBlur = combatFxBlur(16);
     x.shadowColor = PARRY_FX.window;
     x.beginPath();
     x.arc(
@@ -720,7 +720,7 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
     x.globalAlpha = 0.2 + pulse * 0.55;
     x.strokeStyle = g.col || "#fff1bd";
     x.lineWidth = 2 + pulse * 2;
-    x.shadowBlur = 14;
+    x.shadowBlur = combatFxBlur(14);
     x.shadowColor = g.col || "#fff1bd";
     x.beginPath();
     x.arc(
@@ -768,7 +768,7 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
     if (!node.guide) continue;
     const breathe = 0.62 + 0.38 * Math.sin(frameClock / 382);
     x.save();
-    x.shadowBlur = 0;
+    x.shadowBlur = combatFxBlur(0);
     x.strokeStyle = "#ffd27f";
     x.globalAlpha = 0.85;
     x.lineWidth = 2;
@@ -794,7 +794,7 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
   x.strokeStyle = "#9adfc9";
   x.lineWidth = 2;
   x.setLineDash([5, 6]);
-  x.shadowBlur = 13;
+  x.shadowBlur = combatFxBlur(13);
   x.shadowColor = "#9adfc9";
   for (const [from, to] of edges) {
     x.beginPath();
@@ -879,7 +879,7 @@ registerRuntimeHook("afterDraw", function drawFigure() {
       x.save();
       x.globalAlpha = life;
       x.strokeStyle = "#ffd2a0";
-      x.shadowBlur = 16;
+      x.shadowBlur = combatFxBlur(16);
       x.shadowColor = "#ffd2a0";
       x.lineWidth = 2 + life * 5;
       x.beginPath();
@@ -945,7 +945,7 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.lineWidth = width;
     x.lineCap = "round";
     x.lineJoin = "round";
-    x.shadowBlur = blur;
+    x.shadowBlur = combatFxBlur(blur);
     x.shadowColor = tint;
     x.beginPath();
     const drawn = total * grow;
@@ -991,7 +991,7 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.globalAlpha = 0.5 * fade * pulse;
     x.strokeStyle = "#ffe6b0";
     x.lineWidth = 2;
-    x.shadowBlur = 12;
+    x.shadowBlur = combatFxBlur(12);
     x.shadowColor = "#ffcf8a";
     for (let i = 0; i < 12; i++) {
       const a = figureFx.t * 0.5 + (i * Math.PI) / 6,
@@ -1024,7 +1024,7 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.save();
     x.globalAlpha = fade;
     x.fillStyle = p.col || tint;
-    x.shadowBlur = 14 + (rune ? bloom * 16 * pulse : 0);
+    x.shadowBlur = combatFxBlur(14 + (rune ? bloom * 16 * pulse : 0));
     x.shadowColor = p.col || tint;
     x.beginPath();
     x.arc(p.x, p.y, 5 + (rune ? bloom * 3 * pulse : 0), 0, Math.PI * 2);
@@ -1037,7 +1037,7 @@ registerRuntimeHook("afterDraw", function drawFigure() {
     x.save();
     x.globalAlpha = fade;
     x.textAlign = "center";
-    x.shadowBlur = rune ? 12 : 8;
+    x.shadowBlur = combatFxBlur(rune ? 12 : 8);
     x.shadowColor = rune ? "#c97a45" : "#1d3b36";
     x.fillStyle = rune ? "#fff3d6" : "#dff3ea";
     x.font = "bold " + (rune ? 22 : 15) + "px ui-monospace";

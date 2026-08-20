@@ -114,14 +114,20 @@ function setupBattle() {
   bossOutro = null;
   /* 거상이 판 상단 띠로 한 번 말한다(§5). 입장 연출이 끝날 즈음에 맞춰 띄워
      「이미 여기 있었다」가 말로도 한 번 온다. 수업은 안내가 이미 많아 건너뛴다. */
-  if (battleIntro && !tutorial)
-    setTimeout(
-      () =>
-        StellaRuntime.modules
-          .optional("speech")
-          ?.say("boss", bossDisplayName() + "이(가) 관측을 시작한다"),
-      battleIntro.span * 0.55,
-    );
+  if (battleIntro && !tutorial) {
+    const speechBattleId = battle.id;
+    setTimeout(() => {
+      if (
+        battle?.id !== speechBattleId ||
+        battleComplete ||
+        !isRuntimeScene("game")
+      )
+        return;
+      StellaRuntime.modules
+        .optional("speech")
+        ?.say("boss", bossDisplayName() + "이(가) 관측을 시작한다");
+    }, battleIntro.span * 0.55);
+  }
   runRuntimeHooks("afterBattleSetup", { stage: s, battle });
   sync();
 }
@@ -914,7 +920,7 @@ function scheduleWin() {
   addPopup(boss.x, boss.y - 92, "STAR RETURN!", "#fff0a3", true);
   combatSfx?.("victory", 1.18);
   toast("별이 하늘로 돌아갑니다.");
-  if (navigator.vibrate) navigator.vibrate([20, 38, 22, 38, 55]);
+  safeVibrate([20, 38, 22, 38, 55]);
 }
 // The victory verdict rides the same clock as the victory presentation.
 // `battle.victory.t` is advanced by the frame loop, which already stops for a

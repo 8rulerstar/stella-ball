@@ -297,7 +297,7 @@ function playClaimBurst(card, amount, done) {
     spark.style.animationDelay = i * 22 + "ms";
     card.append(spark);
   }
-  if (navigator.vibrate) navigator.vibrate([10, 26, 14]);
+  safeVibrate([10, 26, 14]);
   /* The callbacks passed here re-render a whole screen. Without a liveness
      token a claim followed by an immediate 뒤로 (or a tab switch) had its
      620ms timer fire afterwards and put the archive back over the hub. Every

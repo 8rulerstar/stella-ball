@@ -119,6 +119,20 @@ main {
   }
 }
 
+/* 전투는 중앙 캔버스 자체가 계속 움직인다. 그 뒤의 6~7분짜리 성운·오로라와
+   장식물 호흡까지 매 디스플레이 프레임 스타일 계산을 할 필요는 없다. 정지한
+   하늘은 그대로 남기고, 전투를 떠나면 브라우저가 같은 위치에서 재개한다. */
+.game-mode #dawn-sky [style*="animation:skyDrift"],
+.game-mode #dawn-sky [style*="animation: skyDrift"],
+.game-mode #dawn-sky [style*="animation: dawnFloat"],
+.game-mode #dawn-sky [style*="animation:dawnFloat"],
+.game-mode #dawn-sky [style*="animation: dawnAurora"],
+.game-mode #dawn-sky [style*="animation:dawnAurora"],
+.game-mode #dawn-sky [style*="animation: skyCloud"],
+.game-mode #dawn-sky [style*="animation:skyCloud"] {
+  animation-play-state: paused !important;
+}
+
 /* 킷 금속 아이콘 — stella-ball-dawn.js가 --px-* 변수를 등록하면
    자리 표시용 CSS 원형 코인과 프로필 패널 글리프를 스프라이트로 바꾼다 */
 .pixel-kit-icons .hub-gold b::before,

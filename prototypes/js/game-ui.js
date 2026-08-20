@@ -18,6 +18,12 @@ function setScene(scene) {
      같은 화면으로 다시 부르는 경우가 있어 실제로 «바뀔 때»만 낸다. */
   if (!isRuntimeScene(scene) && typeof playSfx === "function")
     playSfx("screen");
+  // A toast belongs to the battle that emitted it. Victory, direct screen
+  // calls and debug navigation can leave the game without using pause-exit;
+  // carrying that queue into meta screens made old combat messages reappear
+  // on the next table.
+  if (scene !== "game" && typeof clearToastQueue === "function")
+    clearToastQueue();
   sceneSequence += 1;
   setRuntimeScene(scene);
   document.body.classList.toggle("title-mode", scene === "title");

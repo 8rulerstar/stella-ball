@@ -202,7 +202,7 @@
       if (Math.abs(tilt) > Math.abs(screenTilt || 0)) screenTilt = tilt;
       screenGhost = Math.max(screenGhost || 0, GHOST_MAX * k * soft);
     }
-    if (navigator.vibrate) navigator.vibrate(Math.round(6 + k * 10));
+    safeVibrate(Math.round(6 + k * 10));
   };
 
   registerRuntimeHook("afterShotStart", () => {
@@ -384,7 +384,7 @@
     x.save();
     x.globalAlpha = 0.22 + rel * 0.6;
     x.strokeStyle = gate.col;
-    x.shadowBlur = 20;
+    x.shadowBlur = combatFxBlur(20);
     x.shadowColor = gate.col;
     x.lineCap = "square";
     x.lineWidth = thick;
@@ -406,7 +406,7 @@
       x.save();
       x.globalAlpha = 1 - hq;
       x.strokeStyle = gate.col;
-      x.shadowBlur = 18;
+      x.shadowBlur = combatFxBlur(18);
       x.shadowColor = gate.col;
       x.lineWidth = 3;
       x.beginPath();

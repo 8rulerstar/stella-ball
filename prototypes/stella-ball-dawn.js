@@ -24,6 +24,9 @@
     /* The pause button keeps the plain round CSS control.  A crescent
        silhouette behind the ❚❚ glyph read as a shoe, not as pause. */
   ];
+  var TAG_SELECTOR = MAP.map(function (entry) {
+    return entry[0];
+  }).join(",");
   function tag() {
     for (var i = 0; i < MAP.length; i++) {
       var els = document.querySelectorAll(MAP[i][0]);
@@ -47,6 +50,22 @@
       timer = 0;
       tag();
     }, 120);
+  }
+  function scheduleRelevant(records) {
+    for (var i = 0; i < records.length; i++) {
+      var added = records[i].addedNodes;
+      for (var j = 0; j < added.length; j++) {
+        var node = added[j];
+        if (
+          (node.nodeType === 1 && node.matches(TAG_SELECTOR)) ||
+          ((node.nodeType === 1 || node.nodeType === 11) &&
+            node.querySelector(TAG_SELECTOR))
+        ) {
+          schedule();
+          return;
+        }
+      }
+    }
   }
 
   function drawMoon(g) {
@@ -296,7 +315,10 @@
     }
     // 반짝이는 별만 자기 자리를 지우고 다시 그린다. 130개 중 26개, 각 4×4다.
     function twinkleStars() {
-      if (document.hidden) return;
+      // The moving battle canvas already supplies motion. Avoid uploading 26
+      // tiny dirty rectangles twelve times a second behind it.
+      if (document.hidden || document.body.classList.contains("game-mode"))
+        return;
       var t = performance.now() / 1000;
       for (var k = 0; k < stars.length; k++) {
         var st = stars[k];
@@ -457,7 +479,10 @@
     tag();
     buildSky();
     registerKitIcons();
-    new MutationObserver(schedule).observe(document.body, {
+    /* 전투 팝업·토스트·HUD도 body 아래에서 계속 교체된다. 버튼 후보가 실제로
+       추가된 변경만 다시 훑어, 관계없는 전투 DOM이 픽셀 UI 전역 검색을 깨우지
+       않게 한다. 제거만 일어난 변경도 다시 칠할 이유가 없다. */
+    new MutationObserver(scheduleRelevant).observe(document.body, {
       childList: true,
       subtree: true,
     });
