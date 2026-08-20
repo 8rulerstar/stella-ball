@@ -14,7 +14,7 @@
 6. [prototypes/TECH_DEBT.md](prototypes/TECH_DEBT.md) — 영향·위험·공수로 정렬한 유지보수 부채와 단계별 해소 계획
 7. [prototypes/ADR-001-RUNTIME-MODULES.md](prototypes/ADR-001-RUNTIME-MODULES.md), [ADR-002-STABLE-SUBOWNERS.md](prototypes/ADR-002-STABLE-SUBOWNERS.md) — 런타임 훅·모듈 계약과 대형 파일 분리의 결정 근거
 8. [prototypes/ONBOARDING-E2E.md](prototypes/ONBOARDING-E2E.md) — 첫 세션 브라우저 회귀 경로, 단언 범위, 테스트 전용 체력 픽스처와 의도적 공백
-9. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙. [UI_REDESIGN_HANDOFF.md](UI_REDESIGN_HANDOFF.md)(Ink & Brass v2)를 대체했다.
+9. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙
 
 ## 제출과 이력 문서
 
@@ -36,7 +36,6 @@
 - [ASSET_PLAN.md](ASSET_PLAN.md), [assets/ASSET_MANIFEST.json](assets/ASSET_MANIFEST.json), [assets/ATTRIBUTION.md](assets/ATTRIBUTION.md): 실제 반입 에셋의 계획·목록·출처
 - [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md): 무한 훈련장 전용 별자리 도형·실루엣의 좌표 규약과 현재 제약
 - [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md): 데스크톱 양옆 관측창 밖의 심연, 외부의 관측자, 인트로 컷신의 디자인 요구서와 구현 상태
-- [OUTER_OBSERVER_PALETTE_REPLY.md](OUTER_OBSERVER_PALETTE_REPLY.md): 존재 시안에 대한 채택·보류 회신과 팔레트 교체 근거
 - [UI_REVIEW_2026_08_14.md](UI_REVIEW_2026_08_14.md): 화면·연출 전수 검토와 디자인 세션 요청서. 픽셀 배율 정책이 최우선 결정 사항
 - [META_UI_REQUEST_2026_08_14.md](META_UI_REQUEST_2026_08_14.md): 위 검토의 후속. 허브(메타)와 별자리 지도의 실측 요청서. 별자리 좌표계 규약과 노드 상태 4종이 최우선 결정 사항
 - [SKY_AMBIENCE_REQUEST_2026_08_14.md](SKY_AMBIENCE_REQUEST_2026_08_14.md): 양옆 여백 하늘과 이벤트 반응 연출의 실측 요청서. 런타임 훅 25종 중 배경에 쓸 3~5종 선정과 인트로 스펙 6절 미구현 2종이 최우선 결정 사항

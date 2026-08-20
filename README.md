@@ -28,7 +28,6 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 - [최신 진행 보고 / 다음 세션 인수인계](PROGRESS_REPORT.md)
 - [런타임 구조와 파일별 수정 위치](prototypes/ARCHITECTURE.md)
 - [새벽 관측소 UI 킷 (현행 테마 기준)](UI_KIT_DAWN.md)
-- [Ink & Brass UI 테마 인수인계 (대체됨)](UI_REDESIGN_HANDOFF.md)
 - [Codex 협업 기록 / 제출 원본](CODEX_COLLABORATION.md)
 - [일일 개발 로그](DEVLOG.md)
 - [개발 이력 및 검증 운영 규칙](EVIDENCE_PROTOCOL.md)
@@ -38,7 +37,7 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 ## 한 번에 실행
 
 - **macOS**: `RUN_STELLA_BALL.command`를 더블클릭합니다.
-- **Windows**: `RUN_STELLA_BALL.bat` 또는 `PLAY_WINDOWS.cmd`를 더블클릭합니다.
+- **Windows**: `PLAY_WINDOWS.cmd`를 더블클릭합니다.
 
 모두 설치나 서버 실행 없이 기본 브라우저로 Stella Ball을 엽니다. 저장소 루트의 `index.html`도 같은 게임으로 바로 이동합니다.
 

@@ -6,10 +6,10 @@
 
 저장소를 받은 뒤 별도 설치 없이 다음 파일을 더블클릭한다.
 
-- **Windows**: `RUN_STELLA_BALL.bat` 또는 `PLAY_WINDOWS.cmd`
+- **Windows**: `PLAY_WINDOWS.cmd`
 - **macOS**: `RUN_STELLA_BALL.command`
 
-세 실행 파일은 프로젝트 내부 상대 경로만 사용해 기본 브라우저에서 공식 게임을 연다. macOS에서 실행 권한이 사라졌다면 터미널에서 `chmod +x RUN_STELLA_BALL.command`를 한 번 실행한다.
+두 실행 파일은 프로젝트 내부 상대 경로만 사용해 기본 브라우저에서 공식 게임을 연다. macOS에서 실행 권한이 사라졌다면 터미널에서 `chmod +x RUN_STELLA_BALL.command`를 한 번 실행한다.
 
 ## Windows에서 개발 시작
 

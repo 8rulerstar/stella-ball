@@ -70,7 +70,7 @@
 - 화풍·색 규칙: 새벽 관측소 픽셀 아트. 청록-잿빛 밤의 저대비 윤곽과 별이 비어 보이는 음영을 쓴다. 살구색 보상·CTA, 매끈한 3D, 네온 사이버 글리치, 전신 괴물, 명확한 촉수·고어는 금지한다.
 - 기존 후보·재사용 경로: `#dawn-sky`의 별·성운·오로라와 CSS/캔버스 절차 표현을 먼저 검토한다. 새 래스터·SFX는 이 항목이 `제작 준비`가 되기 전에는 만들거나 반입하지 않는다.
 - 코드 연결 지점: `game-session.js`의 `renderTitlePresentation()`, `stella-ball-dawn.js`/`stella-ball-dawn.css`의 `#dawn-sky`, `game-figure.js`의 `figureFx`(5점 이상 판정), `afterBattleWin` 런타임 훅. 전투 판정·입력·보상에는 접근하지 않는다.
-- 결정·검수 메모: 상세 요구서는 [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md) 11절. 2026-08-14에 절차적 픽셀 코드(`prototypes/boss-art.js`)와 인트로(`prototypes/outer-observer.js`)로 구현했고, 인트로는 2026-08-16 디자인 세션 v2로 교체돼 현재 6비트다. **래스터·SFX 반입은 없다** — 전부 코드 표현이라 `ASSET_PLAN.md`·`ASSET_MANIFEST.json` 등재 대상이 아니다. 팔레트는 스펙 4절을 유지하고 채도 재검토를 회신했다([OUTER_OBSERVER_PALETTE_REPLY.md](OUTER_OBSERVER_PALETTE_REPLY.md)). 존재의 정체·봉인 설정·루나 대사·모바일 대응은 여전히 미정이다.
+- 결정·검수 메모: 상세 요구서는 [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md) 11절. 2026-08-14에 절차적 픽셀 코드(`prototypes/boss-art.js`)와 인트로(`prototypes/outer-observer.js`)로 구현했고, 인트로는 2026-08-16 디자인 세션 v2로 교체돼 현재 6비트다. **래스터·SFX 반입은 없다** — 전부 코드 표현이라 `ASSET_PLAN.md`·`ASSET_MANIFEST.json` 등재 대상이 아니다. 팔레트 결정은 인트로 스펙 4절에 통합했다. 존재의 정체·봉인 설정·루나 대사·모바일 대응은 여전히 미정이다.
 
 ### [반입 완료] P1 — 모루 오크 리스타일 본체
 
