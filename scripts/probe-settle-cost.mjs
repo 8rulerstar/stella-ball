@@ -222,8 +222,14 @@ const RUN_SHOT = (
   noGhost,
   kill,
 ) => `(async () => {
-  const pool = ["gaon","biyeon","ria","byeolha"].slice(0, ${party});
   stageIndex = stages.findIndex((s) => s.id === ${JSON.stringify(stage)});
+  /* 넷째는 lumi다. "byeolha"는 로스터에 없는 유령 id라(8명: gaon biyeon
+     lumi haru ria sera taeo nyx) --party 4로 돌리는 순간 setupBattle이
+     스프라이트를 읽다 죽었다 - 기본 3인이라 오래 숨어 있었다.
+     그리고 파티는 판의 슬롯 수를 못 넘는다 - 캠페인 판은 3자리라 --party 4는
+     훈련장에만 실제로 존재하는 조합이고, 실게임은 편성 UI가 막는다. */
+  const pool = ["gaon","biyeon","ria","lumi"]
+    .slice(0, Math.min(${party}, stages[stageIndex].slots.length));
   deployed = [...pool]; selected = [...pool];
   resetBuild(); setupBattle();
   /* 소리를 켠 채로 잰다. 예전에는 꺼 두었는데, 그러면 playSampleSfx가
