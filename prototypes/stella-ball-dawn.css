@@ -121,15 +121,16 @@ main {
 
 /* 전투는 중앙 캔버스 자체가 계속 움직인다. 그 뒤의 6~7분짜리 성운·오로라와
    장식물 호흡까지 매 디스플레이 프레임 스타일 계산을 할 필요는 없다. 정지한
-   하늘은 그대로 남기고, 전투를 떠나면 브라우저가 같은 위치에서 재개한다. */
-.game-mode #dawn-sky [style*="animation:skyDrift"],
-.game-mode #dawn-sky [style*="animation: skyDrift"],
-.game-mode #dawn-sky [style*="animation: dawnFloat"],
-.game-mode #dawn-sky [style*="animation:dawnFloat"],
-.game-mode #dawn-sky [style*="animation: dawnAurora"],
-.game-mode #dawn-sky [style*="animation:dawnAurora"],
-.game-mode #dawn-sky [style*="animation: skyCloud"],
-.game-mode #dawn-sky [style*="animation:skyCloud"] {
+   하늘은 그대로 남기고, 전투를 떠나면 브라우저가 같은 위치에서 재개한다.
+
+   «이름만» 부분일치로 잡는다. cssText로 넣은 animation:dawnFloat 6s ...를
+   브라우저가 animation: 6s ease-in-out infinite dawnFloat처럼 이름을 뒤로
+   보내 재직렬화하므로, "animation: dawnFloat" 접두 일치는 한 번도 맞은 적이
+   없었다 — 실측으로 game-mode에서 여덟 개가 전부 running이었다. */
+.game-mode #dawn-sky [style*="skyDrift"],
+.game-mode #dawn-sky [style*="dawnFloat"],
+.game-mode #dawn-sky [style*="dawnAurora"],
+.game-mode #dawn-sky [style*="skyCloud"] {
   animation-play-state: paused !important;
 }
 

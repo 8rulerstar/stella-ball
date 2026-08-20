@@ -497,10 +497,19 @@ try {
   );
   await delay(1800); // idle 기준선이 다 모일 때까지
 
+  /* 2026-08-20부터 실전 조준은 «노드 찍기 + Space»다(별지기 셋 + 최소 3픽).
+     드래그 이벤트는 이제 픽 경로가 가로채서 발사되지 않는다 — 실전과 같은
+     경로로 별지기 셋을 찍어 쏜다. 노드 조준이 꺼진 판(수업 등)만 예전
+     드래그로 떨어진다. */
+  const nodeLaunched = await evaluate(
+    "typeof aimStarReady === 'function' && aimStarReady() ? (aimPick = [0, 1, 2], launchAimStarShot()) : false",
+  );
   /* 진짜 마우스로 쏜다. 발사만 코드로 넣으면 조준 보정도, 위력 곡선도,
      별지기를 하나씩 때리며 흩어지는 접촉도 전부 건너뛴다 — 그 흩어짐이
      바로 재려는 것이다. */
-  const p = await evaluate(`(() => {
+  const p = nodeLaunched
+    ? null
+    : await evaluate(`(() => {
     const rect = document.querySelector("#game").getBoundingClientRect();
     // 세 별지기를 차례로 지나가도록 가장 가까운 하나를 겨눈다.
     let best = gates[0], bestD = Infinity;
@@ -514,33 +523,35 @@ try {
     const css = (x, y) => ({ x: rect.left + x * rect.width / 720, y: rect.top + y * rect.height / 900 });
     return { from: css(ball.x, ball.y), to: css(cueX, rawY) };
   })()`);
-  await send("Input.dispatchMouseEvent", {
-    type: "mouseMoved",
-    ...p.from,
-    button: "none",
-  });
-  await send("Input.dispatchMouseEvent", {
-    type: "mousePressed",
-    ...p.from,
-    button: "left",
-    buttons: 1,
-    clickCount: 1,
-  });
-  for (let i = 1; i <= 6; i++)
+  if (p) {
     await send("Input.dispatchMouseEvent", {
       type: "mouseMoved",
-      x: p.from.x + (p.to.x - p.from.x) * (i / 6),
-      y: p.from.y + (p.to.y - p.from.y) * (i / 6),
+      ...p.from,
+      button: "none",
+    });
+    await send("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      ...p.from,
       button: "left",
       buttons: 1,
+      clickCount: 1,
     });
-  await send("Input.dispatchMouseEvent", {
-    type: "mouseReleased",
-    ...p.to,
-    button: "left",
-    buttons: 0,
-    clickCount: 1,
-  });
+    for (let i = 1; i <= 6; i++)
+      await send("Input.dispatchMouseEvent", {
+        type: "mouseMoved",
+        x: p.from.x + (p.to.x - p.from.x) * (i / 6),
+        y: p.from.y + (p.to.y - p.from.y) * (i / 6),
+        button: "left",
+        buttons: 1,
+      });
+    await send("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      ...p.to,
+      button: "left",
+      buttons: 0,
+      clickCount: 1,
+    });
+  }
   await evaluate("window.__probeGo && window.__probeGo(), 1");
   /* 발사되지 않으면 그 뒤의 모든 수치가 「조용한 판」이라 렉이 없다고 거짓말을
      한다. 실제로 떴는지 여기서 확인하고, 아니면 왜 막혔는지를 남긴다. */

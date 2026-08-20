@@ -15,7 +15,17 @@ const canvasFontDescriptor = Object.getOwnPropertyDescriptor(
   CanvasRenderingContext2D.prototype,
   "font",
 );
-if (canvasFontDescriptor?.get && canvasFontDescriptor?.set)
+if (canvasFontDescriptor?.get && canvasFontDescriptor?.set) {
+  /* 같은 원문이면 네이티브 세터를 아예 부르지 않는다. 프레임마다 여덟 번쯤
+     설정되는 폰트가 CPU 프로파일에서 «set font» 단일 최대 JS 항목(1.9~2.7%)
+     이었다 — 네이티브 세터는 매번 폰트 축약형을 파싱한다.
+
+     원문(raw) 기준으로 캐시한다. 네이티브 getter와 비교하면 안 된다:
+     getter는 치환(Galmuri11)·정규화가 끝난 문자열을 돌려줘 호출자의 원문과
+     늘 다르고, 그 비교가 setCombatFont의 중복 차단이 한 번도 작동하지 않은
+     이유였다. save/restore가 실제 폰트를 스택으로 되돌리므로, 원문 캐시도
+     같은 깊이로 밀고 당겨야 「복원된 값과 다른데 건너뛰는」 오류가 없다. */
+  const fontCookCache = new Map();
   Object.defineProperty(CanvasRenderingContext2D.prototype, "font", {
     configurable: true,
     enumerable: canvasFontDescriptor.enumerable,
@@ -23,15 +33,32 @@ if (canvasFontDescriptor?.get && canvasFontDescriptor?.set)
       return canvasFontDescriptor.get.call(this);
     },
     set(value) {
-      // The pattern is hoisted: this setter sits on the hot draw path (gate
-      // labels, popups, combo, aim guide - roughly eight assignments a frame)
-      // and a literal here rebuilt a RegExp on every one of them.
-      canvasFontDescriptor.set.call(
-        this,
-        String(value).replace(UI_MONOSPACE_PATTERN, "Galmuri11"),
-      );
+      const raw = String(value);
+      if (raw === this.__rawFont) return;
+      let cooked = fontCookCache.get(raw);
+      if (cooked === undefined) {
+        // 패턴은 호이스팅돼 있고, 치환 결과도 서체 문자열이 십수 종뿐이라
+        // 한 번씩만 계산하면 된다.
+        cooked = raw.replace(UI_MONOSPACE_PATTERN, "Galmuri11");
+        if (fontCookCache.size < 64) fontCookCache.set(raw, cooked);
+      }
+      this.__rawFont = raw;
+      canvasFontDescriptor.set.call(this, cooked);
     },
   });
+  const contextProto = CanvasRenderingContext2D.prototype,
+    realCanvasSave = contextProto.save,
+    realCanvasRestore = contextProto.restore;
+  contextProto.save = function () {
+    (this.__rawFontStack || (this.__rawFontStack = [])).push(this.__rawFont);
+    realCanvasSave.call(this);
+  };
+  contextProto.restore = function () {
+    const stack = this.__rawFontStack;
+    if (stack && stack.length) this.__rawFont = stack.pop();
+    realCanvasRestore.call(this);
+  };
+}
 const U = {
   shotsText: document.querySelector("#shotsText"),
   shotDots: document.querySelector("#shotDots"),
@@ -1789,7 +1816,10 @@ function combatFxBlur(_amount) {
   return 0;
 }
 function setCombatFont(context, font) {
-  if (context.font !== font) context.font = font;
+  /* 중복 차단은 font 세터 래퍼가 원문 기준으로 한다. 예전의
+     context.font !== font 비교는 getter가 치환·정규화된 문자열을 돌려줘
+     항상 참이었다 — 차단은 안 되고 getter 직렬화 비용만 얹었다. */
+  context.font = font;
 }
 function safeVibrate(pattern) {
   if (
