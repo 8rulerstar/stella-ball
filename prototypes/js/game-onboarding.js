@@ -307,10 +307,13 @@ function setOnboardingPhase(phase) {
      그 손) 남은 셋이 그대로 양자리가 되고 보스를 감싼다. 실전 규칙은 그대로다
      — 별빛을 «주는» 것이지 규칙을 바꾸는 것이 아니다. */
   if (phase === 2 && typeof dropAimStar === "function" && boss) {
+    /* 세 번째 점은 [0, 165]였는데 그 좌표가 2단계 가온의 슬롯(360, 405)과
+       정확히 겹쳤다 — 안내별이 별지기 머리 위에 앉아, 남길 것과 찍을 것이
+       한 자리에 포개졌다. 위로 올려도 삼각형은 여전히 거상을 감싼다. */
     const ring = [
       [-150, -95],
       [155, -90],
-      [0, 165],
+      [0, 95],
     ];
     for (const [ox, oy] of ring)
       dropAimStar(
@@ -392,7 +395,7 @@ function renderOnboarding() {
            방향의 반대로 날아간다」라고만 써 두면 옆으로 끌어 본 사람에게
            문안이 거짓말이 된다 — 루나가 항로를 잡아 준다는 사실을 문안이
            직접 말해야 한다. */
-        body: "화면 아래 가운데의 작은 빛이 유성이에요. 마우스로 잡고 아래로 끌었다가 놓으면 반대쪽으로 날아갑니다. 이번 첫 발은 제가 항로를 잡아 둘게요 — 끌었다 놓기만 하면 거상에게 곧장 갑니다.",
+        body: "아래의 작은 빛이 유성이에요. 잡고 아래로 끌었다 놓으면 위로 날아갑니다. 첫 발은 제가 항로를 잡아 둘게요.",
         button: "유성 발사하기",
         action: "practice",
       },
@@ -400,7 +403,7 @@ function renderOnboarding() {
         n: 2,
         title: onboarding.bossHit ? "직격! 잘했어요." : "빗나갔네요. 괜찮아요.",
         body: onboarding.bossHit
-          ? "유성 자체도 피해를 주지만, 별지기를 거치지 않은 직격은 약해요. 다음 판에는 별지기가 섭니다 — 부딪히면 그 자리에 별빛이 남아요. 공명은 자동이라 누를 것이 없어요. 그 별빛으로 «조준»을 배워 볼게요."
+          ? "별지기를 거치지 않은 직격은 약해요. 다음 판에는 별지기가 섭니다 — 부딪히면 별빛이 남고, 공명은 자동이에요."
           : "각도만 조금 바꾸면 돼요. 아래로 길게 끌수록 세게 날아갑니다. 한 번 더 해볼까요?",
         button: onboarding.bossHit
           ? "다음 · 노드 조준"
@@ -418,7 +421,7 @@ function renderOnboarding() {
            규칙은 «별지기든 별빛이든»이 맞지만, 문안이 판에 없는 것을 먼저
            말하면 플레이어는 별빛부터 찾는다 — 지금 판의 노드가 무엇인지를
            문안이 짚는다. */
-        body: "유성이 멈추면 노드를 셋 이상 좌클릭으로 찍고, Space로 쏩니다. 지금 판의 노드는 별지기 셋이에요(나중엔 별빛도 노드가 됩니다). 유성은 고른 노드들의 가운데로 날아가고, 넓게 벌려 찍을수록 세게 나가요. 다시 찍으면 무르기, 우클릭은 전부 무르기예요.",
+        body: "밝게 남은 별지기 셋을 찍고 Space로 쏩니다. 유성은 고른 노드들의 가운데로 — 넓게 벌릴수록 세요. 다시 찍으면 무르기예요.",
         button: "셋 찍고 Space로 발사",
         action: "practice",
       },
@@ -428,7 +431,7 @@ function renderOnboarding() {
           ? "노드 조준으로 쐈어요!"
           : "아직 노드를 셋 찍지 않았어요.",
         body: onboarding.aimed
-          ? "빈 곳을 클릭하면 반대편으로도 쏠 수 있어요. 그런데 조준에 «쓰지 않은» 별빛은 어떻게 될까요? 그게 이 게임의 가장 특별한 것 — 별자리예요."
+          ? "빈 곳을 누르면 반대편으로도 쏠 수 있어요. 그런데 조준에 «쓰지 않은» 별빛은 어떻게 될까요?"
           : "유성이 멈춘 뒤 별지기나 별빛을 좌클릭으로 셋 찍으면 금색 길이 생겨요. 그때 Space를 누르면 됩니다.",
         button: onboarding.aimed
           ? "다음 · 별자리"
@@ -446,7 +449,7 @@ function renderOnboarding() {
            예전 문안 「별빛 하나만 남기고」는 개수도 행동도 판과 달랐고
            6/6 실패 문안(「셋 이상 남긴 채로」)과도 모순이었다 — 깔린 것과
            할 일을 그대로 말한다. */
-        body: "조준에 쓰지 않은 별빛이 셋 이상 남으면, 샷이 끝날 때 그 별빛들이 별자리로 타오릅니다. 보스 둘레에 루나의 안내별 셋을 띄워 뒀어요 — 별지기 셋만 찍고 쏘면, 안 쓴 안내별 셋이 그대로 첫 별자리가 됩니다.",
+        body: "안 쓴 별빛이 셋 남으면 별자리로 타오릅니다. 보스 둘레에 안내별 셋을 띄워 뒀어요 — 별지기 셋만 찍고 쏘세요.",
         button: "별빛을 남기고 발사",
         action: "practice",
       },
@@ -456,7 +459,7 @@ function renderOnboarding() {
           ? "첫 별자리가 현현했어요!"
           : "별빛이 별자리가 되지 못했어요.",
         body: onboarding.figureResolved
-          ? "고른 별빛은 조준으로, 남긴 별빛은 별자리로 — 한 번의 선택이 두 결과를 냅니다. 별지기 노드는 조준에만 쓰이고 별자리 재료로는 타지 않아요. 각성 공격은 별자리와 별개로, 유성이 멈출 때 따로 들어갑니다."
+          ? "고른 별빛은 조준, 남긴 별빛은 별자리 — 한 선택이 두 결과를 냅니다. 별지기는 별자리로 타지 않아요. 이제 진짜로 잡아 볼까요?"
           : "부딪힌 자리의 별빛을 조준에 다 써버리면 별자리 재료가 남지 않아요. 셋 이상 남긴 채로 샷을 끝내 보세요.",
         button: onboarding.figureResolved ? "직접 잡아보기" : "다시 시도",
         // The showcase is the promise of the combat system. Do not let a
@@ -1118,73 +1121,170 @@ function drawConstellationReveal() {
   x.restore();
 }
 registerRuntimeHook("afterDraw", drawConstellationReveal);
-function drawOnboardingGuide() {
-  // The guide belongs to practice: it draws whenever the lesson card has
-  // stepped aside, on the first attempt as well as on a retry.  The closing
-  // lesson is a real fight, so no target ring is drawn there.
-  if (
-    !onboarding ||
-    !battle ||
-    !ball ||
-    onboarding.panelVisible !== false ||
-    onboarding.phase === ONBOARDING_FINAL_PHASE
-  )
-    return;
-  /* 이 안내는 이제 0단계(끌어서 발사) 전용이다.
+/* 수업 실습의 안내는 «암전 + 손가락»이다(2026-08-21, 오너 지시).
 
-     2026-08-21: 1·2단계 그림을 걷었다. 둘 다 조향·패링 수업의 어휘였다 —
-     1단계는 「먼저 이 항로로 발사」 링, 2단계는 「항로 고정 · 발사 후 Space」
-     링, 그리고 두 단계 모두 「여기서 아래로 당기기」 손가락. 그런데 그 두
-     단계가 지금 가르치는 손은 «노드를 찍고 Space»이고, 그 화면의 주인은
-     drawAimStars다(노드·픽 슬롯·벌림 폴리곤·위력 게이지). 그 위에 끌기
-     손가락까지 얹히면 가르치는 입력이 둘이 되고, 그중 하나는 이 단계의
-     입력이 아니다 — 1단계 항로 강제를 걷을 때와 같은 종류의 어긋남이다.
-     0단계에는 아직 노드가 없어 끌기가 유일한 조준이므로 그대로 둔다. */
-  if (onboarding.phase !== 0 || ball.moving) return;
-  const target = boss;
+   글씨와 장식을 얹는 대신 화면을 어둡게 내리고 만질 것만 빛 구멍으로
+   남기며, 손가락이 그 자리에서 제스처를 반복 시연한다 — 읽는 안내가
+   아니라 보는 안내다. 규칙은 카드가 이미 말했으므로 실습 화면에 남는
+   글자는 키 이름 «SPACE» 하나뿐이다.
+
+   어둠막은 오프스크린 캔버스에서 만든다. 본 캔버스에 destination-out을
+   쓰면 판 자체가 지워진다 — 막을 따로 그려 구멍을 뚫고 한 장으로 얹는다. */
+let lessonDimLayer = null;
+function lessonDimContext() {
+  if (!lessonDimLayer) {
+    lessonDimLayer = document.createElement("canvas");
+    lessonDimLayer.width = W;
+    lessonDimLayer.height = H;
+  }
+  return lessonDimLayer.getContext("2d");
+}
+function drawLessonDim(holes, strength) {
+  const d = lessonDimContext();
+  d.globalCompositeOperation = "source-over";
+  d.clearRect(0, 0, W, H);
+  d.globalAlpha = strength;
+  d.fillStyle = "#050212";
+  d.fillRect(0, 0, W, H);
+  d.globalAlpha = 1;
+  d.globalCompositeOperation = "destination-out";
+  for (const hole of holes) {
+    const g = d.createRadialGradient(
+      hole.x,
+      hole.y,
+      hole.r * 0.5,
+      hole.x,
+      hole.y,
+      hole.r,
+    );
+    g.addColorStop(0, "rgba(0,0,0,1)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    d.fillStyle = g;
+    d.beginPath();
+    d.arc(hole.x, hole.y, hole.r, 0, Math.PI * 2);
+    d.fill();
+  }
+  x.drawImage(lessonDimLayer, 0, 0);
+}
+/* ☝ 글리프의 촉이 글자 위쪽에 있다. (tx, ty)를 두드리게 그리려면 몸통을
+   목표 아래에 둔다. press는 0~1로, 목표 위 파문의 진행이다. */
+function drawLessonFinger(tx, ty, lift, press, alpha = 1) {
   x.save();
-  x.lineWidth = 1.5;
-  x.setLineDash([5, 5]);
-  x.strokeStyle = "#ffe6a1";
-  x.shadowBlur = combatFxBlur(11);
-  x.shadowColor = "#ffd36f";
-  if (target) {
+  x.globalAlpha = alpha;
+  x.font = "28px sans-serif";
+  x.textAlign = "center";
+  x.lineWidth = 4;
+  x.strokeStyle = "#15131c";
+  x.strokeText("☝", tx + 9, ty + 38 + lift);
+  x.fillStyle = "#fff4cc";
+  x.fillText("☝", tx + 9, ty + 38 + lift);
+  if (press > 0) {
+    x.globalAlpha = alpha * 0.9 * (1 - press);
+    x.strokeStyle = "#ffe6a1";
+    x.lineWidth = 2.5;
     x.beginPath();
-    x.moveTo(ball.x, ball.y);
-    x.lineTo(target.x, target.y);
+    x.arc(tx, ty, 5 + press * 19, 0, Math.PI * 2);
     x.stroke();
-    x.setLineDash([]);
-    x.strokeStyle = "#f2a48d";
-    x.lineWidth = 2;
-    x.beginPath();
-    x.arc(target.x, target.y, 72, 0, Math.PI * 2);
-    x.stroke();
-    x.fillStyle = "#fff0bd";
-    x.font = "bold 10px Galmuri11, ui-monospace";
-    x.textAlign = "center";
-    x.fillText("직격 목표", target.x, target.y - 44);
-    const distance = Math.hypot(target.x - ball.x, target.y - ball.y) || 1;
-    const pullX = -(target.x - ball.x) / distance;
-    const pullY = -(target.y - ball.y) / distance;
-    const pulse = 7 + Math.sin(performance.now() / 210) * 5;
-    const fingerX = ball.x + pullX * (62 + pulse);
-    const fingerY = ball.y + pullY * (62 + pulse);
-    x.strokeStyle = "#fff3c2";
-    x.lineWidth = 2;
-    x.beginPath();
-    x.moveTo(ball.x + pullX * 20, ball.y + pullY * 20);
-    x.lineTo(fingerX, fingerY);
-    x.stroke();
-    x.font = "24px sans-serif";
-    x.textAlign = "center";
-    x.lineWidth = 3;
-    x.strokeStyle = "#15131c";
-    x.strokeText("☝", fingerX, fingerY + 8);
-    x.fillStyle = "#fff4cc";
-    x.fillText("☝", fingerX, fingerY + 8);
-    x.font = "bold 9px Galmuri11, ui-monospace";
-    x.fillStyle = "#fff0bd";
-    x.fillText("여기서 아래로 당기기", fingerX, fingerY + 28);
+  }
+  x.restore();
+}
+function drawLessonSpaceCue(cx, cy) {
+  const pulse = 0.55 + 0.45 * Math.sin(frameClock / 210);
+  x.save();
+  x.globalAlpha = pulse;
+  x.fillStyle = "#0f0a1e";
+  x.strokeStyle = "#ffe09a";
+  x.lineWidth = 2;
+  x.fillRect(cx - 37, cy, 74, 24);
+  x.strokeRect(cx - 37, cy, 74, 24);
+  x.fillStyle = "#ffe09a";
+  x.font = "700 12px Galmuri11, ui-monospace";
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.fillText("SPACE", cx, cy + 13);
+  x.textBaseline = "alphabetic";
+  x.restore();
+}
+function onboardingLessonGuideActive() {
+  return Boolean(
+    onboarding &&
+      battle &&
+      onboarding.panelVisible === false &&
+      onboarding.phase !== ONBOARDING_FINAL_PHASE,
+  );
+}
+function drawOnboardingGuide() {
+  if (!run || !onboardingLessonGuideActive() || !ball || ball.moving) return;
+  const phase = onboarding.phase;
+  x.save();
+  if (phase === 0) {
+    /* 끌기 수업: 유성과 거상만 빛에 남긴다. 손가락이 유성을 잡고 아래로
+       끄는 시늉을 반복한다 — «여기서 아래로»를 글자 없이 몸으로 말한다. */
+    const holes = [{ x: ball.x, y: ball.y, r: 96 }];
+    if (boss) holes.push({ x: boss.x, y: boss.y, r: 106 });
+    drawLessonDim(holes, 0.6);
+    if (boss) {
+      x.globalAlpha = 0.45;
+      x.strokeStyle = "#ffe6a1";
+      x.lineWidth = 1.5;
+      x.setLineDash([4, 8]);
+      x.beginPath();
+      x.moveTo(ball.x, ball.y);
+      x.lineTo(boss.x, boss.y);
+      x.stroke();
+      x.setLineDash([]);
+      x.globalAlpha = 1;
+    }
+    const cycle = (frameClock % 1700) / 1700;
+    const slide = cycle < 0.3 ? 0 : cycle < 0.78 ? (cycle - 0.3) / 0.48 : 1;
+    const eased = slide * slide * (3 - 2 * slide);
+    const fy = ball.y + eased * 118;
+    const alpha =
+      cycle < 0.08 ? cycle / 0.08 : cycle < 0.9 ? 1 : (1 - cycle) / 0.1;
+    if (eased > 0.02) {
+      x.globalAlpha = alpha * 0.8;
+      x.strokeStyle = "#fff3c2";
+      x.lineWidth = 2;
+      x.beginPath();
+      x.moveTo(ball.x, ball.y);
+      x.lineTo(ball.x, fy);
+      x.stroke();
+      x.globalAlpha = 1;
+    }
+    const press = cycle > 0.14 && cycle < 0.3 ? (cycle - 0.14) / 0.16 : 0;
+    drawLessonFinger(ball.x, fy, 0, press, alpha);
+  } else {
+    /* 찍기 수업(1·2단계): 노드만 빛에 남기고, 손가락이 아직 안 찍은
+       별지기를 차례로 톡톡 두드린다. 셋을 채우면 어둠을 반쯤 걷고
+       유성 아래에서 SPACE 키가 맥동한다. 2단계의 안내별은 작은 빛으로
+       함께 남긴다 — 만지라는 뜻이 아니라 «남길 것»이라는 뜻이다. */
+    const holes = [{ x: ball.x, y: ball.y, r: 88 }];
+    for (const g of gates) holes.push({ x: g.x, y: g.y, r: 72 });
+    if (phase === 2)
+      for (const s of aimStars) holes.push({ x: s.x, y: s.y, r: 46 });
+    const ready = aimPick.length >= AIM_STAR.minPick;
+    drawLessonDim(holes, ready ? 0.4 : 0.58);
+    if (!ready) {
+      let target = null;
+      for (let i = 0; i < gates.length; i++)
+        if (!aimPick.includes(i)) {
+          target = gates[i];
+          break;
+        }
+      if (target) {
+        const cycle = (frameClock % 950) / 950;
+        const down =
+          cycle < 0.4
+            ? cycle / 0.4
+            : cycle < 0.55
+              ? 1
+              : 1 - (cycle - 0.55) / 0.45;
+        const press = cycle > 0.4 && cycle < 0.7 ? (cycle - 0.4) / 0.3 : 0;
+        drawLessonFinger(target.x, target.y, (1 - down) * 16, press);
+      }
+    } else {
+      drawLessonSpaceCue(ball.x, ball.y + 52);
+    }
   }
   x.restore();
 }
@@ -1371,6 +1471,7 @@ registerRuntimeHook("afterArenaDraw", drawObservatoryAtmosphere);
 const OnboardingModule = StellaRuntime.modules.register("onboarding", {
   isActive: isOnboardingSessionActive,
   isInputLocked: isOnboardingInputLocked,
+  isLessonGuideActive: onboardingLessonGuideActive,
   isTeachingHold: isTeachingHold,
   blocksSteer: isOnboardingSteerBlocked,
   drawTeachingHoldCue: drawTeachingHoldCue,

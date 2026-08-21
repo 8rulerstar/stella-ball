@@ -1132,6 +1132,12 @@ function drawAimStars() {
      멈춘 것처럼 읽힌다 — 잠긴 동안은 시네마틱이 화면의 주인이다. */
   if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
     return;
+  /* 수업 실습(암전+손가락) 중에는 글자 안내를 접는다 — 범례 칩, 하단
+     조작 안내, 별자리 후보 태그. 어둠과 손가락이 같은 것을 말하는데 글자가
+     겹치면 오너가 지적한 «지저분한 연출»이 된다. 실전 단계부터 평소대로. */
+  const lessonGuide =
+    typeof onboardingLessonGuideActive === "function" &&
+    onboardingLessonGuideActive();
   const nodes = aimNodes(),
     unitCount = nodes.length - aimStars.length,
     preview = aimStarPreview(),
@@ -1212,11 +1218,13 @@ function drawAimStars() {
       x.setLineDash([]);
       const rcx = rest.reduce((a, n) => a + n.x, 0) / rest.length,
         rcy = rest.reduce((a, n) => a + n.y, 0) / rest.length;
-      x.globalAlpha = 0.8;
-      x.fillStyle = "#ffd27f";
-      x.font = "700 11px Galmuri11, ui-monospace";
-      x.textAlign = "center";
-      x.fillText("남은 ✦ " + rest.length + " → 별자리", rcx, rcy - 6);
+      if (!lessonGuide) {
+        x.globalAlpha = 0.8;
+        x.fillStyle = "#ffd27f";
+        x.font = "700 11px Galmuri11, ui-monospace";
+        x.textAlign = "center";
+        x.fillText("남은 ✦ " + rest.length + " → 별자리", rcx, rcy - 6);
+      }
       x.restore();
     }
   }
@@ -1571,7 +1579,7 @@ function drawAimStars() {
   }
   /* 1e-4(결정 4): 범례 — 첫 3샷 동안만(aimTeach.shots). 3샷을 채운 슬롯은
      다음 세션에서도 켜지지 않는다(progress.aimHints의 "legend"). */
-  if (aimTeach.shots < 3) {
+  if (aimTeach.shots < 3 && !lessonGuide) {
     x.save();
     x.globalAlpha = 0.94;
     x.fillStyle = "#04080ac9";
@@ -1590,8 +1598,14 @@ function drawAimStars() {
     x.restore();
   }
 
-  /* 조작 안내. 튜토리얼이 아직 이 전투를 안 가르치므로(전투 확정 뒤에 다시
-     짠다) 화면이 스스로 말해야 한다. */
+  /* 조작 안내. 수업 실습 중에는 카드·손가락이 말하므로 접는다. 거절
+     타이머도 여기서 끊는다 — 표시가 HUD뿐이라, 숨긴 채 얼려 두면 수업이
+     끝나는 순간 이유 없이 떨린다. */
+  if (lessonGuide) {
+    aimDenyT = 0;
+    x.restore();
+    return;
+  }
   x.globalAlpha = 0.92;
   x.fillStyle = "#0b0718cc";
   x.fillRect(0, H - 46, W, 46);
