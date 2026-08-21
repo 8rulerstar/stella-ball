@@ -497,8 +497,32 @@ function billiardPointerDown(e) {
       }
       const hit = aimStarAt(p.x, p.y);
       if (hit < 0) {
-        if (!aimPick.length)
+        /* 빈 곳은 «가고 싶은 쪽»이다. 유성을 기준으로 무게중심 쪽을 누르면
+           정방향, 반대쪽을 누르면 반대편으로 쏜다 — 누른 곳이 곧 갈 곳이라
+           설명이 필요 없다. 아직 셋을 못 골랐으면 고르는 것이 먼저다. */
+        if (aimPick.length < AIM_STAR.minPick) {
           toast("별지기·별빛을 셋 이상 찍고 Space로 발사하세요");
+          return;
+        }
+        const base = aimStarShot(aimPick);
+        if (!base) return;
+        // 부호를 뺀 «무게중심 쪽» 벡터로 판단해야 이미 뒤집힌 상태에서도
+        // 누른 쪽이 그대로 결과가 된다.
+        const ux = base.cx - ball.x || 0,
+          uy = base.cy - ball.y || 0,
+          side = (p.x - ball.x) * ux + (p.y - ball.y) * uy;
+        const want = side < 0;
+        if (want !== aimFlip) {
+          aimFlip = want;
+          combatSfx?.("steer", 0.5);
+          addPopup(
+            ball.x,
+            ball.y - 34,
+            aimFlip ? "반대편" : "가운데 쪽",
+            "#ffe09a",
+            true,
+          );
+        }
         return;
       }
       pickAimStar(hit);
@@ -735,6 +759,7 @@ function resetAimStars() {
   aimStars = [];
   aimPick = [];
   aimHover = -1;
+  aimFlip = false;
   aimLaunchFx = null;
   aimDenyT = 0;
   aimReadyFlash = 0;
@@ -836,28 +861,41 @@ function aimStarShot(picks = aimPick) {
         }
       }
       if (!far) return null;
+      const fs = aimFlip ? -1 : 1;
       return {
-        dx: far.x - ball.x,
-        dy: far.y - ball.y,
+        dx: (far.x - ball.x) * fs,
+        dy: (far.y - ball.y) * fs,
         cx: far.x,
         cy: far.y,
         tx: ball.x,
         ty: ball.y,
-        hx: far.x,
-        hy: far.y,
+        hx: ball.x + (far.x - ball.x) * fs,
+        hy: ball.y + (far.y - ball.y) * fs,
+        flipped: aimFlip,
         radius: 0,
         force: 0.28,
       };
     }
+    /* 반대편(2026-08-20). 무게중심은 언제나 노드들의 볼록 껍질 안이므로,
+       노드를 늘려도 겨눌 수 있는 각도가 껍질에 갇힌다 — 실측으로 별빛
+       상한(9개)까지 채워도 86도였고 4개(54도)에서 두 배로 늘려도 거의
+       안 움직였다. 부호 하나로 껍질 «밖»이 열린다: 덮는 각도 중앙 75 ->
+       255도, 최악의 판(p10)이 39 -> 219도.
+       반대편은 죽은 방향이 아니다 — 같은 판 같은 조합에서 방향만 뒤집어
+       재니 별지기 접촉은 같고 피해가 136 대 94(69%)다. 약하지만 쓸 수
+       있으므로 「세게 갈까, 다른 데로 갈까」가 매번 저울질이 된다. */
+    const sign = aimFlip ? -1 : 1;
     return {
-      dx,
-      dy,
+      dx: dx * sign,
+      dy: dy * sign,
       cx,
       cy,
+      // 그리는 쪽이 쓰는 «갈 길»의 끝점. 뒤집으면 유성 반대쪽으로 뻗는다.
       tx: ball.x,
       ty: ball.y,
-      hx: cx,
-      hy: cy,
+      hx: ball.x + dx * sign,
+      hy: ball.y + dy * sign,
+      flipped: aimFlip,
       radius,
       force: clamp(radius / AIM_STAR.fullRadius, 0.28, 1),
     };
@@ -967,6 +1005,7 @@ function launchAimStarShot() {
     if (!battle || battleComplete || ball?.moving) return;
     aimPick = [];
     aimHover = -1;
+    aimFlip = false;
     aimLaunchFx = {
       t: 0.42,
       dur: 0.42,

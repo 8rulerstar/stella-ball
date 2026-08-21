@@ -1204,9 +1204,36 @@ function drawAimStars() {
       }
       x.setLineDash([]);
       x.globalAlpha = 1;
-      // 유성 -> 가운데점. 이것이 갈 길이다.
-      const dx = cx - ball.x,
-        dy = cy - ball.y,
+      /* 유성 -> 갈 길. 무게중심 쪽과 그 반대편을 «둘 다» 그린다 — 고른
+         쪽은 진하게, 안 고른 쪽은 흐리게. 빈 곳을 누르면 그쪽으로 바뀌므로,
+         두 선이 곧 「누를 수 있는 두 곳」이다.
+         뒤집혔으면 갈 길의 끝점은 가운데점이 아니라 그 반대쪽이다. */
+      /* 갈 곳은 판 안으로 자른다. 뒤집으면 «유성 기준 무게중심의 거울»이
+         판 밖으로 나가는 일이 흔하고(실제로 y=993이 나왔다), 그러면 화살촉과
+         위력 라벨이 화면 밖에 그려져 아무것도 안 보인다. 방향은 그대로 두고
+         길이만 벽에서 끊는다 — 유성도 어차피 거기서 튄다. */
+      const sign = preview.flipped ? -1 : 1,
+        rawX = (cx - ball.x) * sign,
+        rawY = (cy - ball.y) * sign,
+        rawLen = Math.hypot(rawX, rawY) || 1,
+        m = 26,
+        tX =
+          rawX > 0
+            ? (W - m - ball.x) / rawX
+            : rawX < 0
+              ? (m - ball.x) / rawX
+              : Infinity,
+        tY =
+          rawY > 0
+            ? (H - m - ball.y) / rawY
+            : rawY < 0
+              ? (m - ball.y) / rawY
+              : Infinity,
+        cut = Math.max(0.08, Math.min(1, tX, tY)),
+        gx = ball.x + rawX * cut,
+        gy = ball.y + rawY * cut,
+        dx = gx - ball.x,
+        dy = gy - ball.y,
         len = Math.hypot(dx, dy) || 1,
         ux = dx / len,
         uy = dy / len,
@@ -1220,11 +1247,40 @@ function drawAimStars() {
         x.setLineDash([7, 5]);
         x.globalAlpha = 0.8;
       }
+      // 안 고른 쪽을 먼저 흐리게. 「저기도 누를 수 있다」가 보여야 한다.
+      if (ready) {
+        x.save();
+        x.globalAlpha = 0.22;
+        x.setLineDash([6, 6]);
+        x.strokeStyle = "#ffe09a";
+        x.lineWidth = 2;
+        x.beginPath();
+        x.moveTo(ball.x, ball.y);
+        // 반대쪽도 벽에서 끊는다. 같은 이유다.
+        const oX = -rawX,
+          oY = -rawY,
+          oTX =
+            oX > 0
+              ? (W - m - ball.x) / oX
+              : oX < 0
+                ? (m - ball.x) / oX
+                : Infinity,
+          oTY =
+            oY > 0
+              ? (H - m - ball.y) / oY
+              : oY < 0
+                ? (m - ball.y) / oY
+                : Infinity,
+          oCut = Math.max(0.08, Math.min(1, oTX, oTY));
+        x.lineTo(ball.x + oX * oCut, ball.y + oY * oCut);
+        x.stroke();
+        x.restore();
+      }
       x.strokeStyle = "#ffe09a";
       x.lineWidth = lineW;
       x.beginPath();
       x.moveTo(ball.x, ball.y);
-      x.lineTo(cx, cy);
+      x.lineTo(gx, gy);
       x.stroke();
       x.setLineDash([]);
       x.globalAlpha = 1;
@@ -1235,21 +1291,29 @@ function drawAimStars() {
         x.lineWidth = lineW + 2;
         x.beginPath();
         x.moveTo(ball.x, ball.y);
-        x.lineTo(cx, cy);
+        x.lineTo(gx, gy);
         x.stroke();
         x.globalAlpha = 1;
       }
+      /* 화살촉과 위력은 «갈 곳»에 붙는다. 과녁 링은 무게중심에 남는다 —
+         점선이 그리로 모이므로 그 링이 「내가 고른 것」이고, 화살촉이
+         「내가 갈 곳」이다. 뒤집지 않았으면 둘이 같은 자리다. */
       const px = -uy,
         py = ux;
       x.fillStyle = "#ffe09a";
       x.beginPath();
-      x.moveTo(cx + ux * 13, cy + uy * 13);
-      x.lineTo(cx - ux * 6 + px * 9, cy - uy * 6 + py * 9);
-      x.lineTo(cx - ux * 6 - px * 9, cy - uy * 6 - py * 9);
+      x.moveTo(gx + ux * 13, gy + uy * 13);
+      x.lineTo(gx - ux * 6 + px * 9, gy - uy * 6 + py * 9);
+      x.lineTo(gx - ux * 6 - px * 9, gy - uy * 6 - py * 9);
       x.closePath();
       x.fill();
       // 과녁 링도 위력을 입는다 - 큰 조준은 과녁부터 크다.
-      stepRing(cx, cy, ready ? 8 + preview.force * 7 : 10, "#ffe09acc");
+      stepRing(
+        cx,
+        cy,
+        ready ? 8 + preview.force * 7 : 10,
+        preview.flipped ? "#ffe09a55" : "#ffe09acc",
+      );
       x.fillStyle = "#ffe09a";
       x.font = "700 12px Galmuri11, ui-monospace";
       x.textAlign = "center";
@@ -1257,10 +1321,12 @@ function drawAimStars() {
       // 쏠 수 있는 조준이 아니라 «되어가는 중»이다.
       x.fillText(
         p.length >= AIM_STAR.minPick
-          ? "위력 " + Math.round(preview.force * 100) + "%"
+          ? (preview.flipped ? "반대편 · 위력 " : "위력 ") +
+              Math.round(preview.force * 100) +
+              "%"
           : "노드 " + p.length + "/" + AIM_STAR.minPick,
-        cx,
-        cy - 18,
+        gx,
+        gy - 18,
       );
     }
   }
