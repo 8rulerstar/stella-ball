@@ -68,12 +68,12 @@
 
 미리보기 창은 `document.hidden`이 true라 `requestAnimationFrame`이 안 돌고 뷰포트가 0×0으로 읽힌다. 그래서 화면·프레임 판단은 아래 프로브로 한다. 어느 것도 게이트에 물려 있지 않은 수동 도구다.
 
-| 스크립트                         | 재는 것                                        |
-| -------------------------------- | ---------------------------------------------- |
-| `scripts/profile-frames.mjs`     | 실제 Chromium의 프레임 시간과 합성 레이어 구조 |
-| `scripts/probe-settle-cost.mjs`  | 정산 구간의 프레임 비용                        |
-| `scripts/probe-steer-lesson.mjs` | 조향 수업 정지 지점의 실화면 위치              |
-| `scripts/probe-sky-guests.mjs`   | 여백 손님의 배치 좌표                          |
+| 스크립트                        | 재는 것                                        |
+| ------------------------------- | ---------------------------------------------- |
+| `scripts/profile-frames.mjs`    | 실제 Chromium의 프레임 시간과 합성 레이어 구조 |
+| `scripts/probe-settle-cost.mjs` | 정산 구간의 프레임 비용                        |
+| `scripts/probe-aim-polygon.mjs` | 조준 화면·정산 프레임의 그리기 비용            |
+| `scripts/probe-sky-guests.mjs`  | 여백 손님의 배치 좌표                          |
 
 ## 2026-08-19에 바뀐 것 — 전투 시스템 실험
 

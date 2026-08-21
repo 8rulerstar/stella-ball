@@ -250,7 +250,9 @@ const RUN_SHOT = (
     nodeEconomy: typeof nodeEconomyOn === "function" ? nodeEconomyOn() : null,
     aimAssist: typeof AIM_ASSIST_PULL !== "undefined" ? AIM_ASSIST_PULL : null,
     onboardingActive:
-      typeof onboardingRunning === "function" ? onboardingRunning() : null,
+      typeof isOnboardingSessionActive === "function"
+        ? isOnboardingSessionActive()
+        : null,
   };
   const settled = [];
   registerRuntimeHook("afterPartySettle", (ctx) =>
@@ -482,9 +484,9 @@ try {
     "new Promise((r) => requestAnimationFrame(() => r(!document.hidden)))",
   );
   if (!alive) throw new Error("rAF not running - window is hidden");
-  /* 수업으로 들어가면 안 된다. 2026-08-18 실험 셋(AUTO_PARRY·NODE_ECONOMY·
-     조준 보정)이 전부 `onboardingRunning()`으로 수업 중에는 꺼지므로, 여기서
-     #titleHelp를 누르면 캠페인에서 실제로 도는 코드를 한 줄도 재지 못한다.
+  /* 수업으로 들어가면 안 된다. 지금은 수업도 캠페인과 같은 규칙으로 돌지만
+     (실험 우회는 2026-08-21에 걷었다), 수업은 판을 세우고 배치를 고정하고
+     안내별을 심는다 — 캠페인 한 판의 비용을 재는 자리로는 여전히 다른 판이다.
      setupBattle이 setScene("game")까지 하므로 타이틀을 거칠 필요가 없다. */
   await delay(600);
 

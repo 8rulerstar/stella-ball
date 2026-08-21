@@ -58,7 +58,7 @@ is wired into a gate; run them by hand when the question is about the screen.
 
 - `node scripts/profile-frames.mjs` - frame times and the composited layer structure.
 - `node scripts/probe-settle-cost.mjs` - the frame cost of a settlement chain.
-- `node scripts/probe-steer-lesson.mjs` - where the steer lesson's hold actually stops on screen.
+- `node scripts/probe-aim-polygon.mjs` - the draw cost of the aim screen and the settle frames.
 - `node scripts/probe-sky-guests.mjs` - margin guest placement, immune to the 0x0 viewport.
 - `node scripts/probe-aim-nodes.mjs` - the node-aiming rules (starkeeper floor, 3-pick
   minimum, centroid direction, starkeeper non-burn) plus the direction-freedom menu.

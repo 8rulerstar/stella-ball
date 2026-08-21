@@ -47,30 +47,39 @@ let onboarding = null;
 function isOnboardingInputLocked() {
   return Boolean(
     onboarding &&
-    (onboarding.panelVisible !== false || onboarding.transitioning),
+      (onboarding.panelVisible !== false || onboarding.transitioning),
   );
 }
-/* 패링 수업(2단계)은 발사각을 미리내에 «강제»한다. 그런데 조향은 열려 있어서,
-   안내가 「이 접점으로 간다」고 말해 놓고 플레이어가 클릭 한 번으로 그 항로를
-   버릴 수 있었다 — 그러면 가르치려던 접점이 오지 않고 수업이 조용히 어긋난다.
-   항로를 강제하는 동안에는 항로를 바꾸는 입력도 막는다. 1단계(조향 수업)는
-   당연히 열어 둔다. 그게 그 수업의 내용이다. */
+/* 발사각이 «강제»된 수업에서는 항로를 바꾸는 입력도 막는다. 안내가 「저
+   거상에게 곧장 간다」고 말해 놓고 플레이어가 클릭 한 번으로 그 항로를
+   버릴 수 있으면, 약속한 것이 오지 않고 수업이 조용히 어긋난다.
+
+   2026-08-21: 기준을 2단계에서 0단계로 옮겼다. 강제를 하는 곳이 옮겨졌기
+   때문이다 — resolveBilliardAim 훅은 이제 0단계(끌어서 발사)만 보스로
+   고정하고, 1·2단계는 플레이어가 찍은 노드의 무게중심으로 나간다. 그래서
+   막아야 할 단계는 0단계 하나이고, 1·2단계는 조향이 열려 있어야 캠페인과
+   같은 손이 된다. */
 function isOnboardingSteerBlocked() {
-  return Boolean(onboarding && onboarding.phase === TEACH_HOLD.parry.phase);
+  return Boolean(onboarding && onboarding.phase === 0);
 }
 function isOnboardingSessionActive() {
   return Boolean(onboarding);
 }
-// 조향 수업이 자기 안내를 그리고 있는 동안인가. 일반 조향 안내가 겹치지
-// 않도록 game-combat-physics.js의 drawSteerPrompt가 이걸 묻는다.
-function isOnboardingSteerGuided() {
-  return Boolean(
-    onboarding &&
-    onboarding.phase === TEACH_HOLD.steer.phase &&
-    onboarding.panelVisible === false &&
-    ball?.moving &&
-    !ball.steerUsed,
-  );
+/* 설명 카드가 화면의 주인인 동안인가. game-combat-physics.js의
+   drawSteerPrompt가 이걸 묻고 물러난다.
+
+   2026-08-21: 앞의 판정은 `isOnboardingSteerGuided` — 「조향 수업이 자기
+   안내를 그리는 중인가」였다. 그 전제가 이미 거짓이다. 1단계는 조향 수업이
+   아니라 노드 조준 수업이 됐고, 그 단계가 그리던 조향 안내는 지웠다. 그래서
+   저 함수는 «아무도 안내하지 않는 동안» 일반 안내까지 막고 있었다 — 온보딩
+   비행 내내 조향 안내가 어디에도 안 떴다.
+
+   그렇다고 그냥 지우면 반대로 샌다. 1단계는 「셋을 찍어 Space」, 2단계는
+   「Space 한 번」을 요구하는데 그 위에 「좌클릭 ↶ · 우클릭 ↷」이 얹히면
+   지금 눌러야 할 것이 둘로 보인다. 수업 세 단계에서만 접고, 마지막 실전
+   (ONBOARDING_FINAL_PHASE)에서는 판이 캠페인과 같아야 하므로 그대로 낸다. */
+function isOnboardingLessonPhase() {
+  return Boolean(onboarding && onboarding.phase !== ONBOARDING_FINAL_PHASE);
 }
 
 /* ── 수업용 정지 ───────────────────────────────────────────────────────
@@ -81,36 +90,21 @@ function isOnboardingSteerGuided() {
    정지 중에도 기존 입력 핸들러는 그대로 산다. 여기서는 판을 다시 돌리는 일만
    하고, 조향·패링 자체는 평소와 같은 경로가 처리한다 — 수업에서만 통하는
    두 번째 입력 경로를 만들면 실전에서 배운 것이 달라진다. */
-// 접점까지 남은 시간이 이보다 짧아지면 세운다. 공명 창(0.4초)의 절반 이하라
-// 정지 중 누른 Space가 접점까지 넉넉히 살아 있다.
-const TEACH_PARRY_LEAD = 0.18;
 /* 어떤 이유로든 입력이 오지 않아도 판이 영영 멈추지는 않게 한다. 가르치는
    장치가 진행을 막는 벽이 되면 안 된다. 충분히 길게 두어 읽고 누를 시간은
    남기고, 그 뒤에는 조용히 풀어 원래 흐름으로 돌려보낸다. */
 const TEACH_HOLD_GRACE_MS = 9000;
-/* 정지 지점을 「판 높이」가 아니라 「그려 준 항로의 진행률」로 잡는다. 예전
-   기준 `ball.y < H - 380`은 520px 고정인데 지정 구역은 275px이라, 어떤 출력으로
-   쏘든 항로의 48.6~52.5% 지점에서 멈췄다 — 가리킨 자리에 끝내 닿지 못한다는
-   제보 그대로다. 두 값을 잇는 것이 아무것도 없어서 보스 좌표만 바뀌어도 둘이
-   따로 놀았다. 이제 한쪽만 고치면 다른 쪽이 따라온다.
-   그리고 값 자체도 뒤로 옮겼다. 기준을 항로에 묶기만 하고 0.48로 두면 예전과
-   같은 자리(48%)라 제보가 그대로 남는다. 0.62면 표식에 눈에 띄게 가까워진
-   뒤 멈추고, 꺾인 뒤를 보여 줄 항로가 아직 188px 남는다. */
-const TEACH_STEER_ROUTE_FRACTION = 0.62;
-const TEACH_HOLD = Object.freeze({
-  steer: {
-    phase: 1,
-    hint: "지금이에요 — 노드를 <b>셋</b> 찍으세요",
-  },
-  parry: { phase: 2, hint: "지금이에요 — <b>Space</b>로 발사" },
-});
+/* 2026-08-21: 문구 표(`TEACH_HOLD`)를 걷고 문구를 인자로 받는다. 표에 남아
+   있던 두 항목이 전부 옛 규칙의 문장이었다 — "좌클릭 ↶ · 우클릭 ↷"(사라진
+   조향 수업)와 "지금이에요 — Space로 발사"(핸드오프 §3-2가 지우라고 지목한
+   문자열). 부르는 자리가 없는 표는 다음 수업에서 또 같은 방식으로 낡는다. */
 function teachingHold() {
   return onboarding?.hold ?? null;
 }
 function isTeachingHold() {
   return Boolean(onboarding?.hold);
 }
-function beginTeachingHold(kind) {
+function beginTeachingHold(kind, hint) {
   if (!onboarding || onboarding.hold || onboarding.holdDone?.[kind]) return;
   /* 유예는 프레임으로 센다. setTimeout은 벽시계라 일시정지 중에도 흘렀고,
      정지 화면 뒤에서 수업이 조용히 만료됐다 — Escape를 눌러 10초 뒤 돌아오면
@@ -119,7 +113,7 @@ function beginTeachingHold(kind) {
      일시정지 중에는 저절로 멈춘다. */
   onboarding.hold = {
     kind: kind,
-    hint: TEACH_HOLD[kind].hint,
+    hint: hint,
     graceLeft: TEACH_HOLD_GRACE_MS / 1000,
   };
   // 판이 서는 순간이 무음이면 「멈춘 버그」로 읽힌다. 시간이 멈춘 것을 귀로도
@@ -172,7 +166,7 @@ function drawTeachingHoldCue() {
   x.textAlign = "center";
   x.font = "bold 13px Galmuri11, ui-monospace";
   x.fillText(
-    hold.kind === "steer" ? "좌클릭 ↶ · 우클릭 ↷" : "지금 Space",
+    "지금 Space",
     ball.x,
     ball.y - ball.r - 40 - Math.sin(t / 300) * 3,
   );
@@ -197,58 +191,18 @@ function renderTeachingHold() {
   cue.innerHTML = "<span>" + hold.hint + "</span>";
   document.body.classList.add("teaching-hold");
 }
-/* 정지에 걸릴 순간을 매 프레임 살핀다. 조향은 유성이 발사석을 충분히 벗어난
-   뒤, 패링은 루나가 고정한 접점에 닿기 직전이다. */
-registerRuntimeHook("afterFeedbackUpdate", () => {
-  if (!onboarding || onboarding.hold || onboarding.panelVisible !== false)
-    return;
-  if (!ball?.moving || !run) return;
-  /* 1단계(노드 조준)의 «비행 중 정지»는 걷었다(2026-08-21).
+/* 2026-08-21: 마지막 «비행 중 정지»를 걷었다. 지금 이 장치는 부르는 자리가
+   없다 — 세 수업이 요구하는 입력(끌기·찍기·Space 발사)이 전부 유성이 멈춘
+   뒤의 것이라 멈출 순간이 없기 때문이다. 기계 자체는 남긴다: 「지금 눌러야
+   하는」 입력을 가르치는 유일한 도구이고, 전투가 확정되면 수업을 다시 짜기로
+   되어 있다(CLAUDE.md). 다시 쓸 때는 beginTeachingHold(kind)를 부르고
+   TEACH_HOLD에 그 kind의 문구를 넣으면 된다.
 
-     이 정지는 조향 수업의 것이다 — 조향은 «날아가는 동안» 눌러야 뜻이 있으니
-     결정 지점에서 판을 세웠다. 조준은 반대다: 유성이 «멈춘 뒤»에 노드를
-     찍는다. 그래서 비행 중에 세우고 「노드를 셋 찍으세요」를 띄우면, 판은
-     멈췄는데 아무것도 눌리지 않는 화면이 된다(찍기는 !ball.moving을 요구).
-     오너 제보 「좌클릭 우클릭 위치가 표기보다 훨씬 일찍 멈춤」이 이것이다. */
-  if (onboarding.phase === TEACH_HOLD.parry.phase) {
-    /* 이 수업의 문구는 「발사한 뒤 Space를 한 번 누르세요」라, 접점보다 먼저
-       누르는 것이 정상 경로다. 그렇게 누른 사람에게 접점 직전에 또 판을
-       세우면 이미 한 일을 다시 요구하게 되고, 두 번째 입력이 오지 않으면
-       판이 영영 멈춘다. 눌러 둔 것이 있으면 세우지 않는다. */
-    if (onboarding.parryQueued || onboarding.parrySuccess) return;
-    const gate = gates?.[0];
-    if (!gate || currentFigureShot?.()?.parry > 0) return;
-    const dx = gate.x - ball.x,
-      dy = gate.y - ball.y,
-      distance = Math.hypot(dx, dy) || 1;
-    const closing = (ball.vx * dx + ball.vy * dy) / distance;
-    if (closing <= 0) return;
-    /* 거리로 잡으면 안 된다. 공명 창은 0.4초인데 유성 속도는 750~1725px/s에
-       마찰까지 붙어, 같은 거리라도 느린 샷은 창이 먼저 닫힌다 — 시킨 대로
-       눌렀는데 실패하고 별빛까지 흩어진다. 접점까지 남은 시간으로 잡아
-       어떤 속도에서도 누른 뒤가 창 안에 들어오게 한다. */
-    const reach = Math.max(0, distance - (gate.r + ball.r));
-    if (reach / closing < TEACH_PARRY_LEAD) beginTeachingHold("parry");
-  }
-});
-// 요구한 입력이 오면 푼다. 입력 자체는 평소 핸들러가 처리하므로 여기서는
-// 판을 다시 돌리기만 한다. 캡처 단계에서 먼저 받아 정지를 즉시 걷는다.
-addEventListener(
-  "pointerdown",
-  (e) => {
-    if (teachingHold()?.kind === "steer" && (e.button === 0 || e.button === 2))
-      endTeachingHold();
-  },
-  true,
-);
-addEventListener(
-  "keydown",
-  (e) => {
-    if (e.code === "Space" && !e.repeat && teachingHold()?.kind === "parry")
-      endTeachingHold();
-  },
-  true,
-);
+   걷어낸 것은 2단계의 접점 직전 정지였다. AUTO_PARRY가 켜지면서
+   requestTrainingParry가 첫 줄에서 false로 돌아가 «누를 것»이 사라졌는데,
+   정지만 남아 접점 0.18초 앞에서 판을 세우고 「지금이에요 — Space로 발사」를
+   띄우고 있었다. 이미 날아가는 중인 유성 앞에서 발사를 요구하는 화면이다.
+   핸드오프 §3-2가 지우라고 지목한 문자열이 정확히 이것이었다. */
 // Lessons 1-3 teach against an immortal colossus. Lesson 4 is the real kill,
 // so the battle setup asks this before it decides the boss pool.
 const ONBOARDING_FINAL_PHASE = 3;
@@ -323,11 +277,9 @@ function setOnboardingPhase(phase) {
     dialogue: 0,
     attempts: 0,
     bossHit: false,
-    steered: false,
     parrySuccess: false,
     figureResolved: false,
     parriedHero: null,
-    parryQueued: false,
     launched: finalLesson,
     settled: false,
     transitioning: false,
@@ -382,14 +334,13 @@ function beginOnboardingPractice() {
   onboarding.holdDone = null;
   onboarding.panelVisible = false;
   onboarding.launched = true;
-  onboarding.parryQueued = false;
   drag = null;
   renderOnboarding();
 }
 function continueOnboarding(action) {
   if (!onboarding) return;
   playSfx?.("confirm");
-  if (action === "learn-steer") return setOnboardingPhase(1);
+  if (action === "learn-aim") return setOnboardingPhase(1);
   if (action === "learn-parry") return setOnboardingPhase(2);
   if (action === "final-battle")
     return setOnboardingPhase(ONBOARDING_FINAL_PHASE);
@@ -448,7 +399,7 @@ function renderOnboarding() {
           : retried
             ? "괜찮아요, 다음으로"
             : "다시 시도",
-        action: onboarding.bossHit || retried ? "learn-steer" : "practice",
+        action: onboarding.bossHit || retried ? "learn-aim" : "practice",
       },
     ],
     [
@@ -562,11 +513,9 @@ function showOnboardingTutorial(replay = false) {
     replay,
     returnParty,
     bossHit: false,
-    steered: false,
     parrySuccess: false,
     figureResolved: false,
     parriedHero: null,
-    parryQueued: false,
     launched: false,
     settled: false,
     transitioning: false,
@@ -630,36 +579,6 @@ registerRuntimeHook("afterDirectBossDamage", () => {
   // Record only.  The lesson card advances when the player presses the button.
   if (onboarding?.phase === 0) onboarding.bossHit = true;
 });
-registerRuntimeHook("afterMeteorSteer", () => {
-  if (onboarding?.phase === 1) onboarding.steered = true;
-});
-/* 조향 수업의 지정 항로. 보스에서 비켜난 점이라 꺾어야 의미가 생긴다. 안내
-   오버레이와 발사 고정이 같은 점을 봐야 하므로 한 곳에서만 정의한다. */
-function steerLessonRouteTarget() {
-  return { x: boss.x + 145, y: boss.y + 85, r: 34, col: "#8ee7ff" };
-}
-/* 판이 멈추는 «그 자리». 실화면 확인(scripts/probe-steer-lesson.mjs)에서 정지
-   시점의 유성은 항로 링에서 185px — 링 반지름 5.4개 — 떨어져 있었다. 화면에는
-   도달하지 못한 링만 남으므로 「구역 도착 전에 멈췄다」로 읽힌다. 제보가 두 번
-   같은 말이었다.
-
-   정지 지점을 늦추는 것은 답이 아니다. 조향은 «도착하기 전»에 눌러야 뜻이 있고,
-   링에 붙여 세우면 꺾인 뒤를 보여 줄 항로가 남지 않는다. 대신 멈출 자리를 미리
-   그린다 — 그러면 유성은 표시된 곳에 정확히 도착해서 멈춘다.
-
-   발사석은 수업 동안 고정이라(startShot(battle.tutorial ? null : ...)) 그
-   좌표가 항로의 시작점이다 — game-session.js가 매 샷 `x: W / 2, y: LAUNCH_Y`로
-   세우는 그 자리다. */
-function steerLessonHoldPoint() {
-  const route = steerLessonRouteTarget(),
-    t = TEACH_STEER_ROUTE_FRACTION;
-  return {
-    x: W / 2 + (route.x - W / 2) * t,
-    y: LAUNCH_Y + (route.y - LAUNCH_Y) * t,
-    r: 26,
-    col: "#ffe6a1",
-  };
-}
 registerRuntimeHook(
   "resolveBilliardAim",
   ({ dx, dy }) => {
@@ -694,20 +613,14 @@ registerRuntimeHook(
   },
   { priority: 100 },
 );
-registerRuntimeHook("assistParryRequest", () => {
-  if (onboarding?.phase !== 2 || !ball?.moving) return false;
-  onboarding.parryQueued = true;
-  return true;
-});
-registerRuntimeHook("afterParryRequest", () => {
-  if (onboarding?.parrySuccess) onboarding.parryQueued = false;
-});
-function takeOnboardingParryAssist() {
-  if (onboarding?.phase !== 2 || !onboarding.parryQueued) return false;
-  onboarding.parryQueued = false;
-  return true;
-}
-registerRuntimeHook("consumeParryAssist", takeOnboardingParryAssist);
+/* 2026-08-21: assistParryRequest·afterParryRequest·consumeParryAssist의
+   온보딩 쪽 훅을 걷었다. 셋 다 「수업 중에 누른 Space를 접점까지 기억한다」는
+   보조였는데, requestTrainingParry가 autoParryOn()에서 즉시 false로 돌아가
+   assistParryRequest가 아예 발화하지 않는다. 그래서 parryQueued는 영원히
+   false였고 consumeParryAssist의 온보딩 응답도 항상 false였다 — 매 공명마다
+   훅을 한 번씩 도는 값만 남아 있었다.
+   afterParryContact는 남긴다. 자동 공명에서도 실제로 불리며, 「이 수업의
+   공명이 일어났다」를 관찰하는 유일한 자리다(E2E가 읽는다). */
 registerRuntimeHook("afterParryContact", ({ gate }) => {
   if (onboarding?.phase !== 2) return;
   onboarding.parrySuccess = true;
@@ -1201,38 +1114,18 @@ function drawOnboardingGuide() {
     onboarding.phase === ONBOARDING_FINAL_PHASE
   )
     return;
-  const phase = onboarding.phase;
-  if (ball.moving) {
-    /* 1단계 항로 링·정지 링은 걷었다(2026-08-21). 조향 수업의 것이라
-       「이 항로로 쏘라」와 「여기서 멈춘다」를 약속했는데, 이제 그 단계는
-       노드 조준이라 항로를 강제하지도 비행 중에 세우지도 않는다. 지키지
-       못할 약속을 그리는 것이 제보의 원인이었다. */
-    if (phase === 2 && !onboarding.parrySuccess) {
-      const target = gates[0];
-      if (target) {
-        x.save();
-        x.strokeStyle = target.col;
-        x.fillStyle = "#fff0bd";
-        x.shadowBlur = combatFxBlur(11);
-        x.shadowColor = target.col;
-        x.lineWidth = 2;
-        x.beginPath();
-        x.arc(target.x, target.y, target.r + 12, 0, Math.PI * 2);
-        x.stroke();
-        x.textAlign = "center";
-        x.font = "bold 10px Galmuri11, ui-monospace";
-        x.fillText(
-          "항로 고정 · 지금 Space",
-          target.x,
-          target.y - target.r - 20,
-        );
-        x.restore();
-      }
-    }
-    return;
-  }
-  const target =
-    phase === 0 ? boss : phase === 1 ? steerLessonRouteTarget() : gates[0];
+  /* 이 안내는 이제 0단계(끌어서 발사) 전용이다.
+
+     2026-08-21: 1·2단계 그림을 걷었다. 둘 다 조향·패링 수업의 어휘였다 —
+     1단계는 「먼저 이 항로로 발사」 링, 2단계는 「항로 고정 · 발사 후 Space」
+     링, 그리고 두 단계 모두 「여기서 아래로 당기기」 손가락. 그런데 그 두
+     단계가 지금 가르치는 손은 «노드를 찍고 Space»이고, 그 화면의 주인은
+     drawAimStars다(노드·픽 슬롯·벌림 폴리곤·위력 게이지). 그 위에 끌기
+     손가락까지 얹히면 가르치는 입력이 둘이 되고, 그중 하나는 이 단계의
+     입력이 아니다 — 1단계 항로 강제를 걷을 때와 같은 종류의 어긋남이다.
+     0단계에는 아직 노드가 없어 끌기가 유일한 조준이므로 그대로 둔다. */
+  if (onboarding.phase !== 0 || ball.moving) return;
+  const target = boss;
   x.save();
   x.lineWidth = 1.5;
   x.setLineDash([5, 5]);
@@ -1245,23 +1138,15 @@ function drawOnboardingGuide() {
     x.lineTo(target.x, target.y);
     x.stroke();
     x.setLineDash([]);
-    x.strokeStyle = phase === 0 ? "#f2a48d" : target.col || "#ffe6a1";
+    x.strokeStyle = "#f2a48d";
     x.lineWidth = 2;
     x.beginPath();
-    x.arc(target.x, target.y, phase === 0 ? 72 : 35, 0, Math.PI * 2);
+    x.arc(target.x, target.y, 72, 0, Math.PI * 2);
     x.stroke();
     x.fillStyle = "#fff0bd";
     x.font = "bold 10px Galmuri11, ui-monospace";
     x.textAlign = "center";
-    x.fillText(
-      phase === 0
-        ? "직격 목표"
-        : phase === 1
-          ? "먼저 이 항로로 발사"
-          : "항로 고정 · 발사 후 Space",
-      target.x,
-      target.y - 44,
-    );
+    x.fillText("직격 목표", target.x, target.y - 44);
     const distance = Math.hypot(target.x - ball.x, target.y - ball.y) || 1;
     const pullX = -(target.x - ball.x) / distance;
     const pullY = -(target.y - ball.y) / distance;

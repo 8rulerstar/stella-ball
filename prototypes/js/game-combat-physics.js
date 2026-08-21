@@ -1050,14 +1050,13 @@ function drawAimGuide() {
 }
 registerRuntimeHook("afterDraw", function drawSteerPrompt() {
   if (!run || battle?.victory || !ball?.moving) return;
-  /* 조향 수업은 같은 말을 자기 어휘로 이미 세 군데에 그린다 — 유성 양옆의
-     방향 화살표, 정지 큐의 「좌클릭 ↶ · 우클릭 ↷」, 화면 아래 배너. 그 위에
-     이 일반 안내까지 얹히면 유성 둘레 27px 자리에서 글자와 화살표가 겹쳐
-     통째로 뭉갠다(scripts/probe-steer-lesson.mjs의 실화면). 수업이 안내를
-     맡는 동안에는 물러난다. */
+  /* 수업 카드가 화면의 주인인 동안에는 물러난다. 세 수업이 각각 「아래로
+     끌기」·「셋 찍고 Space」·「Space 한 번」을 요구하는데, 그 위에 이 안내가
+     유성 둘레 27px 자리에 얹히면 지금 눌러야 할 것이 둘로 보인다.
+     마지막 실전은 캠페인과 같은 판이므로 그대로 낸다. */
   if (
-    typeof isOnboardingSteerGuided === "function" &&
-    isOnboardingSteerGuided()
+    typeof isOnboardingLessonPhase === "function" &&
+    isOnboardingLessonPhase()
   )
     return;
   const flash = ball.steerFlash || 0;

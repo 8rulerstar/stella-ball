@@ -237,9 +237,10 @@ const AUTO_PARRY = true;
 /* 2026-08-21 결정 6: 수업 한정 우회를 걷었다 — 수업도 실전과 같은 규칙
    (자동 공명·별빛 경제)으로 돈다. 새 3실습 수업이 같은 커밋에 들어가고,
    E2E(scripts/test-onboarding-e2e.mjs)는 새 여정으로 교체한다. */
-function onboardingRunning() {
-  return Boolean(StellaRuntime.modules.optional("onboarding")?.isActive());
-}
+/* 2026-08-21: `onboardingRunning()`을 걷었다. 이 함수의 유일한 일은
+   AUTO_PARRY·NODE_ECONOMY를 수업 중에만 꺼서 옛 규칙을 돌리는 것이었는데,
+   그 우회는 온보딩 재작성(4a0c8a0)에서 이미 제거돼 아무도 부르지 않는 채로
+   남아 있었다. 수업과 캠페인은 같은 규칙으로 돈다. */
 function autoParryOn() {
   return AUTO_PARRY;
 }
