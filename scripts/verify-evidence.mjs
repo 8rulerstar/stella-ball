@@ -166,6 +166,49 @@ if (missingExpandedAnimations.length > 0) {
   );
 }
 
+/* 한글 범위 표기가 취소선으로 바뀌는 것을 잡는다.
+   `10~11px` 처럼 쓴 물결표 두 개가 한 줄에 있으면 GFM 은 그 사이를
+   취소선으로 읽는다. 그리고 prettier 3.9.6 은 그 «해석»을 파일에 굳혀
+   `10~~11px` 로 바꿔 쓴다 — package.json 은 3.5.3 을 고정하지만, 고정을
+   빼고 `npx prettier --write .` 를 돌리면 최신판이 실행되어 문서 여러 개가
+   한꺼번에 상한다. 실제로 그렇게 24곳이 상했고, 표 안에서는 사이에 낀
+   `**굵게**` 까지 같이 깨졌다.
+   의도한 취소선(`~~지난 계획~~`)은 양옆이 공백이라 걸리지 않는다. */
+const RANGE_STRIKE = /(?<=[^\s~])~~(?=[^\s~])/;
+/* 이 둘은 오너가 관리하는 기록 파일이라 이 검사가 고치지 않는다.
+   경고만 하고 통과시킨다 — 손대지 않기로 한 파일을 게이트가 막으면
+   게이트를 끄게 된다. */
+const OWNER_OWNED = new Set(["DEVLOG.md", "CODEX_COLLABORATION.md"]);
+const trackedDocs = execFileSync("git", ["ls-files", "*.md"], {
+  cwd: root,
+  encoding: "utf8",
+})
+  .split("\n")
+  .filter(Boolean);
+/* GFM 은 코드 스팬 안에서 취소선을 적용하지 않는다. 그러니 검사도 빼야
+   한다 — 안 그러면 이 규칙을 «설명하는» 문서가 자기 예시에 걸린다. */
+const withoutCode = (line) => line.replace(/`[^`]*`/g, "");
+const strikeHits = [];
+const ownerHits = [];
+for (const doc of trackedDocs) {
+  const lines = readFileSync(resolve(root, doc), "utf8").split("\n");
+  lines.forEach((line, i) => {
+    if (!RANGE_STRIKE.test(withoutCode(line))) return;
+    (OWNER_OWNED.has(doc.split("/").pop()) ? ownerHits : strikeHits).push(
+      `${doc}:${i + 1}`,
+    );
+  });
+}
+if (ownerHits.length)
+  console.warn(
+    `주의 — 범위 표기가 취소선으로 굳은 자리(오너 파일이라 두었다): ${ownerHits.join(", ")}`,
+  );
+if (strikeHits.length)
+  throw new Error(
+    `범위 표기가 취소선이 됐습니다(«3~5» 가 «3~~5» 로): ${strikeHits.join(", ")}\n` +
+      `물결표를 하나로 되돌리고, 포맷은 반드시 고정 버전으로 — npm run format`,
+  );
+
 try {
   execFileSync("git", ["diff", "--check"], { cwd: root, stdio: "pipe" });
 } catch (error) {

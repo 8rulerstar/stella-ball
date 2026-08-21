@@ -246,7 +246,7 @@
 
 ### [반입 완료] P1 — 별자리별 발동 연출과 도형 실루엣
 
-**2026-08-13 반입.** 3~~5점 실루엣 5종(`assets/library/constellations/`)과 궤적·교정·현현·발동 연출을 별자리 런타임에 붙였다. 현재 정의·인식은 `game-figure-recognition.js`, 능력·연출은 `game-figure.js`가 소유한다. 성공한 `Space` 패링의 유성-별지기 접점이 고정 별빛 노드가 되며, 3–7개 노드가 별자리를 만든다. 규격·좌표 규약은 [ASSET_PLAN.md](ASSET_PLAN.md)의 「별자리 실루엣 규약」, 3~~5점 사양서는 [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md), 6·7점은 [FIGURE_ART_SPEC_6_7.md](FIGURE_ART_SPEC_6_7.md)다. 오망성은 기존 전용 연출을 쓰므로 실루엣을 만들지 않았다. 아래는 최초 접수 기록이다.
+**2026-08-13 반입.** 3~5점 실루엣 5종(`assets/library/constellations/`)과 궤적·교정·현현·발동 연출을 별자리 런타임에 붙였다. 현재 정의·인식은 `game-figure-recognition.js`, 능력·연출은 `game-figure.js`가 소유한다. 성공한 `Space` 패링의 유성-별지기 접점이 고정 별빛 노드가 되며, 3–7개 노드가 별자리를 만든다. 규격·좌표 규약은 [ASSET_PLAN.md](ASSET_PLAN.md)의 「별자리 실루엣 규약」, 3~5점 사양서는 [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md), 6·7점은 [FIGURE_ART_SPEC_6_7.md](FIGURE_ART_SPEC_6_7.md)다. 오망성은 기존 전용 연출을 쓰므로 실루엣을 만들지 않았다. 아래는 최초 접수 기록이다.
 
 **2026-08-13 6·7점 반입.** 오리온자리(6점)·북두칠성(7점) 실루엣 2종을 `assets/library/constellations/`에 넣고 `game-figure-recognition.js`의 `art`를 연결했다. 재생성은 `scripts/generate_constellation_art_6_7.mjs`. 미정이던 세 항목을 확정했다 — 오리온은 전신, 사이프는 반투명 암시, 북두칠성은 국자만. 반입 시점에는 `maxNodes`가 5라 볼 수 없었으나, 같은 날 패링 통합이 7로 올리면서 **일곱 계층 전부 실제로 발동한다.**
 
