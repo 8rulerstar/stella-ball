@@ -44,6 +44,13 @@ function setScene(scene) {
 // Long names scroll rather than being clipped.  Called after a screen renders;
 // only elements whose content actually overflows get the animation, and the
 // duration scales with the distance so every name reads at the same speed.
+/* 읽기-쓰기를 분리해 보았다가 되돌렸다(2026-08-21). 한 루프 안에서
+   scrollWidth를 읽고 곧바로 클래스를 쓰면 동기 리플로우를 강제한다는
+   것은 맞지만, 이 화면의 마퀴는 7개뿐이라 실측에서 이득이 없었다 —
+   40회 반복에 교차 0.4ms 대 분리 0.5ms로, 배열을 하나 더 만드는 쪽이
+   오히려 근소하게 느렸다. 이 저장소의 규칙대로(PROJECT_CONTEXT 성능 절)
+   측정이 이득을 보이지 않는 최적화는 넣지 않는다. 마퀴가 수십 개로
+   늘어나면 그때 다시 재고 바꾼다. */
 function applyMarquees(root = document) {
   for (const el of root.querySelectorAll(".marquee")) {
     const inner = el.firstElementChild;

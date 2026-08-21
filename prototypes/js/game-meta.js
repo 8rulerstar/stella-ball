@@ -61,12 +61,16 @@ function showSettings(onBack) {
   for (const key of ["master", "bgm", "sfx"]) {
     const input = document.querySelector("#setting-" + key),
       output = document.querySelector("#setting-" + key + "-value");
+    /* 끄는 동안에는 «들리게»만 하고, 저장은 놓을 때 한 번이다. 예전에는
+       input마다 JSON.stringify + 동기 localStorage 쓰기와 AudioContext
+       resume이 함께 돌아, 슬라이더를 끄는 내내 초당 수십 번의 저장이
+       일어났다. 값과 표시는 즉시 따라가므로 손끝 감각은 그대로다. */
     input.oninput = () => {
       settings[key] = Number(input.value);
       output.textContent = Math.round(settings[key] * 100) + "%";
       ensureAudio();
-      saveSettings();
     };
+    input.onchange = () => saveSettings();
   }
   /* 「기본값으로」는 음량·언어만 되돌린다. 이 버튼은 저장된 것을 전부 지워
      처음 켠 브라우저와 같은 상태로 만든다 — 프롤로그와 온보딩을 다시 보려면
