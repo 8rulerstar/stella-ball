@@ -231,8 +231,12 @@ const onboardingLayouts = [
       [360, 480],
     ],
   },
+  /* 가운데(발사 항로 위) 자리는 가온이다(2026-08-21, 오너 지시). 파티 순서가
+     슬롯 순서 그대로라, STARTER 순서를 쓰면 마지막의 윤슬(관통)이 가운데에
+     섰다 — 첫 공명 시범을 받는 얼굴은 시작 검사 가온이어야 한다. 2단계는
+     첫 슬롯이 가운데라 STARTER 순서 그대로 가온이 선다. */
   {
-    party: [...STARTER_HERO_IDS],
+    party: ["ria", "biyeon", "gaon"],
     slots: [
       [230, 400],
       [490, 400],
@@ -248,7 +252,7 @@ const onboardingLayouts = [
     ],
   },
   {
-    party: [...STARTER_HERO_IDS],
+    party: ["ria", "biyeon", "gaon"],
     slots: [
       [270, 392],
       [450, 392],
