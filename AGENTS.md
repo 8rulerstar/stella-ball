@@ -53,8 +53,10 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Eleven probes drive a real Chromium over CDP the way the onboarding E2E does. None
-is wired into a gate; run them by hand when the question is about the screen.
+Fourteen probes drive a real Chromium over CDP the way the onboarding E2E does. None
+is wired into a gate; run them by hand when the question is about the screen. Each
+file's header names the ways that probe has actually been read wrong - four probes
+gave confidently wrong answers in one night before those notes existed.
 
 - `node scripts/profile-frames.mjs` - frame times and the composited layer structure.
 - `node scripts/probe-settle-cost.mjs` - the frame cost of a settlement chain.
@@ -72,16 +74,33 @@ is wired into a gate; run them by hand when the question is about the screen.
 - `node scripts/probe-campaign-clearable.mjs` - whether the worst possible hand
   still clears each world (win is scheduleWin, not battleComplete - a loss sets
   that too).
-- `node scripts/probe-session-churn.mjs` - what accumulates over a long session
+- `node scripts/probe-session-churn.mjs` - what accumulates as you cross *screens*
   (nodes, listeners, canvases, animations, heap) with a forced-GC reading. A
-  single jump is not a leak; only monotonic growth after GC is.
+  single jump is not a leak; only monotonic growth after GC is. It never enters a
+  battle, so anything that piles up shot by shot is invisible to it - that is the
+  next line's job.
+- `node scripts/probe-session-leak.mjs` - what accumulates *inside* battles, shot
+  by shot: fx arrays, speech and toast queues, sfx pools, live timers and their
+  call sites, runtime hooks. Counts, not frame times, because counts do not wobble
+  under load.
+- `node scripts/probe-window-scale.mjs` - what gets more expensive as the window
+  grows. The canvas backbuffer is fixed at 720x900, so draw calls do not scale;
+  composited *area* does.
+- `node scripts/probe-overdraw.mjs` - how many full-viewport layers are actually
+  painted, at the title and mid-battle. Baseline 2026-08-22: 12 layers / 9.8
+  screens at the title, 11 / 9.62 in battle, with no meta-screen cover left
+  behind. Read the header first - two overlays (the battle cinematic and the
+  outer-observer intro) each make every reading say "something is covering the
+  board" if you measure while they run.
 - `node scripts/probe-aim-supply.mjs` - whether node aiming earns its own starlight
   back (results vary run to run; read the range, not one cell).
 - `node scripts/probe-aim-nodes.mjs` - the node-aiming rules (starkeeper floor, 3-pick
   minimum, centroid direction, starkeeper non-burn) plus the direction-freedom menu.
 
 New probes build on `scripts/lib/probe-harness.mjs` instead of copying the
-Chromium/CDP boilerplate; the older four predate it and still carry their own.
+Chromium/CDP boilerplate; five predate it and still carry their own
+(`probe-session-leak`, `probe-settle-cost`, `probe-sky-guests`,
+`probe-window-scale`, `profile-frames`). Its `errors` is an array, not a function.
 
 `node bot/run-bot.mjs` regenerates `bot/latest-report.json`. The harness is
 deterministic - the same code twice gives byte-identical output - so a diff in

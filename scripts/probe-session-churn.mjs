@@ -13,6 +13,10 @@
  * 2026-08-21 기준선(왕복 10회 + 타이틀 10회): 리스너 30 -> 71에서 멈추고
  * GC 뒤에도 71, 캔버스 12 고정, 애니메이션 17~22, 힙 2~3MB. 누수 없음.
  *
+ * 이름이 비슷한 probe-session-leak.mjs 와 재는 축이 다르다. 여기는 «화면을
+ * 오간다»가 축이라 전투에 아예 안 들어간다 — 샷마다 쌓이는 것(이펙트 배열,
+ * 대사·토스트 큐, 효과음 풀, 살아 있는 타이머)은 그쪽에서 잰다.
+ *
  *   node scripts/probe-session-churn.mjs
  */
 import { setTimeout as delay } from "node:timers/promises";
