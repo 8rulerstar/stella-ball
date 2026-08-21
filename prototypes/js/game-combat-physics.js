@@ -1124,6 +1124,17 @@ const aimTeach = {
   flipped: typeof aimHintDone === "function" && aimHintDone("flip"),
   shots: typeof aimHintDone === "function" && aimHintDone("legend") ? 3 : 0,
 };
+/* 찍는 순간의 플래시: 흰 고리가 바깥으로 번지며 사라진다. 별지기·별빛이
+   같은 언어를 쓰도록 한 곳에 둔다 — 지속(0.3초)·번짐 폭을 손보면 양쪽이
+   같이 움직인다. */
+function drawPickFlash(host, cx, cy, baseR, fxDt) {
+  if (!(host.pickFlash > 0)) return;
+  host.pickFlash = Math.max(0, host.pickFlash - fxDt);
+  const fk = host.pickFlash / 0.3;
+  x.globalAlpha = fk;
+  stepRing(cx, cy, baseR + (1 - fk) * 19, "#ffffff", 3, 3);
+  x.globalAlpha = 1;
+}
 function drawAimStars() {
   if (!run || battle?.victory || ball?.moving || !aimStarReady()) return;
   if (introProgress() < 1) return;
@@ -1139,7 +1150,6 @@ function drawAimStars() {
     typeof onboardingLessonGuideActive === "function" &&
     onboardingLessonGuideActive();
   const nodes = aimNodes(),
-    unitCount = nodes.length - aimStars.length,
     preview = aimStarPreview(),
     // 맥동. 지금이 «고르는 시간»이라는 것이 가만히 있어도 읽혀야 한다.
     pulse = 0.5 + 0.5 * Math.sin(frameClock / 260);
@@ -1157,32 +1167,19 @@ function drawAimStars() {
     x.globalAlpha = 1;
   }
 
-  // 별자리 후보 = 고르지 않은 «별빛»만. 별지기 노드는 태울 수 없으므로
-  // 세지 않는다. (아래 노드 루프와 HUD도 이 값을 쓴다.)
+  /* 어느 노드가 찍혔는지는 «객체 정체성»으로 판단한다. 인덱스 산술
+     (i >= unitCount)은 units-first 배열 계약을 이 파일에 한 번 더 새기는
+     일이라, 노드 종류가 하나 늘면 조용히 어긋난다 — launchAimStarShot의
+     소각 판정과 같은 방식으로 맞춘다. */
+  const pickedNodes = new Set();
+  for (const i of aimPick) if (nodes[i]) pickedNodes.add(nodes[i]);
+  // 별자리 후보 = 고르지 않은 «별빛»만. 별지기 노드는 태울 수 없다.
   let pickedStars = 0;
-  for (const i of aimPick) if (i >= unitCount) pickedStars++;
+  for (const s of aimStars) if (pickedNodes.has(s)) pickedStars++;
   const restCount = aimStars.length - pickedStars;
-  /* 함께 탈 별빛들을 잇는 실. 「안 찍은 것들이 별자리가 된다」를 금색
-     고리(아래)만으로는 묶음으로 못 읽는다는 전제에서, 떨어진 순서대로
-     흐린 실로 이어 «이것들이 한 도형»임을 보인다. 실제 도형은 발동 때
-     뼈대 교정을 거치므로 여기서는 모양을 주장하지 않고 잇기만 한다. */
-  if (restCount >= 3) {
-    x.strokeStyle = "#ffd27f";
-    x.globalAlpha = 0.22;
-    x.setLineDash([3, 5]);
-    x.lineWidth = 1.5;
-    x.beginPath();
-    let moved = false;
-    for (let i = 0; i < aimStars.length; i++) {
-      if (aimPick.includes(unitCount + i)) continue;
-      const s = aimStars[i];
-      moved ? x.lineTo(s.x, s.y) : x.moveTo(s.x, s.y);
-      moved = true;
-    }
-    x.stroke();
-    x.setLineDash([]);
-    x.globalAlpha = 1;
-  }
+  /* (남은 별빛을 잇는 실은 아래 1e-5 블록 하나가 그린다 — 같은 폴리라인이
+     두 대시 패턴으로 겹쳐 그려져, 흐리게 설계한 실이 두 배로 밝아지고
+     매 프레임 스트로크를 두 번 내던 중복을 걷었다.) */
   /* 고른 노드를 순서대로 잇는 실. 조준이 «세 점으로 도형을 긋는 일»이라는
      것이 손끝에서 보인다 - 넓게 그리면 세다는 규칙도 이 실의 크기로 읽힌다. */
   if (aimPick.length >= 2) {
@@ -1478,14 +1475,7 @@ function drawAimStars() {
       );
       // 1e-4(결정 4): 별지기는 «궤도» 이중 고리 — 별빛과 같은 물건이 아니다.
       stepRing(node.x, node.y, rr + 6, node.col + "22", 3, 2);
-      // 찍는 순간의 플래시: 흰 고리가 바깥으로 번지며 사라진다.
-      if (g.aimFlash > 0) {
-        g.aimFlash = Math.max(0, g.aimFlash - fxDt);
-        const fk = g.aimFlash / 0.3;
-        x.globalAlpha = fk;
-        stepRing(node.x, node.y, g.r + 8 + (1 - fk) * 20, "#ffffff", 3, 3);
-        x.globalAlpha = 1;
-      }
+      drawPickFlash(g, node.x, node.y, g.r + 8, fxDt);
       chipY = node.y - g.r - 20;
     } else {
       const star = node;
@@ -1507,14 +1497,7 @@ function drawAimStars() {
         stepRing(star.x, star.y, r + 8, "#ffd27f55", 3, 2);
       if (picked || hovered)
         stepRing(star.x, star.y, r + 6, picked ? "#ffffff" : "#ffffff88", 3, 3);
-      // 찍는 순간의 플래시 - 별지기와 같은 언어.
-      if (star.pickFlash > 0) {
-        star.pickFlash = Math.max(0, star.pickFlash - fxDt);
-        const fk = star.pickFlash / 0.3;
-        x.globalAlpha = fk;
-        stepRing(star.x, star.y, r + 8 + (1 - fk) * 18, "#ffffff", 3, 3);
-        x.globalAlpha = 1;
-      }
+      drawPickFlash(star, star.x, star.y, r + 8, fxDt);
       chipY = star.y - r - 16;
     }
     if (!picked && hovered) {
@@ -1654,10 +1637,13 @@ function drawAimStars() {
    무관한 사건처럼 읽힌다. 조준 화면(drawAimStars)은 유성이 구르면
    돌지 않으므로 따로 그린다. */
 function drawAimLaunchFx() {
-  if (!aimLaunchFx || !run) {
-    if (aimLaunchFx && !run) aimLaunchFx = null;
+  // 판이 닫히면(패배 등 run=false) 남은 연출을 버린다 — 다음 판 위에서
+  // 재생되면 안 된다. 조건 둘을 한 부정식에 겹치면 이 규칙이 숨는다.
+  if (!run) {
+    aimLaunchFx = null;
     return;
   }
+  if (!aimLaunchFx) return;
   const fx = aimLaunchFx;
   fx.t -= aimFxDelta();
   if (fx.t <= 0) {

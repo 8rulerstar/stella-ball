@@ -1036,7 +1036,9 @@ registerRuntimeHook("afterBattleSetup", ({ stage, battle: activeBattle }) => {
   sync();
 });
 registerRuntimeHook("afterShotEnd", () => {
-  if (run && battle && !battle.training) {
+  // 수업(battle.tutorial)에서는 루나의 교습 문구가 HUD의 주인이다 —
+  // 캠페인 안내가 실습 한 발마다 그 자리를 덮어쓰면 안 된다.
+  if (run && battle && !battle.training && !battle.tutorial) {
     msg =
       "다음 유성을 준비하세요. 공명 접점과 남은 배치에서 항로를 다시 설계하세요.";
     sync();
@@ -1287,8 +1289,10 @@ function drawOnboardingGuide() {
        함께 남긴다 — 만지라는 뜻이 아니라 «남길 것»이라는 뜻이다. */
     const holes = [{ x: ball.x, y: ball.y, r: 88 }];
     for (const g of gates) holes.push({ x: g.x, y: g.y, r: 72 });
-    if (phase === 2)
-      for (const s of aimStars) holes.push({ x: s.x, y: s.y, r: 46 });
+    /* 별빛 구멍은 2단계 전유물이 아니다 — 1단계 재시도 판에는 공명이 남긴
+       별빛이 있고, 재시도 카드도 「별지기나 별빛을 셋 찍으면」이라고
+       가르친다. 문안이 가리키는 것을 어둠이 숨기면 안 된다. */
+    for (const s of aimStars) holes.push({ x: s.x, y: s.y, r: 46 });
     const ready = aimPick.length >= AIM_STAR.minPick;
     drawLessonDim(holes, ready ? 0.4 : 0.58);
     if (!ready) {
@@ -1320,31 +1324,12 @@ function drawOnboardingGuide() {
   x.restore();
 }
 registerRuntimeHook("afterDraw", drawOnboardingGuide);
-// The lesson card yields to the table: while the meteor flies, starkeepers
-// roll or wake-up bursts play, it steps down so the action stays in view.
-function onboardingTableLive() {
-  if (!onboarding || !run || !ball) return false;
-  if (Math.hypot(ball.vx || 0, ball.vy || 0) > 40) return true;
-  if (gates.some((g) => Math.hypot(g.vx || 0, g.vy || 0) > 40)) return true;
-  if (typeof abilityBursts !== "undefined" && abilityBursts.length) return true;
-  return Boolean(battle?.victory);
-}
-registerRuntimeHook("afterFeedbackUpdate", () => {
-  /* 이 훅은 매 프레임 돈다. 예전에는 아무 가드가 없어서 캠페인·훈련장에서도
-     문서 전체를 뒤져 있지도 않은 `.onboarding-card`를 찾고 있었다. 수업이
-     아닐 때는 첫 줄에서 나간다. */
-  if (!onboarding || onboarding.panelVisible !== false) return;
-  const card = onboardingCardNode();
-  if (card) card.classList.toggle("table-live", onboardingTableLive());
-});
-/* 카드 노드를 프레임마다 새로 찾지 않는다. renderOnboarding이 카드를 다시
-   만들 때만 캐시가 어긋나므로, 붙어 있지 않으면 그때 한 번 다시 찾는다. */
-let onboardingCardCache = null;
-function onboardingCardNode() {
-  if (onboardingCardCache?.isConnected) return onboardingCardCache;
-  onboardingCardCache = document.querySelector(".onboarding-card");
-  return onboardingCardCache;
-}
+/* 「카드가 판에 자리를 내준다」(table-live) 장치는 걷었다. 재작성 뒤
+   카드는 panelVisible이 false인 순간 DOM에서 제거되므로, «카드가 떠 있는
+   채로 판이 움직이는» 상태 자체가 없다 — 매 프레임 있지도 않은 카드를
+   찾아 클래스를 토글하던 사문이었다. 카드가 판 위에 남는 설계가 돌아오면
+   d99a6a5 이전 판을 참고해 다시 단다. */
+
 registerRuntimeHook("afterSpecialDraw", () => {
   const v = battle?.victory;
   if (!v || !boss) return;

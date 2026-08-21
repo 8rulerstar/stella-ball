@@ -340,6 +340,9 @@ for (let angle = 0; angle < Math.PI * 2; angle += 0.035)
   STEP_RING_DIRECTIONS.push([Math.cos(angle), Math.sin(angle)]);
 const STEP_RING_COUNTS = new Map(),
   STEP_RING_BUCKETS = Array.from({ length: 16 }, () => []);
+// 호출마다 정규식 리터럴을 다시 만들지 않는다 — 폰트 세터가 같은 이유로
+// 패턴을 호이스팅한 전례(UI_MONOSPACE_PATTERN) 그대로다.
+const STEP_RING_ALPHA_COL = /^#[0-9a-f]{8}$/i;
 const stepRingAlphaHex = (alpha) =>
   Math.max(0, Math.min(255, Math.round(alpha * 255)))
     .toString(16)
@@ -354,9 +357,10 @@ function stepRing(cx, cy, r, col, step = 3, thick = 3) {
       key = px * 2048 + py;
     STEP_RING_COUNTS.set(key, (STEP_RING_COUNTS.get(key) || 0) + 1);
   }
-  for (const [key, count] of STEP_RING_COUNTS)
-    STEP_RING_BUCKETS[Math.min(15, count)].push(key);
-  const hasAlpha = /^#[0-9a-f]{8}$/i.test(col),
+  STEP_RING_COUNTS.forEach((count, key) =>
+    STEP_RING_BUCKETS[Math.min(15, count)].push(key),
+  );
+  const hasAlpha = STEP_RING_ALPHA_COL.test(col),
     sourceAlpha = hasAlpha ? parseInt(col.slice(7, 9), 16) / 255 : 1,
     base = hasAlpha ? col.slice(0, 7) : col,
     previousAlpha = x.globalAlpha,

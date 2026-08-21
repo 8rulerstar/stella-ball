@@ -604,8 +604,8 @@ function pickAimStar(index) {
   if (node) {
     /* 찍는 순간의 플래시. 별지기는 게이트 객체에, 별빛은 별빛 객체에 남긴다 —
        별지기 래퍼는 aimNodes()가 매번 새로 만들어 상태를 못 든다. */
-    if (node.unit) node.unit.aimFlash = 0.3;
-    else node.pickFlash = 0.3;
+    // 별지기는 래퍼가 매 프레임 새로 만들어지므로 실제 게이트 객체에 싣는다.
+    (node.unit || node).pickFlash = 0.3;
     addPopup(
       node.x,
       node.y - (node.unit ? 44 : 30),
@@ -762,7 +762,7 @@ function dropWeakpointStars(count = WEAK_STAR_COUNT) {
   if (typeof nodeEconomyOn === "function" && !nodeEconomyOn()) return;
   for (let i = 0; i < count; i++) {
     weakStarSeq += 1;
-    const a = weakStarSeq * 2.39996,
+    const a = weakStarSeq * GOLDEN_ANGLE,
       r = 96 + ((weakStarSeq * 37) % 58);
     dropAimStar(
       clamp(boss.x + Math.cos(a) * r, 30, W - 30),
@@ -821,8 +821,7 @@ function aimNodes() {
     c.key === frameClock &&
     c.gatesRef === gates &&
     c.starsRef === aimStars &&
-    c.list.length ===
-      gates.length * (AIM_STAR.unitNodes ? 1 : 0) + aimStars.length
+    c.list.length === (AIM_STAR.unitNodes ? gates.length : 0) + aimStars.length
   )
     return c.list;
   const nodes = [];
@@ -1046,17 +1045,17 @@ function launchAimStarShot() {
   // 노드에 남긴 «방금 찍힘» 플래시도 여기서 끊는다. drawAimStars에서만
   // 감쇠하므로 비행 동안 얼었다가, 정산 뒤 자리가 바뀐 별지기 위에서
   // 유령처럼 재생됐다 — 순서 배지와 같은 낡은-상태 계열이다.
-  for (const g of gates) g.aimFlash = 0;
+  for (const g of gates) g.pickFlash = 0;
   for (const s of aimStars) s.pickFlash = 0;
   const fire = () => {
     /* 별자리 연출이 도는 사이 판이 끝났을 수 있다. 캐스트 피해가 보스를
        잡으면 scheduleWin이 battleComplete를 세우는데 afterCast는 그대로
        이어지므로, 여기서 삼키지 않으면 승리 컷신 중에 유성이 발사되고
        battle.shots가 줄어 결과 카드의 샷 수·메달이 틀어진다 — 발사 진입점
-       마다 걸어 둔 battleComplete 가드(포인터 경로 주석)와 같은 규칙이다. */
+       마다 걸어 둔 battleComplete 가드(포인터 경로 주석)와 같은 규칙이다.
+       픽 상태는 발사 «확정» 시점(위)에서 이미 비웠고, 연출이 도는 동안은
+       isCombatInputLocked가 재픽을 막으므로 여기서 다시 비울 것이 없다. */
     if (!battle || battleComplete || ball?.moving) return;
-    aimPick = [];
-    aimHover = -1;
     aimFlip = false;
     aimLaunchFx = {
       t: 0.42,

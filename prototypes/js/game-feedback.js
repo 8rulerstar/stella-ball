@@ -24,7 +24,7 @@ function pixelDustBurst(kind, px, py, col, power) {
     speed = (kind === "wall" ? 86 : kind === "riposte" ? 230 : 150) * power,
     base = pixelDustSerial++ * 0.754877666;
   for (let i = 0; i < count; i++) {
-    const angle = base + i * 2.39996323,
+    const angle = base + i * GOLDEN_ANGLE,
       spread = 0.42 + ((i * 37 + pixelDustSerial * 17) % 61) / 100,
       size = i % 7 === 0 ? 4 : i % 3 === 0 ? 3 : 2;
     pixelDust.push({
@@ -807,12 +807,16 @@ registerRuntimeHook(
     }
   },
 );
-registerRuntimeHook("afterPartySettle", ({ awakened, figureActive }) => {
+registerRuntimeHook("afterPartySettle", ({ awakened, afterFigure }) => {
   const finishers = awakened.filter((gate) => {
     const fx = gate.fx === "copycat" ? gate.copiedFx : gate.fx;
     return fx !== "bladewheel";
   });
-  if (awakened.length && !figureActive) {
+  /* «이번 샷에 별자리가 떴는가»(afterFigure)로 갈라야 한다. 예전 조건의
+     figureActive는 「별자리 시스템이 켜져 있는가」라 모든 정상 정산에서
+     참이었고, 정산 배너와 settlement 효과음이 한 번도 나가지 못했다 —
+     별자리가 뜬 샷만 자기 연출에 자리를 내주면 된다. */
+  if (awakened.length && !afterFigure) {
     settlementBeat = {
       t: 0,
       d: 0.92,

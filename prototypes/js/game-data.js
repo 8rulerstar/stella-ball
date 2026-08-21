@@ -1817,6 +1817,13 @@ let build,
 // impact frames even on the real Chromium probe. The same scene without that
 // kernel stayed below 17 ms. Geometry, colour, additive rings and flashes carry
 // the bloom vocabulary without making collisions depend on GPU acceleration.
+/* 결정론 흩뿌리기의 단일 상수. 약점 별빛(game-combat)과 픽셀 먼지
+   (game-feedback)가 같은 규칙 — 난수 없이 황금각으로 돌린다 — 을 쓰는데,
+   리터럴이 파일마다 다른 정밀도로 흩어져 있었다(2.39996 대 2.39996323).
+   값은 전투의 기존 리터럴을 그대로 쓴다 — 약점 별빛 좌표는 봇 리포트의
+   결정론 기준선이라, 정밀도만 올려도 «같은 코드 = 같은 바이트» 계약이
+   흔들린다. */
+const GOLDEN_ANGLE = 2.39996;
 function combatFxBlur(_amount) {
   return 0;
 }
