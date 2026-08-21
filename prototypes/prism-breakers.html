@@ -74,7 +74,17 @@
             <div class="combo-readout" id="comboText">COMBO —</div>
           </section>
           <section class="stage">
-            <canvas id="game" width="720" height="900"></canvas>
+            <!-- 캔버스에는 정체를 준다. 스크린리더에게 이 판은 지금까지
+                 «이름 없는 그림»이었다 — 무엇이 일어나는지는 아래 #tip
+                 라이브 리전(msg)이 이미 읽어 주므로, 여기서는 「무엇을
+                 보고 있는가」만 말하고 상태 중계는 그쪽에 맡긴다. -->
+            <canvas
+              id="game"
+              width="720"
+              height="900"
+              role="img"
+              aria-label="관측 전장 — 유성과 별지기가 구르는 판입니다. 진행 상황은 아래 안내 줄이 읽어 줍니다."
+            ></canvas>
             <div class="toast" id="toast"></div>
             <div class="impact-flash" id="impactFlash"></div>
             <div class="tip" id="tip" aria-live="polite"></div>
