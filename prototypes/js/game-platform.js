@@ -50,6 +50,9 @@ const FIRST_RUN_KEYS = Object.freeze([
   "stella-ball.mailbox.v1",
   "stella-ball.profile-icon",
   "stella-ball.attendance",
+  // 8-1 클리어 표식. 빠져 있어서, 초기화한 «새» 플레이어가 최종 스테이지에
+  // 도달하면 첫 클리어 문구 대신 재관측 문구를 만났다.
+  "stella-ball.campaign-clear.v1",
 ]);
 // 인트로의 「이번 세션에 이미 봤다」 표식만 sessionStorage에 있다. 이것까지
 // 지워야 전체 컷신이 약식이 아닌 원본 길이로 재생된다.

@@ -8,6 +8,12 @@ function resetBuild() {
   };
 }
 function setupBattle() {
+  /* 빈 자리는 전투로 들어오지 않는다. 편성 화면이 인원 수로 막지만,
+     지도·훈련장·디버그처럼 그 검사를 지나지 않는 진입로가 있어 여기서도
+     한 번 거른다 — 판에 서지 못할 값이 gates에 들어가면 그 뒤 모든
+     계산(조준 노드 포함)이 그 구멍을 안고 돈다. */
+  deployed = deployed.filter(Boolean);
+  selected = selected.filter(Boolean);
   const s = currentStage(),
     onboardingApi = StellaRuntime.modules.optional("onboarding");
   const tutorial = Boolean(s.tutorial && onboardingApi?.isActive());
@@ -251,13 +257,17 @@ function battleEntryHoldsInput() {
    그 한 번이 그대로 드래그가 되고 떼는 순간 유성이 나갔다.
    두 시계를 함께 끈다. battleIntro만 끄면 캔버스는 완성됐는데 레터박스는
    계속 도는, 건너뛰다 만 화면이 남는다. */
+/* 컷신 상자를 걷는 단 하나의 자리. 예전에는 이 일이 skipBattleIntro와
+   프레임 훅 두 곳에 흩어져 있었고, 그 둘 다 «전장에 머무는 동안»에만
+   돌아서 판을 떠나면 상자가 살아남았다. setScene도 이 함수를 부른다. */
+function clearBattleCinematic() {
+  document.querySelector(".cin")?.remove();
+  battleCine = null;
+}
 function skipBattleIntro() {
   if (!battleEntryHoldsInput()) return false;
   battleIntro = null;
-  if (battleCine) {
-    document.querySelector(".cin")?.remove();
-    battleCine = null;
-  }
+  if (battleCine) clearBattleCinematic();
   return true;
 }
 function startShot(restingPoint = null) {

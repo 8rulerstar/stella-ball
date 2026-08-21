@@ -24,6 +24,15 @@ function setScene(scene) {
   // on the next table.
   if (scene !== "game" && typeof clearToastQueue === "function")
     clearToastQueue();
+  /* 입장 컷신 상자도 전장의 것이다. 걷어내는 곳이 프레임 훅과 건너뛰기
+     둘뿐이라, 연출이 도는 6초 안에 R이나 「관측소로 나가기」로 판을 떠나면
+     inset:0 짜리 베일과 레터박스가 편성·허브·상점 위에 그대로 남았다 —
+     그 상태로 같은 스테이지에 다시 들어가면 이미 본 판정이라 상자를
+     새로 만들지 않아 세션 내내 사라지지 않았고, 다른 스테이지에 들어가면
+     비트 클래스가 다 붙은 상자를 재사용해 그 컷신이 통째로 재생되지
+     않았다. 화면이 바뀌는 유일한 지점에서 함께 치운다. */
+  if (scene !== "game" && typeof clearBattleCinematic === "function")
+    clearBattleCinematic();
   sceneSequence += 1;
   setRuntimeScene(scene);
   document.body.classList.toggle("title-mode", scene === "title");

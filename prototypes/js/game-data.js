@@ -1725,7 +1725,11 @@ function primeCombatTextures(stage = null) {
     ...Object.values(libraryArt.projectile),
   ])
     loadTexture(path);
-  for (const id of deployed) loadSpec(heroes[id]);
+  /* 편성에서 자리를 비우면 deployed에 null 구멍이 남는다(unplace). 예열은
+     발사 경로마다 불리는데 여기서 heroes[null]을 읽어 터지면, 그 클릭
+     핸들러가 통째로 죽어 게임 시작·훈련장·출격이 새로고침 전까지 전부
+     먹통이 됐다 — 예열은 «미리 읽어 두는» 일이라 못 읽는 것은 건너뛴다. */
+  for (const id of deployed) if (heroes[id]) loadSpec(heroes[id]);
 }
 let selected = [],
   deployed = [],

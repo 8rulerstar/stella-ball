@@ -1490,6 +1490,11 @@ function loop(t) {
     // advancing them here would keep combat alive behind a DOM-only screen.
     // Freeze that state for a paused return and only clear DOM transforms.
     resetInactiveCanvasFeedback();
+    /* 배너 시계는 장면의 것이 아니다. 예전에는 update()에서만 세어서,
+       상점·소환·편성에서 띄운 토스트(「골드가 부족합니다」 등)가 감쇠할
+       기회를 얻지 못해 다음 setScene까지 화면에 붙어 있었다 — 정지한
+       배너는 「기다리는 중」이 아니라 「멈춘 버그」로 읽힌다. */
+    advanceToastQueue(d);
     requestAnimationFrame(loop);
     return;
   }
