@@ -1068,7 +1068,7 @@ function constellationMapStages(worldId = activeWorld().id) {
       name: stage.name,
       star: stage.star,
       note: stage.tutorial
-        ? "루나와 함께 첫 패링 접점을 관측하세요."
+        ? "루나와 함께 노드 조준과 첫 별자리를 관측하세요."
         : (stage.terrain ??
           (stageGimmickLabels(stage).join(" · ") || "기믹 없음")),
       mark: stage.tutorial ? "✦" : "★",

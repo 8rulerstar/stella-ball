@@ -78,7 +78,7 @@ function setupBattle() {
     : tutorial
       ? "1-1 · 유성을 아래로 끌어 미리내에게 부딪혀 보세요."
       : s.guideStarCharges
-        ? s.name + " · 첫 패링이 안내별 둘을 밝혀 별자리를 돕습니다."
+        ? s.name + " · 첫 공명이 안내별 둘을 밝혀 별자리를 돕습니다."
         : s.name +
           " · 노드를 셋 찍고 Space로 발사, 남긴 별빛이 별자리가 됩니다.";
   toast(
@@ -87,7 +87,7 @@ function setupBattle() {
       : tutorial
         ? "1-1 · 첫 관측 시작"
         : s.guideStarCharges
-          ? "관측 잔광 · 첫 패링으로 안내별을 밝히세요"
+          ? "관측 잔광 · 별지기와 부딪혀 안내별을 밝히세요"
           : " " + s.id + " · " + s.name,
   );
   /* 입장 연출. 거상이 «먼저» 온다 — 판이 닫히고 그것이 내려앉은 뒤에 아군이

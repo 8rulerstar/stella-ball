@@ -211,7 +211,7 @@ function addGuideStars(state, contact) {
       "luna",
       showcase
         ? "안내별 넷을 얹었어요. 오망성 항로가 완성됩니다."
-        : "첫 패링에 별을 둘 얹어 뒀어요. 궤적을 이어 보세요.",
+        : "첫 공명에 별을 둘 얹어 뒀어요. 궤적을 이어 보세요.",
     );
   toast(
     showcase
@@ -364,7 +364,7 @@ function rememberTrainingParryContact(g, contact) {
       col: "#7e7b91",
     });
     addPopup(contact.x, contact.y - 32, "공명 놓침", "#c3bcd8", false);
-    if (!lostNodes) toast("패링 지연 · 공명 재정비");
+    if (!lostNodes) toast("공명 놓침 · 다시 이어 보세요");
     return;
   }
   state.contact = {
@@ -411,7 +411,7 @@ function finishFigureShot({ missed = false } = {}) {
   if (missed) {
     const lostNodes = state.nodes.length;
     clearFigureShot();
-    if (lostNodes) toast("패링 실패 · 모은 별빛이 흩어졌습니다");
+    if (lostNodes) toast("공명이 끊겼습니다 · 모은 별빛이 흩어졌습니다");
     return finish(Boolean(lostNodes));
   }
   if (!state.nodes.length) return finish(false);
