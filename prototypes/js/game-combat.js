@@ -11,6 +11,15 @@ registerRuntimeHook("afterShotStart", ({ restingPoint }) => {
   }
   ball.billiards = true;
   ball.aimAssist = false;
+  /* 전투의 «첫» 조준 화면은 afterShotEnd를 지나지 않는다 — 수업 밖 첫
+     실전의 루나 첫 멘트(luna-pick0)가 붙을 자리가 정확히 여기다. */
+  if (
+    typeof nodeEconomyOn === "function" &&
+    nodeEconomyOn() &&
+    typeof aimStarReady === "function" &&
+    aimStarReady()
+  )
+    emitAimChanged?.("open");
 });
 function finalizeBilliardShot() {
   const restingPoint = { x: ball.x, y: ball.y };
@@ -488,9 +497,12 @@ function billiardPointerDown(e) {
         if (aimPick.length) {
           aimPick = [];
           // 성립 플래시·거절 연출도 함께 무른다 — 하한 미달로 돌아간 선이
-          // «성립» 빛을 물고 있으면 안 된다.
+          // «성립» 빛을 물고 있으면 안 된다. 반대편도 여기서 돌아온다:
+          // «전부 무르기» 뒤에 새로 고른 셋이 거울 방향으로 나가면, 지운
+          // 상태가 발사 방향을 몰래 쥐고 있는 셈이다.
           aimReadyFlash = 0;
           aimDenyT = 0;
+          aimFlip = false;
           combatSfx?.("parryMiss", 0.5);
           emitAimChanged("clear");
         }
@@ -517,8 +529,18 @@ function billiardPointerDown(e) {
           aimFlip = want;
           // 한 번 뒤집어 봤으면 어포던스 라벨을 끈다(핸드오프 §2-3).
           // 세션이 아니라 저장 슬롯에서 영구 소등이라 progress에도 적는다.
-          if (typeof aimTeach === "object" && aimTeach) aimTeach.flipped = true;
-          markAimHintDone?.("flip");
+          // 단 수업 중은 제외 — 라벨이 lessonGuide로 접혀 «본 적 없는»
+          // 힌트가 소등되면 캠페인에서 영영 못 본다.
+          if (
+            !(
+              typeof onboardingLessonGuideActive === "function" &&
+              onboardingLessonGuideActive()
+            )
+          ) {
+            if (typeof aimTeach === "object" && aimTeach)
+              aimTeach.flipped = true;
+            markAimHintDone?.("flip");
+          }
           combatSfx?.("steer", 0.5);
           addPopup(
             ball.x,
@@ -976,6 +998,10 @@ function aimStarPreview() {
    발사를 이어 준다 — 없으면 별자리가 뜨는 위로 유성이 먼저 지나간다. */
 function launchAimStarShot() {
   if (!battle || ball?.moving || battleComplete) return false;
+  /* 노드 조준이 꺼진 판(0단계 드래그 수업 등)에서는 조용히 물러난다.
+     여기서 거절 연출을 내면 「노드 셋」이라는, 그 판에 존재하지 않는
+     문법을 가르치는 토스트가 뜨고 aimDenyT는 조준 화면이 없어 얼어붙는다. */
+  if (!aimStarReady()) return false;
   /* 하한 3. 근거는 AIM_STAR.minPick 주석 — 셋부터 방향이 «만든 점»이 된다.
      마우스가 올라가 있기만 한 노드는 세지 않는다. 미리보기는 가정을 그려도
      되지만, 발사가 가정을 쏘면 놀란다. */
@@ -1052,7 +1078,17 @@ function launchAimStarShot() {
        뒤에 소등할지, 그리고 온보딩 조준 실습이 넘어갈지가 이 두 값을 본다.
        표현 계층(aimTeach)은 game-combat-physics.js 소유라 여기서는 «올리기»만
        한다 — 그리기 쪽이 읽고 판단한다. */
-    if (typeof aimTeach === "object" && aimTeach) {
+    /* 수업 샷은 세지 않는다. 수업 중에는 범례가 lessonGuide로 접혀
+       보이지도 않는데 카운터만 오르면, 캠페인 첫 판에 왔을 때 «첫 3샷»
+       예산이 이미 소진돼 범례를 한 번도 못 보고 legend가 저장에 박힌다. */
+    if (
+      typeof aimTeach === "object" &&
+      aimTeach &&
+      !(
+        typeof onboardingLessonGuideActive === "function" &&
+        onboardingLessonGuideActive()
+      )
+    ) {
       aimTeach.shots += 1;
       // 범례는 첫 3샷까지다. 그 뒤로는 이 저장 슬롯에서 다시 뜨지 않는다.
       if (aimTeach.shots >= 3) markAimHintDone?.("legend");
@@ -1099,6 +1135,9 @@ registerRuntimeHook("afterTableWall", () => {
 registerRuntimeHook("afterShotEnd", () => {
   if (!battle || battleComplete) return;
   if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
+  // 드래그 판(0단계 수업 등)에는 노드 문법이 없다 — 별지기를 찍으라는
+  // 토스트도, 조준 멘트도 그 판의 것이 아니다.
+  if (!aimStarReady()) return;
   const n = aimStars.length;
   /* 조준 화면이 «열린» 순간이 여기다. aimPick은 발사 때 비워졌으므로 0픽
      상태이고, 첫 멘트가 붙을 자리가 이 프레임이다. 별빛이 없어도 별지기

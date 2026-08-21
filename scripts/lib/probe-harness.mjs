@@ -120,6 +120,10 @@ export async function launchProbe({
   let cdp,
     id = 0;
   const pending = new Map();
+  /* 페이지에서 터진 예외·오류 로그. Runtime/Log 도메인은 아래 연결 뒤에
+     켠다 — 프로브가 이 배열을 리포트에 실으면, «측정은 됐는데 화면이
+     깨져 있던» 실행이 조용히 초록으로 남는 일을 막는다. */
+  const errors = [];
   try {
     for (let i = 0; i < 80 && !cdp; i++) {
       try {
@@ -133,6 +137,27 @@ export async function launchProbe({
           cdp = new WebSocket(target.webSocketDebuggerUrl);
           cdp.addEventListener("message", (e) => {
             const m = JSON.parse(String(e.data));
+            if (!m.id) {
+              if (m.method === "Runtime.exceptionThrown")
+                errors.push(
+                  "EXC " +
+                    (
+                      m.params.exceptionDetails.exception?.description ||
+                      m.params.exceptionDetails.text ||
+                      ""
+                    )
+                      // 리터럴 개행 함정(44a36ff 기록) 회피용 fromCharCode.
+                      .split(String.fromCharCode(10))
+                      .slice(0, 3)
+                      .join(" | "),
+                );
+              if (
+                m.method === "Log.entryAdded" &&
+                m.params.entry.level === "error"
+              )
+                errors.push("LOG " + m.params.entry.text.slice(0, 200));
+              return;
+            }
             const p = pending.get(m.id);
             if (!p) return;
             pending.delete(m.id);
@@ -181,5 +206,7 @@ export async function launchProbe({
     throw new Error("timeout: " + label);
   }
 
-  return { port, debugPort, send, evaluate, waitFor, close };
+  await send("Runtime.enable");
+  await send("Log.enable");
+  return { port, debugPort, send, evaluate, waitFor, close, errors };
 }

@@ -372,10 +372,6 @@ async function waitForLessonResult(phase, timeoutMs = 20000) {
 
 async function runOnboarding() {
   await evaluate(`(() => {
-    window.__stellaE2eSteers = 0;
-    registerRuntimeHook("afterMeteorSteer", () => {
-      window.__stellaE2eSteers += 1;
-    });
     return true;
   })()`);
   await waitUntil(
@@ -416,9 +412,11 @@ async function runOnboarding() {
   const teachShots = await evaluate(
     "typeof aimTeach === 'object' && aimTeach ? aimTeach.shots : null",
   );
+  /* 수업 샷은 교습 예산을 소모하면 안 된다 — 범례가 lessonGuide로 접힌
+     동안 카운터가 오르면 캠페인 첫 판에서 «첫 3샷» 안내를 영영 못 본다. */
   assert(
-    typeof teachShots === "number" && teachShots >= 1,
-    `aimTeach.shots did not advance (got ${teachShots})`,
+    teachShots === 0,
+    `aimTeach.shots consumed during lessons (got ${teachShots})`,
   );
   record("lesson-pass", { lesson: 2, assertion: "nodeAimed" });
 
@@ -537,9 +535,8 @@ async function runOnboarding() {
   return {
     unlock,
     contract: {
-      steerInputs: 2,
-      // 조향 수업이 노드 조준 수업으로 바뀌면서 이 지표는 사라졌다.
-      // 그 자리를 조준 교습 카운터가 대신한다.
+      // 조향 수업이 노드 조준 수업으로 바뀌며 조향은 이 여정에서 더는
+      // 연습되지 않는다 — 있지도 않은 steerInputs를 계약에 적지 않는다.
       aimTeachShots: await evaluate(
         "typeof aimTeach === 'object' && aimTeach ? aimTeach.shots : null",
       ),

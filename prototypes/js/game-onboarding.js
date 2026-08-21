@@ -282,6 +282,8 @@ function setOnboardingPhase(phase) {
     attempts: 0,
     bossHit: false,
     parrySuccess: false,
+    aimed: false,
+    figurePoints: 0,
     figureResolved: false,
     parriedHero: null,
     launched: finalLesson,
@@ -293,7 +295,11 @@ function setOnboardingPhase(phase) {
   // 별빛 경제 수업(phase 2)은 안내별 보정으로 «남긴 별빛» 양자리 한 번을
   // 보장한다 — 실전과 같은 규칙(자동 공명·별빛 경제)의 3점 도형이다.
   // 실전 수업(phase 3)은 보정 없이 캠페인과 같은 규칙으로 돈다.
-  battle.guideStarCharges = phase === 2 ? 1 : 0;
+  /* 안내별 «충전»은 쓰지 않는다(0). 충전 경로의 전시 판정은 아직 옛
+     pentagram 수업의 것이라, 켜 두면 첫 공명에서 「별을 둘 얹어 뒀어요」
+     같은, 이 수업이 가르치지 않는 두-별 서사가 독에 떠 한 화자가 두
+     이야기를 하게 된다 — 안내별 셋은 아래에서 직접 깐다. */
+  battle.guideStarCharges = 0;
   battle.guideFigure = phase === 2 ? "aries" : null;
   /* 별빛을 미리 깐다 — 이것이 문안이 말하는 「루나의 안내별」이다.
 
@@ -1058,12 +1064,12 @@ registerRuntimeHook("afterPartySettle", ({ figureActive }) => {
   onboarding.launched = false;
   // Let the first constellation complete its trace, correction and cast before
   // the result card covers the table. Input stays locked during this short beat.
+  /* 노드 경제에서 별자리는 «발사 때» 현현한다(launchAimStarShot이 소각
+     즉시 resolveFigure) — 정산 시점엔 캐스트가 비행 내내 끝난 지 오래다.
+     예전의 castAt+0.35 대기는 그 옛 시계의 잔재로, 빈 판 위에서 카드만
+     1.3초를 더 숨겼다. 정산 여운 한 박자만 남긴다. */
   const resultDelay =
-    onboarding.phase === 2 && onboarding.figureResolved
-      ? Math.ceil(
-          (StellaRuntime.modules.require("figure").castAt + 0.35) * 1000,
-        )
-      : 180;
+    onboarding.phase === 2 && onboarding.figureResolved ? 420 : 180;
   const phase = onboarding.phase,
     battleId = battle?.id;
   onboarding.transitioning = true;
@@ -1231,6 +1237,11 @@ function onboardingLessonGuideActive() {
 }
 function drawOnboardingGuide() {
   if (!run || !onboardingLessonGuideActive() || !ball || ball.moving) return;
+  /* 별자리 현현이 도는 동안(입력 잠금)은 가이드도 접는다. 2단계는 발사
+     순간 양자리가 뜨는데, 어둠막이 그 위를 덮으면 수업이 약속한 보상이
+     어둠 속에서 재생되고 손가락은 잠긴 클릭을 유도한다. */
+  if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
+    return;
   const phase = onboarding.phase;
   x.save();
   if (phase === 0) {
@@ -1299,7 +1310,11 @@ function drawOnboardingGuide() {
         drawLessonFinger(target.x, target.y, (1 - down) * 16, press);
       }
     } else {
-      drawLessonSpaceCue(ball.x, ball.y + 52);
+      // 유성이 벽에 붙어 정지했을 때도 키 이름은 화면 안에서 읽혀야 한다.
+      drawLessonSpaceCue(
+        clamp(ball.x, 64, W - 64),
+        ball.y + 76 > H - 8 ? ball.y - 82 : ball.y + 52,
+      );
     }
   }
   x.restore();

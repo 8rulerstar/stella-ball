@@ -260,15 +260,12 @@ const RUN = (stage, party) => `(async () => {
   };
 })()`;
 
-const consoleErrors = [];
 let report;
 const probe = await launchProbe({
   headless: !HEADED,
   profilePrefix: "aim-polygon-probe-",
 });
 try {
-  probe.send("Log.enable");
-  probe.send("Runtime.enable");
   await probe.waitFor(
     "document.readyState === 'complete' && typeof setupBattle === 'function'",
   );
@@ -289,7 +286,9 @@ console.log(
       mode: HEADED ? "headed (vsync)" : "headless (no vsync)",
       gapsAreRealPacing: HEADED,
       ...report,
-      consoleErrors,
+      // 하니스가 CDP 이벤트에서 실제로 모은 값이다 — 예전의 지역 배열은
+      // 아무도 채우지 않아 항상 []를 «측정 결과»처럼 찍고 있었다.
+      consoleErrors: probe.errors,
     },
     null,
     2,

@@ -1428,6 +1428,11 @@ function drawAimStars() {
       x.fillStyle = "#ffe09a";
       x.font = "700 12px Galmuri11, ui-monospace";
       x.textAlign = "center";
+      /* 벽 절단의 0.08 하한은 유성이 벽에 붙어 있을 때(벽 여백 26 < 정지
+         여백 31) 끝점을 판 밖까지 밀 수 있다 — 라벨과 게이지는 화살촉이
+         아니라 «읽히는 자리»가 본분이므로 화면 안으로 끌어온다. */
+      const labelX = clamp(gx, 64, W - 64),
+        labelY = clamp(gy, 44, H - 44);
       // 하한 미달이면 위력 대신 몇 개 모자란지를 말한다 — 이 선은 아직
       // 쏠 수 있는 조준이 아니라 «되어가는 중»이다.
       x.fillText(
@@ -1436,17 +1441,17 @@ function drawAimStars() {
               Math.round(preview.force * 100) +
               "%"
           : "노드 " + p.length + "/" + AIM_STAR.minPick,
-        gx,
-        gy - 18,
+        labelX,
+        labelY - 18,
       );
       /* 1e-2: 위력 게이지 — 숫자를 읽기 전에 길이로 읽힌다. 28% 하한 눈금. */
       if (ready) {
         x.fillStyle = "#04080a";
-        x.fillRect(gx - 23, gy - 12, 46, 5);
+        x.fillRect(labelX - 23, labelY - 12, 46, 5);
         x.fillStyle = "#ffe09a";
-        x.fillRect(gx - 23, gy - 12, 46 * preview.force, 5);
+        x.fillRect(labelX - 23, labelY - 12, 46 * preview.force, 5);
         x.fillStyle = "#8ba39f";
-        x.fillRect(gx - 23 + 46 * 0.28, gy - 13, 1, 7);
+        x.fillRect(labelX - 23 + 46 * 0.28, labelY - 13, 1, 7);
       }
     }
   }

@@ -16,7 +16,15 @@
    때문이다. 다만 오리온은 자기 대격 숫자를 따로 낸다(삼연격) — 그쪽이
    히트스톱과 같은 프레임이므로, 오리온만 false를 넘겨 30px 하나를 삼연격에
    양보한다. 한 프레임에 30px 숫자가 둘이면 어느 쪽이 대격인지 사라진다. */
-function figureFieldDamage(ctx, label = "별자리", huge = ctx.ring.length >= 6) {
+/* huge 기본값은 «이름 있는 6점 이상»이다. 인식에 실패한 6~7점 잡동사니
+   고리는 시네도 히트스톱도 없는데 30px만 받아, 사다리의 맨 위가 흔한
+   실패 모양에 낭비된다 — 화면이 크게 말하려면 프레임(오리온·북두칠성
+   시네)이 같이 있어야 한다. */
+function figureFieldDamage(
+  ctx,
+  label = "별자리",
+  huge = ctx.ring.length >= 6 && Boolean(ctx.shape),
+) {
   // Same guard areaAttack opens with. A constellation casts on its own clock
   // roughly 2.85s after the settle that queued it, and nothing stopped that
   // clock when the battle ended - so a figure could damage, pop numbers over
@@ -185,7 +193,11 @@ function piercingShot(ctx) {
   // On the flush path `figureFx` is the outgoing figure, so its beam is
   // dropped with it.  That is correct — the player has already launched again,
   // and the damage above has been paid.
-  if (figureFx) figureFx.beam = { from, to, at: figureFx.t };
+  // 시네가 화살 연출로 이 빔을 대체하겠다고 선언했으면 긋지 않는다 —
+  // 같은 선을 두 번 긋지 않는다는 규칙의 실제 집행 지점은 여기다(빔은
+  // 캐스트 때야 생기므로, 리빌 시작에 null을 지워 봐야 아무것도 안 막는다).
+  if (figureFx && !figureFx.beamReplaced)
+    figureFx.beam = { from, to, at: figureFx.t };
   return run.length ? run.length + "체 관통" : "화살은 빗나감";
 }
 // 까마귀자리 · 약점 노출.  The crow that lied to Apollo and was left thirsty;

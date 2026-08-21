@@ -168,7 +168,9 @@ function cineScriptFor(fx) {
       matDur: CAST - 0.45,
     };
     // 기존 관통 빔은 이 화살이 대신한다 — 같은 선을 두 번 긋지 않는다.
-    fx.beam = null;
+    // 빔은 캐스트 순간에야 생기므로 null 지우기는 아무것도 못 막았다.
+    // 대체를 «선언»해 두면 생성 지점(piercingShot)이 긋기를 건너뛴다.
+    fx.beamReplaced = true;
     E.push({
       at: CAST - 0.22,
       fn: () => {
@@ -748,7 +750,9 @@ function drawCineArrow(A) {
     drawArrow(cx, cy, 1);
   } else {
     const wp = cineWall(A),
-      life = Math.max(0, 1 - A.pt / 1.4);
+      // 종료가 CAST+1.2로 당겨졌다(잔광 창 1.1초). 1.4로 나누면 21%에서
+      // 뚝 끊긴다 — 창 안에서 0까지 내려가게 맞춘다.
+      life = Math.max(0, 1 - A.pt / 1.05);
     x.save();
     x.globalAlpha = 0.35 * life;
     x.strokeStyle = "#ffd2a0";
@@ -880,7 +884,8 @@ function drawCineCass(st, s) {
   x.lineCap = "round";
   const surge = s > 0.6 ? 0.7 + 0.3 * Math.sin(now * 18) : 0.8;
   x.lineWidth = s > 0.6 ? 5 : 3;
-  x.globalAlpha = surge * Math.max(0, 1 - (s - (FIGURE_CAST_AT + 0.3)) / 0.8);
+  // 종료 CAST+0.9 안에서 0에 닿아야 한다. 0.8로 나누면 25%에서 팝아웃.
+  x.globalAlpha = surge * Math.max(0, 1 - (s - (FIGURE_CAST_AT + 0.3)) / 0.55);
   x.beginPath();
   for (let i = 0; i < 4; i++) {
     const span = Math.max(0, Math.min(1, segs - i));
