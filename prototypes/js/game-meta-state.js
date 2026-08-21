@@ -138,6 +138,27 @@ for (const [key, fallback, min] of [
       ? value
       : fallback;
 }
+/* 목록 필드도 같은 이유로 고친다. 숫자만 복구하고 있었는데, 배열 자리에
+   객체나 문자열이 들어오면 크래시 없이 «조용히 망가진 상태»로 산다 —
+   실측으로 ownedHeroes가 객체, ownedSkins가 null, claimedAchievements가
+   문자열인 저장으로도 게임이 서고 화면이 열렸다. 그런데 그 상태에서
+   claimedAchievements.includes(id)는 배열 조회가 아니라 «문자열 안에 그
+   글자가 있는가»가 되어, 긴 문자열이면 받은 적 없는 보상을 받았다고
+   판정할 수 있다. 목록이 아닌 값은 빈 목록으로 되돌린다 — 잃는 것은
+   이미 못 읽는 값뿐이다. */
+for (const [key, fallback] of [
+  ["ownedHeroes", [...STARTER_HERO_IDS]],
+  ["ownedSkins", [DEFAULT_METEOR_SKIN]],
+  ["claimedAchievements", []],
+  ["pendingRewards", []],
+  ["aimHints", []],
+]) {
+  if (!Array.isArray(progress[key])) progress[key] = fallback;
+}
+/* 보유 목록에 로스터에 없는 id가 섞이면 편성·소환이 그 자리에서 undefined를
+   읽는다. 저장을 손으로 고쳤거나 로스터에서 별지기를 뺐을 때 생긴다. */
+progress.ownedHeroes = progress.ownedHeroes.filter((id) => heroes[id]);
+if (!progress.ownedHeroes.length) progress.ownedHeroes = [...STARTER_HERO_IDS];
 const tr = (key) =>
   META_COPY[settings.language]?.[key] ?? META_COPY.ko[key] ?? key;
 function saveSettings() {
