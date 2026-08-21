@@ -1,2 +1,3 @@
 @echo off
-start "" "%~dp0index.html"
+REM Windows: double-click this file to open the game in the default browser.
+start "" "%~dp0prototypes\prism-breakers.html"

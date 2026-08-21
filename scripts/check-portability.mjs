@@ -85,6 +85,15 @@ for (const file of tracked) {
   }
 }
 
+/* 문서가 가리키는 실행 파일이 실제로 있어야 한다. 2026-08-21에
+   RUN_STELLA_BALL.bat을 지우며 안내만 PLAY_WINDOWS.cmd로 바꾸고 파일을
+   만들지 않아, 윈도우에서 게임이 «시작도 안 되는» 상태가 게이트를 통과했다.
+   README·CROSS_PLATFORM·AGENTS가 이름을 바꾸면 이 목록도 함께 바꾼다. */
+for (const launcher of ["PLAY_WINDOWS.cmd", "RUN_STELLA_BALL.command"]) {
+  if (!trackedSet.has(launcher))
+    failures.push(`문서가 안내하는 실행 파일이 저장소에 없습니다: ${launcher}`);
+}
+
 if (failures.length > 0) {
   throw new Error(`크로스플랫폼 호환성 검사 실패:\n${failures.join("\n")}`);
 }
