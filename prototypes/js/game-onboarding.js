@@ -203,18 +203,13 @@ registerRuntimeHook("afterFeedbackUpdate", () => {
   if (!onboarding || onboarding.hold || onboarding.panelVisible !== false)
     return;
   if (!ball?.moving || !run) return;
-  if (onboarding.phase === TEACH_HOLD.steer.phase) {
-    // 이미 꺾었으면 가르칠 것이 없다.
-    if (ball.steerUsed || onboarding.steered) return;
-    /* 발사석에서 곧장 세우면 아직 아무것도 안 일어난 화면이라 무엇을 꺾는
-       건지 보이지 않는다. 항로의 절반쯤 올라와 궤도가 생기고, 그러면서도
-       꺾인 뒤를 보여 줄 자리가 남는 지점에서 세운다.
-       그 지점은 이제 화면에도 그려진다(steerLessonHoldPoint) — 판정과 그림이
-       같은 함수를 쓰므로 「표시된 곳 앞에서 멈춘다」가 성립하지 않는다. */
-    if (LAUNCH_Y - ball.y > LAUNCH_Y - steerLessonHoldPoint().y)
-      beginTeachingHold("steer");
-    return;
-  }
+  /* 1단계(노드 조준)의 «비행 중 정지»는 걷었다(2026-08-21).
+
+     이 정지는 조향 수업의 것이다 — 조향은 «날아가는 동안» 눌러야 뜻이 있으니
+     결정 지점에서 판을 세웠다. 조준은 반대다: 유성이 «멈춘 뒤»에 노드를
+     찍는다. 그래서 비행 중에 세우고 「노드를 셋 찍으세요」를 띄우면, 판은
+     멈췄는데 아무것도 눌리지 않는 화면이 된다(찍기는 !ball.moving을 요구).
+     오너 제보 「좌클릭 우클릭 위치가 표기보다 훨씬 일찍 멈춤」이 이것이다. */
   if (onboarding.phase === TEACH_HOLD.parry.phase) {
     /* 이 수업의 문구는 「발사한 뒤 Space를 한 번 누르세요」라, 접점보다 먼저
        누르는 것이 정상 경로다. 그렇게 누른 사람에게 접점 직전에 또 판을
@@ -672,12 +667,18 @@ registerRuntimeHook(
        고정했지만, 1단계(조향)는 「먼저 이 항로로 발사」라고 그려 놓고 강제하지
        않았다 — 조준 보정(billiardAim)이 보스 쪽으로 휘면 지정 항로를 벗어난
        채 수업이 진행됐다. 두 수업 모두 안내가 가리키는 점으로 고정한다. */
-    const target =
-      onboarding?.phase === 2
-        ? gates[0]
-        : onboarding?.phase === 1
-          ? steerLessonRouteTarget()
-          : null;
+    /* 2026-08-21: 1·2단계의 강제를 걷는다.
+
+       이 훅은 조향 수업 시절의 것이다 — 「먼저 이 항로로 발사」라고 그려 놓고
+       조준 보정이 휘는 것을 막으려던 장치였다. 그런데 지금 1·2단계가
+       가르치는 것은 «노드를 골라 그 가운데로 쏘는 일»이고, 노드 조준도
+       fireMeteor -> billiardAim을 지난다. 그래서 플레이어가 셋을 찍어도
+       방향이 여기서 통째로 덮여 고정 항로로 날아갔다 — 조준 수업이 조준을
+       가르치지 않고 있었다.
+
+       1단계(드래그)만 남긴다. 거기서는 아직 노드가 없어 드래그가 유일한
+       조준이고, 「보스에게 곧장」이라는 문안이 항로를 약속한다. */
+    const target = onboarding?.phase === 0 ? boss : null;
     if (target && ball) {
       const tx = target.x - ball.x,
         ty = target.y - ball.y,
@@ -1202,102 +1203,11 @@ function drawOnboardingGuide() {
     return;
   const phase = onboarding.phase;
   if (ball.moving) {
-    if (phase === 1 && !ball.steerUsed) {
-      /* 쏘라고 그려 준 항로 링이 발사되는 순간 사라졌다. 그래서 판이 멈춘
-         시점에는 화면에 목표가 아예 없고, 「왜 여기서 멈췄지」만 남는다.
-         비행 중에도 같은 점을 계속 보여 준다 — 정의는 한 곳(steerLessonRouteTarget)뿐이다. */
-      const route = steerLessonRouteTarget(),
-        holdAt = steerLessonHoldPoint(),
-        held = isTeachingHold();
-      x.save();
-      /* 항로 링은 «조준»의 목표지 «도착»의 목표가 아니다. 판이 멈춘 뒤에도
-         또렷하게 남아 있으면 닿지 못한 목적지로 읽히므로, 멈춘 동안에는
-         물러난다. */
-      x.globalAlpha = held ? 0.24 : 0.85;
-      x.strokeStyle = route.col;
-      x.shadowBlur = combatFxBlur(held ? 0 : 11);
-      x.shadowColor = route.col;
-      x.lineWidth = 2;
-      x.setLineDash([6, 5]);
-      x.beginPath();
-      x.arc(route.x, route.y, route.r + 1, 0, Math.PI * 2);
-      x.stroke();
-      x.restore();
-
-      /* 멈출 자리를 미리 그린다. 이것이 없으면 화면에 목표가 항로 링 하나뿐이라
-         정지가 언제나 「도착 전」이 된다. 판정과 같은 함수를 쓰므로 유성은 이
-         표식에 정확히 도착해서 선다. */
-      x.save();
-      const near = Math.max(
-        0,
-        Math.min(1, (LAUNCH_Y - ball.y) / (LAUNCH_Y - holdAt.y || 1)),
-      );
-      x.globalAlpha = held ? 0.95 : 0.34 + near * 0.5;
-      x.strokeStyle = holdAt.col;
-      x.shadowBlur = combatFxBlur(12);
-      x.shadowColor = "#ffd36f";
-      x.lineWidth = held ? 3 : 2;
-      x.setLineDash(held ? [] : [4, 6]);
-      x.beginPath();
-      x.arc(holdAt.x, holdAt.y, holdAt.r, 0, Math.PI * 2);
-      x.stroke();
-      if (!held) {
-        x.setLineDash([]);
-        x.globalAlpha = 0.3 + near * 0.4;
-        x.fillStyle = holdAt.col;
-        x.textAlign = "center";
-        x.font = "bold 10px Galmuri11, ui-monospace";
-        x.fillText("여기서 꺾어요", holdAt.x, holdAt.y - holdAt.r - 9);
-      }
-      x.restore();
-
-      /* 좌·우 클릭이 무엇을 하는지 글자로만 말하고 있었다 — 눈에 띄지 않는다.
-         실제 조향 계산(전진 170 + 옆 430)을 그대로 써서 두 방향을 미리 그린다.
-         화살표 색은 조향이 남기는 잔광과 같은 색이라, 누른 뒤 나오는 빛과
-         누르기 전 안내가 같은 말을 한다. */
-      const sp = Math.hypot(ball.vx, ball.vy) || 1,
-        ux = ball.vx / sp,
-        uy = ball.vy / sp;
-      for (const side of [-1, 1]) {
-        const dx = ux * 170 + -uy * side * 430,
-          dy = uy * 170 + ux * side * 430,
-          dl = Math.hypot(dx, dy) || 1,
-          tipX = ball.x + (dx / dl) * 62,
-          tipY = ball.y + (dy / dl) * 62;
-        x.save();
-        x.strokeStyle = side < 0 ? "#8ee7ff" : "#ffd18d";
-        x.fillStyle = side < 0 ? "#8ee7ff" : "#ffd18d";
-        x.shadowBlur = combatFxBlur(10);
-        x.shadowColor = x.strokeStyle;
-        x.lineWidth = 3;
-        x.beginPath();
-        x.moveTo(ball.x + (dx / dl) * 20, ball.y + (dy / dl) * 20);
-        x.lineTo(tipX, tipY);
-        x.stroke();
-        x.translate(tipX, tipY);
-        x.rotate(Math.atan2(dy, dx));
-        x.beginPath();
-        x.moveTo(9, 0);
-        x.lineTo(-6, -6);
-        x.lineTo(-6, 6);
-        x.fill();
-        x.restore();
-      }
-
-      x.save();
-      x.strokeStyle = "#ffe6a1";
-      x.shadowBlur = combatFxBlur(11);
-      x.shadowColor = "#ffd36f";
-      x.lineWidth = 2;
-      x.beginPath();
-      x.arc(ball.x, ball.y, ball.r + 24, -Math.PI * 0.9, Math.PI * 0.7);
-      x.stroke();
-      x.restore();
-      /* 여기 있던 「좌클릭 ↶ · 우클릭 ↷ · 합산 1회」는 지웠다. 정지 큐가
-         유성 위 같은 자리에 「좌클릭 ↶ · 우클릭 ↷」를 그리고 있어서 두 줄이
-         겹쳐 글자가 뭉갰다(실화면 확인). 화면 아래 배너까지 세면 같은 안내가
-         셋이었다. 화살표가 방향을 말하고 배너가 규칙을 말한다. */
-    } else if (phase === 2 && !onboarding.parrySuccess) {
+    /* 1단계 항로 링·정지 링은 걷었다(2026-08-21). 조향 수업의 것이라
+       「이 항로로 쏘라」와 「여기서 멈춘다」를 약속했는데, 이제 그 단계는
+       노드 조준이라 항로를 강제하지도 비행 중에 세우지도 않는다. 지키지
+       못할 약속을 그리는 것이 제보의 원인이었다. */
+    if (phase === 2 && !onboarding.parrySuccess) {
       const target = gates[0];
       if (target) {
         x.save();
