@@ -115,6 +115,28 @@ Each rule below cost real debugging time here. The evidence is in `DEVLOG.md` un
 - **A config key that nothing reads fails silently.** A probe passed `angleOffset` where `__botRun` reads `aimOffset`; the sweep ran 121 times and returned 121 identical rows. When a sweep produces no variation, suspect the plumbing before the physics.
 - **Before adding a file to the harness's `runtimeFiles`, grep it for `Math.random`.** That harness's seed reproducibility assumes randomness is drawn in exactly one place (`aimSigma`). One presentation file with twenty draws invalidates every past report. This is why `game-figure-cinematics.js` is excluded and why `CINE.orionKnock` ships off.
 
+### Measuring (added 2026-08-22, from one autonomous night)
+
+- **A probe that reports "everything is used" is usually not measuring.** CDP's
+  CSS rule-usage tracking returns only the rules it matched, so an unused-CSS
+  sweep across every screen came back 584/584 used and 0 KB unused. The number
+  was not evidence of clean stylesheets; it was the wrong instrument. When a
+  measurement produces a suspiciously perfect result, prove the instrument can
+  report the bad case before trusting the good one.
+- **`battleComplete` is not victory.** Running out of meteors sets it too, so a
+  clearability sweep counted losses as clears — 8-1 read as "cleared at 87%"
+  when it had actually failed. Gate on `scheduleWin` being called.
+- **A zero can mean "did not fire" or "missed".** An ability sweep read 0 damage
+  for the shockwave twice: first because the assist queue lands more than two
+  seconds later, then because the starkeeper's default slot is outside its
+  radius. If a probe is testing whether an ability _runs_, remove range and
+  timing from the question — stand the unit next to the boss and wait long
+  enough.
+- **Build test shapes from the real skeleton, not a regular polygon.** Every
+  4-point figure classified as sagitta and every 5-point one as pentagram until
+  the probe used `FIGURE_SHAPES` coordinates. Pentagram is the special case: its
+  `points` are null because it is a pentagon walked two steps at a time.
+
 ## Before handoff
 
 Run this quick handoff check from the repository root:
