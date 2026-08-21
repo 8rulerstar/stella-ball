@@ -1030,9 +1030,9 @@ registerRuntimeHook("afterBattleSetup", ({ stage, battle: activeBattle }) => {
   msg = activeBattle.training
     ? "무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기."
     : activeBattle.tutorial
-      ? "1-1 · 드래그 발사, 1회 조향, Space 공명과 별빛 노드를 익히세요."
+      ? "1-1 · 끌어서 발사, 노드 셋 찍고 Space, 남긴 별빛으로 별자리를 익히세요."
       : stage.name +
-        " · 별지기를 깨우고 Space 공명 접점으로 별자리를 그리세요.";
+        " · 노드를 셋 찍어 Space로 쏘고, 남긴 별빛으로 별자리를 그리세요.";
   sync();
 });
 registerRuntimeHook("afterShotEnd", () => {

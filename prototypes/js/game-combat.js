@@ -37,7 +37,7 @@ function finalizeBilliardShot() {
     // stone, because their copy points the player at the bottom of the board.
     startShot(battle.tutorial ? null : restingPoint);
     msg =
-      "다음 샷 · 멈춘 자리에서 이어 발사해 별지기를 깨우고, Space 공명으로 별빛을 모으세요.";
+      "다음 샷 · 멈춘 자리에서 이어 갑니다. 노드를 셋 이상 찍고 Space로 발사하세요.";
     toast("다음 샷 · 현재 위치에서 재개");
     sync();
   };
