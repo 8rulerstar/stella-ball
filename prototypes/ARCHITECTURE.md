@@ -37,8 +37,16 @@ The files under `js/` load in this exact order and share the browser global scop
 15. `game-onboarding.js` — story intro, first-session storage, the guided 1-1 lesson, third-party-slot unlock, observatory presentation, and onboarding extensions. It publishes a frozen `onboarding` API for session status and tutorial entry.
 16. `game-speech.js` — the four speaking channels from the design session (starkeeper, colossus, Luna, system). It owns the speech queue, the board banner and Luna's dock; nothing in the combat chain calls into it, so it attaches through hooks only.
 17. `game-awaken-fx.js` — the awakening presentation from `AWAKEN_FX_REQUEST_2026_08_16.md`, added as one file with no edits to the existing ones. It hangs off `afterShotStart`, `afterFeedbackUpdate`, `afterArenaDraw` and `afterDraw`. It writes `impactStop` and `screenShake`, which are the runtime's time and camera controls rather than gameplay state, so it stays in the `js/` chain instead of the presentation tier.
-18. `game-arena-carve.js` — final procedural Observatory Ground arena pass. It keeps the four most recently used baked floors in an LRU cache and installs a stage-arena renderer through the `render` module; it must remain after onboarding and before bootstrap. It must not change physics, collisions, balance, or unit judgement colours.
-19. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
+18. `game-perfwatch.js` — opt-in frame instrumentation, off until the player
+    presses F9 (or loads with `?perf=1`). It draws an overlay and toggles
+    individual render layers (F1-F8) so a frame report can name what costs what,
+    including the WebGL renderer string — a lag report is diagnosed from that
+    line first, because a browser with graphics acceleration disabled produces
+    the same symptoms as a code defect. It reads runtime state and never writes
+    gameplay state, so it can sit anywhere after the draw chain; it is absent
+    from the headless harness because it is a hand-run instrument.
+19. `game-arena-carve.js` — final procedural Observatory Ground arena pass. It keeps the four most recently used baked floors in an LRU cache and installs a stage-arena renderer through the `render` module; it must remain after onboarding and before bootstrap. It must not change physics, collisions, balance, or unit judgement colours.
+20. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
 
 Five presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
 
