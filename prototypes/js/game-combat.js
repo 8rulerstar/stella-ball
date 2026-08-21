@@ -1036,8 +1036,11 @@ function launchAimStarShot() {
       t: 0.42,
       dur: 0.42,
       points: fxPoints,
-      cx: shot.hx,
-      cy: shot.hy,
+      /* 수렴점은 언제나 노드들의 무게중심이다. hx/hy를 쓰면 반대편 샷에서
+         빛이 거울점(유성 뒤편)으로 모여 수렴이 유성을 «가로질러» 쓸고
+         지나간다 — 노드가 가리킨 곳으로 모이고, 유성은 반대로 떠난다. */
+      cx: shot.cx,
+      cy: shot.cy,
     };
     fireMeteor(
       shot.dx,

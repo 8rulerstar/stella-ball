@@ -1339,7 +1339,9 @@ function drawAimStars() {
         x.globalAlpha = 0.8;
       }
       // 안 고른 쪽을 먼저 흐리게. 「저기도 누를 수 있다」가 보여야 한다.
-      if (ready) {
+      // 수업 암전 중에는 접는다 — 어둠 속의 여분 선·깜빡이는 라벨은 손가락이
+      // 가리키는 것과 경쟁한다. 반대편은 4/6 카드가 예고하고 실전에서 배운다.
+      if (ready && !lessonGuide) {
         x.save();
         x.globalAlpha = 0.22;
         x.setLineDash([6, 6]);

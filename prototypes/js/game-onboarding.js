@@ -1139,7 +1139,23 @@ function lessonDimContext() {
   }
   return lessonDimLayer.getContext("2d");
 }
+let lessonDimSignature = "";
 function drawLessonDim(holes, strength) {
+  /* 구멍이 그대로면 어둠막을 다시 굽지 않는다. 조준 대기 중 구멍은 픽
+     수가 바뀔 때만 움직이므로, 매 프레임 720x900을 다시 채우는 대신 한
+     장을 재사용한다 - 이 게임의 성능 병목은 늘 «래스터할 픽셀 양»이었고
+     (PROJECT_CONTEXT 08-18), 가속 없는 기기에서 이 층이 그대로 비용이다. */
+  const signature =
+    strength +
+    "|" +
+    holes
+      .map((hole) => (hole.x | 0) + "," + (hole.y | 0) + "," + hole.r)
+      .join(";");
+  if (signature === lessonDimSignature) {
+    x.drawImage(lessonDimLayer, 0, 0);
+    return;
+  }
+  lessonDimSignature = signature;
   const d = lessonDimContext();
   d.globalCompositeOperation = "source-over";
   d.clearRect(0, 0, W, H);
