@@ -53,7 +53,7 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Fifteen probes drive a real Chromium over CDP the way the onboarding E2E does. None
+Sixteen probes drive a real Chromium over CDP the way the onboarding E2E does. None
 is wired into a gate; run them by hand when the question is about the screen. Each
 file's header names the ways that probe has actually been read wrong - four probes
 gave confidently wrong answers in one night before those notes existed.
@@ -95,6 +95,13 @@ gave confidently wrong answers in one night before those notes existed.
   across 12 screens x 3 sizes as of 2026-08-22, and the checker was validated by
   re-injecting the archive bug it was written for. Meta state lives on
   `progress.*`, so a bare `gold = 4200` sets a new global and changes nothing.
+- `node scripts/probe-text-size.mjs` - what size board text is *on screen*, not in
+  source. The 720x900 backbuffer is scaled to fit the window (0.54x at 1024x680,
+  0.78x at 1280x900, capped at 0.99x), so the `MAINTENANCE.md` rule "no Korean
+  below 10px" cannot be checked by reading `font: 700 10px`. Wraps fillText and
+  multiplies by the transform in force at draw time - `ctx.scale()` is used in a
+  dozen places, and the vertical factor is `hypot(m.b, m.d)`, not `m.d`. Findings
+  in `BOARD_TEXT_2026_08_22.md`.
 - `node scripts/probe-overdraw.mjs` - how many full-viewport layers are actually
   painted, at the title and mid-battle. Baseline 2026-08-22: 12 layers / 9.8
   screens at the title, 11 / 9.62 in battle, with no meta-screen cover left
