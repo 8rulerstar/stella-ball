@@ -86,10 +86,15 @@ gave confidently wrong answers in one night before those notes existed.
 - `node scripts/probe-window-scale.mjs` - what gets more expensive as the window
   grows. The canvas backbuffer is fixed at 720x900, so draw calls do not scale;
   composited *area* does.
-- `node scripts/probe-meta-screens.mjs` - opens shop, summon, profile, archive and
-  settings, dumps the text each one actually shows and writes a screenshot per
-  screen. No assertions: it collects, you read. Meta state lives on `progress.*`,
-  so a bare `gold = 4200` sets a new global and changes nothing.
+- `node scripts/probe-meta-screens.mjs` - opens twelve screens (title, hub, stage
+  select, roster, deployment, shop, summon, profile, archive, library, settings,
+  pause) at 1280x900 and 1280x760, writes a screenshot of each and judges three
+  things that are breakage rather than taste: a scroll box crushed to 0px, a
+  button off-screen that no ancestor scrolls to, and a child spilling out of its
+  own box. The text of each screen is dumped unjudged - read it yourself. Clean
+  across 12 screens x 3 sizes as of 2026-08-22, and the checker was validated by
+  re-injecting the archive bug it was written for. Meta state lives on
+  `progress.*`, so a bare `gold = 4200` sets a new global and changes nothing.
 - `node scripts/probe-overdraw.mjs` - how many full-viewport layers are actually
   painted, at the title and mid-battle. Baseline 2026-08-22: 12 layers / 9.8
   screens at the title, 11 / 9.62 in battle, with no meta-screen cover left
