@@ -471,8 +471,10 @@ async function runOnboarding() {
     `Expected 120 HP final boss, got ${finalStart.bossHp}`,
   );
   const party = await evaluate("deployed.slice()");
+  /* 순서까지 못 박는다 — 배치가 곧 수업 연출이다. 가운데(마지막 슬롯) 자리는
+     가온이다(2026-08-21, 오너 지시). 스타터 셋이 전원 서 있는지와 함께 본다. */
   assert(
-    JSON.stringify(party) === JSON.stringify(["gaon", "biyeon", "ria"]),
+    JSON.stringify(party) === JSON.stringify(["ria", "biyeon", "gaon"]),
     `Unexpected final party: ${JSON.stringify(party)}`,
   );
   // This fixture shortens only the E2E duration. The next real drag/Space
