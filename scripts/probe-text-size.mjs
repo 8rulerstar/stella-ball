@@ -142,7 +142,10 @@ for (const size of SIZES) {
     const dom = JSON.parse(await evaluate(DOM));
     console.log(
       "   DOM 한글 최소 " +
-        dom.map((r) => r.px + "px «" + r.sample + "»").slice(0, 3).join(", "),
+        dom
+          .map((r) => r.px + "px «" + r.sample + "»")
+          .slice(0, 3)
+          .join(", "),
     );
     if (errors.length) console.log("   콘솔 오류: " + errors.join(" | "));
   } finally {

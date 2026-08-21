@@ -43,7 +43,9 @@ const OUT = process.argv.includes("--out")
 mkdirSync(OUT, { recursive: true });
 
 const SIZES = process.argv.includes("--sizes")
-  ? process.argv.slice(process.argv.indexOf("--sizes") + 1).filter((a) => /^\d+,\d+$/.test(a))
+  ? process.argv
+      .slice(process.argv.indexOf("--sizes") + 1)
+      .filter((a) => /^\d+,\d+$/.test(a))
   : ["1280,900", "1280,760"];
 
 const SCREENS = [
@@ -168,7 +170,10 @@ for (const size of SIZES) {
       await evaluate(`(() => { ${call}; return 1; })()`).catch(() => {});
       await delay(1400); // 함정 2
       const { data } = await send("Page.captureScreenshot", { format: "png" });
-      writeFileSync(`${OUT}/${name}-${size.replace(",", "x")}.png`, Buffer.from(data, "base64"));
+      writeFileSync(
+        `${OUT}/${name}-${size.replace(",", "x")}.png`,
+        Buffer.from(data, "base64"),
+      );
       const d = JSON.parse(await evaluate(TEXT));
       const a = JSON.parse(await evaluate(AUDIT));
       const bad = a.unreachable.length + a.crushed.length + a.spill.length;
@@ -176,9 +181,12 @@ for (const size of SIZES) {
       console.log(
         `\n══ ${name}  글줄 ${d.lines.length} · 버튼 ${d.buttons.length} · 잠김 ${d.disabled.length}  ${bad ? "✗ 배치 문제 " + bad + "건" : "· 배치 정상"}`,
       );
-      if (a.crushed.length) console.log("   눌려 죽은 스크롤 상자: " + a.crushed.join(", "));
-      if (a.unreachable.length) console.log("   못 닿는 버튼: " + a.unreachable.join(", "));
-      if (a.spill.length) console.log("   상자 밖으로 나온 것: " + a.spill.join(", "));
+      if (a.crushed.length)
+        console.log("   눌려 죽은 스크롤 상자: " + a.crushed.join(", "));
+      if (a.unreachable.length)
+        console.log("   못 닿는 버튼: " + a.unreachable.join(", "));
+      if (a.spill.length)
+        console.log("   상자 밖으로 나온 것: " + a.spill.join(", "));
       if (size === SIZES[0]) console.log("   " + d.lines.join(" / "));
       await evaluate("setScene('meta'), 1").catch(() => {});
       await delay(400);

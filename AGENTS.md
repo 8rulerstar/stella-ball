@@ -74,18 +74,18 @@ gave confidently wrong answers in one night before those notes existed.
 - `node scripts/probe-campaign-clearable.mjs` - whether the worst possible hand
   still clears each world (win is scheduleWin, not battleComplete - a loss sets
   that too).
-- `node scripts/probe-session-churn.mjs` - what accumulates as you cross *screens*
+- `node scripts/probe-session-churn.mjs` - what accumulates as you cross _screens_
   (nodes, listeners, canvases, animations, heap) with a forced-GC reading. A
   single jump is not a leak; only monotonic growth after GC is. It never enters a
   battle, so anything that piles up shot by shot is invisible to it - that is the
   next line's job.
-- `node scripts/probe-session-leak.mjs` - what accumulates *inside* battles, shot
+- `node scripts/probe-session-leak.mjs` - what accumulates _inside_ battles, shot
   by shot: fx arrays, speech and toast queues, sfx pools, live timers and their
   call sites, runtime hooks. Counts, not frame times, because counts do not wobble
   under load.
 - `node scripts/probe-window-scale.mjs` - what gets more expensive as the window
   grows. The canvas backbuffer is fixed at 720x900, so draw calls do not scale;
-  composited *area* does.
+  composited _area_ does.
 - `node scripts/probe-meta-screens.mjs` - opens twelve screens (title, hub, stage
   select, roster, deployment, shop, summon, profile, archive, library, settings,
   pause) at 1280x900 and 1280x760, writes a screenshot of each and judges three
@@ -95,7 +95,7 @@ gave confidently wrong answers in one night before those notes existed.
   across 12 screens x 3 sizes as of 2026-08-22, and the checker was validated by
   re-injecting the archive bug it was written for. Meta state lives on
   `progress.*`, so a bare `gold = 4200` sets a new global and changes nothing.
-- `node scripts/probe-text-size.mjs` - what size board text is *on screen*, not in
+- `node scripts/probe-text-size.mjs` - what size board text is _on screen_, not in
   source. The 720x900 backbuffer is scaled to fit the window (0.54x at 1024x680,
   0.78x at 1280x900, capped at 0.99x), so the `MAINTENANCE.md` rule "no Korean
   below 10px" cannot be checked by reading `font: 700 10px`. Wraps fillText and
