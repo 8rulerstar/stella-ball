@@ -916,10 +916,12 @@ registerRuntimeHook("afterDraw", function drawFigure() {
             1 -
               (figureFx.t - FIGURE_HOLD_AT - FIGURE.holdTime) / FIGURE.fadeTime,
           ),
-    // Warm only for the pentagram.  Every other constellation now fires too,
-    // so colour has to stay reserved for the rare one or it stops meaning
-    // anything.
-    tint = figureFx.rune ? "#ffd2a0" : "#9adfc9";
+    // 살구는 «높은 것»에만 — 오망성(희귀)과 6·7점(사다리 상단, 2026-08-21
+    // 결정 2). 3~5점은 청록. 점 수가 커질 때 길이가 아니라 색이 갈린다.
+    tint =
+      figureFx.rune || (figureFx.shape?.points?.length ?? 0) >= 6
+        ? "#ffd2a0"
+        : "#9adfc9";
   // The creature itself, underneath its own lines.  It rides the same fitted
   // transform as the corrected skeleton, so it can never drift off the figure,
   // and it stays faint enough that the trace and the stars still read first.
@@ -932,7 +934,12 @@ registerRuntimeHook("afterDraw", function drawFigure() {
       fit = figureFx.fit,
       size = FIGURE_ART_SIZE * (fit.scale / FIGURE_ART_UNIT);
     x.save();
-    x.globalAlpha = FIGURE.silhouetteAlpha * reveal * fade;
+    x.globalAlpha =
+      ((figureFx.shape?.points?.length ?? 0) >= 6
+        ? FIGURE.silhouetteAlphaHigh
+        : FIGURE.silhouetteAlpha) *
+      reveal *
+      fade;
     x.translate(fit.origin.x, fit.origin.y);
     x.rotate(fit.rotation);
     x.drawImage(art, -size / 2, -size / 2, size, size);

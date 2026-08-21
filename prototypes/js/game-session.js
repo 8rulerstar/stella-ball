@@ -73,7 +73,8 @@ function setupBattle() {
       ? "1-1 · 유성을 아래로 끌어 미리내에게 부딪혀 보세요."
       : s.guideStarCharges
         ? s.name + " · 첫 패링이 안내별 둘을 밝혀 별자리를 돕습니다."
-        : s.name + " · Space 패링 접점을 모아 별자리를 그리세요.";
+        : s.name +
+          " · 노드를 셋 찍고 Space로 발사, 남긴 별빛이 별자리가 됩니다.";
   toast(
     s.training
       ? "훈련 시작 · " + bossDisplayName()
@@ -1314,14 +1315,11 @@ addEventListener("keydown", (e) => {
     e.preventDefault();
     return togglePauseMenu();
   }
-  if (
-    paused ||
-    isCombatInputLocked() ||
-    StellaRuntime.modules.optional("onboarding")?.isActive()
-  )
-    return;
-  /* Space는 «발사»다. 고른 셋으로 쏘고, 고르지 않은 나머지가 먼저 별자리로
-     탄다. 세 번째를 찍는 순간 나가게 두면 고른 결과를 보고 무를 수가 없다. */
+  if (paused || isCombatInputLocked()) return;
+  /* Space는 «발사»다. 온보딩 가드 «위»에 둔다 — 아래 가드는 수업 중 키보드를
+     통째로 잠그는데, 이제 수업이 가르치는 조작이 바로 이 키다. 수업 카드가
+     떠 있는 동안은 isCombatInputLocked()가 참이라 여전히 막히고, 실습 중에만
+     열린다. Escape가 같은 이유로 위에 있다. */
   if (
     e.code === "Space" &&
     typeof nodeEconomyOn === "function" &&
@@ -1339,6 +1337,8 @@ addEventListener("keydown", (e) => {
     launchAimStarShot?.();
     return;
   }
+
+  if (StellaRuntime.modules.optional("onboarding")?.isActive()) return;
   if (
     e.key.toLowerCase() === "r" &&
     !e.altKey &&

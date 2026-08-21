@@ -2,7 +2,7 @@
 // tracking live here; shared combat rules remain owned by the combat scripts.
 const STORY_INTRO_STORAGE = "prism-breakers.story-intro.v1";
 const STORY_CONSTELLATION_TOOLTIP =
-  "성공한 Space 패링 접점이 별빛 노드가 됩니다. 한 샷에 3개 이상 모으면 별자리가 발동합니다.";
+  "별지기와 부딪히면 자동으로 공명해 별빛이 남습니다. 조준에 쓰지 않은 별빛 셋부터 별자리가 발동합니다.";
 if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
 const ONBOARDING_STORAGE = "stella-ball.onboarding.v1";
 const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
@@ -47,7 +47,7 @@ let onboarding = null;
 function isOnboardingInputLocked() {
   return Boolean(
     onboarding &&
-      (onboarding.panelVisible !== false || onboarding.transitioning),
+    (onboarding.panelVisible !== false || onboarding.transitioning),
   );
 }
 /* 패링 수업(2단계)은 발사각을 미리내에 «강제»한다. 그런데 조향은 열려 있어서,
@@ -66,10 +66,10 @@ function isOnboardingSessionActive() {
 function isOnboardingSteerGuided() {
   return Boolean(
     onboarding &&
-      onboarding.phase === TEACH_HOLD.steer.phase &&
-      onboarding.panelVisible === false &&
-      ball?.moving &&
-      !ball.steerUsed,
+    onboarding.phase === TEACH_HOLD.steer.phase &&
+    onboarding.panelVisible === false &&
+    ball?.moving &&
+    !ball.steerUsed,
   );
 }
 
@@ -100,9 +100,9 @@ const TEACH_STEER_ROUTE_FRACTION = 0.62;
 const TEACH_HOLD = Object.freeze({
   steer: {
     phase: 1,
-    hint: "지금이에요 — <b>좌클릭</b>은 왼쪽, <b>우클릭</b>은 오른쪽",
+    hint: "지금이에요 — 노드를 <b>셋</b> 찍으세요",
   },
-  parry: { phase: 2, hint: "지금이에요 — <b>Space</b>" },
+  parry: { phase: 2, hint: "지금이에요 — <b>Space</b>로 발사" },
 });
 function teachingHold() {
   return onboarding?.hold ?? null;
@@ -260,6 +260,19 @@ const ONBOARDING_FINAL_PHASE = 3;
 function isOnboardingFinalLesson() {
   return Boolean(onboarding && onboarding.phase === ONBOARDING_FINAL_PHASE);
 }
+/* 2026-08-21: 수업 1·2단계에 별지기를 세운다.
+
+   새 문안(1f)은 「방금 별지기와 부딪힌 자리마다 별빛이 남은 것 보이나요?」와
+   「별지기든 별빛이든 노드를 셋 이상 찍고」를 가르치는데, 이 표는 그 두
+   단계를 party: []로 두고 있었다 — 판에 별지기가 없으니 부딪힐 것도 찍을
+   것도 없다. 반입 패치가 문안만 바꾸고 배치를 안 바꾼 자리이고, 핸드오프
+   §3-1의 「접점 별지기를 발사 항로 위에 두어 공명 1회를 보장」이 이것이다.
+
+   다만 1단계는 비워 둔다. 별지기가 서면 노드가 셋이 되어 aimStarReady()가
+   참이 되고, 그 순간 좌클릭이 «찍기»로 넘어가 드래그가 도달 불가능해진다 —
+   1단계가 가르치는 것이 바로 그 드래그다. 드래그는 노드가 없을 때의 경로이고,
+   수업은 그 순서를 그대로 따라간다: 1단계 드래그 -> 2단계부터 찍기.
+   2단계는 셋을 벌려 세워 «넓게 찍으면 세다»가 손에 잡히게 한다. */
 const onboardingLayouts = [
   {
     party: [],
@@ -270,19 +283,19 @@ const onboardingLayouts = [
     ],
   },
   {
-    party: [],
+    party: [...STARTER_HERO_IDS],
     slots: [
-      [210, 405],
-      [360, 340],
-      [360, 480],
+      [230, 400],
+      [490, 400],
+      [360, 545],
     ],
   },
   {
-    party: ["biyeon"],
+    party: [...STARTER_HERO_IDS],
     slots: [
       [360, 405],
-      [360, 430],
-      [360, 480],
+      [255, 500],
+      [465, 500],
     ],
   },
   {
@@ -326,16 +339,41 @@ function setOnboardingPhase(phase) {
     panelVisible: !finalLesson,
   };
   setupBattle();
-  // The parry lesson adds four non-physical guide stars so one genuine Space
-  // parry demonstrates the loudest five-point reveal without faking a contact.
-  // The final battle removes the aid and uses the same rules as the campaign.
+  // 별빛 경제 수업(phase 2)은 안내별 보정으로 «남긴 별빛» 양자리 한 번을
+  // 보장한다 — 실전과 같은 규칙(자동 공명·별빛 경제)의 3점 도형이다.
+  // 실전 수업(phase 3)은 보정 없이 캠페인과 같은 규칙으로 돈다.
   battle.guideStarCharges = phase === 2 ? 1 : 0;
-  battle.guideFigure = phase === 2 ? "pentagram" : null;
+  battle.guideFigure = phase === 2 ? "aries" : null;
+  /* 별빛을 미리 깐다 — 이것이 문안이 말하는 「루나의 안내별」이다.
+
+     노드 경제에서 별자리는 «이전 샷이 남긴» 별빛으로 발동한다
+     (launchAimStarShot이 발사 직전에 안 고른 별빛을 태운다). 그런데 단계
+     진입의 setupBattle이 별빛을 비우고 한 실습은 한 샷이므로, 깔아 두지
+     않으면 이 수업은 «구조적으로» 별자리를 못 보여준다 — 첫 샷은 재료를
+     만들 뿐이고 그것을 태울 둘째 샷이 없다.
+
+     보스 둘레 삼각형으로 셋을 놓아, 별지기 셋만 찍고 쏘면(수업이 가르치는
+     그 손) 남은 셋이 그대로 양자리가 되고 보스를 감싼다. 실전 규칙은 그대로다
+     — 별빛을 «주는» 것이지 규칙을 바꾸는 것이 아니다. */
+  if (phase === 2 && typeof dropAimStar === "function" && boss) {
+    const ring = [
+      [-150, -95],
+      [155, -90],
+      [0, 165],
+    ];
+    for (const [ox, oy] of ring)
+      dropAimStar(
+        clamp(boss.x + ox, 30, W - 30),
+        clamp(boss.y + oy, 30, H - 30),
+        "#ffd27f",
+        "안내별",
+      );
+  }
   msg = [
     "도우미 루나 · 유성을 보스에게 곧장 보내 보세요.",
-    "도우미 루나 · 유성이 움직일 때 좌·우 클릭 중 하나로 궤도를 한 번 꺾어 보세요.",
-    "도우미 루나 · 미리내와 닿기 직전이나 접점 잔광 중 Space로 공명하세요.",
-    "실전 · 세 별지기를 깨우고 공명 접점으로 별자리를 엮어 거상을 무너뜨리세요.",
+    "도우미 루나 · 별지기·별빛 노드를 셋 찍고 Space로 쏘세요.",
+    "도우미 루나 · 조준에 쓰지 않은 별빛 셋이 별자리가 됩니다.",
+    "실전 · 세 별지기를 깨우고 남긴 별빛으로 별자리를 엮어 거상을 무너뜨리세요.",
   ][phase];
   sync();
   renderOnboarding();
@@ -408,10 +446,10 @@ function renderOnboarding() {
         n: 2,
         title: onboarding.bossHit ? "직격! 잘했어요." : "빗나갔네요. 괜찮아요.",
         body: onboarding.bossHit
-          ? "유성 자체도 피해를 주지만, 별지기를 거치지 않은 직격은 약해요. 이제 발사 뒤에도 한 번 궤도를 고칠 수 있다는 걸 익혀 볼게요."
+          ? "유성 자체도 피해를 주지만, 별지기를 거치지 않은 직격은 약해요. 다음 판에는 별지기가 섭니다 — 부딪히면 그 자리에 별빛이 남아요. 공명은 자동이라 누를 것이 없어요. 그 별빛으로 «조준»을 배워 볼게요."
           : "각도만 조금 바꾸면 돼요. 아래로 길게 끌수록 세게 날아갑니다. 한 번 더 해볼까요?",
         button: onboarding.bossHit
-          ? "다음 · 궤도 전환"
+          ? "다음 · 노드 조준"
           : retried
             ? "괜찮아요, 다음으로"
             : "다시 시도",
@@ -421,53 +459,47 @@ function renderOnboarding() {
     [
       {
         n: 3,
-        title: "날아가는 유성도 조종할 수 있어요.",
-        body: "유성을 먼저 발사한 뒤, 움직이는 동안 좌클릭하면 진행 방향의 왼쪽, 우클릭하면 오른쪽으로 꺾입니다. 두 버튼은 한 발에 합쳐서 딱 한 번만 쓸 수 있어요.",
-        button: "발사 후 한 번 꺾기",
+        title: "이제부터 조준은 «찍기»예요.",
+        body: "유성이 멈추면 별지기든 별빛이든 노드를 셋 이상 좌클릭으로 찍고, Space로 쏩니다. 유성은 고른 노드들의 가운데로 날아가고, 넓게 벌려 찍을수록 세게 나가요. 다시 찍으면 무르기, 우클릭은 전부 무르기예요.",
+        button: "셋 찍고 Space로 발사",
         action: "practice",
       },
       {
         n: 4,
-        title: onboarding.steered
-          ? "궤도를 한 번 꺾었어요."
-          : "아직 궤도 전환을 쓰지 않았어요.",
-        body: onboarding.steered
-          ? "전환은 속도를 조금 더하며 즉시 소모됩니다. 별지기는 유성에 밀려 움직이기만 해도 깨어나요. 이제 그 접점을 별빛으로 남기는 Space 공명을 배워 볼게요."
-          : "유성이 움직이기 시작한 다음 캔버스를 좌클릭하거나 우클릭해 보세요. 드래그가 아니라 짧게 한 번 누르면 됩니다.",
-        button: onboarding.steered
-          ? "다음 · Space 패링"
+        title: onboarding.aimed
+          ? "노드 조준으로 쐈어요!"
+          : "아직 노드를 셋 찍지 않았어요.",
+        body: onboarding.aimed
+          ? "빈 곳을 클릭하면 반대편으로도 쏠 수 있어요. 그런데 조준에 «쓰지 않은» 별빛은 어떻게 될까요? 그게 이 게임의 가장 특별한 것 — 별자리예요."
+          : "유성이 멈춘 뒤 별지기나 별빛을 좌클릭으로 셋 찍으면 금색 길이 생겨요. 그때 Space를 누르면 됩니다.",
+        button: onboarding.aimed
+          ? "다음 · 별자리"
           : retried
             ? "괜찮아요, 다음으로"
             : "다시 시도",
-        action: onboarding.steered || retried ? "learn-parry" : "practice",
+        action: onboarding.aimed || retried ? "learn-parry" : "practice",
       },
     ],
     [
       {
         n: 5,
-        title: "첫 공명 항로는 루나가 고정할게요.",
-        body: "어느 방향으로 당겨도 이번 유성은 미리내에게 향해요. 발사한 뒤 Space를 한 번 누르세요. 접점에서 공명하면 그 자리가 별빛 하나로 남고, 안내별 넷이 최고의 첫 별자리를 완성합니다.",
-        button: "Space로 첫 별자리 열기",
+        title: "남긴 별빛이 별자리가 돼요.",
+        body: "조준에 쓰지 않은 별빛이 셋 이상 남으면, 샷이 끝날 때 그 별빛들이 별자리로 타오릅니다. 이번에는 루나의 안내별이 도와줄게요 — 별빛 하나만 남기고 쏘면 첫 별자리가 열립니다.",
+        button: "별빛을 남기고 발사",
         action: "practice",
       },
       {
         n: 6,
-        title:
-          onboarding.parrySuccess && onboarding.figureResolved
-            ? "공명과 오망성이 이어졌어요!"
-            : onboarding.parrySuccess
-              ? "패링은 성공했어요."
-              : "일반 충돌로 지나갔어요.",
-        body:
-          onboarding.parrySuccess && onboarding.figureResolved
-            ? "실제 접점 하나와 안내별 넷이 오망성을 현현시켰어요. 미리내의 거리 저격은 유성이 멈출 때 각성 공격으로 따로 들어갑니다. 실전에서는 한 샷에 공명 접점 3개 이상을 직접 모아 여러 별자리를 발동해요."
-            : onboarding.parrySuccess
-              ? "공명은 성공했습니다. 별자리는 한 샷이 멈출 때 별빛 노드가 3개 이상이면 발동해요."
-              : "그냥 부딪혀도 미리내는 깨어나 각성 공격을 합니다. 다만 별빛은 남지 않아요. 충돌 직전 또는 접점 잔광이 보일 때 Space를 눌러 공명으로 바꿔 보세요.",
-        button: onboarding.parrySuccess ? "직접 잡아보기" : "다시 시도",
+        title: onboarding.figureResolved
+          ? "첫 별자리가 현현했어요!"
+          : "별빛이 별자리가 되지 못했어요.",
+        body: onboarding.figureResolved
+          ? "고른 별빛은 조준으로, 남긴 별빛은 별자리로 — 한 번의 선택이 두 결과를 냅니다. 별지기 노드는 조준에만 쓰이고 별자리 재료로는 타지 않아요. 각성 공격은 별자리와 별개로, 유성이 멈출 때 따로 들어갑니다."
+          : "부딪힌 자리의 별빛을 조준에 다 써버리면 별자리 재료가 남지 않아요. 셋 이상 남긴 채로 샷을 끝내 보세요.",
+        button: onboarding.figureResolved ? "직접 잡아보기" : "다시 시도",
         // The showcase is the promise of the combat system. Do not let a
         // skipped practice advance before the player has actually seen it.
-        action: onboarding.parrySuccess ? "final-battle" : "practice",
+        action: onboarding.figureResolved ? "final-battle" : "practice",
       },
     ],
     [],
@@ -679,6 +711,16 @@ registerRuntimeHook("afterParryContact", ({ gate }) => {
   if (onboarding?.phase !== 2) return;
   onboarding.parrySuccess = true;
   onboarding.parriedHero = gate.id;
+});
+/* 노드 경제(2026-08-19)에서 별자리는 finishFigureShot이 아니라
+   launchAimStarShot이 발사 직전에 태우는 «남긴 별빛»에서 나온다. 그쪽은
+   resolveFigure를 직접 부르므로 afterFigureShot은 항상 resolved:false로
+   불리고, 아래 훅만 두면 수업 3이 영원히 「별자리가 되지 못했어요」에
+   머문다. 실제 발동을 듣는 훅은 이쪽이다. */
+registerRuntimeHook("afterFigureResolve", ({ points }) => {
+  if (!onboarding || !points || points.length < 3) return;
+  onboarding.figureResolved = true;
+  onboarding.figurePoints = points.length;
 });
 registerRuntimeHook("afterFigureShot", ({ missed, resolved }) => {
   if (onboarding?.phase === 2 && !missed && resolved)

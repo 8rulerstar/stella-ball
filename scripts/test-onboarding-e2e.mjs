@@ -299,6 +299,49 @@ async function clickMovingMeteor() {
   record("steer-input", { side: "left" });
 }
 
+/* 노드 조준(2026-08-21). 유성이 멈춘 뒤 aimNodes()에서 좌표를 받아 n개를
+   찍는다. 별지기는 항상 셋이 있으므로 별빛이 없어도 하한(minPick)을 채운다.
+   `keep`을 주면 별빛을 그만큼 «남겨» 별자리 재료로 돌린다 — 수업 3이 그것을
+   가르치므로 E2E도 같은 손을 따라가야 한다. */
+async function pickNodes(count, { preferUnits = true } = {}) {
+  const points = await evaluate(`(() => {
+    if (typeof aimNodes !== "function") return null;
+    const rect = document.querySelector("#game").getBoundingClientRect();
+    const nodes = aimNodes().map((n, i) => ({ i, unit: !!n.unit, x: n.x, y: n.y }));
+    const order = ${preferUnits ? "nodes.filter(n => n.unit).concat(nodes.filter(n => !n.unit))" : "nodes"};
+    return order.slice(0, ${count}).map(n => ({
+      i: n.i, unit: n.unit,
+      x: rect.left + n.x * rect.width / 720,
+      y: rect.top + n.y * rect.height / 900,
+    }));
+  })()`);
+  assert(
+    points && points.length === count,
+    `Could not resolve ${count} aim nodes (got ${points ? points.length : "null"})`,
+  );
+  for (const point of points) await mouseClick(point);
+  const picked = await evaluate("aimPick.length");
+  assert(picked === count, `Expected ${count} picks, got ${picked}`);
+  record("aim-pick", { count, units: points.filter((p) => p.unit).length });
+  return points;
+}
+
+async function nodeShot(count = 3) {
+  await waitUntil(
+    "meteor at rest",
+    async () => !(await gameState()).moving,
+    8000,
+  );
+  await pickNodes(count);
+  await pressSpace();
+  await waitUntil(
+    "node-aimed launch",
+    async () => (await gameState()).moving,
+    4000,
+  );
+  record("node-shot", { count });
+}
+
 async function pressSpace() {
   const key = {
     key: " ",
@@ -353,61 +396,68 @@ async function runOnboarding() {
   assert(first.card === "2 / 6", `Expected card 2 / 6, got ${first.card}`);
   record("lesson-pass", { lesson: 1, assertion: "bossHit" });
 
-  await clickButton("다음 · 궤도 전환");
+  /* 2026-08-21: 수업이 «조향·Space 패링»에서 «노드 조준·자동 공명·별빛
+     경제»로 바뀌었다. 여정도 그대로 따라간다 — 카드 문구와 통과 조건이
+     game-onboarding.js의 lessons 표와 한 몸이므로, 그쪽을 고치면 여기도
+     같은 커밋에서 고쳐야 한다. */
+  await clickButton("다음 · 노드 조준");
   await waitUntil(
     "lesson card 3",
     async () => (await gameState()).card === "3 / 6",
   );
-  await clickButton("발사 후 한 번 꺾기");
-  await dragShot();
-  await clickMovingMeteor();
-  await clickMovingMeteor();
-  const second = await waitForLessonResult(1);
-  assert(second.steered, "Lesson 2 did not register the one-shot steer");
-  const steerCount = await evaluate("window.__stellaE2eSteers");
-  assert(steerCount === 1, `Expected one consumed steer, got ${steerCount}`);
+  await clickButton("셋 찍고 Space로 발사");
+  await nodeShot(3);
+  const second = await waitForLessonResult(1, 20000);
   assert(second.card === "4 / 6", `Expected card 4 / 6, got ${second.card}`);
-  record("lesson-pass", { lesson: 2, assertion: "steered" });
+  const aimed = await evaluate(
+    "typeof onboarding === 'object' && onboarding ? !!onboarding.aimed : null",
+  );
+  assert(aimed === true, "Lesson 2 did not register a node-aimed shot");
+  const teachShots = await evaluate(
+    "typeof aimTeach === 'object' && aimTeach ? aimTeach.shots : null",
+  );
+  assert(
+    typeof teachShots === "number" && teachShots >= 1,
+    `aimTeach.shots did not advance (got ${teachShots})`,
+  );
+  record("lesson-pass", { lesson: 2, assertion: "nodeAimed" });
 
-  await clickButton("다음 · Space 패링");
+  await clickButton("다음 · 별자리");
   await waitUntil(
     "lesson card 5",
     async () => (await gameState()).card === "5 / 6",
   );
-  await clickButton("Space로 첫 별자리 열기");
-  await dragShot();
-  const guidedLaunch = await gameState();
-  assert(guidedLaunch.aimAssist, "Luna's phase-2 route was not locked");
-  assert(guidedLaunch.guideCharges === 1, "Pentagram guide charge is missing");
-  await pressSpace();
+  await clickButton("별빛을 남기고 발사");
+  /* 별빛을 남겨야 별자리가 뜬다. 별지기 셋만 찍으면 별빛은 하나도 안 쓰이고
+     전부 별자리 재료로 남는다 — 수업이 가르치는 손이 정확히 이것이다.
+
+     두 샷이 필요하다. 노드 경제에서 별자리는 «이전 샷이 남긴» 별빛으로
+     발동하는데(launchAimStarShot이 발사 직전에 남은 별빛을 태운다),
+     단계 진입 때 setupBattle이 별빛을 비우므로 첫 샷은 재료를 만드는 샷이고
+     둘째 샷의 발사가 그것을 태운다. 수업 문안은 한 번에 되는 것처럼 읽히므로
+     그쪽은 별도 항목으로 남긴다. */
+  const seeded = await evaluate("aimStars.length");
+  assert(seeded >= 3, `Lesson 3 needs pre-seeded starlight, got ${seeded}`);
+  await nodeShot(3);
   const resonance = await waitUntil(
-    "guided pentagram resolution",
+    "guided figure resolution",
     async () => {
       const state = await gameState();
-      return state.parrySuccess && state.figureResolved ? state : false;
+      return state.figureResolved ? state : false;
     },
-    20000,
-  );
-  assert(resonance.parriedHero === "biyeon", "Guided parry missed Mirinae");
-  assert(
-    resonance.figure === "pentagram",
-    `Expected pentagram, got ${resonance.figure}`,
+    25000,
   );
   assert(
-    resonance.figurePoints === 5,
-    `Expected five starlight points, got ${resonance.figurePoints}`,
+    resonance.figurePoints >= 3,
+    `Expected three or more starlight points, got ${resonance.figurePoints}`,
   );
-  assert(
-    resonance.guideCharges === 0,
-    "Pentagram guide charge was not consumed",
-  );
-  const third = await waitForLessonResult(2, 20000);
+  const third = await waitForLessonResult(2, 25000);
   assert(third.card === "6 / 6", `Expected card 6 / 6, got ${third.card}`);
-  assert(
-    third.cardTitle === "공명과 오망성이 이어졌어요!",
-    `Unexpected showcase result: ${third.cardTitle}`,
-  );
-  record("lesson-pass", { lesson: 3, assertion: "pentagram" });
+  record("lesson-pass", {
+    lesson: 3,
+    assertion: "figure",
+    figure: resonance.figure,
+  });
 
   await clickButton("직접 잡아보기");
   const finalStart = await waitUntil("final battle", async () => {
@@ -444,7 +494,11 @@ async function runOnboarding() {
       20000,
     );
     if (!ready.run) break;
-    await dragShot(offset);
+    /* 실전(phase 3)에는 별지기 셋이 서 있으므로 노드 조준이 켜져 있고
+       드래그는 도달 불가능하다 — 드래그는 노드가 없을 때의 경로다.
+       수업 1만 드래그이고 그 뒤로는 전부 찍기다. */
+    await nodeShot(3);
+    void offset;
     await pressSpace();
     await waitUntil(
       "final shot resolution",
@@ -482,12 +536,16 @@ async function runOnboarding() {
     unlock,
     contract: {
       steerInputs: 2,
-      steersConsumed: steerCount,
-      routeLocked: guidedLaunch.aimAssist,
-      parriedHero: resonance.parriedHero,
+      // 조향 수업이 노드 조준 수업으로 바뀌면서 이 지표는 사라졌다.
+      // 그 자리를 조준 교습 카운터가 대신한다.
+      aimTeachShots: await evaluate(
+        "typeof aimTeach === 'object' && aimTeach ? aimTeach.shots : null",
+      ),
+      /* 조향·유도 오망성 수업이 사라지면서 routeLocked·parriedHero·
+         guideChargeConsumed도 함께 사라졌다. 남은 것은 「남긴 별빛이 실제로
+         별자리가 됐는가」 하나이고, 그것이 수업 3이 증명하는 전부다. */
       figure: resonance.figure,
       figurePoints: resonance.figurePoints,
-      guideChargeConsumed: resonance.guideCharges === 0,
     },
   };
 }

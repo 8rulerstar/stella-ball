@@ -38,7 +38,8 @@ let cineParts = [],
   cineStreaks = [],
   cineFrags = [],
   cineKnock = null,
-  cineDark = 0;
+  cineDark = 0,
+  cineWallPulse = 0;
 registerRuntimeHook("afterBattleSetup", () => {
   cine = null;
   cineParts = [];
@@ -48,6 +49,7 @@ registerRuntimeHook("afterBattleSetup", () => {
   cineFrags = [];
   cineKnock = null;
   cineDark = 0;
+  cineWallPulse = 0;
   // Silhouettes otherwise decode on the first cast, exactly when the screen is
   // already busiest. Battle setup gives all seven images several shots of lead.
   for (const tier of Object.values(FIGURE_SHAPES))
@@ -96,6 +98,13 @@ function compactCine(items) {
 function cinePillar(cx, cy, col) {
   cinePillars.push({ x: cx, y: cy, col, t: 0, d: 1.1 });
 }
+/* 6·7점 대격(2026-08-21 결정 2): 히트스톱 + 벽 살구 펄스. 표현만 — 숫자는
+   그대로 FIGURE_ABILITIES가 낸다. impactStop/screenShake는 런타임의 시간·
+   카메라 제어라 game-awaken-fx.js와 같은 정당한 쓰기 경로다. */
+function cineTierHit() {
+  impactStop = Math.max(impactStop, 0.14);
+  cineWallPulse = 0.55;
+}
 const cineEase = (t) => {
   t = Math.max(0, Math.min(1, t));
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -117,9 +126,13 @@ function cineScriptFor(fx) {
     o = cineOrigin(fx);
   const bx = boss?.x ?? W / 2,
     by = boss?.y ?? H / 3;
+  /* 1b(2026-08-21): at은 이제 «성립» 기준. 궤적(0~1.12s)이 조주가 되고,
+     최대 임팩트는 CAST — 능력·숫자와 같은 프레임 — 에 떨어진다.
+     조주는 CAST 앞, 여운은 CAST 뒤로만 쓴다. 총길이는 전부 짧아진다. */
+  const CAST = FIGURE_CAST_AT;
   if (id === "aries") {
     E.push({
-      at: 0.72,
+      at: CAST,
       fn: () => {
         screenFlash = Math.max(screenFlash, 0.32);
         screenShake = Math.max(screenShake, 16);
@@ -129,9 +142,13 @@ function cineScriptFor(fx) {
       },
     });
     return {
-      end: 1.4,
+      end: CAST + 0.9,
       evts: E,
-      ram: { from: { x: -140, y: Math.min(H - 120, by + 300) } },
+      ram: {
+        from: { x: -140, y: Math.min(H - 120, by + 300) },
+        t0: CAST - 0.82,
+        t1: CAST,
+      },
     };
   }
   if (id === "sagitta") {
@@ -140,20 +157,36 @@ function cineScriptFor(fx) {
       dx = tip.x - from.x,
       dy = tip.y - from.y,
       L = Math.hypot(dx, dy) || 1;
-    const A = { from, tip, ux: dx / L, uy: dy / L, len: L, phase: 0, pt: 0 };
+    const A = {
+      from,
+      tip,
+      ux: dx / L,
+      uy: dy / L,
+      len: L,
+      phase: 0,
+      pt: 0,
+      matDur: CAST - 0.45,
+    };
     // 기존 관통 빔은 이 화살이 대신한다 — 같은 선을 두 번 긋지 않는다.
     fx.beam = null;
     E.push({
-      at: 0.78,
+      at: CAST - 0.22,
       fn: () => {
         A.phase = 1;
         A.pt = 0;
         screenShake = Math.max(screenShake, 7);
       },
     });
-    E.push({ at: 0.9, fn: () => cineBurst(bx, by, "#ffd2a0", 18, 260, 0.6) });
     E.push({
-      at: 1.0,
+      at: CAST,
+      fn: () => {
+        screenFlash = Math.max(screenFlash, 0.26);
+        screenShake = Math.max(screenShake, 12);
+        cineBurst(bx, by, "#ffd2a0", 18, 260, 0.6);
+      },
+    });
+    E.push({
+      at: CAST + 0.1,
       fn: () => {
         const wp = cineWall(A);
         cineRing(wp.x, wp.y, 8, 120, 0.45, "#ffd2a0");
@@ -163,19 +196,19 @@ function cineScriptFor(fx) {
         A.pt = 0;
       },
     });
-    return { end: 2.4, evts: E, arrow: A };
+    return { end: CAST + 1.2, evts: E, arrow: A };
   }
   if (id === "corvus") {
     const st = { t: 0, dive: false, scatter: false };
     E.push({
-      at: 1.55,
+      at: CAST - 0.27,
       fn: () => {
         st.dive = true;
         st.t = 0;
       },
     });
     E.push({
-      at: 1.82,
+      at: CAST,
       fn: () => {
         screenFlash = Math.max(screenFlash, 0.2);
         screenShake = Math.max(screenShake, 8);
@@ -185,7 +218,7 @@ function cineScriptFor(fx) {
         cineBurst(bx, by - 20, "#2c3a44", 12, 160, 0.9, 2, 60);
       },
     });
-    return { end: 3.3, evts: E, crows: st };
+    return { end: CAST + 1.0, evts: E, crows: st };
   }
   if (id === "cassiopeia") {
     const st = { bolt: -1 };
@@ -198,7 +231,7 @@ function cineScriptFor(fx) {
         },
       });
     E.push({
-      at: 0.85,
+      at: CAST,
       fn: () => {
         st.bolt = 0;
         screenFlash = Math.max(screenFlash, 0.32);
@@ -206,37 +239,45 @@ function cineScriptFor(fx) {
         cineShieldFrags();
       },
     });
-    E.push({ at: 1.6, fn: () => cineRing(bx, by, 30, 150, 0.5, "#9adfc9", 2) });
-    return { end: 3.0, evts: E, cass: st };
+    E.push({
+      at: CAST + 0.5,
+      fn: () => cineRing(bx, by, 30, 150, 0.5, "#9adfc9", 2),
+    });
+    return { end: CAST + 0.9, evts: E, cass: st };
   }
   if (id === "cygnus") {
     const st = { ribbon: [] };
     E.push({
-      at: 1.35,
+      at: CAST,
       fn: () => {
         if (!ball) return;
+        screenShake = Math.max(screenShake, 6);
         cineRing(ball.x, ball.y, 8, 60, 0.5, "#7cc6bb", 2);
         cineRing(ball.x, ball.y, 6, 40, 0.4, "#fff6e6", 2);
       },
     });
-    return { end: 3.2, evts: E, swan: st };
+    return { end: CAST + 1.5, evts: E, swan: st };
   }
   if (id === "pentagram") {
     E.push({
-      at: 0.8,
+      at: CAST,
       fn: () => {
         cineRing(o.x, o.y, 30, 290, 0.6, "#ffe6b0");
       },
     });
     gates.forEach((g, i) =>
-      E.push({ at: 1.0 + i * 0.16, fn: () => cinePillar(g.x, g.y, g.col) }),
+      E.push({
+        at: CAST + 0.06 + i * 0.09,
+        fn: () => cinePillar(g.x, g.y, g.col),
+      }),
     );
-    return { end: 3.2, evts: E, circle: true };
+    return { end: CAST + 1.1, evts: E, circle: true };
   }
   if (id === "orion") {
     const strike = (big) => () => {
       screenFlash = Math.max(screenFlash, big ? 0.55 : 0.24);
       screenShake = Math.max(screenShake, big ? 26 : 12);
+      if (big) cineTierHit();
       cineRing(bx, by, 14, big ? 260 : 150, big ? 0.6 : 0.4, "#ffd2a0");
       if (big) {
         cineRing(bx, by, 20, 340, 0.8, "#fff6e6", 2);
@@ -252,27 +293,52 @@ function cineScriptFor(fx) {
       } else cineBurst(bx, by, "#ffd2a0", 14, 220, 0.5);
       if (boss) boss.hitFlash = Math.max(boss.hitFlash || 0, 0.3);
     };
-    E.push({ at: 1.15, fn: strike(false) });
-    E.push({ at: 1.55, fn: strike(false) });
-    E.push({ at: 2.18, fn: strike(true) });
-    return { end: 4.4, evts: E, orion: true };
+    E.push({ at: CAST, fn: strike(true) });
+    E.push({ at: CAST + 0.22, fn: strike(false) });
+    E.push({ at: CAST + 0.44, fn: strike(false) });
+    return { end: CAST + 1.5, evts: E, orion: true };
   }
   if (id === "bigdipper") {
-    const st = { rainAcc: 0, polaris: -1, aim: -1 };
-    E.push({ at: 1.0, fn: () => (st.raining = true) });
-    gates.forEach((g, i) =>
-      E.push({ at: 1.3 + i * 0.22, fn: () => cinePillar(g.x, g.y, g.col) }),
-    );
+    const st = { rainAcc: 0, polaris: -1, aim: -1, rate: 70, bias: 0.45 };
+    E.push({ at: CAST - 0.27, fn: () => (st.raining = true) });
     E.push({
-      at: 2.45,
+      at: CAST,
       fn: () => {
         st.raining = false;
-        cineRing(bx, by, 20, 230, 0.55, "#ffd2a0");
+        cineTierHit();
+        screenFlash = Math.max(screenFlash, 0.5);
+        screenShake = Math.max(screenShake, 24);
+        cineRing(bx, by, 20, 300, 0.6, "#ffd2a0");
+        cineRing(bx, by, 14, 200, 0.45, "#fff6e6", 2);
+        cineBurst(bx, by, "#ffd2a0", 36, 360, 0.85);
+        if (boss) boss.hitFlash = Math.max(boss.hitFlash || 0, 0.3);
       },
     });
-    E.push({ at: 2.7, fn: () => (st.polaris = 0) });
-    E.push({ at: 2.95, fn: () => (st.aim = 0) });
-    return { end: 4.6, evts: E, dipper: st };
+    E.push({
+      at: CAST + 0.22,
+      fn: () => {
+        screenShake = Math.max(screenShake, 10);
+        cineRing(bx, by, 12, 150, 0.4, "#ffd2a0");
+        cineBurst(bx, by, "#ffd2a0", 14, 220, 0.5);
+      },
+    });
+    E.push({
+      at: CAST + 0.44,
+      fn: () => {
+        screenShake = Math.max(screenShake, 10);
+        cineRing(bx, by, 12, 150, 0.4, "#ffd2a0");
+        cineBurst(bx, by, "#fff1bd", 14, 220, 0.5);
+      },
+    });
+    gates.forEach((g, i) =>
+      E.push({
+        at: CAST + 0.15 + i * 0.09,
+        fn: () => cinePillar(g.x, g.y, g.col),
+      }),
+    );
+    E.push({ at: CAST + 0.6, fn: () => (st.polaris = 0) });
+    E.push({ at: CAST + 0.8, fn: () => (st.aim = 0) });
+    return { end: CAST + 1.9, evts: E, dipper: st };
   }
   return null;
 }
@@ -314,12 +380,13 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
   cineFrameDelta = Math.min(0.05, Math.max(0, d));
   if (!CINE.enabled) return;
   // Start when the reveal's own clock crosses the cast beat.
+  // 1b: 성립 즉시 시작해 궤적 구간을 조주로 쓴다(임팩트는 CAST에 정렬).
   if (
     figureFx &&
     figureFx.battle === battle &&
     figureFx.shape &&
     !figureFx.cineStarted &&
-    figureFx.t >= FIGURE_CAST_AT &&
+    figureFx.t >= 0 &&
     !battleComplete
   ) {
     figureFx.cineStarted = true;
@@ -354,16 +421,17 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
     f.a += d * 6;
   }
   compactCine(cineFrags);
-  // orion vignette
+  // orion vignette — 1b: 대격(CAST) 0.5초 뒤부터 걷는다.
   if (cine && cine.orion) {
     const s = cine.t;
     cineDark =
       s < 0.5
         ? (s / 0.5) * 0.45
-        : s > 2.8
-          ? Math.max(0, 0.45 * (1 - (s - 2.8) / 1.2))
+        : s > FIGURE_CAST_AT + 0.5
+          ? Math.max(0, 0.45 * (1 - (s - FIGURE_CAST_AT - 0.5) / 1.0))
           : 0.45;
   } else cineDark = Math.max(0, cineDark - d * 1.4);
+  cineWallPulse = Math.max(0, cineWallPulse - d);
   if (cine?.arrow) cine.arrow.pt += d;
   if (cine?.crows) {
     cine.crows.t += d;
@@ -376,10 +444,10 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
   }
   // starfall spawner + travel
   if (cine?.dipper?.raining) {
-    cine.dipper.rainAcc += d * 30;
+    cine.dipper.rainAcc += d * (cine.dipper.rate || 30);
     while (cine.dipper.rainAcc >= 1) {
       cine.dipper.rainAcc -= 1;
-      const toBoss = Math.random() < 0.22,
+      const toBoss = Math.random() < (cine.dipper.bias ?? 0.22),
         bx = boss?.x ?? W / 2,
         by = boss?.y ?? H / 3;
       const tx = toBoss
@@ -548,14 +616,23 @@ registerRuntimeHook("afterDraw", function drawCine() {
     x.fillStyle = "rgba(2,3,11," + cineDark.toFixed(2) + ")";
     x.fillRect(0, 0, W, H);
   }
+  if (cineWallPulse > 0) {
+    /* 결정 2: 6·7점 대격의 판 반응 — 벽 프레임 살구 펄스 한 번. */
+    x.save();
+    x.globalAlpha = cineWallPulse * 1.45;
+    x.strokeStyle = "#ffd2a0";
+    x.lineWidth = 8;
+    x.strokeRect(21, 21, W - 42, H - 42);
+    x.restore();
+  }
 });
 function drawCineRam(s) {
   const img = textures[FIGURE_SHAPES[3][0].art],
     bx = boss?.x ?? W / 2,
     by = boss?.y ?? H / 3,
     from = cine.ram.from;
-  const t0 = 0.15,
-    t1 = 0.72;
+  const t0 = cine.ram.t0 ?? 0.15,
+    t1 = cine.ram.t1 ?? 0.72;
   if (s < t0 || !img?.complete || !img.naturalWidth) return;
   const k = Math.min(1, (s - t0) / (t1 - t0));
   const px = from.x + (bx + 40 - from.x) * k,
@@ -633,8 +710,9 @@ function drawCineArrow(A) {
     mx = (A.from.x + A.tip.x) / 2,
     my = (A.from.y + A.tip.y) / 2;
   if (A.phase === 0) {
-    const mat = Math.min(1, s / 0.55),
-      pull = s > 0.55 ? Math.min(1, (s - 0.55) / 0.23) * 30 : 0;
+    const matDur = A.matDur ?? 0.55;
+    const mat = Math.min(1, s / matDur),
+      pull = s > matDur ? Math.min(1, (s - matDur) / 0.23) * 30 : 0;
     if (mat < 1 && cineChance(0.8)) {
       const an = Math.random() * Math.PI * 2,
         r = 90 + Math.random() * 60;
@@ -802,7 +880,7 @@ function drawCineCass(st, s) {
   x.lineCap = "round";
   const surge = s > 0.6 ? 0.7 + 0.3 * Math.sin(now * 18) : 0.8;
   x.lineWidth = s > 0.6 ? 5 : 3;
-  x.globalAlpha = surge * Math.max(0, 1 - (s - 1.4) / 0.8);
+  x.globalAlpha = surge * Math.max(0, 1 - (s - (FIGURE_CAST_AT + 0.3)) / 0.8);
   x.beginPath();
   for (let i = 0; i < 4; i++) {
     const span = Math.max(0, Math.min(1, segs - i));
@@ -882,7 +960,8 @@ function drawCineSwan(st, s) {
       });
       x.strokeStyle = L ? "#7cc6bb" : "#9adfc9";
       x.globalAlpha =
-        (L ? 0.18 : 0.3) * Math.max(0, 1 - Math.max(0, s - 2.2) / 1.0);
+        (L ? 0.18 : 0.3) *
+        Math.max(0, 1 - Math.max(0, s - (cine.end - 1.0)) / 1.0);
       x.lineWidth = L ? 16 : 7;
       x.shadowBlur = combatFxBlur(18);
       x.shadowColor = "#7cc6bb";
@@ -923,7 +1002,10 @@ function drawCineSwan(st, s) {
 function drawCineMagicCircle(t, o) {
   const now = frameClock / 1000;
   const ins = Math.min(1, t / 0.7),
-    dim = t > 2.2 ? Math.max(0.25, 1 - (t - 2.2) / 1.2) : 1,
+    dim =
+      t > FIGURE_CAST_AT + 0.7
+        ? Math.max(0.25, 1 - (t - FIGURE_CAST_AT - 0.7) / 1.2)
+        : 1,
     ignite = t > 0.8 ? 1 + 0.15 * Math.sin(now * 6) : 0.8;
   x.save();
   x.translate(o.x, o.y);
@@ -1005,9 +1087,12 @@ function drawCineOrion(s) {
       x.restore();
     }
   }
-  const rise = cineEase((s - 0.4) / 0.6);
+  const rise = cineEase((s - 0.1) / 0.6);
   if (rise <= 0 || !img?.complete || !img.naturalWidth) return;
-  const dissolve = s > 2.9 ? Math.min(1, (s - 2.9) / 1.3) : 0;
+  const dissolve =
+    s > FIGURE_CAST_AT + 0.6
+      ? Math.min(1, (s - FIGURE_CAST_AT - 0.6) / 1.0)
+      : 0;
   const cy = -120 + rise * 290;
   let strikeOff = 0,
     rot = 0,
@@ -1025,11 +1110,11 @@ function drawCineOrion(s) {
       }
     }
   };
-  sk(1.15, false);
-  sk(1.55, false);
-  sk(2.18, true);
-  if (s > 1.9 && s < 2.18) {
-    const w = (s - 1.9) / 0.28;
+  sk(FIGURE_CAST_AT, true);
+  sk(FIGURE_CAST_AT + 0.22, false);
+  sk(FIGURE_CAST_AT + 0.44, false);
+  if (s > FIGURE_CAST_AT - 0.28 && s < FIGURE_CAST_AT) {
+    const w = (s - (FIGURE_CAST_AT - 0.28)) / 0.28;
     scl = 1 + w * 0.12;
     rot = -0.2 * w;
   }
@@ -1100,7 +1185,8 @@ function drawCineDipper(st, s) {
   }
   if (fly >= 1) {
     const tip = cineEase((s - 0.7) / 0.5) * 0.5,
-      fade = s > 3.6 ? Math.max(0, 1 - (s - 3.6) / 1.0) : 1;
+      fade =
+        s > cine.end - 1.0 ? Math.max(0, 1 - (s - (cine.end - 1.0)) / 1.0) : 1;
     x.save();
     x.translate(skyC.x, skyC.y);
     x.rotate(tip);

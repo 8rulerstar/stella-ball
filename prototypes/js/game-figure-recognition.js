@@ -54,6 +54,8 @@ const FIGURE = {
   // checked against the live canvas.  Revisit if the floor tone changes —
   // PROGRESS_REPORT.md already lists that purple as an open item.
   silhouetteAlpha: 0.3,
+  // 6·7점 사다리(2026-08-21 결정 2): 상위 티어만 실루엣이 진하다.
+  silhouetteAlphaHigh: 0.42,
 };
 const FIGURE_PARRY = {
   // A charge can be placed just before a collision, but the contact itself is
@@ -232,18 +234,17 @@ function addGuideStars(state, contact) {
 
    false로 되돌리면 예전 Space 공명이 그대로 돌아온다. */
 const AUTO_PARRY = true;
-/* 수업 중에는 둘 다 끈다. 루나의 수업은 「Space로 공명」과 「샷이 끝나면
-   별자리가 열린다」를 그대로 가르치고, 온보딩 E2E도 그 흐름을 따라간다 —
-   실제로 여기를 안 막았을 때 「guided pentagram resolution timed out」으로
-   게이트가 떨어졌다. 실험은 캠페인에서만 돈다. */
+/* 2026-08-21 결정 6: 수업 한정 우회를 걷었다 — 수업도 실전과 같은 규칙
+   (자동 공명·별빛 경제)으로 돈다. 새 3실습 수업이 같은 커밋에 들어가고,
+   E2E(scripts/test-onboarding-e2e.mjs)는 새 여정으로 교체한다. */
 function onboardingRunning() {
   return Boolean(StellaRuntime.modules.optional("onboarding")?.isActive());
 }
 function autoParryOn() {
-  return AUTO_PARRY && !onboardingRunning();
+  return AUTO_PARRY;
 }
 function nodeEconomyOn() {
-  return NODE_ECONOMY && !onboardingRunning();
+  return NODE_ECONOMY;
 }
 /* 별빛을 «자원»으로 만든다. 샷이 끝나도 별자리가 자동으로 터지지 않고,
    모인 별빛이 판에 남아 두 곳에서 경쟁한다 — 별자리(Space)와 조준(좌클릭).

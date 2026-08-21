@@ -1095,6 +1095,10 @@ function aimFxDelta() {
   }
   return aimFxDtValue;
 }
+/* 1e(2026-08-21) 조준 교습 상태. 세션 한정 — 저장 항목을 늘리지 않는다.
+   shots는 aimStarShot 발사 확정 지점에서, flipped는 빈 곳 클릭 뒤집기
+   지점에서 1줄씩 배선한다(patches/README.md). */
+const aimTeach = { flipped: false, shots: 0 };
 function drawAimStars() {
   if (!run || battle?.victory || ball?.moving || !aimStarReady()) return;
   if (introProgress() < 1) return;
@@ -1165,6 +1169,32 @@ function drawAimStars() {
     x.setLineDash([]);
     x.globalAlpha = 1;
   }
+  /* 1e-5: 남은 별빛(별자리 후보)끼리 점선 실 + 태그. 금 무리만으로는
+     «이것들이 한 세트로 탄다»가 읽히지 않았다. */
+  {
+    const rest = [];
+    for (let i = 0; i < nodes.length; i++)
+      if (!nodes[i].unit && !aimPick.includes(i)) rest.push(nodes[i]);
+    if (rest.length >= 3) {
+      x.save();
+      x.strokeStyle = "#ffd27f";
+      x.globalAlpha = 0.28;
+      x.setLineDash([2, 5]);
+      x.lineWidth = 1.5;
+      x.beginPath();
+      rest.forEach((n, i) => (i ? x.lineTo(n.x, n.y) : x.moveTo(n.x, n.y)));
+      x.stroke();
+      x.setLineDash([]);
+      const rcx = rest.reduce((a, n) => a + n.x, 0) / rest.length,
+        rcy = rest.reduce((a, n) => a + n.y, 0) / rest.length;
+      x.globalAlpha = 0.8;
+      x.fillStyle = "#ffd27f";
+      x.font = "700 11px Galmuri11, ui-monospace";
+      x.textAlign = "center";
+      x.fillText("남은 ✦ " + rest.length + " → 별자리", rcx, rcy - 6);
+      x.restore();
+    }
+  }
   // 셋째를 찍은 «성립» 플래시의 시계. 그리는 곳은 조준선(아래)이다.
   const fxDt = aimFxDelta();
   if (aimReadyFlash > 0) aimReadyFlash = Math.max(0, aimReadyFlash - fxDt);
@@ -1191,6 +1221,19 @@ function drawAimStars() {
     if (p.length && p.every(Boolean)) {
       const cx = preview.cx,
         cy = preview.cy;
+      /* 1e-2: 벌림 폴리곤 — «퍼짐이 위력»을 면으로. α는 0.1~0.2, force로
+         청록→금. ※반투명 면적 신규: perfwatch(F9) 정산 p95를 커밋에 첨부. */
+      if (p.length >= 3) {
+        const spreadK = Math.max(0, Math.min(1, (preview.force - 0.28) / 0.72));
+        x.save();
+        x.globalAlpha = 0.1 + spreadK * 0.1;
+        x.fillStyle = spreadK > 0.5 ? "#ffe09a" : "#47837c";
+        x.beginPath();
+        p.forEach((n, i) => (i ? x.lineTo(n.x, n.y) : x.moveTo(n.x, n.y)));
+        x.closePath();
+        x.fill();
+        x.restore();
+      }
       // 훑은 별빛 -> 가운데점. 어느 별빛이 이 조준을 만들었는지가 읽힌다.
       x.globalAlpha = 0.45;
       x.setLineDash([4, 4]);
@@ -1272,9 +1315,27 @@ function drawAimStars() {
                 ? (m - ball.y) / oY
                 : Infinity,
           oCut = Math.max(0.08, Math.min(1, oTX, oTY));
-        x.lineTo(ball.x + oX * oCut, ball.y + oY * oCut);
+        const oEx = ball.x + oX * oCut,
+          oEy = ball.y + oY * oCut;
+        x.lineTo(oEx, oEy);
         x.stroke();
         x.restore();
+        /* 1e-3: 반대편이 «누를 수 있는 곳»임을 처음에만 말한다.
+           한 번 뒤집어 본 세션에서는 소등(aimTeach.flipped). */
+        if (!aimTeach.flipped) {
+          const blink = 0.5 + 0.5 * Math.sin(frameClock / 250);
+          x.save();
+          x.globalAlpha = 0.35 + blink * 0.45;
+          x.fillStyle = "#ffe09a";
+          x.font = "700 11px Galmuri11, ui-monospace";
+          x.textAlign = "center";
+          x.fillText(
+            "↷ 빈 곳 클릭 = 반대편",
+            Math.max(90, Math.min(W - 90, oEx + (ball.x - oEx) * 0.12)),
+            Math.max(60, Math.min(H - 60, oEy + (ball.y - oEy) * 0.12)),
+          );
+          x.restore();
+        }
       }
       x.strokeStyle = "#ffe09a";
       x.lineWidth = lineW;
@@ -1328,6 +1389,15 @@ function drawAimStars() {
         gx,
         gy - 18,
       );
+      /* 1e-2: 위력 게이지 — 숫자를 읽기 전에 길이로 읽힌다. 28% 하한 눈금. */
+      if (ready) {
+        x.fillStyle = "#04080a";
+        x.fillRect(gx - 23, gy - 12, 46, 5);
+        x.fillStyle = "#ffe09a";
+        x.fillRect(gx - 23, gy - 12, 46 * preview.force, 5);
+        x.fillStyle = "#8ba39f";
+        x.fillRect(gx - 23 + 46 * 0.28, gy - 13, 1, 7);
+      }
     }
   }
 
@@ -1351,6 +1421,8 @@ function drawAimStars() {
         3,
         picked || hovered ? 3 : 2,
       );
+      // 1e-4(결정 4): 별지기는 «궤도» 이중 고리 — 별빛과 같은 물건이 아니다.
+      stepRing(node.x, node.y, rr + 6, node.col + "22", 3, 2);
       // 찍는 순간의 플래시: 흰 고리가 바깥으로 번지며 사라진다.
       if (g.aimFlash > 0) {
         g.aimFlash = Math.max(0, g.aimFlash - fxDt);
@@ -1390,6 +1462,22 @@ function drawAimStars() {
       }
       chipY = star.y - r - 16;
     }
+    if (!picked && hovered) {
+      /* 1e-4: 호버 한 줄 — 두 종류가 «무엇이 다른지»를 말한다. */
+      const label = node.unit
+        ? "별지기 · 조준 전용"
+        : "별빛 · 안 쓰면 별자리 재료";
+      x.save();
+      x.font = "700 11px Galmuri11, ui-monospace";
+      const tw = x.measureText(label).width + 16,
+        tx = Math.max(tw / 2 + 30, Math.min(W - tw / 2 - 30, node.x));
+      x.fillStyle = "#04080ad9";
+      x.fillRect(tx - tw / 2, chipY - 32, tw, 20);
+      x.fillStyle = node.unit ? "#7cc6bb" : "#ffe09a";
+      x.textAlign = "center";
+      x.fillText(label, tx, chipY - 18);
+      x.restore();
+    }
     if (picked) {
       // 번호는 노드 «위»에 칩으로 띄운다. 안에 넣으면 모양에 묻힌다.
       const bx = node.x;
@@ -1409,6 +1497,57 @@ function drawAimStars() {
      읽게 하지 않는다. */
   if (aimPick.length >= AIM_STAR.minPick && ball)
     stepRing(ball.x, ball.y, ball.r + 7 + pulse * 3, "#ffe09a88", 3, 2);
+  /* 1e-1: 픽 슬롯 3칸 — «왜 셋»을 문자 없이. 빈 칸이 맥동하고 찍을수록
+     찬다. 초과분은 +n. */
+  if (ball) {
+    for (let i = 0; i < AIM_STAR.minPick; i++) {
+      const sx = ball.x - 30 + i * 30,
+        sy = ball.y + 36,
+        filled = i < aimPick.length;
+      x.save();
+      x.translate(sx, sy);
+      x.rotate(Math.PI / 4);
+      if (filled) {
+        x.fillStyle = "#ffe09a";
+        x.fillRect(-6, -6, 12, 12);
+      } else {
+        x.globalAlpha = 0.4 + 0.4 * Math.sin(frameClock / 260 + i);
+        x.strokeStyle = "#ffe09a";
+        x.lineWidth = 2;
+        x.strokeRect(-6, -6, 12, 12);
+      }
+      x.restore();
+    }
+    if (aimPick.length > AIM_STAR.minPick) {
+      x.fillStyle = "#ffe09a";
+      x.font = "700 11px Galmuri11, ui-monospace";
+      x.textAlign = "left";
+      x.fillText(
+        "+" + (aimPick.length - AIM_STAR.minPick),
+        ball.x + 46,
+        ball.y + 41,
+      );
+    }
+  }
+  /* 1e-4(결정 4): 범례 — 첫 3샷 동안만(aimTeach.shots). */
+  if (aimTeach.shots < 3) {
+    x.save();
+    x.globalAlpha = 0.94;
+    x.fillStyle = "#04080ac9";
+    x.fillRect(34, 66, 216, 46);
+    x.strokeStyle = "#24363a";
+    x.lineWidth = 2;
+    x.strokeRect(34, 66, 216, 46);
+    stepRing(52, 80, 7, "#7cc6bb", 3, 2);
+    x.fillStyle = "#cfdad7";
+    x.font = "11px Galmuri11, ui-monospace";
+    x.textAlign = "left";
+    x.fillText("별지기 — 조준 노드 (별자리 안 탐)", 68, 84);
+    pixelSparkle(52, 100, 7, "#ffe09acc", 2);
+    x.fillStyle = "#cfdad7";
+    x.fillText("별빛 — 조준 + 남기면 별자리", 68, 104);
+    x.restore();
+  }
 
   /* 조작 안내. 튜토리얼이 아직 이 전투를 안 가르치므로(전투 확정 뒤에 다시
      짠다) 화면이 스스로 말해야 한다. */

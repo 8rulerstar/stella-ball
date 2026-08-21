@@ -514,6 +514,8 @@ function billiardPointerDown(e) {
         const want = side < 0;
         if (want !== aimFlip) {
           aimFlip = want;
+          // 한 번 뒤집어 봤으면 어포던스 라벨을 끈다(핸드오프 §2-3).
+          if (typeof aimTeach === "object" && aimTeach) aimTeach.flipped = true;
           combatSfx?.("steer", 0.5);
           addPopup(
             ball.x,
@@ -1019,6 +1021,12 @@ function launchAimStarShot() {
       shot.force,
       "노드 조준 · 위력 " + Math.round(shot.force * 100) + "%",
     );
+    /* 조준 교습 배선(핸드오프 §패치가 못 하는 것 1·3). 슬롯·범례가 몇 샷
+       뒤에 소등할지, 그리고 온보딩 조준 실습이 넘어갈지가 이 두 값을 본다.
+       표현 계층(aimTeach)은 game-combat-physics.js 소유라 여기서는 «올리기»만
+       한다 — 그리기 쪽이 읽고 판단한다. */
+    if (typeof aimTeach === "object" && aimTeach) aimTeach.shots += 1;
+    if (typeof onboarding === "object" && onboarding) onboarding.aimed = true;
   };
   if (rest.length >= 3) {
     /* 남은 별빛은 별자리로 타 버린다. 조준에 쓴 셋은 남는다 — 둘 다
