@@ -53,13 +53,16 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Ten probes drive a real Chromium over CDP the way the onboarding E2E does. None
+Eleven probes drive a real Chromium over CDP the way the onboarding E2E does. None
 is wired into a gate; run them by hand when the question is about the screen.
 
 - `node scripts/profile-frames.mjs` - frame times and the composited layer structure.
 - `node scripts/probe-settle-cost.mjs` - the frame cost of a settlement chain.
 - `node scripts/probe-aim-polygon.mjs` - the draw cost of the aim screen and the settle frames.
 - `node scripts/probe-sky-guests.mjs` - margin guest placement, immune to the 0x0 viewport.
+- `node scripts/probe-longplay.mjs` - three stages back to back, then the hub:
+  catches state that survives a battle (stray cinematic boxes, intro layers,
+  toasts) which single-screen checks miss.
 - `node scripts/probe-figure-abilities.mjs` - whether each of the eight
   constellations still casts its own ability (build points from the skeleton, not
   a regular polygon, or every 4-point figure classifies as sagitta).
