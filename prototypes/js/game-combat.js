@@ -492,6 +492,7 @@ function billiardPointerDown(e) {
           aimReadyFlash = 0;
           aimDenyT = 0;
           combatSfx?.("parryMiss", 0.5);
+          emitAimChanged("clear");
         }
         return;
       }
@@ -515,7 +516,9 @@ function billiardPointerDown(e) {
         if (want !== aimFlip) {
           aimFlip = want;
           // 한 번 뒤집어 봤으면 어포던스 라벨을 끈다(핸드오프 §2-3).
+          // 세션이 아니라 저장 슬롯에서 영구 소등이라 progress에도 적는다.
           if (typeof aimTeach === "object" && aimTeach) aimTeach.flipped = true;
+          markAimHintDone?.("flip");
           combatSfx?.("steer", 0.5);
           addPopup(
             ball.x,
@@ -524,6 +527,7 @@ function billiardPointerDown(e) {
             "#ffe09a",
             true,
           );
+          emitAimChanged("flip");
         }
         return;
       }
@@ -570,6 +574,7 @@ function pickAimStar(index) {
         d: 0.3,
         col: "#8f83ad",
       });
+    emitAimChanged("unpick");
     return false;
   }
   aimPick.push(index);
@@ -593,6 +598,7 @@ function pickAimStar(index) {
     aimReadyFlash = 0.4;
     combatSfx?.("mult", 0.55);
   }
+  emitAimChanged("pick");
   return true;
 }
 function billiardPointerMove(e) {
@@ -811,6 +817,24 @@ function aimNodes() {
 /* 노드가 셋 이상이면 조준은 «찍기»다. 별지기가 늘 셋이므로 실전에서는
    항상 참이고, 드래그는 수업(온보딩·E2E, nodeEconomyOn이 끔)과 노드가
    모자란 예외 판에만 남는다. 첫 샷부터 조준 규칙이 하나로 통일된다. */
+/* 조준 상태가 바뀌었다고 알린다(2026-08-21, 핸드오프 §2-6).
+
+   훅을 하나 새로 낸 이유: 루나 멘트는 «조준 화면의 상태»에 붙는데, 전투
+   체인이 speech를 직접 부르지 않는다는 기존 원칙이 있어 부를 방법이 없었다.
+   화자 쪽이 듣고 스스로 판단하게 한다 — 여기서는 사실만 싣는다.
+
+   force는 셋을 다 골랐을 때만 값이 있다. 그 전에는 방향 자체가 없으므로
+   위력도 없다(aimStarShot이 null을 돌려준다). */
+function emitAimChanged(reason) {
+  const shot = aimPick.length >= AIM_STAR.minPick ? aimStarShot(aimPick) : null;
+  runRuntimeHooks("afterAimChanged", {
+    reason,
+    picks: aimPick.length,
+    flipped: aimFlip,
+    force: shot?.force ?? 0,
+    nodes: aimNodes().length,
+  });
+}
 function aimStarReady() {
   if (typeof nodeEconomyOn === "function" && !nodeEconomyOn()) return false;
   return aimNodes().length >= AIM_STAR.minPick;
@@ -1025,7 +1049,11 @@ function launchAimStarShot() {
        뒤에 소등할지, 그리고 온보딩 조준 실습이 넘어갈지가 이 두 값을 본다.
        표현 계층(aimTeach)은 game-combat-physics.js 소유라 여기서는 «올리기»만
        한다 — 그리기 쪽이 읽고 판단한다. */
-    if (typeof aimTeach === "object" && aimTeach) aimTeach.shots += 1;
+    if (typeof aimTeach === "object" && aimTeach) {
+      aimTeach.shots += 1;
+      // 범례는 첫 3샷까지다. 그 뒤로는 이 저장 슬롯에서 다시 뜨지 않는다.
+      if (aimTeach.shots >= 3) markAimHintDone?.("legend");
+    }
     if (typeof onboarding === "object" && onboarding) onboarding.aimed = true;
   };
   if (rest.length >= 3) {
@@ -1069,6 +1097,10 @@ registerRuntimeHook("afterShotEnd", () => {
   if (!battle || battleComplete) return;
   if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
   const n = aimStars.length;
+  /* 조준 화면이 «열린» 순간이 여기다. aimPick은 발사 때 비워졌으므로 0픽
+     상태이고, 첫 멘트가 붙을 자리가 이 프레임이다. 별빛이 없어도 별지기
+     셋이 노드로 서 있으므로 조준은 열린다 — 그래서 토스트보다 먼저 알린다. */
+  emitAimChanged("open");
   if (!n) return toast("별빛 없음 · 별지기 셋을 찍어 조준하세요");
   toast(
     "별빛 " + n + " · 별지기와 합쳐 셋 이상 조준 · 안 찍은 별빛은 별자리로",

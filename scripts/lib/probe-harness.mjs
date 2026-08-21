@@ -40,10 +40,29 @@ export async function launchProbe({
   page = "prototypes/prism-breakers.html",
   profilePrefix = "stella-probe-",
 } = {}) {
+  /* 2026-08-21: 후보에 mac·리눅스를 넣었다. 앞서는 STELLA_BROWSER_PATH와
+     윈도우 경로 둘뿐이라, 이 하니스를 쓰는 프로브는 mac에서 환경변수를
+     세우지 않으면 무조건 죽었다 — 「새 프로브는 여기서 가져다 쓴다」는
+     이 파일의 규약과 CROSS_PLATFORM.md가 어긋나 있던 자리다. */
   const browser = [
     process.env.STELLA_BROWSER_PATH,
-    "C:/Program Files/Google/Chrome/Application/chrome.exe",
-    "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+    process.env.CHROME_PATH,
+    ...(process.platform === "win32"
+      ? [
+          "C:/Program Files/Google/Chrome/Application/chrome.exe",
+          "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+          "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+        ]
+      : process.platform === "darwin"
+        ? [
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+          ]
+        : [
+            "/usr/bin/google-chrome",
+            "/usr/bin/chromium",
+            "/usr/bin/chromium-browser",
+          ]),
   ].find((p) => p && existsSync(p));
   if (!browser) throw new Error("set STELLA_BROWSER_PATH");
 

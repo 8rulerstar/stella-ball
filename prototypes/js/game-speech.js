@@ -253,6 +253,51 @@ function drawNarration() {
   x.restore();
 }
 
+/* 조준 화면의 루나 한 줄(핸드오프 §2-6). 네 상태에 하나씩, 저장 슬롯마다
+   한 번씩만 나온다.
+
+   화자 쪽에 두는 이유는 기존 원칙 그대로다 — 전투 체인은 speech를 부르지
+   않는다. game-combat.js는 `afterAimChanged`에 «무슨 일이 있었는지»만 싣고,
+   무엇을 말할지는 여기서 정한다. 그래서 전투 규칙이 또 바뀌어도 문안은
+   이 파일 한 곳에서 따라간다.
+
+   수업 중에는 말하지 않는다. 온보딩은 루나 카드가 같은 목소리로 같은 것을
+   가르치고 있어, 판 밖 독까지 동시에 뜨면 한 화자가 두 곳에서 다른 문장을
+   말하는 화면이 된다. 핸드오프 §3-1도 이 멘트를 「수업 밖 첫 실전」의
+   몫으로 지정했다. */
+const AIM_LUNA_LINES = [
+  {
+    id: "luna-pick0",
+    when: (a) => a.picks === 0 && (a.reason === "open" || a.reason === "clear"),
+    text: "별지기든 별빛이든 — 셋을 찍어 봐.",
+  },
+  {
+    id: "luna-pick2",
+    when: (a) => a.picks === 2,
+    text: "하나 더! 셋이 모여야 방향이 생겨.",
+  },
+  {
+    id: "luna-flip",
+    when: (a) => a.reason === "flip" && a.flipped,
+    text: "반대편이야! 빈 곳을 다시 누르면 돌아와.",
+  },
+  {
+    id: "luna-force",
+    when: (a) => a.force > 0.75,
+    text: "넓게 벌렸네 — 세게 나간다!",
+  },
+];
+registerRuntimeHook("afterAimChanged", (aim) => {
+  if (StellaRuntime.modules.optional("onboarding")?.isActive()) return;
+  if (typeof markAimHintDone !== "function") return;
+  for (const line of AIM_LUNA_LINES) {
+    if (!line.when(aim)) continue;
+    // 한 번의 상태 변화에 한 줄만. 아래 줄들은 다음 기회에 나온다 —
+    // 두 줄이 겹치면 뒤엣것이 앞엣것을 즉시 갈아끼운다(sayLuna는 독 하나).
+    if (markAimHintDone(line.id)) say("luna", line.text);
+    return;
+  }
+});
 registerRuntimeHook("afterDraw", () => {
   drawBoardSpeech();
   drawBossSpeech();

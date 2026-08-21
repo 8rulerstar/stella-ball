@@ -161,7 +161,13 @@ function registerBossHit(weak) {
    clone's 분열 약점 label matched, so a clone weak hit registered twice on top
    of cloneDamage's own explicit call, double-counting the combo and inflating
    the persisted best-combo record. Damage sites now say so themselves. */
-function addPopup(px, py, text, col, big = false, voice = false) {
+/* huge는 «한 샷의 가장 큰 숫자» 하나에만 붙는다(2026-08-21 결정 2). 6·7점
+   별자리의 대격 프레임이 그 자리다 — 히트스톱 0.14초와 벽 살구 펄스가 같은
+   프레임에 떨어지므로, 숫자만 22px로 남으면 화면이 크게 말하는데 숫자는
+   평소 크기인 상태가 된다. big을 더 키우지 않고 등급을 하나 더 둔 이유는
+   big이 이미 «약점»과 3연타에도 자동으로 붙어 흔하기 때문이다. 흔한 것을
+   키우면 사다리의 맨 위가 사라진다. */
+function addPopup(px, py, text, col, big = false, voice = false, huge = false) {
   popups.push({
     x: px,
     y: py,
@@ -169,7 +175,8 @@ function addPopup(px, py, text, col, big = false, voice = false) {
     col,
     t: 0,
     d: 0.9,
-    big: big || text.includes("약점") || hitCombo >= 3,
+    big: big || huge || text.includes("약점") || hitCombo >= 3,
+    huge,
     // 화자가 있는 말인가. 그리기 쪽이 서체를 가른다(§9-2).
     voice,
   });
@@ -1478,7 +1485,8 @@ function draw() {
       x,
       p.voice
         ? (p.big ? "bold 19px" : "bold 15px") + " Galmuri11, ui-monospace"
-        : (p.big ? "bold 22px" : "bold 16px") + " ui-monospace",
+        : (p.huge ? "bold 30px" : p.big ? "bold 22px" : "bold 16px") +
+            " ui-monospace",
     );
     x.textAlign = "center";
     x.fillText(p.text, p.x + 2, p.y - p.t * 34 + 2);

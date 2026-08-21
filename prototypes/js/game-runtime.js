@@ -12,6 +12,7 @@ const StellaRuntime = (() => {
     "afterAssistsDraw",
     "afterBattleSetup",
     "afterBattleWin",
+    "afterAimChanged",
     "afterBlazeEarned",
     "afterDirectBossDamage",
     "afterBossHitRegistered",

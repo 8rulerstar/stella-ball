@@ -12,7 +12,11 @@
 // and then pay nothing.  The figure is earned by the parries that built it, so
 // it now always pays, and what each constellation adds on top is what tells
 // them apart.
-function figureFieldDamage(ctx, label = "별자리") {
+/* huge의 기본값이 «6점 이상»인 것은 상위 티어의 대격 숫자가 이 정산이기
+   때문이다. 다만 오리온은 자기 대격 숫자를 따로 낸다(삼연격) — 그쪽이
+   히트스톱과 같은 프레임이므로, 오리온만 false를 넘겨 30px 하나를 삼연격에
+   양보한다. 한 프레임에 30px 숫자가 둘이면 어느 쪽이 대격인지 사라진다. */
+function figureFieldDamage(ctx, label = "별자리", huge = ctx.ring.length >= 6) {
   // Same guard areaAttack opens with. A constellation casts on its own clock
   // roughly 2.85s after the settle that queued it, and nothing stopped that
   // clock when the battle ended - so a figure could damage, pop numbers over
@@ -22,7 +26,15 @@ function figureFieldDamage(ctx, label = "별자리") {
   if (boss && boss.hp > 0) {
     const dealt = applyBossHit(ctx.bonus);
     if (dealt > 0) {
-      addPopup(boss.x, boss.y - 92, label + " -" + dealt, "#ffd2a0", true);
+      addPopup(
+        boss.x,
+        boss.y - 92,
+        label + " -" + dealt,
+        "#ffd2a0",
+        true,
+        false,
+        huge,
+      );
       hit.push(bossDisplayName());
     }
   }
@@ -256,7 +268,7 @@ function wakeEveryone(ctx) {
 // the colossus has already lost, so six points pays most when it finishes a
 // fight rather than when it opens one.
 function huntersVolley(ctx) {
-  figureFieldDamage(ctx, "오리온");
+  figureFieldDamage(ctx, "오리온", false);
   if (!boss || boss.hp <= 0) return "사냥할 표적 없음";
   const belt = Math.round(ctx.bonus * 0.5);
   let total = 0;
@@ -267,7 +279,15 @@ function huntersVolley(ctx) {
     finisher = Math.round(ctx.bonus * (0.6 + missing * 1.6));
   total += applyBossHit(finisher);
   if (total > 0) {
-    addPopup(boss.x, boss.y - 92, "삼연격 -" + total, "#ffd2a0", true);
+    addPopup(
+      boss.x,
+      boss.y - 92,
+      "삼연격 -" + total,
+      "#ffd2a0",
+      true,
+      false,
+      true,
+    );
     areaBursts.push({
       x: boss.x,
       y: boss.y,

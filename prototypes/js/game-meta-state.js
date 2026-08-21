@@ -103,6 +103,12 @@ let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   bestTime: 0,
   bestShots: 99,
   bestCombo: 0,
+  /* 조준 교습이 «이미 한 말»의 목록(핸드오프 §2-3·2-4·2-6). 세션이 아니라
+     저장 슬롯 단위인 이유는, 이것들이 규칙을 처음 만나는 사람에게 하는
+     말이기 때문이다 — 어제 배운 사람에게 오늘 또 「셋을 찍어 봐」라고
+     하면 안내가 아니라 잔소리가 된다. 문자열 목록으로 둔 것은 비트를
+     하나씩 늘릴 때마다 저장 스키마를 고치지 않기 위해서다. */
+  aimHints: [],
 });
 /* readRecord merges the stored record over the defaults, so a key that EXISTS
    but holds a broken value keeps that value - the default never applies. That
@@ -232,6 +238,23 @@ function accrueGold(amount, title = "스테이지 클리어") {
     progress.pendingGold = 0;
   }
   return earned;
+}
+/* 조준 교습 1회성 안내. `aimHintDone`은 묻기만 하고, `markAimHintDone`은
+   처음 표시했을 때 한 번 적는다 — 되돌리려면 저장소에서 aimHints를 비운다.
+
+   쓰는 곳: game-combat-physics.js의 drawAimStars(범례·반대편 라벨),
+   game-speech.js의 루나 1회성 멘트. */
+function aimHintDone(id) {
+  return Array.isArray(progress.aimHints) && progress.aimHints.includes(id);
+}
+function markAimHintDone(id) {
+  if (aimHintDone(id)) return false;
+  progress.aimHints = [
+    ...(Array.isArray(progress.aimHints) ? progress.aimHints : []),
+    id,
+  ];
+  saveProgress();
+  return true;
 }
 function claimedAchievementIds() {
   return Array.isArray(progress.claimedAchievements)

@@ -1112,10 +1112,18 @@ function aimFxDelta() {
   }
   return aimFxDtValue;
 }
-/* 1e(2026-08-21) 조준 교습 상태. 세션 한정 — 저장 항목을 늘리지 않는다.
-   shots는 aimStarShot 발사 확정 지점에서, flipped는 빈 곳 클릭 뒤집기
-   지점에서 1줄씩 배선한다(patches/README.md). */
-const aimTeach = { flipped: false, shots: 0 };
+/* 1e(2026-08-21) 조준 교습 상태. shots는 aimStarShot 발사 확정 지점에서,
+   flipped는 빈 곳 클릭 뒤집기 지점에서 game-combat.js가 올린다.
+
+   처음에는 세션 한정이었다. 그런데 이 둘이 끄는 것(범례 칩·반대편 라벨)은
+   «규칙을 처음 만나는 사람»에게 하는 말이라, 세션 단위면 어제 배운 사람이
+   오늘 또 같은 안내를 본다. 핸드오프 §2-3이 「그 저장 슬롯에서 영구 소등」을
+   지정한 이유다. 저장은 progress.aimHints가 들고, 여기서는 그 값으로
+   시작만 한다 — 프레임마다 저장소를 묻지 않기 위해서다. */
+const aimTeach = {
+  flipped: typeof aimHintDone === "function" && aimHintDone("flip"),
+  shots: typeof aimHintDone === "function" && aimHintDone("legend") ? 3 : 0,
+};
 function drawAimStars() {
   if (!run || battle?.victory || ball?.moving || !aimStarReady()) return;
   if (introProgress() < 1) return;
@@ -1239,7 +1247,22 @@ function drawAimStars() {
       const cx = preview.cx,
         cy = preview.cy;
       /* 1e-2: 벌림 폴리곤 — «퍼짐이 위력»을 면으로. α는 0.1~0.2, force로
-         청록→금. ※반투명 면적 신규: perfwatch(F9) 정산 p95를 커밋에 첨부. */
+         청록→금.
+
+         성능 계약(핸드오프 §2-2)의 실측. `scripts/probe-aim-polygon.mjs
+         --headed`, 1280x781·dpr 2·120Hz, 판 720x900, 노드 5개:
+
+           폴리곤 채우기만        p50 0.0005ms · p95 0.001ms
+           drawAimStars 전체      0픽 0.0875ms -> 5픽 0.1275ms (p50)
+           프레임 간격            0·3·전부픽 모두 p50 8.3 / p95 9.3ms
+           정산 프레임            p95 9.1ms · p99 9.4 · 20ms 초과 1/796
+                                  (별자리 캐스트 포함, 6.66초)
+
+         폴리곤이 덮는 면적은 44,101px² — 판의 6.8%인데 비용은 8.33ms 예산의
+         0.006%다. 반투명 채우기 한 번은 shadowBlur와 다르다: 이 저장소에서
+         프레임을 실제로 먹은 것은 언제나 흐림이었고, 면적이 아니었다.
+         노드가 늘면 면적은 커지지만(7노드에서 16.7%) 채우기는 여전히
+         마이크로초 단위다. 다시 잴 일이 있으면 위 프로브를 그대로 돌린다. */
       if (p.length >= 3) {
         const spreadK = Math.max(0, Math.min(1, (preview.force - 0.28) / 0.72));
         x.save();
@@ -1546,7 +1569,8 @@ function drawAimStars() {
       );
     }
   }
-  /* 1e-4(결정 4): 범례 — 첫 3샷 동안만(aimTeach.shots). */
+  /* 1e-4(결정 4): 범례 — 첫 3샷 동안만(aimTeach.shots). 3샷을 채운 슬롯은
+     다음 세션에서도 켜지지 않는다(progress.aimHints의 "legend"). */
   if (aimTeach.shots < 3) {
     x.save();
     x.globalAlpha = 0.94;
