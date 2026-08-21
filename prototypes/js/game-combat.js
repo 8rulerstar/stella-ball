@@ -29,7 +29,7 @@ function finalizeBilliardShot() {
       run = false;
       return fail(
         bossDisplayName() +
-          "이 버텼습니다. 유닛 연쇄와 반사 경로를 바꿔보세요.",
+          "이 버텼습니다. 다른 노드 조합으로 항로를 바꿔보세요 — 넓게 벌릴수록 세게 나갑니다.",
       );
     }
     // Position play is the point of billiards: the next meteor tees off from
