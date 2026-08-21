@@ -869,8 +869,26 @@ function simulatePhysics(d) {
       if (ball.trail.length > 24) ball.trail.shift();
     }
   }
-  // Use the original settle thresholds. The raised 150/110 cut-off ended a
-  // still-readable rebound before it could carry into the next contact.
+  /* 유성 정지 문턱 110 (2026-08-21). 유닛 쪽 55는 그대로다.
+
+     예전에 150/110으로 함께 올렸다가 되돌렸다 — 아직 읽히는 되튐이 다음
+     접촉으로 이어지기 전에 끊겼기 때문이다. 그래서 이번에는 «꼬리만» 자른다.
+
+     근거: 마지막 접촉 뒤로 아무 일도 일어나지 않는 구간이 샷당 중앙 2.30초,
+     전체 체공의 39%다(154샷). 그 구간의 속도는 p10 76 · 중앙 128이라 68로는
+     거의 걸리지 않는다. 문턱을 훑어 실제 런타임에서 재면:
+
+       문턱   평균 샷   최장 샷   클리어율   공명/판
+        68     4.90초    6.72초     87.5%     5.21
+       110     3.99초    5.43초     90.6%     4.76
+       130     3.99초    5.27초     85.4%     4.94
+
+     110에서 샷이 19% 짧아지는데 클리어율은 오히려 오르고 공명은 9% 준다.
+     130은 시간 이득 없이 클리어율만 떨어지므로 여기가 끝이다. 되돌리려면
+     68로 쓰면 된다.
+
+     유닛 문턱(55)은 건드리지 않았다 — 75·95로 올려도 평균 샷이 3.99에서
+     3.97초로만 움직여 값을 바꿀 이유가 없다. */
   const partyStillRolling = gates.some(
     (g) => g.vx * g.vx + g.vy * g.vy > 55 * 55,
   );
@@ -882,7 +900,7 @@ function simulatePhysics(d) {
   if (
     ball?.moving &&
     !roarHolds &&
-    ball.vx * ball.vx + ball.vy * ball.vy < 68 * 68 &&
+    ball.vx * ball.vx + ball.vy * ball.vy < 110 * 110 &&
     !partyStillRolling
   )
     endShot();
