@@ -455,8 +455,21 @@
       }, 2000);
     }
     if (!RM) {
-      setInterval(meteor, 9000);
-      setTimeout(meteor, 2500);
+      /* 전투 중에는 띄우지 않는다. 바로 위 twinkleStars가 쓰는 것과 같은
+         가드다 — 판 뒤에서 9초마다 새 요소가 붙어 dawnMeteor 애니메이션을
+         돌리면 합성 레이어가 하나씩 생기는데, CSS의 game-mode 일시정지
+         규칙은 이름 목록(skyDrift·dawnFloat·dawnAurora·skyCloud)으로 잡아
+         dawnMeteor를 덮지 못한다. 중앙 캔버스가 이미 움직이는 동안 여백에
+         새 움직임을 얹을 이유가 없다. */
+      var quiet = function () {
+        return document.hidden || document.body.classList.contains("game-mode");
+      };
+      setInterval(function () {
+        if (!quiet()) meteor();
+      }, 9000);
+      setTimeout(function () {
+        if (!quiet()) meteor();
+      }, 2500);
     }
     S.addEventListener("click", function (e) {
       sparkle(e.clientX, e.clientY);

@@ -320,6 +320,15 @@
   }
   function plan(slot, delay) {
     setTimeout(function run() {
+      /* 전투 중과 숨은 탭에서는 띄우지 않는다. 손님 소품은 rAF 루프와
+         transition으로 움직이는데, CSS의 game-mode 일시정지 규칙은 이름
+         있는 animation만 잡아 그 둘을 멈추지 못한다 — 판 뒤에서 5초짜리
+         rAF가 매 프레임 style을 쓰는 동안 「배경은 정지」라는 계약이
+         깨진다. 차례는 버리지 않고 뒤로 미뤄, 판을 나오면 이어진다. */
+      if (document.hidden || document.body.classList.contains("game-mode")) {
+        setTimeout(run, 6000);
+        return;
+      }
       // 손님 소품은 겹치지 않는다. 하나가 살아 있으면 다음 차례를 짧게 미룬다.
       if (slot.guest && guestBusy) {
         setTimeout(run, 4000);

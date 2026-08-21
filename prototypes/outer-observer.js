@@ -836,7 +836,11 @@
     if (mode === "short") return playShort(P);
     // 전체 연출일 때만 잠근다. 약식은 짧고, 이미 본 사람이다.
     holdStart();
-    setTimeout(showSkip, 1000);
+    /* 추적되는 타이머로 건다(live.timers). 이것만 맨 setTimeout이라,
+       첫 1초 안에 stop()이 불리면 — 컷신 중에도 「1분 튜토리얼」은 눌리므로
+       실제로 일어난다 — 정리 뒤에 깨어나 건너뛰기 버튼(position:fixed,
+       z-index:70)을 붙였고, 그것을 치우는 코드는 이미 지나간 뒤였다. */
+    at(1000, showSkip);
     playV2(P, sky);
   }
 
@@ -1445,10 +1449,14 @@
       if (on === seen) return;
       seen = on;
       if (!on) {
-        /* 타이틀은 다시 돌아오지 않는다. 감시를 끊지 않으면 이 옵저버가 남은
-           세션 내내 body의 모든 childList 변경마다 깨어난다. */
-        if (observer) observer.disconnect();
-        observer = null;
+        /* 감시를 끊지 않는다. 「타이틀은 다시 돌아오지 않는다」는 전제로
+           여기서 disconnect했는데, 돌아오는 길이 둘 있다 — 결과·일시정지
+           화면의 「타이틀로」(game-session.js)와 설정의 확인 대화
+           (game-meta.js). 한 번 끊고 나면 그 뒤의 인트로는 «떠날 때»를
+           아무도 보지 않아, 레이어·베일·건너뛰기 버튼이 허브와 전투 위에
+           세션 내내 남고 소품 복원(restoreProps)도 돌지 않았다.
+           깨어나는 비용은 scheduleCheck의 .title-sequence 필터가 이미
+           막고 있다 — 관련 없는 변경은 첫 줄에서 돌아간다. */
         return stop();
       }
       play(played() ? "short" : "v2");
@@ -1480,6 +1488,8 @@
       if (pending) return;
       pending = setTimeout(check, 150);
     }
+    // 두 번 걸지 않는다. build()가 다시 불려도 감시는 하나만 산다.
+    if (observer) observer.disconnect();
     observer = new MutationObserver(scheduleCheck);
     /* 타이틀은 #overlay 안에서만 생성·제거된다. body 전체를 보면 전투 HUD와
        토스트까지 콜백을 깨우므로, 타이틀을 소유한 안정된 루트만 감시한다. */
