@@ -53,7 +53,7 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Fourteen probes drive a real Chromium over CDP the way the onboarding E2E does. None
+Fifteen probes drive a real Chromium over CDP the way the onboarding E2E does. None
 is wired into a gate; run them by hand when the question is about the screen. Each
 file's header names the ways that probe has actually been read wrong - four probes
 gave confidently wrong answers in one night before those notes existed.
@@ -86,6 +86,10 @@ gave confidently wrong answers in one night before those notes existed.
 - `node scripts/probe-window-scale.mjs` - what gets more expensive as the window
   grows. The canvas backbuffer is fixed at 720x900, so draw calls do not scale;
   composited *area* does.
+- `node scripts/probe-meta-screens.mjs` - opens shop, summon, profile, archive and
+  settings, dumps the text each one actually shows and writes a screenshot per
+  screen. No assertions: it collects, you read. Meta state lives on `progress.*`,
+  so a bare `gold = 4200` sets a new global and changes nothing.
 - `node scripts/probe-overdraw.mjs` - how many full-viewport layers are actually
   painted, at the title and mid-battle. Baseline 2026-08-22: 12 layers / 9.8
   screens at the title, 11 / 9.62 in battle, with no meta-screen cover left
