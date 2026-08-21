@@ -53,13 +53,16 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Eight probes drive a real Chromium over CDP the way the onboarding E2E does. None
+Nine probes drive a real Chromium over CDP the way the onboarding E2E does. None
 is wired into a gate; run them by hand when the question is about the screen.
 
 - `node scripts/profile-frames.mjs` - frame times and the composited layer structure.
 - `node scripts/probe-settle-cost.mjs` - the frame cost of a settlement chain.
 - `node scripts/probe-aim-polygon.mjs` - the draw cost of the aim screen and the settle frames.
 - `node scripts/probe-sky-guests.mjs` - margin guest placement, immune to the 0x0 viewport.
+- `node scripts/probe-hero-abilities.mjs` - whether all eight awakening abilities
+  still fire (Yunseul's zero is by design; range is neutralised so a zero means
+  the ability did not run, not that it missed).
 - `node scripts/probe-campaign-clearable.mjs` - whether the worst possible hand
   still clears each world (win is scheduleWin, not battleComplete - a loss sets
   that too).
