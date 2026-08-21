@@ -16,6 +16,10 @@
 8. [prototypes/ONBOARDING-E2E.md](prototypes/ONBOARDING-E2E.md) — 첫 세션 브라우저 회귀 경로, 단언 범위, 테스트 전용 체력 픽스처와 의도적 공백
 9. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — **UI 테마의 단일 기준**(Dawn Observatory v3). 팔레트, `data-pbtn` 버튼 킷, 배경 데코 규칙
 
+## 밤샘 세션 인수인계
+
+- [NIGHT_HANDOFF_2026_08_22.md](NIGHT_HANDOFF_2026_08_22.md): 2026-08-21 밤 자율 세션의 요약. **결정 대기 다섯 갈래를 한 표에 모았고 추천 순서를 붙였다** — 고친 것, 새 프로브 다섯, 확인만 한 것, 그 밤에 배운 규칙 둘
+
 ## 제출과 이력 문서
 
 - [CODEX_COLLABORATION.md](CODEX_COLLABORATION.md): 제출·발표용 원본. **실제 구현·검증이 끝난 항목만** 완료로 쓴다.
