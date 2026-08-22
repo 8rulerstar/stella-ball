@@ -532,6 +532,76 @@ registerRuntimeHook("afterFeedbackUpdate", () => {
   bossVoiceMark = Math.min(bossVoiceMark, ratio);
 });
 
+/* ── 기믹 첫 만남 (2026-08-22) ───────────────────────────────────────────
+   기믹을 34판에 켰지만 가르치는 자리가 없다. 1-1 수업은 조준만 가르치고
+   끝나는데, 바로 다음 판인 1-2 에서 반사 벽을 처음 만난다.
+
+   수업 카드를 늘리지 않는다. 오너가 온보딩에 대해 못 박은 것이 「글씨나
+   연출 지저분하게 하지 말라」였고, 카드 하나는 판을 멈추는 값이 크다.
+   대신 루나가 «처음 만나는 판에서 한 번만» 말한다.
+
+   한 번만인 것은 markAimHintDone 이 보장한다 — 저장 슬롯 단위라 어제 배운
+   사람에게 오늘 또 말하지 않는다. 조준 교습이 쓰는 것과 같은 예산이다.
+
+   문장 규칙: 무엇인지 말하지 말고 «무엇을 하면 되는지» 말한다.
+   「반사 벽입니다」가 아니라 「튕겨서 돌아가게 해 봐」. */
+const GIMMICK_TEACH = [
+  {
+    id: "gim-walls",
+    has: (g) => g.walls?.length,
+    text: "판이 서 있어. 정면이 막히면 튕겨서 돌아가게 해 봐.",
+  },
+  {
+    id: "gim-boost",
+    has: (g) => g.boostPads?.length,
+    text: "저 발판을 밟고 가면 빨라져 — 좁게 겨눠도 세게 나가.",
+  },
+  {
+    id: "gim-drag",
+    has: (g) => g.dragPads?.length,
+    text: "흐린 자리는 별자리 배율을 깎아. 빠른 길이 꼭 싼 길은 아니야.",
+  },
+  {
+    id: "gim-adds",
+    has: (g) => g.adds?.length,
+    text: "잔재가 길을 막고 있어. 먼저 치울지, 지나칠지는 네 선택이야.",
+  },
+  {
+    id: "gim-orbits",
+    has: (g) => g.orbits?.length,
+    text: "방벽이 돌고 있어 — 틈이 열리는 때를 세어 봐.",
+  },
+  {
+    id: "gim-shield",
+    has: (g) => g.shield,
+    text: "껍질이 몇 겹 있어. 처음 몇 대는 껍질이 먹을 거야.",
+  },
+  {
+    id: "gim-phases",
+    has: (g) => g.phases,
+    text: "체력이 내려가면 거상이 판을 흔들어. 자리를 미리 믿지 마.",
+  },
+];
+/* 판이 서고 잠깐 뒤에 말한다. 입장 연출이 도는 동안 말하면 레터박스에
+   가려 아무도 못 읽는다 — 판이 열린 뒤가 첫 기회다. */
+registerRuntimeHook("afterBattleSetup", () => {
+  if (typeof markAimHintDone !== "function") return;
+  if (StellaRuntime.modules.optional("onboarding")?.isActive()) return;
+  const g = currentStage()?.gimmicks ?? {};
+  const line = GIMMICK_TEACH.find((t) => t.has(g) && !aimHintDone(t.id));
+  if (!line) return;
+  setTimeout(() => {
+    // 판이 그 사이 바뀌었으면 말하지 않는다.
+    if (!battle || battleComplete) return;
+    if (
+      (currentStage()?.gimmicks ?? {}) !== g &&
+      !line.has(currentStage()?.gimmicks ?? {})
+    )
+      return;
+    if (markAimHintDone(line.id)) say("luna", line.text);
+  }, 5200);
+});
+
 registerRuntimeHook("afterDraw", () => {
   drawBoardSpeech();
   drawBossSpeech();
