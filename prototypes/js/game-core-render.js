@@ -1697,7 +1697,13 @@ function update(d) {
   for (const a of adds) {
     a.hitCooldown = Math.max(0, a.hitCooldown - d);
     a.frozen = Math.max(0, (a.frozen || 0) - d);
-    if (a.down > 0) {
+    /* 재생성은 판이 살아 있을 때만. 이 루프는 아래 `if (!run) return`보다
+       먼저 돌고 scheduleWin은 run을 끄지 않아, 보스 격파 직전 1.6초 안에
+       잡힌 잔재가 승리 연출 «위로» 되살아나 「공허 잔재 재생성」 토스트가
+       결과 카드를 2초쯤 덮었다(실측 — 충격파 한 방이 잔재와 보스를 같이
+       잡으면 평범하게 도달한다). down 감쇠 자체를 멈춰야 한다 — 0으로
+       클램프만 하면 hp 0짜리 시체가 승리 컷신 위에 다시 그려진다. */
+    if (a.down > 0 && run && !battleComplete) {
       a.down -= d;
       if (a.down <= 0) {
         a.down = 0;
