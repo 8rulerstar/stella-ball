@@ -1401,17 +1401,42 @@ function draw() {
         x.restore();
       }
     }
-  } else if (
-    !drawFrame(
-      stageBossArt(),
-      boss.x,
-      boss.y,
-      Math.floor(frameClock / (boss.hitCooldown > 0 ? 70 : 145)),
-      boss.scale,
-      boss.hitCooldown > 0 ? "hit" : "idle",
+  } else {
+    /* 시트 상태 선택. attack·death는 지금까지 매핑만 되고 한 번도 그려지지
+       않았다(보스 시트 40장 중 20장, 293KB) — 포효(bossRoar)와 퇴장
+       (bossOutro)이 이미 정확한 타이밍 신호를 갖고 있으므로 그 신호로
+       부른다. 죽음·포효는 한 번만 진행하는 연출이라 프레임 시계를 연출
+       경과(t)에 묶어 4프레임을 차례로 밟고 마지막 장에서 멈춘다 —
+       frameClock 나머지로 돌리면 연출이 시트 중간 프레임에서 시작해
+       진행이 아니라 «깜빡임»으로 읽힌다. */
+    const roarT = bossRoar ? (frameClock - bossRoar.at) / 1000 : -1,
+      bossState =
+        outroT >= 0
+          ? "death"
+          : roarT >= 0 && roarT < 0.95
+            ? "attack"
+            : boss.hitCooldown > 0
+              ? "hit"
+              : "idle",
+      bossFrame =
+        bossState === "death"
+          ? // 몸이 타는 0~0.78초 구간에 4장이 정확히 들어간다(0.2초/장).
+            Math.min(3, Math.floor(outroT / 0.2))
+          : bossState === "attack"
+            ? Math.min(3, Math.floor(roarT / 0.16))
+            : Math.floor(frameClock / (boss.hitCooldown > 0 ? 70 : 145));
+    if (
+      !drawFrame(
+        stageBossArt(),
+        boss.x,
+        boss.y,
+        bossFrame,
+        boss.scale,
+        bossState,
+      )
     )
-  )
-    circle(boss.x, boss.y, 58, "#442b72", 16);
+      circle(boss.x, boss.y, 58, "#442b72", 16);
+  }
   if (flinch > 0) x.restore();
   if (introRestore) x.restore();
   if (outroRestore) x.restore();
