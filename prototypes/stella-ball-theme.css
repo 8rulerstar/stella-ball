@@ -3821,6 +3821,15 @@ body.onboarding-locked .pause-button {
     0 0 0 1px var(--w-glow),
     0 0 18px oklch(0.79 0.105 var(--wh) / 0.4) !important;
 }
+/* 고른 칸은 별이 52px 로 커진다(다른 칸 38px). 그런데 칸 높이가 62px 로
+   고정이라 52 + 간격 3 + 번호 15 = 70 이 되어 번호가 칸 밖으로 9px 밀려
+   아래 테두리에 반이 잘렸다(2026-08-23 실측: 고른 칸 .stage-id 아래끝 71
+   대 칸 높이 62. 다른 칸은 38+3+15=56 이라 멀쩡했다). 별을 줄이면 「고른
+   칸이 크다」는 강조가 죽으므로 칸을 키운다 — 중심 정렬이
+   translate(-50%, -50%) 라 높이를 키워도 지도 위 좌표는 그대로다. */
+.constellation-map-scene .constellation-node.picked {
+  height: 72px !important;
+}
 .constellation-map-scene .constellation-node.picked .stage-star {
   width: 52px !important;
   height: 52px !important;
