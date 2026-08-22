@@ -130,9 +130,13 @@ function setupBattle() {
         !isRuntimeScene("game")
       )
         return;
-      StellaRuntime.modules
-        .optional("speech")
-        ?.say("boss", bossDisplayName() + "이(가) 관측을 시작한다");
+      StellaRuntime.modules.optional("speech")?.say(
+        "boss",
+        /* 이름을 읽어 주는 것은 이름표가 이미 한다. 등장은 «그가 하는
+             말»이어야 한다 — 월드마다 다르다(BOSS_VOICE). */
+        (typeof bossVoice === "function" && bossVoice("enter")) ||
+          bossDisplayName() + "이(가) 관측을 시작한다",
+      );
     }, battleIntro.span * 0.55);
   }
   runRuntimeHooks("afterBattleSetup", { stage: s, battle });

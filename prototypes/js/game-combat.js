@@ -2454,9 +2454,16 @@ function wakeUnit(g, { subtle = false } = {}) {
     /* 깨어난 별지기가 «자기 자리에서» 말한다(§5). 예전에는 화면 오른쪽 위
        토스트로 나가서, 판 위에서 벌어진 일과 그 말이 서로 다른 곳에 있었다.
        꼬리가 화자를 가리키므로 이름을 다시 쓰지 않는다. */
-    StellaRuntime.modules
-      .optional("speech")
-      ?.say("unit", subtle ? "공명했다" : "깨어났다", { gate: g });
+    StellaRuntime.modules.optional("speech")?.say(
+      "unit",
+      /* 여덟이 같은 말을 하면 이름표만 바뀌는 것이지 화자가 늘지
+           않는다. 별지기마다 제 목소리로 말한다 — 없으면 예전 문구로
+           떨어진다(대사 은행은 game-speech.js). */
+      (typeof unitVoice === "function" &&
+        unitVoice(g, subtle ? "echo" : "wake")) ||
+        (subtle ? "공명했다" : "깨어났다"),
+      { gate: g },
+    );
     areaBursts.push({
       x: g.x,
       y: g.y,

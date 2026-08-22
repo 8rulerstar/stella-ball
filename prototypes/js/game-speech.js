@@ -265,6 +265,146 @@ function drawNarration() {
    가르치고 있어, 판 밖 독까지 동시에 뜨면 한 화자가 두 곳에서 다른 문장을
    말하는 화면이 된다. 핸드오프 §3-1도 이 멘트를 「수업 밖 첫 실전」의
    몫으로 지정했다. */
+
+/* ── 대사 은행 (2026-08-22) ──────────────────────────────────────────────
+   여기 오기 전까지 이 게임에서 «사람»이 말하는 자리는 셋뿐이었고, 별지기
+   대사는 「깨어났다」·「공명했다」 두 줄이 전부였다. 화자 넷을 나누는 체계는
+   위에 이미 서 있으니, 모자란 것은 말할 «내용»이다.
+
+   세 가지 규칙으로 짓는다.
+
+   1. 별지기는 각자 다르게 말한다. 여덟 명이 같은 말을 하면 이름표가
+      바뀌는 것일 뿐 화자가 늘지 않는다. 능력이 곧 성격이다 —
+      근접 베기는 앞으로 나가고, 거리 저격은 거리를 재고, 마지막 모사는
+      뒤에서 본다.
+   2. 난수를 쓰지 않는다. 봇 하니스는 「난수는 aimSigma 한 곳」이라는 전제
+      위에 서 있다(bot/runtime-harness.mjs). 줄 고르기는 사건 횟수를 센
+      «회전»이다 — 같은 판을 두 번 돌리면 같은 순서로 말한다.
+   3. 조용할 때가 있어야 말이 들린다. 같은 화자가 연달아 말하지 않도록
+      채널마다 쿨다운을 두고, 수업 중에는 판 위 대사를 내지 않는다 —
+      루나 카드가 같은 목소리로 가르치는 중이다. */
+
+/* 회전 카운터. 사건마다 하나씩 세어 줄을 고른다 — 난수 없음. */
+const speechTurn = new Map();
+function speechPick(bucket, lines) {
+  if (!lines || !lines.length) return null;
+  const n = speechTurn.get(bucket) ?? 0;
+  speechTurn.set(bucket, n + 1);
+  return lines[n % lines.length];
+}
+/* 채널별 쿨다운. 말이 겹치면 앞엣것이 즉시 지워져 «읽을 수 없는 대사»가
+   된다 — 특히 루나 독은 하나뿐이라 덮어쓰기가 곧 소멸이다. */
+const speechCool = { unit: 0, boss: 0, luna: 0, narration: 0 };
+function speechReady(channel, gap) {
+  const now = typeof frameClock === "number" ? frameClock : 0;
+  if (now - (speechCool[channel] ?? 0) < gap) return false;
+  speechCool[channel] = now;
+  return true;
+}
+function speechQuiet() {
+  // 수업 중에는 판 위가 조용해야 한다. 루나 카드가 이미 말하고 있다.
+  return !!StellaRuntime.modules.optional("onboarding")?.isActive();
+}
+
+/* 별지기 여덟. 능력이 성격이다. */
+const UNIT_VOICE = {
+  gaon: {
+    wake: ["앞은 내가 연다.", "베어 낼 자리가 보여.", "가까울수록 잘 든다."],
+    echo: ["아직 서 있어.", "한 번 더 온다."],
+    hit: ["끊었다!", "결이 갈라졌어."],
+  },
+  biyeon: {
+    wake: ["거리, 좋아.", "멀수록 잘 보여.", "숨 참고 — 지금."],
+    echo: ["각도 재는 중.", "조금만 더 벌려."],
+    hit: ["관통.", "가운데 맞았어."],
+  },
+  lumi: {
+    wake: ["둘로 갈게.", "혼자보다 둘이 낫지.", "나눠서 덮자."],
+    echo: ["반쪽이 아직 남았어.", "다시 붙을 시간."],
+    hit: ["양쪽 다 들어갔어!", "두 번 셌지?"],
+  },
+  haru: {
+    wake: ["중계 잡았어.", "여기서 이어 줄게.", "길을 만들어 둘게."],
+    echo: ["선이 끊겼어.", "다시 이어 볼게."],
+    hit: ["연결 성공!", "그대로 흘러가."],
+  },
+  ria: {
+    wake: ["바람 탄다.", "빠른 게 제일이야.", "따라올 수 있겠어?"],
+    echo: ["아직 안 멈췄어.", "속도가 죽었네."],
+    hit: ["스쳤는데 깊지?", "칼날 지나갔다."],
+  },
+  sera: {
+    wake: ["방향을 바꾸자.", "여기서 틀면 돼.", "판이 달라 보이지."],
+    echo: ["다시 읽어 볼게.", "각을 바꿔야 해."],
+    hit: ["돌려세웠어.", "흐름이 넘어왔다."],
+  },
+  taeo: {
+    wake: ["부딪히면 내 몫이지.", "단단한 건 자신 있어.", "정면으로 가."],
+    echo: ["아직 버텨.", "한 번 더 박아 보자."],
+    hit: ["울렸다!", "금 갔어, 봤지?"],
+  },
+  nyx: {
+    wake: ["마지막은 내가 볼게.", "조용히 따라갈게.", "본 대로 따라 한다."],
+    echo: ["기억해 뒀어.", "아직 안 끝났어."],
+    hit: ["똑같이 돌려줬어.", "그대로 베꼈지."],
+  },
+};
+
+/* 거상 여덟. 월드의 성격이다. */
+const BOSS_VOICE = {
+  aries: {
+    enter: "뿔을 세운다. 지나갈 자리는 없다.",
+    phase: "뿔이 하나 부러졌다 — 그래서?",
+    low: "문은 아직 닫혀 있다.",
+  },
+  sagitta: {
+    enter: "겨눈 것은 이쪽이다.",
+    phase: "시위가 한 번 울었다.",
+    low: "화살은 아직 손에 있다.",
+  },
+  corvus: {
+    enter: "떼가 먼저 본다.",
+    phase: "한 마리가 떨어졌을 뿐이다.",
+    low: "그래도 하늘은 검다.",
+  },
+  cass: {
+    enter: "왕좌는 기울어도 왕좌다.",
+    phase: "껍질 하나. 아직 넷이 남았다.",
+    low: "앉은 자리는 바뀌지 않는다.",
+  },
+  cygnus: {
+    enter: "물결은 되돌아온다.",
+    phase: "여울이 한 번 뒤집혔다.",
+    low: "흐름은 멈추지 않는다.",
+  },
+  orion: {
+    enter: "사냥은 이미 시작됐다.",
+    phase: "띠가 한 칸 어긋났다.",
+    low: "잔영은 사라지지 않는다.",
+  },
+  ursa: {
+    enter: "국자를 끌어 내린 것이 나다.",
+    phase: "포효 — 자리를 지워 주마.",
+    low: "북쪽은 여전히 내 것이다.",
+  },
+  outside: {
+    enter: "관측되지 않은 것이 관측한다.",
+    phase: "너희가 세는 것을 나는 세지 않는다.",
+    low: "여기서부터는 이름이 없다.",
+  },
+};
+
+function unitVoice(gate, kind) {
+  const id = gate?.id ?? gate?.hero ?? gate?.key;
+  const bank = UNIT_VOICE[id];
+  if (!bank) return null;
+  return speechPick(id + ":" + kind, bank[kind]);
+}
+function bossVoice(kind) {
+  const world = currentStage()?.world;
+  return BOSS_VOICE[world]?.[kind] ?? null;
+}
+
 const AIM_LUNA_LINES = [
   {
     id: "luna-pick0",
@@ -298,6 +438,100 @@ registerRuntimeHook("afterAimChanged", (aim) => {
     return;
   }
 });
+
+/* ── 대사를 사건에 건다 ─────────────────────────────────────────────────
+   새 배관을 만들지 않는다. 이 저장소는 이미 훅 27개를 내놓고 있고, 대사는
+   그 위에 얹히는 «관찰자»다 — 규칙을 바꾸지 않으므로 어느 훅에 걸어도
+   전투가 달라지지 않는다.
+
+   쿨다운 값의 근거: 판 위 말풍선은 2.6초 산다(SPEECH.life). 그보다 짧게
+   내면 앞엣것이 읽히기 전에 밀린다. 그래서 별지기는 3.2초, 거상 띠는
+   더 큰 사건만 맡으므로 6초, 루나는 독이 하나뿐이라 5초를 둔다. */
+
+// 거상 등장. 기존 한 줄을 월드별 목소리로 바꾼다.
+registerRuntimeHook("afterBattleSetup", () => {
+  speechTurn.clear();
+  speechCool.unit =
+    speechCool.boss =
+    speechCool.luna =
+    speechCool.narration =
+      0;
+});
+
+// 별지기가 보스를 직접 때렸을 때. 큰 것만 말한다.
+registerRuntimeHook("afterDirectBossDamage", (info) => {
+  if (speechQuiet() || !info) return;
+  const gate = info.gate ?? info.unit ?? null;
+  if (!gate || !(info.amount >= 18)) return;
+  if (!speechReady("unit", 3200)) return;
+  const line = unitVoice(gate, "hit");
+  if (line) say("unit", line, { gate });
+});
+
+// 벽에 튕겼을 때 — 뿔문 월드에서 판이 대꾸한다.
+registerRuntimeHook("afterTableWall", () => {
+  if (speechQuiet() || !stageWalls.length) return;
+  if (!speechReady("narration", 5200)) return;
+  say(
+    "narration",
+    speechPick("wall", [
+      "판이 되받아쳤다.",
+      "벽을 타고 각이 바뀐다.",
+      "부딪힌 만큼 빨라졌다.",
+    ]),
+  );
+});
+
+// 별자리가 섰을 때.
+registerRuntimeHook("afterFigureResolve", (info) => {
+  if (speechQuiet()) return;
+  if (!speechReady("narration", 4200)) return;
+  const n = info?.points?.length ?? 0;
+  say(
+    "narration",
+    speechPick("figure", [
+      n >= 6 ? "여섯 점이 이어졌다 — 하늘이 밝다." : "선이 닫혔다.",
+      "별자리가 판을 덮는다.",
+      "그린 대로 내려온다.",
+    ]),
+  );
+});
+
+// 마지막 유성. 판마다 한 번만.
+registerRuntimeHook("afterShotEnd", () => {
+  if (speechQuiet() || !battle) return;
+  if (battle.shots !== 1) return;
+  if (!speechReady("luna", 5000)) return;
+  say(
+    "luna",
+    speechPick("last", [
+      "마지막 하나야. 넓게 벌려 봐.",
+      "한 발 남았어 — 가운데로 모으지 마.",
+      "여기서 끝내자.",
+    ]),
+  );
+});
+
+/* 거상이 단계를 넘길 때. runStagePhase 에 훅이 없으므로 체력 비율을
+   프레임에서 읽어 «내려간 순간»만 잡는다. 값을 바꾸지 않는 관찰이다. */
+let bossVoiceMark = 1;
+registerRuntimeHook("afterFeedbackUpdate", () => {
+  if (speechQuiet() || !boss || !battle || battleComplete) return;
+  const ratio = boss.maxHp ? boss.hp / boss.maxHp : 1;
+  if (ratio > bossVoiceMark) bossVoiceMark = ratio; // 새 판
+  for (const mark of [0.66, 0.33]) {
+    if (bossVoiceMark > mark && ratio <= mark) {
+      bossVoiceMark = ratio;
+      if (speechReady("boss", 6000)) {
+        const line = bossVoice(mark === 0.33 ? "low" : "phase");
+        if (line) say("boss", line);
+      }
+      return;
+    }
+  }
+  bossVoiceMark = Math.min(bossVoiceMark, ratio);
+});
+
 registerRuntimeHook("afterDraw", () => {
   drawBoardSpeech();
   drawBossSpeech();
