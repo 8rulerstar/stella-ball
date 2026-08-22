@@ -38,7 +38,12 @@ const KNOWN = `(() => {
   for (const line of String(combatSfx).split(String.fromCharCode(10))) {
     const t = line.trim();
     const at = t.indexOf(": [");
-    if (at > 0 && !t.startsWith("//") && /^[a-zA-Z][a-zA-Z0-9]*$/.test(t.slice(0, at)) // figure4 처럼 숫자가 붙는다)
+    // figure4 처럼 이름 끝에 숫자가 붙는 것들이 있다.
+    if (
+      at > 0 &&
+      !t.startsWith("//") &&
+      /^[a-zA-Z][a-zA-Z0-9]*$/.test(t.slice(0, at))
+    )
       names.push(t.slice(0, at));
   }
   return JSON.stringify(names);
