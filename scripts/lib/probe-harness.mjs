@@ -39,6 +39,11 @@ export async function launchProbe({
   windowSize = "1280,900",
   page = "prototypes/prism-breakers.html",
   profilePrefix = "stella-probe-",
+  /* 기본으로 «런타임이 다 실릴 때까지» 기다린 뒤 돌려준다. 프로브마다
+     제각각인 대기 조건이 경합의 원인이었으므로 기본값을 안전한 쪽으로
+     둔다. 부팅 자체를 관측하는 프로브는 false 로 끄고 ready()를 직접
+     부르면 된다. */
+  waitReady = true,
 } = {}) {
   /* 2026-08-21: 후보에 mac·리눅스를 넣었다. 앞서는 STELLA_BROWSER_PATH와
      윈도우 경로 둘뿐이라, 이 하니스를 쓰는 프로브는 mac에서 환경변수를
@@ -208,5 +213,30 @@ export async function launchProbe({
 
   await send("Runtime.enable");
   await send("Log.enable");
-  return { port, debugPort, send, evaluate, waitFor, close, errors };
+
+  /* 런타임이 «다 실려서» 부를 수 있는 상태인지. setupBattle 하나만 기다리면
+     안 된다 — 그 함수는 game-session.js(체인 5번째)에 있는데 몸통에서
+     resetAimStars(game-combat.js, 10번째)와 combatSfx(game-feedback.js,
+     15번째)를 부른다. 그래서 setupBattle 만 보고 부르면 뒤 파일이 아직
+     안 실린 순간에 걸려 `ReferenceError: resetAimStars is not defined` 로
+     죽는다 — 실제로 probe-campaign-clearable 이 이렇게 간헐적으로 죽었고,
+     여러 프로브가 같은 약한 조건을 쓰고 있었다.
+     체인의 «마지막» 파일까지 확인해야 안전하다: game-bootstrap.js 가
+     resetBuild()를 부르며 시작하므로, 그 전 파일들의 대표를 함께 본다. */
+  const READY = [
+    "setupBattle",
+    "resetBuild",
+    "resetAimStars",
+    "combatSfx",
+    "fireMeteor",
+    "showMeta",
+  ]
+    .map((name) => "typeof " + name + " === 'function'")
+    .join(" && ");
+  async function ready(timeoutMs = 30000) {
+    await waitFor(READY, timeoutMs, "런타임 로드 완료");
+  }
+  if (waitReady) await ready();
+
+  return { port, debugPort, send, evaluate, waitFor, ready, close, errors };
 }
