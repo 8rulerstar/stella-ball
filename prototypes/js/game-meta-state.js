@@ -167,8 +167,17 @@ function saveSettings() {
     document.documentElement.lang = settings.language;
   syncAudio();
 }
+/* 저장이 막힌 것을 «한 번만» 알린다. 매번 띄우면 조작할 때마다 배너가
+   떠 플레이가 불가능하고, 한 번도 안 알리면 새로고침 전까지 아무도 모른다.
+   여기서 부르는 이유 — 이 함수는 실제 플레이 중에만 도므로 toast()가 이미
+   서 있다(game-platform.js 는 체인 첫 파일이라 그 안에서는 못 부른다). */
+let storageWarned = false;
 function saveProgress() {
-  appStorage.writeRecord(PROGRESS_STORAGE, progress);
+  const ok = appStorage.writeRecord(PROGRESS_STORAGE, progress);
+  if (ok === false && !storageWarned) {
+    storageWarned = true;
+    toast?.("이 브라우저가 저장을 막고 있습니다 · 진행이 남지 않습니다");
+  }
 }
 function goldBalance() {
   return Math.max(0, Math.floor(Number(progress.gold) || 0));

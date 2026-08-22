@@ -14,10 +14,19 @@ const appStorage = Object.freeze({
       return { ...fallback };
     }
   },
+  /* 성공 여부를 «돌려준다»(2026-08-23). 예전에는 catch 가 비어 있어 저장이
+     막힌 브라우저 설정(사이트 데이터 차단 등)에서 아무 일도 없는 것처럼
+     보였다 — 실측: 화면의 골드 5000, 디스크 100, 경고 한 줄 없음. 플레이어는
+     계속 벌고 새로고침 한 번에 전부 잃는다.
+     이 파일은 체인의 첫 스크립트라 toast() 가 아직 없다(파일 머리 규약:
+     dependency-free). 그래서 여기서는 «알리지 않고» 실패만 알려 준다. */
   writeRecord(key, value) {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   },
   readText(key) {
     try {
@@ -29,7 +38,10 @@ const appStorage = Object.freeze({
   writeText(key, value) {
     try {
       window.localStorage.setItem(key, String(value));
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   },
   remove(key) {
     try {
