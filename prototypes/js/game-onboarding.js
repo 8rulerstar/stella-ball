@@ -588,12 +588,29 @@ function completeOnboarding() {
   clearOnboardingRuntime();
   playSfx?.("unlock");
   U.over.className = "overlay";
+  /* 문구는 «실제로 가진 것»을 말해야 한다(2026-08-23 실측 수정). 소환권은
+     grantFreeSummon 이 firstClear 에서만 주는데 이 카드는 무조건 「무료
+     소환권 1장을 드릴게요」라고 말했다 — 수업을 다시 본 사람에게는 주지도
+     않은 것을 약속하고, 「무료로 소환하기」를 누르면 100골드가 필요한
+     소환 화면에서 막혔다(실측: 재시청 시 freeSummons 0인데 문구 동일).
+     firstClear 가 아니라 «지금 표가 있는가»로 가른다 — 첫 클리어에서
+     받아 두고 안 쓴 사람에게는 재시청에서도 그 문장이 참이다. */
+  const hasTicket = (progress.freeSummons || 0) > 0;
   U.over.innerHTML =
-    '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">업적 해금</div><h2>첫 관측자의 증명</h2><p>세 번째 별지기 자리가 열렸습니다.<br>그 자리를 채울 <b>무료 소환권 1장</b>을 드릴게요.</p><button id="openOnboardingAchievement">무료로 소환하기</button><button id="openConstellationMap">나중에 하기</button></div>';
+    '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">업적 해금</div><h2>첫 관측자의 증명</h2><p>세 번째 별지기 자리가 열렸습니다.' +
+    (hasTicket
+      ? "<br>그 자리를 채울 <b>무료 소환권 1장</b>을 드릴게요.</p>"
+      : "<br>그 자리를 채울 별지기를 관측소에서 맞이하세요.</p>") +
+    '<button id="openOnboardingAchievement">' +
+    (hasTicket ? "무료로 소환하기" : "관측소로") +
+    '</button><button id="openConstellationMap">나중에 하기</button></div>';
   U.over.classList.remove("hide");
   document.querySelector("#openOnboardingAchievement").onclick = () => {
     playSfx();
-    showGacha();
+    // 표가 없으면 소환 화면은 막다른 길이다(100골드가 필요하다). 그때는
+    // 버튼이 「관측소로」이므로 가는 곳도 허브여야 한다.
+    if (hasTicket) showGacha();
+    else showMeta();
   };
   document.querySelector("#openConstellationMap").onclick = () => {
     playSfx();
