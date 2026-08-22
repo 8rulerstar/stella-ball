@@ -14,10 +14,12 @@ import { resolve } from "node:path";
 import vm from "node:vm";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-/* 이것은 HTML이 싣는 19개의 부분집합이다 — 화면·부팅·연출만 빠진다.
+/* 이것은 HTML이 싣는 21개의 부분집합이다 — 화면·부팅·연출·계기만 빠진다.
  *
  *   빠진 것: game-onboarding / game-arena-carve / game-bootstrap (화면과 부팅),
- *            game-speech / game-awaken-fx (연출)
+ *            game-speech / game-awaken-fx (연출),
+ *            game-perfwatch (손으로 켜는 계기 — 상태를 읽기만 하고 게임
+ *            상태를 쓰지 않는다. ARCHITECTURE.md의 분류와 같다)
  *
  * 연출 둘은 훅으로만 붙고 이 목록의 어떤 파일도 그 이름을 부르지 않으므로
  * 빼도 오류가 나지 않는다. `game-awaken-fx`가 `impactStop`·`screenShake`를

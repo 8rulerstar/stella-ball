@@ -133,7 +133,9 @@
     <script src="./boss-art.js"></script>
     <!-- 기믹 도트 리스킨(2026-08-22 디자인 세션). 표현 전용이라
          window.StellaDotGimmicks 만 노출하고 훅·모듈 등록은 없다.
-         소비자가 drawPinballTable 이라 js 체인보다 «앞»에 둔다. -->
+         boss-art.js 뒤 표현 계층 아무 자리면 된다 —
+         소비자 drawPinballTable 이 그릴 때 window.StellaDotGimmicks 를
+         조회하므로 로드 순서에 매이지 않는다. -->
     <script src="./stella-ball-dot-gimmicks.js"></script>
     <script src="./stella-ball-pixel-ui.js"></script>
     <script src="./stella-ball-dawn.js"></script>

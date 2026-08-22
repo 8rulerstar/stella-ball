@@ -53,7 +53,9 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Twenty probes drive a real Chromium over CDP the way the onboarding E2E does. None
+These probes (plus `profile-frames.mjs`) drive a real Chromium over CDP the way
+the onboarding E2E does — count them with `ls scripts/probe-*.mjs`, a written
+number here has gone stale twice. None
 is wired into a gate; run them by hand when the question is about the screen. Each
 file's header names the ways that probe has actually been read wrong - four probes
 gave confidently wrong answers in one night before those notes existed.
@@ -88,13 +90,14 @@ gave confidently wrong answers in one night before those notes existed.
   composited _area_ does.
 - `node scripts/probe-meta-screens.mjs` - opens twelve screens (title, hub, stage
   select, roster, deployment, shop, summon, profile, archive, library, settings,
-  pause) at 1280x900 and 1280x760, writes a screenshot of each and judges three
+  pause) at 1280x900 and 1280x760, writes a screenshot of each and judges four
   things that are breakage rather than taste: a scroll box crushed to 0px, a
   button off-screen that no ancestor scrolls to, a child spilling out of its own
   box, and a portrait whose sprite cell disagrees with its element box (which
   clips the character into a corner). The text of each screen is dumped unjudged - read it yourself. Clean
-  across 12 screens x 3 sizes as of 2026-08-22, and the checker was validated by
-  re-injecting the archive bug it was written for. Meta state lives on
+  across 12 screens x 3 sizes as of 2026-08-22 (that run added a third size via
+  `--sizes`; the shipped default is the two above), and the checker was
+  validated by re-injecting the archive bug it was written for. Meta state lives on
   `progress.*`, so a bare `gold = 4200` sets a new global and changes nothing.
 - `node scripts/probe-summon.mjs` - the ten-second summon ritual, beat by beat
   (call, observe, answer, manifest, intro), with a screenshot of each and a check
@@ -147,6 +150,10 @@ no-preference` over CDP first, or the sequence collapses to 0.42s and you are
   are all reachable (attack rides `bossRoar`, death rides `bossOutro`; both step
   0->3 on the effect clock and hold the last frame). Sample right after arming -
   `drawBossRoar` clears its own signal at t>0.95.
+- `node scripts/probe-victory-toast.mjs` - that a remnant killed inside the last
+  1.6s of the boss does not respawn (and toast) over the victory card, and that
+  mid-battle respawn still works. Check the result card by its content, not its
+  class - headless rAF makes class-only checks a timing race.
 
 New probes build on `scripts/lib/probe-harness.mjs` instead of copying the
 Chromium/CDP boilerplate; five predate it and still carry their own
@@ -155,8 +162,8 @@ Chromium/CDP boilerplate; five predate it and still carry their own
 
 `node bot/run-bot.mjs` regenerates `bot/latest-report.json`. The harness is
 deterministic - the same code twice gives byte-identical output - so a diff in
-that file is a real behaviour change, not noise. It loads 14 of the 19 runtime
-scripts; the note on `runtimeFiles` says which five are left out and why.
+that file is a real behaviour change, not noise. It loads 14 of the 21 runtime
+scripts; the note on `runtimeFiles` says which seven are left out and why.
 
 - Do not edit generated `artifacts/` output or user-owned `.claude/` files.
 - Preserve unrelated changes in a dirty worktree. Do not amend, rebase, or force-push `main`.

@@ -12,7 +12,8 @@ The browser build deliberately uses ordered classic scripts instead of a bundler
 - `prism-breakers-story.css`: title, story, and observatory presentation.
 - `prism-breakers-polish.css`: campaign map, onboarding, and final visual refinements.
 - `stella-ball-theme.css`: Dawn Observatory palette pass. It carries the theme colors and must stay after every `prism-breakers-*.css` file.
-- `stella-ball-dawn.css`: pixel button kit and background decor styling. It must remain the final stylesheet; it overrides the theme's `!important` button surfaces, so nothing may load after it.
+- `stella-ball-dawn.css`: pixel button kit and background decor styling. It overrides the theme's `!important` button surfaces, so it must stay after `stella-ball-theme.css`.
+- `stella-ball-upgrade.css`: 2026-08-22 visual upgrade pass (table frames, HP meter, pixel slider). The final stylesheet; the order theme → dawn → upgrade is pinned by `scripts/smoke-runtime.mjs`.
 - `../PLAY_WINDOWS.cmd`: Windows launcher for the repository entry point.
 
 ## JavaScript ownership
@@ -48,13 +49,15 @@ The files under `js/` load in this exact order and share the browser global scop
 19. `game-arena-carve.js` — final procedural Observatory Ground arena pass. It keeps the four most recently used baked floors in an LRU cache and installs a stage-arena renderer through the `render` module; it must remain after onboarding and before bootstrap. It must not change physics, collisions, balance, or unit judgement colours.
 20. `game-bootstrap.js` — creates the initial idle state, opens the title screen, and starts `requestAnimationFrame`.
 
-Five presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
+Seven presentation-only scripts load after that chain and stay outside `js/` because they never touch gameplay state:
 
-20. `boss-art.js` — exposes `window.StellaBossArt`; draws the stage 8-1 walking-planet boss procedurally at any size and phase, with no raster asset. It is a pure drawing library with no project dependencies, so it must come first in this tier: both the arena renderer and `stella-ball-dawn.js` consume it.
-21. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
-22. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer. Its margin props carry `data-dawn-prop` names so the intro can startle them without reaching into its locals.
-23. `sky-ambience.js` — the margin sky's three parallax layers, autonomous idle cycles, and the event background reactions from `SKY_AMBIENCE_REQUEST_2026_08_14.md`. A `#dawn-sky` child like the intro, loaded between `stella-ball-dawn.js` and `outer-observer.js` so the intro draws above it. It does not hook the runtime yet: reactions are exposed on `window.SkyAmbience` (`figure` / `world` / `boss` / `blaze` / `setProgress`) and wiring them to hooks is a separate approval, documented in the design session's README.
-24. `outer-observer.js` — the six-beat title intro. It attaches its layer as a child of `#dawn-sky`, so the existing `#dawn-sky *` reduced-motion rule covers it, and it watches for `.title-sequence` instead of hooking the runtime. It must load after `stella-ball-dawn.js` because that script creates `#dawn-sky`.
+21. `boss-art.js` — exposes `window.StellaBossArt`; draws the stage 8-1 walking-planet boss procedurally at any size and phase, with no raster asset. It is a pure drawing library with no project dependencies, so it must come first in this tier: both the arena renderer and `stella-ball-dawn.js` consume it.
+22. `stella-ball-dot-gimmicks.js` — exposes `window.StellaDotGimmicks`; dot reskins for the stage gimmicks, consumed by `drawPinballTable` at draw time (query, not load-order, so its slot in this tier is free). No RNG, so harness determinism holds.
+23. `stella-ball-pixel-ui.js` — exposes `window.StellaPixelUI`; renders pixel button silhouettes and decor sprites to canvas data URLs.
+24. `stella-ball-dawn.js` — assigns `data-pbtn` to game-drawn buttons through a `MutationObserver` and builds the `#dawn-sky` background decor layer. Its margin props carry `data-dawn-prop` names so the intro can startle them without reaching into its locals.
+25. `stella-ball-upgrade.js` — companion script of `stella-ball-upgrade.css` (2026-08-22 intake): style recomputation for game-drawn surfaces the CSS alone cannot reach. Presentation-only, no gameplay state.
+26. `sky-ambience.js` — the margin sky's three parallax layers, autonomous idle cycles, and the event background reactions from `SKY_AMBIENCE_REQUEST_2026_08_14.md`. A `#dawn-sky` child like the intro, loaded between `stella-ball-dawn.js` and `outer-observer.js` so the intro draws above it. It does not hook the runtime yet: reactions are exposed on `window.SkyAmbience` (`figure` / `world` / `boss` / `blaze` / `setProgress`) and wiring them to hooks is a separate approval, documented in the design session's README.
+27. `outer-observer.js` — the six-beat title intro. It attaches its layer as a child of `#dawn-sky`, so the existing `#dawn-sky *` reduced-motion rule covers it, and it watches for `.title-sequence` instead of hooking the runtime. It must load after `stella-ball-dawn.js` because that script creates `#dawn-sky`.
 
 ## Important maintenance rule
 
@@ -88,4 +91,4 @@ When the final meteor settles with a pending constellation, `game-combat-physics
 
 ## Verification
 
-With Node.js 20 or newer, run `npm run check` from the repository root. The verifier reads every ordered runtime file as one logical bundle, including the meta, combat, and figure sub-owner pairs, checks required gameplay markers and asset references, runs portability checks, and writes `artifacts/verification.json`. The smoke test validates exact script order, zero duplicate global functions, module immutability, hook ordering, contract rejection, and all three deferred-figure outcomes. The final `test:onboarding` pass opens a fresh headless Chromium profile and drives the real six-card input journey through the pentagram and reward screen. Its scope and fixture are recorded in [ONBOARDING-E2E](./ONBOARDING-E2E.md). `npm run serve` starts the local server at `http://127.0.0.1:4173/`.
+With Node.js 20 or newer, run `npm run check` from the repository root. The verifier reads the 17 gameplay-owning runtime files as one logical bundle — `game-figure-cinematics.js`, `game-speech.js`, `game-awaken-fx.js` and `game-perfwatch.js` stay outside it (cast, speech and fx presentation plus a hand-run instrument; no gameplay marker lives there) — checks required gameplay markers and asset references, runs portability checks, and writes `artifacts/verification.json`. The smoke test concatenates and parses all 21. The smoke test validates exact script order, zero duplicate global functions, module immutability, hook ordering, contract rejection, and all three deferred-figure outcomes. The final `test:onboarding` pass opens a fresh headless Chromium profile and drives the real six-card input journey through the pentagram and reward screen. Its scope and fixture are recorded in [ONBOARDING-E2E](./ONBOARDING-E2E.md). `npm run serve` starts the local server at `http://127.0.0.1:4173/`.

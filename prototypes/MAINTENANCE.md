@@ -70,7 +70,7 @@ The infinite training table is the current reference configuration for all three
 `js/game-figure-recognition.js` owns constellation trace capture and recognition in every combat. At settlement it uses the successful parry contacts collected during the shot: three or more select the nearest skeleton in their point-count tier. `js/game-figure.js` then keeps the physical units fixed, applies the selected outcome, and animates the drawn line toward that skeleton.
 
 - Keep the order `game-combat.js` → `game-combat-physics.js` → `game-figure-recognition.js` → `game-figure.js`. The figure pair consumes `beforePartySettle` and `beforeShotResolution`; do not restore a `settleParty` or `endShot` wrapper.
-- `game-figure-recognition.js` owns `FIGURE_SHAPES`, recognition templates, draw edges, and optional silhouette paths. `game-figure.js` owns `FIGURE_ABILITIES` and the outcome. The six current entries deliberately share `encloseDamage`; do not describe them as distinct abilities until that table changes.
+- `game-figure-recognition.js` owns `FIGURE_SHAPES`, recognition templates, draw edges, and optional silhouette paths. `game-figure.js` owns `FIGURE_ABILITIES` and the outcome. The eight current entries each map to their own outcome function; `encloseDamage` is aries' ability and the fallback for an unrecognised trace.
 - The seven 384×384 silhouette files are coordinate-bound to `FIGURE_SHAPES`. Update `ASSET_PLAN.md`, `assets/ASSET_MANIFEST.json`, and `FIGURE_ART_SPEC.md` in the same change if their points, size, or paths change. The 6- and 7-point pair regenerates from `scripts/generate_constellation_art_6_7.mjs`.
 - Figure damage must continue through `applyBossHit()` and `damageAdd()` so shields and phase rules cannot be bypassed.
 
