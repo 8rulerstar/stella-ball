@@ -54,17 +54,26 @@ const FIRST_RUN_KEYS = Object.freeze([
   // 도달하면 첫 클리어 문구 대신 재관측 문구를 만났다.
   "stella-ball.campaign-clear.v1",
 ]);
-// 인트로의 「이번 세션에 이미 봤다」 표식만 sessionStorage에 있다. 이것까지
-// 지워야 전체 컷신이 약식이 아닌 원본 길이로 재생된다.
+/* 인트로의 「이미 봤다」 표식. 이것까지 지워야 전체 컷신이 약식이 아닌
+   원본 길이로 재생된다.
+
+   2026-08-23 수정 — 이 주석은 「sessionStorage에만 있다」고 말했고 코드도
+   거기서만 지웠는데, 정작 outer-observer.js 의 markPlayed 는 localStorage 에
+   «먼저» 쓰고 그것이 막힐 때만 sessionStorage 로 떨어진다. 그래서 초기화한
+   사람에게 localStorage 사본이 그대로 남아, 확인 창이 약속한 전체 인트로
+   대신 약식이 재생됐다(실측: 초기화 후 local "1" / session null).
+   두 곳에서 다 지운다. */
 const FIRST_RUN_SESSION_KEYS = Object.freeze([
   "stella-ball.outer-observer.played",
 ]);
 function resetToFirstRun() {
   for (const key of FIRST_RUN_KEYS) appStorage.remove(key);
-  for (const key of FIRST_RUN_SESSION_KEYS)
+  for (const key of FIRST_RUN_SESSION_KEYS) {
+    appStorage.remove(key);
     try {
       window.sessionStorage.removeItem(key);
     } catch {}
+  }
   // 메모리에 남은 상태를 되살리는 것보다 다시 읽는 쪽이 확실하다. 저장을
   // 지운 직후 어떤 코드가 다시 쓰기 전에 즉시 떠난다.
   window.location.reload();
