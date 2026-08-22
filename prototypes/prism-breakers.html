@@ -18,6 +18,9 @@
   <link rel="stylesheet" href="./stella-ball-theme.css" />
   <!-- Dawn pass: pixel button kit + sky decor. Keep after the theme. -->
   <link rel="stylesheet" href="./stella-ball-dawn.css" />
+  <!-- 시각 업그레이드(2026-08-22). dawn 을 덮어야 하므로 반드시 그 뒤 —
+       UI_KIT_DAWN 의 「마지막 스타일시트」 자리를 이 파일이 승계한다. -->
+  <link rel="stylesheet" href="./stella-ball-upgrade.css" />
   <body>
     <main>
       <header>
@@ -134,6 +137,7 @@
     <script src="./stella-ball-dot-gimmicks.js"></script>
     <script src="./stella-ball-pixel-ui.js"></script>
     <script src="./stella-ball-dawn.js"></script>
+    <script src="./stella-ball-upgrade.js"></script>
     <!-- 여백 하늘 3계층·자율 주기·이벤트 배경 반응 시안. #dawn-sky가 먼저
          있어야 하므로 dawn.js 뒤, 인트로 레이어보다 아래에 깔리도록
          outer-observer.js 앞이다. -->

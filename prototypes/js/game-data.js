@@ -1626,7 +1626,7 @@ const bossArt = {
   fw: 384,
   fh: 384,
   frames: 1,
-  scale: 0.48,
+  scale: 0.5,
   sheetFrame: 384,
   animations: {
     idle: "../assets/library/anim/boss2/void-colossus-idle.png",
@@ -1652,7 +1652,7 @@ const BOSS_PACK_SPEC = {
   fw: 384,
   fh: 384,
   frames: 1,
-  scale: 0.48,
+  scale: 0.5,
   sheetFrame: 384,
 };
 const bossPack = {

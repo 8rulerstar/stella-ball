@@ -20,6 +20,7 @@ const expectedStyles = [
   "./prism-breakers-polish.css",
   "./stella-ball-theme.css",
   "./stella-ball-dawn.css",
+  "./stella-ball-upgrade.css",
 ];
 const expectedScripts = [
   "../hive/prism-hive-client.js",
@@ -50,6 +51,7 @@ const expectedScripts = [
   "./stella-ball-dot-gimmicks.js",
   "./stella-ball-pixel-ui.js",
   "./stella-ball-dawn.js",
+  "./stella-ball-upgrade.js",
   "./sky-ambience.js",
   "./outer-observer.js",
 ];

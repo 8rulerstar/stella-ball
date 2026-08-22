@@ -67,7 +67,7 @@ UI에 정지 이미지로 쓸 때는 `StellaPixelUI.cropSheets(selector)`로 첫
 ## 로드 순서 고정
 
 `scripts/smoke-runtime.mjs`의 `expectedStyles`/`expectedScripts`가 순서를 정확히 일치 검사한다.
-`stella-ball-dawn.css`는 **마지막 스타일시트**여야 하고(테마의 `!important` 버튼 표면을 덮어써야 하므로),
+`stella-ball-upgrade.css`가 **마지막 스타일시트**다(2026-08-22 시각 업그레이드 반입). 그전까지는 `stella-ball-dawn.css`가 그 자리였고, 지금도 dawn 이 테마의 `!important` 버튼 표면을 덮는 역할은 그대로다 — upgrade 는 dawn 을 다시 덮어 표 프레임·HP 미터·픽셀 슬라이더를 얹는다. 둘 다 마지막이어야 하므로 순서는 theme → dawn → upgrade 로 고정이다(`smoke-runtime.mjs` 의 `expectedStyles` 가 정확 일치로 검사한다),
 두 dawn 스크립트는 `js/game-bootstrap.js` 뒤에 온다. 순서를 바꾸면 같은 커밋에서 이 목록도 고쳐야 smoke가 통과한다.
 
 ## 반입 현황 (2026-08-12)

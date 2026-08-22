@@ -1,0 +1,184 @@
+/* ============================================================
+   시각 업그레이드 시안 — 스타일 절반 (VISUAL_UPGRADE §5-1·§6-4·§6-5)
+   stella-ball-dawn.css «뒤»에 로드한다. 전부 표현 전용.
+   ============================================================ */
+
+/* ---- §6-4 픽셀 슬라이더: 네이티브 크롬 제거 (그림은 upgrade.js가 굽는다) */
+input[type="range"][data-pxr] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  border-radius: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 3px 0 #04080a);
+}
+input[type="range"][data-pxr]::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 18px;
+}
+input[type="range"][data-pxr]::-moz-range-track {
+  background: transparent;
+  height: 18px;
+}
+
+/* ---- §5-1 표 프레임: 미사용 library/ui/panel-frame.png (256×256, 격자 64)
+        슬라이스 64px 를 32px 로 = 셀 2px 정수. 표가 패널 «위»에 얹힌다. */
+.rank-table,
+.codex-table {
+  border: 24px solid transparent;
+  border-image: url("../assets/library/ui/panel-frame.png") 64 fill / 24px
+    stretch;
+  image-rendering: pixelated;
+  border-collapse: separate !important;
+  border-spacing: 0;
+}
+/* 행 구분 1px 헤어라인 → 2px 하드 라인, 픽셀 규칙의 「하드 섀도」와 같은 색군 */
+.rank-table th,
+.rank-table td,
+.codex-table th,
+.codex-table td {
+  border-bottom: 2px solid #241839 !important;
+}
+/* §6-3: 도감표 th 8px 는 10px 하한 위반 → 10px */
+.codex-table th {
+  font-size: 10px !important;
+  letter-spacing: 0.08em;
+}
+.codex-table td {
+  font-size: 11px !important;
+}
+
+/* ---- §5-1 HP 미터: border-radius 999px(polish.css:46) → 픽셀 프레임 */
+.meter.hp {
+  border-radius: 0 !important;
+  height: 12px !important;
+  border: 4px solid transparent;
+  border-image: url("../assets/library/ui/hpbar-frame.png") 16 / 4px stretch;
+  image-rendering: pixelated;
+  background: #140a20 !important;
+}
+.meter.hp i {
+  border-radius: 0 !important;
+  background: linear-gradient(
+    180deg,
+    #ffe4bc 0 3px,
+    #f2a262 3px 6px,
+    #d17a44 6px 9px,
+    #ab5c32 9px 12px
+  ) !important;
+  image-rendering: pixelated;
+}
+
+/* ---- §6-5 .tip: display:none(interface.css:510) → 판 아래 안내 줄 복원.
+        aria-live 가 다시 접근성 트리에 들어간다. */
+.tip {
+  display: block !important;
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  max-width: 86%;
+  padding: 5px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #d9c2f0;
+  background: #11071cf0;
+  border: 1px solid #3a2a5e;
+  box-shadow: 0 4px 0 #04080a;
+  text-shadow: 0 2px 0 #04080a;
+  pointer-events: none;
+  z-index: 6;
+}
+.tip:empty {
+  display: none !important;
+}
+
+/* ---- §6-5 760px 아래: 둘째 HUD 카드가 대체 없이 사라지던 것 복원 +
+        판 위·HUD 글자 10px 하한 유지 */
+@media (max-width: 760px) {
+  .hud .hud-card + .hud-card {
+    display: block !important;
+  }
+  .hud-card,
+  .boss-panel,
+  .blaze-card small {
+    font-size: 10px !important;
+  }
+}
+
+/* ---- §6-4 터치·포커스: 킷이 마우스 이벤트만 바인딩하는 구멍의 CSS 보완 */
+[data-pbtn]:focus-visible {
+  outline: 2px solid #ffd2a0;
+  outline-offset: 2px;
+}
+[data-pbtn]:active {
+  transform: translateY(3px);
+}
+[data-pbtn="disabled"],
+.gacha-draw.insufficient {
+  color: #8f889e !important;
+  cursor: not-allowed;
+  text-shadow: 0 2px 0 #04080a;
+}
+
+/* ---- §6-2 새 MAP 셀렉터의 !important 표면 무력화 (dawn.css:11 과 같은 수법,
+        더 늦게 로드되고 특이도를 한 단 올린다) */
+.ig-cta[data-pbtn],
+.oc-go[data-pbtn],
+.oc-ghost[data-pbtn],
+.outcome-cut button[data-pbtn],
+.stage-drawer-go[data-pbtn],
+.world-step[data-pbtn],
+.constellation-training[data-pbtn],
+.language-choice button[data-pbtn],
+.archive-tab[data-pbtn],
+.gacha-draw.insufficient[data-pbtn],
+.gacha-draw[disabled][data-pbtn],
+.constellation-node .stage-copy[data-pbtn] {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: var(--pbtn-img) !important;
+  background-size: 100% 100% !important;
+  box-shadow: none !important;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 0 #07020c);
+}
+.ig-cta[data-pbtn] {
+  color: #fff6e6 !important;
+  text-shadow:
+    -1px 0 0 #6e3616,
+    1px 0 0 #6e3616,
+    0 -1px 0 #6e3616,
+    0 2px 0 #6e3616 !important;
+}
+.ig-cta[data-pbtn] > i {
+  display: none;
+}
+.world-step[data-pbtn],
+.oc-ghost[data-pbtn],
+.constellation-training[data-pbtn],
+.language-choice button[data-pbtn] {
+  color: #ede9f5 !important;
+  text-shadow: 0 2px 0 #07020c !important;
+}
+.gacha-draw.insufficient[data-pbtn],
+.gacha-draw[disabled][data-pbtn],
+[data-pbtn="disabled"] {
+  color: #8f889e !important;
+  text-shadow: 0 2px 0 #04080a !important;
+  filter: drop-shadow(0 2px 0 #07020c);
+}
+.constellation-node .stage-copy[data-pbtn] {
+  filter: drop-shadow(0 3px 0 #07020c);
+}
+
+/* ---- §5-1 허브 탭 아이콘 자리(글리프 → 도트 이미지, upgrade.js가 채움) */
+.hub-tab span[aria-hidden] {
+  display: block;
+  min-height: 16px;
+  line-height: 1;
+}

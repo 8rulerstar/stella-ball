@@ -43,6 +43,30 @@
 
 ## 현재 후보
 
+### [반입 완료] P1 — UI 프레임 재사용 (패널·카드·표·HP 미터)
+
+- **화면/트리거**: 프로필 순위표 · 도감표 · HP 미터 · 카드/패널 테두리
+- **플레이어 목적**: CSS `border-radius` 로 그린 둥근 모서리가 픽셀 화풍과
+  정면 충돌했다. 특히 `.meter` 는 `border-radius: 999px !important` 였다.
+- **자산 종류**: 이미 있는 것 재사용 — 새 파일 0장
+- **재사용**: `assets/library/ui/panel-frame.png`(256×256, 격자 64) ·
+  `card-frame.png` · `button-frame.png` · `toast-frame.png` ·
+  `hpbar-frame.png` + `hpbar-fill.png`(256×64). 전부 저장소에 있었고
+  코드 참조가 0곳이었다.
+- **연결 지점**: `prototypes/stella-ball-upgrade.css` (9-slice)
+- **반입 근거**: `VISUAL_UPGRADE_2026_08_22.md` §5-1. 새 래스터가 아니므로
+  `AGENTS.md:152-155` 의 일괄 제작 승인 대상이 아니다.
+
+### [임시 코드 표현] P2 — 허브 탭 아이콘 · 슬라이더 썸
+
+- **화면/트리거**: 허브 하단 탭 5종 · 설정 음량 슬라이더 셋
+- **플레이어 목적**: 탭이 유니코드 글리프였고 슬라이더가 네이티브 크롬이라
+  둘 다 픽셀 화면에서 이물이었다.
+- **자산 종류**: 런타임 절차 생성(dataURL) — 파일 반입 없음
+- **연결 지점**: `prototypes/stella-ball-upgrade.js`
+- **남은 것**: 정식 도트로 갈지는 `VISUAL_UPGRADE_2026_08_22.md` §8-1
+  (목표 픽셀 스케일) 결정 뒤에 정한다. 그때까지 이 절차 생성이 임시다.
+
 ### [명세 필요] P1 — 보스별 발동 SFX 구분
 
 - 화면 / 트리거: 보스 10종의 attack·death 프레임.

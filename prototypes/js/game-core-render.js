@@ -1473,7 +1473,10 @@ function draw() {
     x.save();
     x.filter = "hue-rotate(" + skin.hue + "deg) saturate(1.15)";
   }
-  const drewOrb = drawStatic("orb", ball.x, ball.y, 31);
+  /* 31 -> 32. 32x32 SVG(4px 블록)를 31px 로 그리면 블록이 3.875px 이라
+     원본 격자가 화면에서 깨진다. 32면 정수배다 — 시각 업그레이드 요구서
+     §7-2 의 «한 줄» 수정 둘 중 하나. */
+  const drewOrb = drawStatic("orb", ball.x, ball.y, 32);
   if (tinted) x.restore();
   if (!drewOrb) {
     circle(
