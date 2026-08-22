@@ -3641,8 +3641,16 @@ body.onboarding-locked .pause-button {
   line-height: 1.55;
 }
 /* Stacked on a narrow window: the list must stop being a scroll box, or it
-   gets squeezed to nothing between the header and the multiplier table. */
-@media (max-width: 900px) {
+   gets squeezed to nothing between the header and the multiplier table.
+
+   높이도 함께 본다(2026-08-23 실측). 이 패널의 폭은 창 너비가 아니라
+   `main` 에서 오고, `main` 은 판 비율을 지키려고 `80vh` 기반으로 좁아진다 —
+   그래서 1024x680 이나 1280x760 처럼 «낮은» 창에서 두 단(목록 최소 290 +
+   옆칸 최소 240 + 여백)이 들어갈 자리가 없는데, 조건이 너비만 보고 있어
+   접히지 않았다. 실측 넘침: 1024x680 에서 108px, 1280x760 에서 44px
+   (필요 578 / 가용 470·534). 넘친 만큼은 가로 스크롤로 밀려 배율 표
+   오른쪽 열과 「뒤로」가 화면 밖에 있었다. 1280x900 은 0이라 두 단 유지. */
+@media (max-width: 900px), (max-height: 820px) {
   .codex-split {
     flex-direction: column;
     overflow-y: auto;
