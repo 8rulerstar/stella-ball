@@ -150,6 +150,10 @@ no-preference` over CDP first, or the sequence collapses to 0.42s and you are
   are all reachable (attack rides `bossRoar`, death rides `bossOutro`; both step
   0->3 on the effect clock and hold the last frame). Sample right after arming -
   `drawBossRoar` clears its own signal at t>0.95.
+- `node scripts/probe-best-shots.mjs` - that a clear cannot destroy the player's
+  own best-shots record. A refund on the killing shot makes `shotsUsed` 0, the
+  loader rejects anything below 1 and resets the record to 99 - so read the value
+  AFTER a reload, not in memory: the destruction happens in the loader.
 - `node scripts/probe-dead-anim.mjs` - CSS animations that run but change nothing
   (an `!important` author declaration beats an animation in the cascade, so a
   pixel-kit override can silence a keyframe while the browser keeps paying style

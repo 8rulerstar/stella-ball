@@ -1391,8 +1391,15 @@ registerRuntimeHook("beforeBattleWin", (context) => {
     // `battle.shotMax - battle.shots`, and Math.min with anything non-numeric
     // yields NaN, which JSON stores as null and readRecord will not repair
     // because the key exists.
+    /* 하한 1도 함께 건다(2026-08-23 실측). 되돌림 능력(북두칠성)이 «죽이는
+       그 샷»에 붙으면 battle.shots 가 다시 shotMax 가 되어 shotsUsed 가 0,
+       심하면 음수가 된다. 0은 기록이 아니라 고장이고, 로더는 그 값을
+       거부하며 bestShots 를 99(기록 없음)로 되돌린다 — 즉 «잘 친 판이
+       플레이어의 진짜 최고 기록을 지운다». 실측: 기록 2 → 저장 0 →
+       재기동 후 99. 클리어에는 유성이 최소 하나 들어가므로 1이 바닥이다
+       (로더의 min 과 같은 값이다, game-meta-state.js 의 bestShots 행). */
     if (Number.isFinite(shotsUsed))
-      progress.bestShots = Math.min(progress.bestShots, shotsUsed);
+      progress.bestShots = Math.min(progress.bestShots, Math.max(1, shotsUsed));
     progress.bestTime = !progress.bestTime
       ? elapsedMs
       : Math.min(progress.bestTime, elapsedMs);
