@@ -534,5 +534,22 @@
         "regen": "node scripts/generate_boss_pack_10.mjs"
       }
     ]
+  },
+  "gimmickIcons": {
+    "note": "기믹 범례 아이콘 여덟. scripts/generate_dot_icons.py 가 굽는다 — 손으로 찍지 않아 목표 픽셀 스케일이 바뀌면 다시 돌리면 된다.",
+    "cell": 2,
+    "logical": 8,
+    "size": 16,
+    "source": "scripts/generate_dot_icons.py",
+    "files": {
+      "wall": "library/icons/gimmick/wall.png",
+      "boost": "library/icons/gimmick/boost.png",
+      "drag": "library/icons/gimmick/drag.png",
+      "add": "library/icons/gimmick/add.png",
+      "orbit": "library/icons/gimmick/orbit.png",
+      "shield": "library/icons/gimmick/shield.png",
+      "roar": "library/icons/gimmick/roar.png",
+      "sleep": "library/icons/gimmick/sleep.png"
+    }
   }
 }

@@ -1184,7 +1184,36 @@ function gimmickLegendRows() {
 }
 /* 아이콘 하나. (cx, cy)를 가운데로 16x16 안에 그린다. 판 위의 진짜 물건과
    같은 색·같은 실루엣을 쓴다 — 색이 다르면 짝이 안 지어진다. */
+/* 도트 아이콘 여덟 장(2026-08-22). scripts/generate_dot_icons.py 가 굽는다 —
+   손으로 찍지 않은 이유는 목표 픽셀 스케일이 아직 열린 결정이라
+   (VISUAL_UPGRADE §8-1) 바뀌면 다시 «그리는» 대신 다시 «돌리면» 되게
+   하려는 것이다. 16x16, 셀 2px — 도트 킷의 CELL 과 같다.
+
+   왜 벡터를 걷어내나: 이 범례의 설계 근거가 「판에 그려지는 모양 그대로를
+   줄여 옆에 둔다」인데, 정작 판은 도트로 그리고 범례는 스트로크로 그리고
+   있었다. 같은 그림이 두 번 나와야 짝이 지어진다.
+
+   폴백은 남긴다 — 그림이 아직 안 온 첫 프레임에도 범례가 비면 안 된다. */
+const GIMMICK_ICON_SPRITE = {
+  wall: "../assets/library/icons/gimmick/wall.png",
+  boost: "../assets/library/icons/gimmick/boost.png",
+  drag: "../assets/library/icons/gimmick/drag.png",
+  add: "../assets/library/icons/gimmick/add.png",
+  orbit: "../assets/library/icons/gimmick/orbit.png",
+  shield: "../assets/library/icons/gimmick/shield.png",
+  roar: "../assets/library/icons/gimmick/roar.png",
+  sleep: "../assets/library/icons/gimmick/sleep.png",
+};
 function drawGimmickIcon(kind, cx, cy) {
+  const sprite =
+    typeof loadTexture === "function"
+      ? loadTexture(GIMMICK_ICON_SPRITE[kind])
+      : null;
+  if (sprite?.complete && sprite.naturalWidth) {
+    // 셀 스냅. 반 픽셀에 얹으면 2px 셀이 흐려진다.
+    x.drawImage(sprite, Math.round(cx - 8), Math.round(cy - 8), 16, 16);
+    return;
+  }
   x.save();
   x.translate(cx, cy);
   x.lineWidth = 2;
