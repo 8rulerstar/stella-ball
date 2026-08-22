@@ -2194,31 +2194,7 @@ registerRuntimeHook("beforeShotStart", (context) => {
     };
     battle.nextMark = false;
     battle.nextPulse = 0;
-    for (const g of gates) {
-      g.vx = 0;
-      g.vy = 0;
-      g.moved = false;
-      g.awake = false;
-      g.wakeFlash = 0;
-      g.travel = 0;
-      g.collisions = 0;
-      g.wallHits = 0;
-      g.bossHit = false;
-      g.unitTrail = [];
-      g.animState = "idle";
-      g.contactCooldown = 0;
-      g.enemyHitCooldown = 0;
-      g.feedbackContactCooldown = 0;
-      g.bladeAngle = 0;
-      g.bladeStrength = 0;
-      g.bladeTick = 0;
-      g.bladePopupCooldown = 0;
-      g.bladeDamageBank = 0;
-      g.bladeAwake = false;
-      g.bossPhaseUntilClear = false;
-      g.bossPhaseVx = 0;
-      g.bossPhaseVy = -1;
-    }
+    for (const g of gates) resetGateForShot(g);
     drag = null;
     renderBlaze();
     return;
@@ -2234,32 +2210,39 @@ registerRuntimeHook("afterShotStart", ({ restingPoint }) => {
   ball.starkeeperTouched = false;
   ball.openingBossContact = false;
   renderBlaze();
-  for (const g of gates) {
-    g.vx = 0;
-    g.vy = 0;
-    g.moved = false;
-    g.awake = false;
-    g.wakeFlash = 0;
-    g.travel = 0;
-    g.collisions = 0;
-    g.wallHits = 0;
-    g.bossHit = false;
-    g.unitTrail = [];
-    g.mass = 1;
-    g.contactCooldown = 0;
-    g.enemyHitCooldown = 0;
-    g.feedbackContactCooldown = 0;
-    g.bladeAngle = 0;
-    g.bladeStrength = 0;
-    g.bladeTick = 0;
-    g.bladePopupCooldown = 0;
-    g.bladeDamageBank = 0;
-    g.bladeAwake = false;
-    g.bossPhaseUntilClear = false;
-    g.bossPhaseVx = 0;
-    g.bossPhaseVy = -1;
-  }
+  for (const g of gates) resetGateForShot(g);
 });
+/* 샷 경계의 별지기 초기화. 당구 경로(beforeShotStart)와 일반 경로
+   (afterShotStart)가 스무 줄짜리 같은 블록을 따로 들고 있다가 서로 다른
+   한 줄씩만 어긋나 있었다 — 앞쪽만 animState를 되돌리고(실제로 쓰인다:
+   안 되돌리면 공격·피격 포즈가 다음 샷까지 남는다), 뒤쪽만 mass를
+   세웠다(읽는 곳이 저장소에 없어 걷었다 — 탄성 해석기는 환산 질량을
+   하드코딩한다). 한 몸으로 합쳐 다음 어긋남을 구조적으로 막는다. */
+function resetGateForShot(g) {
+  g.vx = 0;
+  g.vy = 0;
+  g.moved = false;
+  g.awake = false;
+  g.wakeFlash = 0;
+  g.travel = 0;
+  g.collisions = 0;
+  g.wallHits = 0;
+  g.bossHit = false;
+  g.unitTrail = [];
+  g.animState = "idle";
+  g.contactCooldown = 0;
+  g.enemyHitCooldown = 0;
+  g.feedbackContactCooldown = 0;
+  g.bladeAngle = 0;
+  g.bladeStrength = 0;
+  g.bladeTick = 0;
+  g.bladePopupCooldown = 0;
+  g.bladeDamageBank = 0;
+  g.bladeAwake = false;
+  g.bossPhaseUntilClear = false;
+  g.bossPhaseVx = 0;
+  g.bossPhaseVy = -1;
+}
 function wakeUnit(g, { subtle = false } = {}) {
   // A phase rule can put a starkeeper back to sleep under a guard: the first
   // collisions only shake it, and it wakes on the one that clears the guard.
