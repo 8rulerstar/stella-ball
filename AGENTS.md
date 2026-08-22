@@ -90,8 +90,9 @@ gave confidently wrong answers in one night before those notes existed.
   composited _area_ does.
 - `node scripts/probe-meta-screens.mjs` - opens twelve screens (title, hub, stage
   select, roster, deployment, shop, summon, profile, archive, library, settings,
-  pause) at 1280x900 and 1280x760, writes a screenshot of each and judges four
-  things that are breakage rather than taste: a scroll box crushed to 0px, a
+  pause) at 1280x900 and 1280x760, writes a screenshot of each and judges five
+  things that are breakage rather than taste: a box that scrolls sideways with a
+  button pushed mostly out of it, a scroll box crushed to 0px, a
   button off-screen that no ancestor scrolls to, a child spilling out of its own
   box, and a portrait whose sprite cell disagrees with its element box (which
   clips the character into a corner). The text of each screen is dumped unjudged - read it yourself. Clean

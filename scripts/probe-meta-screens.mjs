@@ -142,6 +142,41 @@ const AUDIT = `(() => {
     const over = el.scrollHeight - el.clientHeight;
     if (over > 4) spill.push(name(el) + " +" + over + "px");
   }
+  /* 가로로 스크롤하는 상자(2026-08-23 추가). 위 검사 넷이 전부 «세로»라
+     가로 넘침을 하나도 못 봤다 — 도서관이 1024x680 에서 108px 넘쳐 배율
+     표 오른쪽 열과 「뒤로」가 화면 밖에 있었는데 이 프로브는 0건이라고
+     했다. 이 UI에서 가로 스크롤은 언제나 배치 실패다(옆으로 미는 화면이
+     설계에 없다). 자식 rect 로는 안 잡힌다 — 넘침이 컨테이너 «안»에서
+     일어나 자식 좌표가 클립된 값으로 나오므로, 컨테이너 자신의
+     scrollWidth - clientWidth 를 봐야 한다. */
+  const wide = [];
+  for (const el of [document.querySelector("#overlay"), ...document.querySelectorAll("#overlay *")]) {
+    if (!el || !vis(el)) continue;
+    if (el.clientWidth < 80) continue;
+    const over = el.scrollWidth - el.clientWidth;
+    if (over <= 8) continue;
+    /* 넘쳤다는 것만으로는 고장이 아니다 — 마퀴는 «넘쳐야» 흐르고, 소환
+       의식의 궤도 링은 일부러 상자 밖으로 나간다. 실제 고장의 모양은
+       「가로로 밀려서 조작할 것이 상자 밖에 있다」이므로, 그 안의 버튼이
+       실제로 밀려났을 때만 센다(도서관의 「뒤로」가 그랬다). */
+    const box = el.getBoundingClientRect();
+    /* «몇 px 잘렸다»가 아니라 «제대로 보이지 않는다»를 센다. 트레이 끝
+       칸이 13px 물리는 것까지 실패로 올리면 이 프로브가 늘 빨간불이라
+       아무도 안 본다. 상자 안에 남은 폭이 절반도 안 될 때만 센다 —
+       도서관의 「뒤로」가 그랬다. */
+    const pushed = [...el.querySelectorAll("button")].filter((b) => {
+      if (!vis(b)) return false;
+      const r = b.getBoundingClientRect();
+      if (!r.width) return false;
+      const visibleW =
+        Math.min(r.right, box.right) - Math.max(r.left, box.left);
+      return visibleW / r.width < 0.5;
+    });
+    if (pushed.length)
+      wide.push(
+        name(el) + " +" + over + "px · 밀려난 버튼 " + pushed.map(name).join(","),
+      );
+  }
   /* 초상이 제 틀에 안 맞는 것. setPortrait(el, hero, size) 는 인라인으로
      background-size: (칸수*size)px (size)px 을 쓰므로, size 가 곧 스프라이트
      «한 칸»의 변이다. 그 값이 요소 상자와 다르면 칸의 일부만 보이고 인물이
@@ -158,7 +193,7 @@ const AUDIT = `(() => {
     if (Math.abs(cell - w) > 1 || Math.abs(cell - h) > 1)
       cropped.push(name(el) + " 칸 " + cell + "px / 상자 " + w + "x" + h);
   }
-  return JSON.stringify({ unreachable, crushed, spill, cropped });
+  return JSON.stringify({ unreachable, crushed, spill, wide, cropped });
 })()`;
 
 let broken = 0;
@@ -201,6 +236,7 @@ for (const size of SIZES) {
         a.unreachable.length +
         a.crushed.length +
         a.spill.length +
+        (a.wide?.length || 0) +
         a.cropped.length;
       if (bad) broken += 1;
       console.log(
@@ -212,6 +248,8 @@ for (const size of SIZES) {
         console.log("   못 닿는 버튼: " + a.unreachable.join(", "));
       if (a.spill.length)
         console.log("   상자 밖으로 나온 것: " + a.spill.join(", "));
+      if (a.wide?.length)
+        console.log("   가로로 넘친 상자: " + a.wide.join(", "));
       if (size === SIZES[0]) console.log("   " + d.lines.join(" / "));
       await evaluate("setScene('meta'), 1").catch(() => {});
       await delay(400);
