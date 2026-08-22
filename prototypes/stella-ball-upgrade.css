@@ -73,8 +73,17 @@ input[type="range"][data-pxr]::-moz-range-track {
 }
 
 /* ---- §6-5 .tip: display:none(interface.css:510) → 판 아래 안내 줄 복원.
-        aria-live 가 다시 접근성 트리에 들어간다. */
-.tip {
+        aria-live 가 다시 접근성 트리에 들어간다.
+
+        2026-08-23: 전투 화면으로 한정한다. `#tip` 은 `<section class="stage">`
+        안, 판 아래에 붙는 줄인데 되살릴 때 화면을 가리지 않아 메뉴에도 그대로
+        떴다 — 타이틀에는 「파티를 편성하세요.」 상자가 제작자 표기 밑에
+        떠 있었고, 허브에서는 주 버튼 「관측」의 아래쪽을 덮었다(실측:
+        title-mode·meta-mode·menu-mode 전부 display:block). 모든 플레이어가
+        반드시 지나는 두 화면이라 출시 전에 막는다.
+        접근성은 잃지 않는다 — 메뉴의 같은 문구는 각 화면이 자기 글로 이미
+        말하고, 조준 상태는 별도 라이브 리전(`#aimLive`)이 낭독한다. */
+body.game-mode .tip {
   display: block !important;
   position: absolute;
   left: 50%;
@@ -92,6 +101,8 @@ input[type="range"][data-pxr]::-moz-range-track {
   pointer-events: none;
   z-index: 6;
 }
+/* 나머지 규칙은 셀렉터를 유지한다 — 전투에서만 보이지만 모양은 한 곳에서
+   정의되는 편이 낫다. 아래 :empty 는 전투 중 빈 줄을 접는 것이다. */
 .tip:empty {
   display: none !important;
 }
