@@ -25,7 +25,14 @@ const rows = [];
 try {
   const { evaluate, waitFor } = probe;
   await waitFor("typeof setupBattle === 'function'", 20000, "runtime");
-  const ids = ["1-1", "2-1", "3-1", "4-1", "5-1", "6-1", "7-1", "7-7", "8-1"];
+  /* 기본은 월드마다 «첫 판»이다 — 사다리의 첫 칸이라 쉬운 것이 설계다.
+     기믹이 난이도를 만들었는지 보려면 «마지막 칸»을 재야 한다:
+       node scripts/probe-campaign-clearable.mjs --stages 1-3 2-4 3-4 4-5 5-5 6-6 7-7 */
+  const ids = process.argv.includes("--stages")
+    ? process.argv
+        .slice(process.argv.indexOf("--stages") + 1)
+        .filter((a) => /^\d-\d$/.test(a))
+    : ["1-1", "2-1", "3-1", "4-1", "5-1", "6-1", "7-1", "7-7", "8-1"];
   for (const id of ids) {
     const setup = await evaluate(`(() => {
       const i = stages.findIndex(s => s.id === ${JSON.stringify(id)});
