@@ -530,6 +530,14 @@ function renderOnboarding() {
   }
 }
 function showOnboardingTutorial(replay = false) {
+  /* 수업에 들어왔다는 것은 프롤로그 단계를 지났다는 뜻이다(2026-08-23
+     실측 수정). 표식은 여태 프롤로그 close() 에서만 찍혔는데, 타이틀의
+     「1분 튜토리얼」(#titleHelp)은 프롤로그를 건너뛰고 여기로 바로 온다.
+     그래서 그 길로 들어와 수업을 «끝까지 마쳐도» 표식이 없었고, 나중에
+     주 버튼을 누르면 showTitle 의 첫 분기가 프롤로그를 다시 틀고 수업이
+     1/6부터 되돌아갔다 — 실측: onboarding/3번 슬롯은 참인데 intro 만
+     거짓. 두 입구가 같은 표식을 남기게 여기서 찍는다. */
+  markStoryIntroSeen();
   const returnParty = selected.length ? [...selected] : ["biyeon", "ria"];
   resetBuild();
   onboarding = {
