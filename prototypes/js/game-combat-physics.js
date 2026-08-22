@@ -1152,6 +1152,147 @@ function drawPickFlash(host, cx, cy, baseR, fxDt) {
   stepRing(cx, cy, baseR + (1 - fk) * 19, "#ffffff", 3, 3);
   x.globalAlpha = 1;
 }
+
+/* ── 기믹 범례 (2026-08-22) ──────────────────────────────────────────────
+   기믹을 34판에 켠 뒤 남은 문제: 판에 들어선 사람은 저 파란 판이 무엇인지,
+   도는 것을 부숴야 하는지 피해야 하는지 알 방법이 없었다. 허브 지도도
+   기믹 이름을 한 번도 보여 준 적이 없다(그쪽은 따로 고쳤다).
+
+   글로 설명하지 않는다. 판 위 한글은 창에 따라 5.4px 까지 줄어들고
+   (BOARD_TEXT_2026_08_22.md) 이 화면의 방침은 「지저분하게 하지 말라」다.
+   대신 «판에 실제로 그려지는 모양 그대로»를 16px 로 줄여 옆에 둔다 —
+   같은 그림이 두 번 나오므로 이름을 못 읽어도 짝이 지어진다.
+
+   새 그림 파일은 없다. 전부 캔버스로 그린다. */
+function gimmickLegendRows() {
+  const g = currentStage()?.gimmicks ?? {};
+  const rows = [];
+  if (g.walls?.length) rows.push(["wall", "반사 벽", g.walls.length]);
+  if (g.boostPads?.length)
+    rows.push(["boost", "가속 발판", g.boostPads.length]);
+  if (g.dragPads?.length) rows.push(["drag", "흐린 발판", g.dragPads.length]);
+  if (g.adds?.length) rows.push(["add", "공허 잔재", g.adds.length]);
+  if (g.orbits?.length) rows.push(["orbit", "도는 방벽", g.orbits.length]);
+  if (g.shield) rows.push(["shield", "굳은 껍질", g.shield.hits]);
+  if (g.phases)
+    rows.push([
+      g.phases.effect === "sleep" ? "sleep" : "roar",
+      g.phases.effect === "sleep" ? "재수면" : "포효",
+      g.phases.at.length,
+    ]);
+  return rows;
+}
+/* 아이콘 하나. (cx, cy)를 가운데로 16x16 안에 그린다. 판 위의 진짜 물건과
+   같은 색·같은 실루엣을 쓴다 — 색이 다르면 짝이 안 지어진다. */
+function drawGimmickIcon(kind, cx, cy) {
+  x.save();
+  x.translate(cx, cy);
+  x.lineWidth = 2;
+  if (kind === "wall") {
+    // 판 세 장 + 갈매기 하나. 판 위의 벽과 같은 색이다.
+    x.fillStyle = "#9dc2cf";
+    for (let i = 0; i < 3; i++) x.fillRect(-7 + i * 5, -3, 4, 6);
+    x.strokeStyle = "#c3f3ff";
+    x.beginPath();
+    x.moveTo(-2, -3);
+    x.lineTo(2, 0);
+    x.lineTo(-2, 3);
+    x.stroke();
+  } else if (kind === "boost") {
+    // 위로 겹치는 갈매기 둘 — 「빨라진다」.
+    x.strokeStyle = "#ffe09a";
+    for (const dy of [2, 6]) {
+      x.beginPath();
+      x.moveTo(-6, dy);
+      x.lineTo(0, dy - 6);
+      x.lineTo(6, dy);
+      x.stroke();
+    }
+  } else if (kind === "drag") {
+    // 아래로 흐려지는 가로줄 셋 — 「잃는다」.
+    x.strokeStyle = "#b39ddb";
+    for (let i = 0; i < 3; i++) {
+      x.globalAlpha = 0.9 - i * 0.28;
+      x.beginPath();
+      x.moveTo(-7 + i, -4 + i * 4);
+      x.lineTo(7 - i, -4 + i * 4);
+      x.stroke();
+    }
+    x.globalAlpha = 1;
+  } else if (kind === "add") {
+    // 작은 몸통 + 눈 둘. 판 위 잔재와 같은 자주.
+    x.fillStyle = "#c86bd8";
+    x.beginPath();
+    x.arc(0, 0, 6, 0, Math.PI * 2);
+    x.fill();
+    x.fillStyle = "#1a0824";
+    x.fillRect(-3, -2, 2, 2);
+    x.fillRect(1, -2, 2, 2);
+  } else if (kind === "orbit") {
+    // 궤도 원 + 도는 판 하나.
+    x.strokeStyle = "#7cc6bb";
+    x.globalAlpha = 0.55;
+    x.beginPath();
+    x.arc(0, 0, 7, 0, Math.PI * 2);
+    x.stroke();
+    x.globalAlpha = 1;
+    x.fillStyle = "#12242a";
+    x.strokeStyle = "#7cc6bb";
+    x.fillRect(1, -6, 7, 4);
+    x.strokeRect(1, -6, 7, 4);
+  } else if (kind === "shield") {
+    // 겹쳐진 호 둘 — 판 위 껍질과 같은 그림이다.
+    x.strokeStyle = "#9adfc9";
+    for (const r of [5, 8]) {
+      x.beginPath();
+      x.arc(0, 1, r, Math.PI * 1.15, Math.PI * 1.85);
+      x.stroke();
+    }
+  } else if (kind === "roar") {
+    // 바깥으로 튀는 화살 넷 — 「밀어낸다」.
+    x.strokeStyle = "#ff9d6e";
+    for (const a of [0.79, 2.36, 3.93, 5.5]) {
+      x.beginPath();
+      x.moveTo(Math.cos(a) * 2, Math.sin(a) * 2);
+      x.lineTo(Math.cos(a) * 8, Math.sin(a) * 8);
+      x.stroke();
+    }
+  } else if (kind === "sleep") {
+    // 감긴 눈 — 「다시 잠든다」.
+    x.strokeStyle = "#8fa8d8";
+    x.beginPath();
+    x.arc(0, -1, 6, 0.2, Math.PI - 0.2);
+    x.stroke();
+    x.beginPath();
+    x.moveTo(-6, 4);
+    x.lineTo(6, 4);
+    x.stroke();
+  }
+  x.restore();
+}
+function drawGimmickLegend() {
+  const rows = gimmickLegendRows();
+  if (!rows.length) return;
+  const top = 122,
+    h = 16 + rows.length * 20;
+  x.save();
+  x.globalAlpha = 0.94;
+  x.fillStyle = "#04080ac9";
+  x.fillRect(34, top, 216, h);
+  x.strokeStyle = "#24363a";
+  x.lineWidth = 2;
+  x.strokeRect(34, top, 216, h);
+  x.textAlign = "left";
+  x.font = "11px Galmuri11, ui-monospace";
+  rows.forEach(([kind, name, count], i) => {
+    const cy = top + 18 + i * 20;
+    drawGimmickIcon(kind, 52, cy);
+    x.fillStyle = "#cfdad7";
+    x.fillText(name + (count > 1 ? " ×" + count : ""), 68, cy + 4);
+  });
+  x.restore();
+}
+
 function drawAimStars() {
   if (!run || battle?.victory || ball?.moving || !aimStarReady()) return;
   if (introProgress() < 1) return;
@@ -1603,6 +1744,10 @@ function drawAimStars() {
     x.fillText("별빛 — 조준 + 남기면 별자리", 68, 104);
     x.restore();
   }
+  /* 기믹 범례는 노드 범례와 «다른 조건»으로 산다. 노드 규칙은 세 샷이면
+     배우지만(aimTeach.shots), 기믹은 판마다 다르므로 그 판에 있는 동안은
+     계속 보여야 한다. 수업 중에만 접는다 — 카드와 손가락이 말하는 중이다. */
+  if (!lessonGuide) drawGimmickLegend();
 
   /* 조작 안내. 수업 실습 중에는 카드·손가락이 말하므로 접는다. 거절
      타이머도 여기서 끊는다 — 표시가 HUD뿐이라, 숨긴 채 얼려 두면 수업이

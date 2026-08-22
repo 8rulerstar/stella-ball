@@ -1087,8 +1087,17 @@ function constellationMapStages(worldId = activeWorld().id) {
       star: stage.star,
       note: stage.tutorial
         ? "루나와 함께 노드 조준과 첫 별자리를 관측하세요."
-        : (stage.terrain ??
-          (stageGimmickLabels(stage).join(" · ") || "기믹 없음")),
+        : /* 예전에는 `terrain ?? 기믹라벨` 이었다. 모든 캠페인 스테이지에
+             terrain 문자열이 있어서 뒷항이 «한 번도 도달한 적이 없다» —
+             기믹을 34판에 켠 지금, 플레이어는 스테이지를 고르는 화면에서
+             그 판에 무엇이 있는지 어디서도 볼 수 없었다.
+             둘은 다른 것을 말한다: terrain 은 「어떻게 치는가」(코칭),
+             기믹 라벨은 「무엇이 있는가」(사실). 떨어뜨리지 말고 합친다. */
+          [stage.terrain, stageGimmickLabels(stage).join(" · ")]
+            .filter(Boolean)
+            /* 줄바꿈 문자를 소스에 직접 넣으면 문자열이 깨진다 —
+               이 저장소의 선례대로 코드로 쓴다(44a36ff). */
+            .join(" · "),
       mark: stage.tutorial ? "✦" : "★",
       // 서랍이 보스 이름과 체력을 읽는다. 예전에는 note 문자열 안에 녹아
       // 있었는데, 그러면 표시 형식을 바꿀 때마다 문자열을 다시 파싱해야 한다.
