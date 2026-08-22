@@ -150,6 +150,12 @@ no-preference` over CDP first, or the sequence collapses to 0.42s and you are
   are all reachable (attack rides `bossRoar`, death rides `bossOutro`; both step
   0->3 on the effect clock and hold the last frame). Sample right after arming -
   `drawBossRoar` clears its own signal at t>0.95.
+- `node scripts/probe-dead-anim.mjs` - CSS animations that run but change nothing
+  (an `!important` author declaration beats an animation in the cascade, so a
+  pixel-kit override can silence a keyframe while the browser keeps paying style
+  recalc for it - that is how the title CTA glow was found). Seeks `currentTime`
+  instead of waiting; read the header for the four ways it gave wrong answers,
+  including that `currentTime` counts from the _delay_, not the duration.
 - `node scripts/probe-victory-toast.mjs` - that a remnant killed inside the last
   1.6s of the boss does not respawn (and toast) over the victory card, and that
   mid-battle respawn still works. Check the result card by its content, not its
