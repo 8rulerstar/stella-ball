@@ -48,7 +48,7 @@
 
 ### 0.3 로드 순서와 소유 경계
 
-- `stella-ball-dawn.css`는 **마지막 스타일시트**여야 하고 바로 앞이 `stella-ball-theme.css`다. `scripts/smoke-runtime.mjs`가 정확한 순서를 고정하고 있으므로, 순서를 바꾸면 같은 커밋에서 그 목록도 고쳐야 한다.
+- 스타일시트 순서는 `stella-ball-theme.css` → `stella-ball-dawn.css` → `stella-ball-upgrade.css` 로 고정이다(2026-08-22 시각 업그레이드 반입 이후 마지막 자리는 upgrade 다 — 그전에는 dawn 이었다). `scripts/smoke-runtime.mjs`가 정확한 순서를 고정하고 있으므로, 순서를 바꾸면 같은 커밋에서 그 목록도 고쳐야 한다.
 - `stella-ball-pixel-ui.js`·`stella-ball-dawn.js`는 표현 전용이다. **게임 상태를 넣지 않는다.**
 - 캔버스 그리기를 추가할 때는 `registerRuntimeHook("afterDraw" | "afterSpecialDraw" | "afterFeedbackUpdate")`를 쓴다. `draw`·`drawSpecial`·`updateFeedback`을 직접 갈아끼우지 않는다.
 - 부득이하게 함수를 감쌀 때는 **선행 정의를 반드시 잡아서 호출한다**(`const baseX = x;`). 안 잡으면 `npm run smoke`가 잡아낸다.
