@@ -396,8 +396,16 @@
       if (t >= 1 || !img.isConnected) return;
       // 위 3/4에서 가속. 등속으로 오르면 「떠오른다」가 아니라 「끌려간다」다.
       var eased = t < 0.25 ? t * 0.7 : 0.175 + (t - 0.25) * 1.1;
-      img.style.bottom =
-        (-70 + eased * (window.innerHeight + 140)).toFixed(0) + "px";
+      /* bottom이 아니라 transform으로 옮긴다. 레이아웃 속성을 rAF로 매
+         프레임 쓰면 문서 전체 레이아웃이 프레임마다 다시 돌았다 — 이
+         머신 실측(허브, 6초 창): 등장 한 번에 레이아웃 +796회 / +79ms,
+         task +391ms. transform은 44px짜리 이 이미지 하나만 다시 그린다.
+         (l0·l1 전면 레이어에 매 프레임 transform을 쓰지 않는 위쪽 결정과
+         충돌하지 않는다 — 그쪽은 «전체 화면» 레이어라 면적이 문제였다.) */
+      img.style.transform =
+        "translateY(" +
+        (-eased * (window.innerHeight + 140)).toFixed(0) +
+        "px)";
       requestAnimationFrame(climb);
     })();
     img.addEventListener("click", function (e) {
@@ -423,11 +431,14 @@
         (band.x0 - 70).toFixed(0) +
         "px;top:" +
         top.toFixed(0) +
-        "%;width:56px;transition:left 1.1s cubic-bezier(.2,.8,.3,1)",
+        "%;width:56px;transition:transform 1.1s cubic-bezier(.2,.8,.3,1)",
     );
+    /* left 전이가 아니라 transform 전이 — 로켓과 같은 이유(전이 중 매
+       프레임 문서 레이아웃). 기준점은 left에 고정해 두고 이동량만 준다. */
     var stopAt = band.x0 + Math.max(0, band.w - 56) * 0.5;
     setTimeout(function () {
-      img.style.left = stopAt.toFixed(0) + "px";
+      img.style.transform =
+        "translateX(" + (stopAt - (band.x0 - 70)).toFixed(0) + "px)";
     }, 30);
     setTimeout(function () {
       if (img.isConnected) img.src = window.StellaPixelUI.sprite("ufoBeam");
@@ -435,8 +446,11 @@
     setTimeout(function () {
       if (!img.isConnected) return;
       img.src = window.StellaPixelUI.sprite("ufoCruise");
-      img.style.transition = "left .55s cubic-bezier(.7,0,.9,.2)";
-      img.style.left = (band.x0 + band.w + 90).toFixed(0) + "px";
+      img.style.transition = "transform .55s cubic-bezier(.7,0,.9,.2)";
+      img.style.transform =
+        "translateX(" +
+        (band.x0 + band.w + 90 - (band.x0 - 70)).toFixed(0) +
+        "px)";
     }, 2900);
     endGuest(img, 7000);
   }
@@ -451,10 +465,12 @@
       "left:" +
         (band.x0 - 60).toFixed(0) +
         "px;bottom:6%;width:52px;" +
-        "transition:left 5.6s linear",
+        "transition:transform 5.6s linear",
     );
+    /* left 전이가 아니라 transform 전이 — 이 머신 실측으로 등장 한 번에
+       레이아웃 +925~1300회를 물던 자리다. 로켓 주석 참고. */
     setTimeout(function () {
-      img.style.left = (band.x0 + band.w + 60).toFixed(0) + "px";
+      img.style.transform = "translateX(" + (band.w + 120).toFixed(0) + "px)";
     }, 30);
     var step = 0,
       walk = setInterval(function () {
