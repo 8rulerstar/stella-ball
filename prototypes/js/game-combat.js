@@ -220,204 +220,44 @@ function hitBumper(b) {
   sync();
 }
 function drawPinballTable() {
-  for (const pad of boostPads) {
-    x.save();
-    x.fillStyle = pad.on > 0 ? "#d7ffb4" : "#5c9d73";
-    x.shadowBlur = combatFxBlur(pad.on > 0 ? 24 : 10);
-    x.shadowColor = "#b9ef86";
-    x.fillRect(pad.x - pad.w / 2, pad.y - pad.h / 2, pad.w, pad.h);
-    x.fillStyle = "#1a473d";
-    for (let px = pad.x - pad.w / 2 + 14; px < pad.x + pad.w / 2; px += 22)
-      x.fillRect(px, pad.y - 3, 11, 6);
-    x.restore();
-  }
+  for (const pad of boostPads)
+    window.StellaDotGimmicks?.boostPad(x, pad, frameClock);
   /* 디자인 세션 §6-3. 예전에는 회색 직사각형 하나에 `wall.on`으로 색과
      그림자만 바뀌었다. 이 벽의 정체성은 반사 계수 1.01 — 「튕긴다」인데,
      그게 그림 어디에도 없었다.
      이제 표현을 전부 그 한 가지에 쓴다. 평시에는 갈매기무늬가 면을 따라 느리게
      흐르며 어느 쪽으로 튕길지 예고하고, 맞으면 판이 밀리고 무늬가 나가는 쪽으로
      스냅한다. 3장 분절이라 w/h가 스테이지마다 달라도 늘어난다. */
-  for (const wall of stageWalls) {
-    const hw = wall.w / 2,
-      hh = wall.h / 2,
-      hot = wall.on > 0,
-      heat = hot ? wall.on / 0.22 : 0,
-      // 맞은 쪽에서 밀린다. 세로로 긴 벽이면 가로로, 가로로 긴 벽이면 세로로.
-      lateral = wall.w >= wall.h,
-      kick = heat * 3,
-      ox = lateral ? 0 : kick,
-      oy = lateral ? -kick : 0;
-    x.save();
-    x.translate(wall.x + ox, wall.y + oy);
-    // 판 세 장. 이음매가 보여야 「타일이 이어진 방벽」으로 읽힌다.
-    const plates = 3,
-      step = (lateral ? wall.w : wall.h) / plates;
-    /* 바닥에 닿는 그림자를 먼저 깐다. 판이 창에 맞춰 0.54~0.78배로 줄어드는
-       탓에(BOARD_TEXT_2026_08_22.md) 16px 짜리 벽은 화면에서 9~12px 이 되고,
-       #7699a3 은 어두운 자주 배경에 그대로 묻혔다 — 실기 스크린샷에서
-       「희미한 회색 막대」로 읽혔다. 색을 바꾸지 않고 «분리»부터 준다. */
-    x.globalAlpha = 0.45;
-    x.fillStyle = "#07030f";
-    x.fillRect(-hw - 2, -hh + 3, wall.w + 4, wall.h + 2);
-    x.globalAlpha = 1;
-    // 쉬는 색을 한 단 올린다. 계열은 그대로 두고 명도만 올려, 같은 물건이
-    // 배경에서 떨어져 나오게 한다.
-    x.fillStyle = hot ? "#e3edf0" : "#9dc2cf";
-    x.strokeStyle = "#1b2f3a";
-    x.lineWidth = 2;
-    for (let i = 0; i < plates; i++) {
-      const px0 = lateral ? -hw + i * step + 1 : -hw,
-        py0 = lateral ? -hh : -hh + i * step + 1,
-        pw = lateral ? step - 2 : wall.w,
-        ph = lateral ? wall.h : step - 2;
-      x.fillRect(px0, py0, pw, ph);
-      x.strokeRect(px0, py0, pw, ph);
-    }
-    /* 갈매기무늬. 면을 따라 흐르고, 맞으면 흐름이 한 번에 앞으로 스냅한다. */
-    const flow = ((frameClock / (hot ? 90 : 640)) % 1) * step;
-    x.globalAlpha = hot ? 0.9 : 0.42;
-    x.strokeStyle = hot ? "#fffbe8" : "#c3f3ff";
-    x.lineWidth = hot ? 3 : 2;
-    x.beginPath();
-    for (let i = -1; i < plates + 1; i++) {
-      const at = -(lateral ? hw : hh) + i * step + flow;
-      if (lateral) {
-        x.moveTo(at, -hh + 2);
-        x.lineTo(at + hh, 0);
-        x.lineTo(at, hh - 2);
-      } else {
-        x.moveTo(-hw + 2, at);
-        x.lineTo(0, at + hw);
-        x.lineTo(hw - 2, at);
-      }
-    }
-    x.stroke();
-    // 맞은 순간 면에 수직으로 충격파가 한 번 나간다.
-    if (hot) {
-      x.globalAlpha = heat * 0.55;
-      x.strokeStyle = "#fffbe8";
-      x.lineWidth = 2;
-      const reach = 10 + (1 - heat) * 26;
-      x.beginPath();
-      if (lateral) {
-        x.moveTo(-hw, -hh - reach);
-        x.lineTo(hw, -hh - reach);
-      } else {
-        x.moveTo(hw + reach, -hh);
-        x.lineTo(hw + reach, hh);
-      }
-      x.stroke();
-    }
-    x.restore();
-  }
+  /* 그리기를 도트 리스킨에 위임한다(2026-08-22 디자인 세션 패치).
+     루프·상태 갱신·guard 는 여기 남고 «몸통»만 넘긴다. `?.` 는 로드 전
+     첫 프레임(타이틀) 안전용 — 표현 계층이라 없어도 판정은 돈다. */
+  for (const wall of stageWalls)
+    window.StellaDotGimmicks?.wall(x, wall, frameClock);
   // Fading pads read as the opposite of boost pads: grey, no arrows, and a
   // dashed edge that says "this takes something away".
-  for (const pad of dragPads) {
-    x.save();
-    x.fillStyle = pad.on > 0 ? "#4a6663" : "#2b4340";
-    x.strokeStyle = pad.on > 0 ? "#cfdad7" : "#5f7a77";
-    x.lineWidth = 3;
-    x.setLineDash([11, 8]);
-    x.fillRect(pad.x - pad.w / 2, pad.y - pad.h / 2, pad.w, pad.h);
-    x.strokeRect(pad.x - pad.w / 2, pad.y - pad.h / 2, pad.w, pad.h);
-    x.setLineDash([]);
-    x.fillStyle = pad.on > 0 ? "#cfdad7" : "#6f8b87";
-    x.textAlign = "center";
-    x.font = "bold 13px ui-monospace";
-    x.fillText("배율 ↓", pad.x, pad.y + 5);
-    x.restore();
-  }
-  for (const b of bumpers) {
-    circle(b.x, b.y, b.r + 7, "#10222c", b.on ? 25 : 8);
-    circle(b.x, b.y, b.r, b.on ? "#e4f5d5" : "#4db8b3", b.on ? 28 : 12);
-    circle(b.x, b.y, Math.max(7, b.r - 9), "#e8cf77", b.on ? 14 : 4);
-  }
+  /* 도트 리스킨은 판 위 한글 「배율 ↓」을 보라 갈매기로 «대체»한다 —
+     BOARD_TEXT 의 「판 위 한글 최소화」와 범례 아이콘(drag=보라)에 색을
+     맞춘 의도적 변경이다. */
+  for (const pad of dragPads)
+    window.StellaDotGimmicks?.dragPad(x, pad, frameClock);
+  for (const b of bumpers) window.StellaDotGimmicks?.bumper(x, b, frameClock);
   for (const orbit of orbitals) {
     if (orbit.down > 0) continue;
-    const life = orbit.hp / orbit.maxHp;
-    x.save();
-    x.translate(orbit.x, orbit.y);
-    x.rotate(orbit.a * 1.6);
-    x.fillStyle = "#12242a";
-    x.strokeStyle = orbit.hitCooldown > 0 ? "#ffe3c0" : "#7cc6bb";
-    x.lineWidth = 4;
-    x.shadowBlur = combatFxBlur(orbit.hitCooldown > 0 ? 22 : 10);
-    x.shadowColor = "#7cc6bb";
-    x.beginPath();
-    x.rect(-orbit.r, -orbit.r * 0.62, orbit.r * 2, orbit.r * 1.24);
-    x.fill();
-    x.stroke();
-    x.shadowBlur = combatFxBlur(0);
-    x.fillStyle = "#9adfc9";
-    x.fillRect(-orbit.r + 4, -3, (orbit.r * 2 - 8) * life, 6);
-    x.restore();
+    window.StellaDotGimmicks?.orbital(x, orbit);
   }
   // The shell is the reason a good hit did nothing, so it is drawn on the
   // colossus itself, one ring per remaining layer.
   /* 껍질이 통째로 걷힌 순간. 남은 조각 전부가 0.4초 동안 바깥으로 흩어진다. */
   if (bossShield?.shattered && boss) {
     const age = (frameClock - bossShield.shattered.at) / 400;
+    /* 상태 소거는 «소유자»가 한다. 그리기 계층에 넘기면 표현 레이어가
+       전투 상태를 지우게 되고, 그 계층이 없을 때(로드 전) 조각이 영영
+       안 걷힌다. */
     if (age >= 1) bossShield.shattered = null;
-    else {
-      const slots = bossShield.max || bossShield.shattered.count,
-        gap = 0.16,
-        span = (Math.PI * 2) / slots - gap;
-      x.save();
-      x.lineCap = "butt";
-      x.strokeStyle = "#ffe3c0";
-      x.shadowBlur = combatFxBlur(16);
-      x.shadowColor = "#9adfc9";
-      x.lineWidth = 7;
-      for (let i = 0; i < bossShield.shattered.count; i++) {
-        const a0 = -Math.PI / 2 + i * ((Math.PI * 2) / slots) + gap / 2;
-        x.globalAlpha = 1 - age;
-        x.beginPath();
-        x.arc(boss.x, boss.y, 76 + age * 92, a0, a0 + span * (1 - age * 0.5));
-        x.stroke();
-      }
-      x.restore();
-    }
+    else window.StellaDotGimmicks?.shieldShatter(x, boss, bossShield, age);
   }
-  if (bossShield && bossShield.hits > 0 && boss) {
-    /* 디자인 세션 §6-4. 예전에는 반지름 76+11i의 동심원을 남은 타수만큼
-       겹쳐 그렸다. 그런데 보스 둘레의 링은 이 게임에서 공전 장애물·공명
-       고리·별자리 궤적에도 쓰는 형태라 서로 구분되지 않고, 남은 수를 알려면
-       원의 개수를 세어야 했다.
-       이제 방패 조각이 둘레를 감싼다. 깨진 자리는 «비어» 있으므로 세지 않아도
-       읽히고, 조각이 깨져 나가는 것 자체가 연출이 된다. */
-    const slots = Math.max(bossShield.max || bossShield.hits, bossShield.hits),
-      gap = 0.16,
-      span = (Math.PI * 2) / slots - gap,
-      hot = bossShield.flash > 0,
-      lift = hot ? 6 * (bossShield.flash / 0.45) : 0;
-    x.save();
-    x.lineCap = "butt";
-    for (let i = 0; i < slots; i++) {
-      const intact = i < bossShield.hits,
-        // 가장 최근에 깨진 조각은 바깥으로 튀어 나가며 사라진다.
-        justBroke = !intact && i === bossShield.hits && hot;
-      if (!intact && !justBroke) continue;
-      const a0 = -Math.PI / 2 + i * ((Math.PI * 2) / slots) + gap / 2,
-        r = 76 + (justBroke ? 14 * (1 - bossShield.flash / 0.45) + lift : lift);
-      x.globalAlpha = justBroke ? bossShield.flash / 0.45 : hot ? 0.95 : 0.72;
-      x.strokeStyle = hot ? "#ffe3c0" : "#7cc6bb";
-      x.shadowBlur = combatFxBlur(hot ? 20 : 9);
-      x.shadowColor = "#9adfc9";
-      // 판 하나는 두꺼운 호 + 안쪽 테두리. 두 겹이라 「판」으로 읽힌다.
-      x.lineWidth = 7;
-      x.beginPath();
-      x.arc(boss.x, boss.y, r, a0, a0 + span);
-      x.stroke();
-      x.globalAlpha *= 0.55;
-      x.lineWidth = 2;
-      x.shadowBlur = combatFxBlur(0);
-      x.strokeStyle = "#dff3ea";
-      x.beginPath();
-      x.arc(boss.x, boss.y, r - 5, a0 + 0.03, a0 + span - 0.03);
-      x.stroke();
-    }
-    x.restore();
-  }
+  if (bossShield && bossShield.hits > 0 && boss)
+    window.StellaDotGimmicks?.shieldRing(x, boss, bossShield);
 }
 function steerMeteor(side) {
   if (!ball?.moving || ball.steerUsed || battleComplete) return false;

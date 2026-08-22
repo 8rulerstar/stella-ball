@@ -128,6 +128,10 @@
          맨 앞에 온다: 전장 렌더와 stella-ball-dawn.js의 여백 존재 레이어가
          둘 다 StellaBossArt를 소비하므로 그보다 먼저 로드돼야 한다. -->
     <script src="./boss-art.js"></script>
+    <!-- 기믹 도트 리스킨(2026-08-22 디자인 세션). 표현 전용이라
+         window.StellaDotGimmicks 만 노출하고 훅·모듈 등록은 없다.
+         소비자가 drawPinballTable 이라 js 체인보다 «앞»에 둔다. -->
+    <script src="./stella-ball-dot-gimmicks.js"></script>
     <script src="./stella-ball-pixel-ui.js"></script>
     <script src="./stella-ball-dawn.js"></script>
     <!-- 여백 하늘 3계층·자율 주기·이벤트 배경 반응 시안. #dawn-sky가 먼저

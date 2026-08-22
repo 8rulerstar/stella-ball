@@ -47,6 +47,7 @@ const expectedScripts = [
   "./js/game-arena-carve.js",
   "./js/game-bootstrap.js",
   "./boss-art.js",
+  "./stella-ball-dot-gimmicks.js",
   "./stella-ball-pixel-ui.js",
   "./stella-ball-dawn.js",
   "./sky-ambience.js",
