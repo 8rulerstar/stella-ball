@@ -1680,9 +1680,23 @@ function update(d) {
     for (const g of gates)
       if (g.bladeStrength)
         g.bladeStrength = Math.max(0, g.bladeStrength - d * 3.2);
+    /* 도는 방벽만은 반대다 — 위 목록은 «유성이 멈추면 꺼야» 하는 것들인데,
+       이것은 «유성이 멈춰도 돌아야» 한다. 각도 적분이 simulatePhysics
+       안에만 있어서, 조준하는 동안 방벽이 얼어붙었다. 게다가 판을 처음
+       세울 때 x·y가 보스 좌표 그대로라 첫 조준 화면에서는 보스 스프라이트
+       뒤에 숨어 «아예 없는 것»으로 보였다.
+       도는 틈을 노리는 것이 이 기믹의 전부이므로, 노릴 대상이 조준 중에
+       멈춰 있으면 기믹이 성립하지 않는다. 여기서도 같은 식으로 돌린다. */
     for (const orbit of orbitals) {
       orbit.hitCooldown = Math.max(0, orbit.hitCooldown - d);
-      if (orbit.down > 0) orbit.down = Math.max(0, orbit.down - d);
+      if (orbit.down > 0) {
+        orbit.down = Math.max(0, orbit.down - d);
+        continue;
+      }
+      if (!boss) continue;
+      orbit.a += orbit.speed * d;
+      orbit.x = boss.x + Math.cos(orbit.a) * orbit.radius;
+      orbit.y = boss.y + Math.sin(orbit.a) * orbit.radius;
     }
     return;
   }

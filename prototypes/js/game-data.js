@@ -1246,6 +1246,168 @@ function stagePreview(slots) {
     Number(((y / H) * 100).toFixed(1)),
   ]);
 }
+/* ── 임시 기믹 배정 (2026-08-22, 오너 지시로 시험 반입) ───────────────────
+   STAGE_GIMMICKS_2026_08_22.md 의 제안을 «하나씩 넣어 본» 것이다. 값은
+   임시다 — 판마다 다르게 느껴지는지 먼저 보고, 균형은 그 다음이다.
+
+   왜 스테이지 튜플이 아니라 표인가: 튜플에 흩으면 34곳을 고쳐야 하고
+   되돌리기도 34곳이다. 여기 한 덩어리로 두면 이 상수만 지우면 캠페인이
+   기믹 이전으로 정확히 돌아간다.
+
+   기계는 새로 만들지 않았다. 일곱 종이 전부 이미 배선돼 있었고
+   (setupStageGimmicks · applyStageGimmicks) 켤 데이터가 한 판에만
+   있었다 — 실측으로 36판 중 1판, 그것이 이 표의 존재 이유다.
+
+   월드마다 «가족» 하나를 맡기고 그 안에서만 한 칸씩 올린다. 판을 겹치는
+   것은 월드의 마지막 판부터다 — 코드가 이미 「한 판은 기믹 하나, 뒤에서만
+   둘」이라고 적어 두었다.
+
+   좌표 기준: 판 720x900, 보스 y≈190, 파티 y≈414~566. 그 사이 복도가
+   y 220~400 이다. 다만 «보스 이름표»가 boss.y + 105 (≈295~307)에 그려지므로
+   벽은 그 아래(y 340~360)에 둔다 — 처음에 296에 뒀더니 이름표가 벽 뒤로
+   들어가 읽히지 않았다. 벽은 y 340~360, 가속판은 파티 아래(y 620~700), 흐린 여울은
+   파티 바로 위(y 350~420)에 둔다. */
+const STAGE_GIMMICK_TRIAL = {
+  // ── 양자리 · 뿔문 — 무게중심이 가리키는 곳에 판이 서 있다
+  "1-2": { walls: [{ x: 360, y: 346, w: 132, h: 20 }] },
+  "1-3": {
+    walls: [
+      { x: 246, y: 344, w: 116, h: 20 },
+      { x: 474, y: 344, w: 116, h: 20 },
+    ],
+  },
+
+  // ── 화살자리 · 시위 — 좁게 겨누고 힘은 판에서 빌린다
+  "2-1": { boostPads: [{ x: 360, y: 660, w: 172, h: 34 }] },
+  "2-2": {
+    boostPads: [
+      { x: 214, y: 648, w: 148, h: 34 },
+      { x: 506, y: 648, w: 148, h: 34 },
+    ],
+  },
+  "2-3": { boostPads: [{ x: 360, y: 372, w: 132, h: 30, boost: 320 }] },
+  "2-4": {
+    boostPads: [
+      { x: 232, y: 654, w: 140, h: 34 },
+      { x: 488, y: 654, w: 140, h: 34 },
+      { x: 360, y: 366, w: 118, h: 28, boost: 340 },
+    ],
+  },
+
+  // ── 까마귀자리 · 까마귀 떼 — 보스로 가는 길에 먼저 치울 것이 있다
+  "3-1": { adds: [{ x: 360, y: 292, hp: 42 }] },
+  "3-2": {
+    adds: [
+      { x: 246, y: 286, hp: 40 },
+      { x: 474, y: 286, hp: 40 },
+    ],
+  },
+  "3-3": {
+    adds: [
+      { x: 232, y: 268, hp: 46 },
+      { x: 488, y: 268, hp: 46 },
+      { x: 360, y: 348, hp: 38 },
+    ],
+  },
+  "3-4": {
+    adds: [
+      { x: 222, y: 262, hp: 52 },
+      { x: 498, y: 262, hp: 52 },
+      { x: 360, y: 340, hp: 44 },
+    ],
+    walls: [{ x: 360, y: 352, w: 104, h: 18 }],
+  },
+
+  // ── 카시오페이아 · 굳은 껍질 — 첫 몇 대는 껍질이 먹는다
+  "4-1": { shield: { hits: 2 } },
+  "4-2": { shield: { hits: 3 } },
+  "4-3": {
+    shield: { hits: 3 },
+    walls: [{ x: 360, y: 350, w: 148, h: 20 }],
+  },
+  "4-4": { shield: { hits: 4 } },
+  "4-5": {
+    shield: { hits: 4 },
+    orbits: [{ r: 122, speed: 1.1, phase: 0, hp: 58 }],
+  },
+
+  // ── 백조자리 · 흐린 여울 — 가장 빠른 길이 가장 비싼 길이다
+  "5-1": { dragPads: [{ x: 360, y: 392, w: 164, h: 36 }] },
+  "5-2": {
+    dragPads: [
+      { x: 228, y: 386, w: 146, h: 36 },
+      { x: 492, y: 386, w: 146, h: 36 },
+    ],
+  },
+  "5-3": { dragPads: [{ x: 360, y: 330, w: 196, h: 40, drop: 0.7 }] },
+  "5-4": {
+    dragPads: [{ x: 360, y: 336, w: 180, h: 38, drop: 0.6 }],
+    boostPads: [{ x: 360, y: 664, w: 160, h: 34 }],
+  },
+  "5-5": {
+    dragPads: [
+      { x: 232, y: 340, w: 150, h: 38, drop: 0.6 },
+      { x: 488, y: 340, w: 150, h: 38, drop: 0.6 },
+    ],
+    boostPads: [{ x: 360, y: 664, w: 150, h: 34, boost: 300 }],
+  },
+
+  // ── 오리온자리 · 오리온의 띠 — 도는 것을 언제 지나갈지 고른다
+  "6-1": { orbits: [{ r: 118, speed: 0.9, phase: 0, hp: 54 }] },
+  "6-2": {
+    orbits: [
+      { r: 124, speed: 1, phase: 0, hp: 54 },
+      { r: 124, speed: 1, phase: Math.PI, hp: 54 },
+    ],
+  },
+  "6-3": {
+    orbits: [
+      { r: 132, speed: 1.5, phase: 0, hp: 60 },
+      { r: 132, speed: 1.5, phase: Math.PI, hp: 60 },
+    ],
+  },
+  "6-4": {
+    orbits: [
+      { r: 138, speed: 1.2, phase: 0, hp: 58 },
+      { r: 138, speed: 1.2, phase: 2.094, hp: 58 },
+      { r: 138, speed: 1.2, phase: 4.189, hp: 58 },
+    ],
+  },
+  "6-5": {
+    orbits: [
+      { r: 128, speed: 1.3, phase: 0, hp: 62 },
+      { r: 128, speed: 1.3, phase: Math.PI, hp: 62 },
+    ],
+    walls: [{ x: 360, y: 356, w: 140, h: 20 }],
+  },
+  "6-6": {
+    orbits: [
+      { r: 134, speed: 1.4, phase: 0, hp: 64 },
+      { r: 134, speed: 1.4, phase: 2.094, hp: 64 },
+      { r: 134, speed: 1.4, phase: 4.189, hp: 64 },
+    ],
+    shield: { hits: 2 },
+  },
+
+  // ── 북두칠성 · 포효 — 지어 둔 메뉴를 거상이 전투 중에 지운다
+  "7-1": { phases: { at: [0.6], effect: "push" } },
+  "7-2": { phases: { at: [0.7, 0.4], effect: "push" } },
+  "7-3": { phases: { at: [0.6], effect: "sleep", wakeNeed: 2 } },
+  "7-4": { phases: { at: [0.75, 0.5, 0.25], effect: "push" } },
+  "7-5": {
+    phases: { at: [0.7, 0.4], effect: "push" },
+    adds: [{ x: 360, y: 300, hp: 48 }],
+  },
+  "7-6": {
+    phases: { at: [0.6, 0.3], effect: "sleep", wakeNeed: 2 },
+    orbits: [{ r: 126, speed: 1.2, phase: 0, hp: 60 }],
+  },
+  "7-7": {
+    phases: { at: [0.75, 0.5, 0.25], effect: "push" },
+    shield: { hits: 3 },
+  },
+};
+
 function buildCampaignStages() {
   let campaignIndex = 0;
   return CAMPAIGN_WORLD_PLANS.flatMap((world, worldIndex) =>
@@ -1281,7 +1443,12 @@ function buildCampaignStages() {
           guideStarCharges,
           labels: ["좌측 항로", "우측 항로", "중앙 항로"],
           bumpers: [],
-          gimmicks,
+          // 임시 배정 표가 있으면 얹는다. 표를 지우면 정확히 이전으로 돌아간다.
+          gimmicks: {
+            ...gimmicks,
+            ...(STAGE_GIMMICK_TRIAL[worldIndex + 1 + "-" + (stageIndex + 1)] ??
+              {}),
+          },
           tutorial: worldIndex === 0 && stageIndex === 0,
           /* 지형 세트는 월드를 따라간다. 통산 번호 기준이던 예전 값은
              한 월드 안에서 스테이지마다 지형이 바뀌고(큰곰자리는 다섯 세트를

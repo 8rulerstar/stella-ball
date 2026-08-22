@@ -252,8 +252,18 @@ function drawPinballTable() {
     // 판 세 장. 이음매가 보여야 「타일이 이어진 방벽」으로 읽힌다.
     const plates = 3,
       step = (lateral ? wall.w : wall.h) / plates;
-    x.fillStyle = hot ? "#e3edf0" : "#7699a3";
-    x.strokeStyle = "#243b47";
+    /* 바닥에 닿는 그림자를 먼저 깐다. 판이 창에 맞춰 0.54~0.78배로 줄어드는
+       탓에(BOARD_TEXT_2026_08_22.md) 16px 짜리 벽은 화면에서 9~12px 이 되고,
+       #7699a3 은 어두운 자주 배경에 그대로 묻혔다 — 실기 스크린샷에서
+       「희미한 회색 막대」로 읽혔다. 색을 바꾸지 않고 «분리»부터 준다. */
+    x.globalAlpha = 0.45;
+    x.fillStyle = "#07030f";
+    x.fillRect(-hw - 2, -hh + 3, wall.w + 4, wall.h + 2);
+    x.globalAlpha = 1;
+    // 쉬는 색을 한 단 올린다. 계열은 그대로 두고 명도만 올려, 같은 물건이
+    // 배경에서 떨어져 나오게 한다.
+    x.fillStyle = hot ? "#e3edf0" : "#9dc2cf";
+    x.strokeStyle = "#1b2f3a";
     x.lineWidth = 2;
     for (let i = 0; i < plates; i++) {
       const px0 = lateral ? -hw + i * step + 1 : -hw,
