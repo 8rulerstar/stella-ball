@@ -53,7 +53,7 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Seventeen probes drive a real Chromium over CDP the way the onboarding E2E does. None
+Eighteen probes drive a real Chromium over CDP the way the onboarding E2E does. None
 is wired into a gate; run them by hand when the question is about the screen. Each
 file's header names the ways that probe has actually been read wrong - four probes
 gave confidently wrong answers in one night before those notes existed.
@@ -95,6 +95,11 @@ gave confidently wrong answers in one night before those notes existed.
   across 12 screens x 3 sizes as of 2026-08-22, and the checker was validated by
   re-injecting the archive bug it was written for. Meta state lives on
   `progress.*`, so a bare `gold = 4200` sets a new global and changes nothing.
+- `node scripts/probe-summon.mjs` - the ten-second summon ritual, beat by beat
+  (call, observe, answer, manifest, intro), with a screenshot of each and a check
+  that the roster and the gold actually moved. Force `prefers-reduced-motion:
+no-preference` over CDP first, or the sequence collapses to 0.42s and you are
+  measuring a different animation.
 - `node scripts/probe-settlement.mjs` - the win and lose screens, reached the way a
   player reaches them. Fire with `fireMeteor()`, never by setting `ball.vx/vy`:
   the shot counter is decremented inside that function, so the shortcut rolls a

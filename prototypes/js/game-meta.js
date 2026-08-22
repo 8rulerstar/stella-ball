@@ -792,7 +792,14 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
       " · " +
       h.e +
       "</b>";
-    setPortrait(document.querySelector("#gachaHeroReveal"), h, 96);
+    /* 96이었다. setPortrait 의 크기는 «CSS 상자와 같아야» 한다 — 그 값이
+       스프라이트 시트의 한 칸 크기가 되기 때문이다. 상자는 72px 인데 칸을
+       96px 로 깔아, 96칸의 왼쪽 위 72px 만 보였다. 인물은 칸 가운데에
+       그려져 있으므로 오른쪽 아래 구석으로 밀려 지팡이와 몸이 잘렸다 —
+       10초짜리 의식의 보상 화면인데 인물이 잘려 나왔다.
+       저장소의 다른 호출은 전부 맞춰져 있다(편성 58/58, 도감 56/56,
+       도색 44/44). 되돌리려면 96으로. */
+    setPortrait(document.querySelector("#gachaHeroReveal"), h, 72);
     playSfx("unlock");
   };
   const intro = () => {
@@ -815,6 +822,16 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
     drawButton.textContent = "소환 목록으로 돌아가기";
     drawButton.disabled = false;
     drawButton.onclick = () => showGacha();
+    /* 머리말은 화면을 세울 때 한 번 그려져, 소환으로 골드가 빠져도 그대로
+       였다. 실측: 4000골드로 100골드짜리를 소환했는데 연출 내내, 그리고
+       끝나고 13초 뒤에도 「보유 골드 4000」이었다.
+       연출이 «끝나는» 이 자리에서만 고친다 — 도중에 고치면 아직 누가
+       나올지 모르는 화면에서 잔고가 먼저 움직여 결과를 흘린다. */
+    const headline = document.querySelector(".gacha-header b");
+    if (headline)
+      headline.textContent = hasFreeSummon()
+        ? "무료 소환권 1장"
+        : "보유 골드 " + goldBalance();
   };
   function onSkip(e) {
     /* The screen can be left while the 10s sequence is still running - 뒤로 is
@@ -907,7 +924,8 @@ function showGacha() {
         : "골드 부족 · " + ECONOMY.gachaCost + " 골드 필요") +
     "</button></section>";
   document.querySelectorAll("[data-gacha-hero]").forEach((portrait) => {
-    setPortrait(portrait, heroes[portrait.dataset.gachaHero], 46);
+    // 같은 어긋남. .gacha-pool-unit .portrait 의 상자는 34px 이다.
+    setPortrait(portrait, heroes[portrait.dataset.gachaHero], 34);
   });
   document.querySelector("#gachaBack").onclick = () => {
     playSfx();
