@@ -1615,6 +1615,43 @@ export function probeRuntimeModules() {
   return runInRuntime({ seed: 1 }, "__botRuntimeModuleProbe");
 }
 
+/* check-portability.mjs가 쓴다 — 문자열 연결로 만들어지는 에셋 경로(보스
+   시트, 별지기 액션 시트, 룬 문양석, sfx50, 별자리 실루엣)는 정적 정규식이
+   못 보므로, 게이트가 이 컨텍스트에서 «코드가 실제로 만들 수 있는 경로
+   전부»를 열거해 존재·추적 여부를 검사한다. 목록을 게이트에 복사해 두면
+   코드와 어긋나는 순간부터 조용히 낡는다 — 원본(런타임 그 자체)에서 매번
+   꺼내는 것이 이 export의 존재 이유다. */
+export function enumerateDynamicAssetPaths() {
+  const context = createContext(1);
+  for (const file of runtimeFiles) {
+    vm.runInContext(readFileSync(resolve(root, file), "utf8"), context, {
+      filename: file,
+    });
+  }
+  return vm.runInContext(
+    `(() => {
+      const out = [];
+      for (const id of Object.keys(heroes)) {
+        const h = heroes[id];
+        out.push(h.sprite, ...Object.values(h.animations ?? {}), runeStone(id));
+      }
+      for (const slug of Object.keys(bossPack)) {
+        const spec = bossArtFor(slug);
+        out.push(spec.sprite, spec.weak, ...Object.values(spec.animations ?? {}));
+      }
+      for (const file of Object.values(WORLD_FIGURE_FILE))
+        out.push("../assets/library/constellations/" + file + ".png");
+      for (const cue of [
+        ...Object.values(sampleSfxCue),
+        ...Object.values(abilitySampleCue),
+      ])
+        out.push("../assets/audio/sfx50/" + cue + ".wav");
+      return [...new Set(out.filter(Boolean))];
+    })()`,
+    context,
+  );
+}
+
 /* 조준 정확도 사다리. `spread`는 발사 각도에 더해지는 라디안 오프셋이라, 이
    폭을 키우면 「겨눈 곳에서 빗나가는 사람」을 모사할 수 있다. 시드는 크리티컬
    확률에만 쓰여 변량을 거의 만들지 못하므로(35스테이지 중 33개가 4시드 전부

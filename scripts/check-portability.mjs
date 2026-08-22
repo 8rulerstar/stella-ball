@@ -67,6 +67,38 @@ for (const file of runtimeFiles) {
   }
 }
 
+/* 문자열 연결로 만들어지는 경로는 위 정규식이 통째로 놓친다 — 템플릿의
+   ${}에서 매치가 끊겨 확장자에 못 닿는다(보스 시트 60장, 액션 시트 16장,
+   룬 7장, sfx50 wav들, 별자리 실루엣 — 실측 ~135파일이 게이트 밖이었다).
+   예측 목록을 여기 복사하는 대신, 봇 하니스의 VM 컨텍스트에서 런타임이
+   «실제로 만들 수 있는» 경로 전부를 열거해 같은 검사를 돌린다. 열거가
+   비면 그것 자체가 실패다 — 코드 쪽 패턴이 바뀌어 열거가 낡았다는 뜻이라
+   조용히 지나가면 안 된다. */
+try {
+  const { enumerateDynamicAssetPaths } = await import(
+    "../bot/runtime-harness.mjs"
+  );
+  const dynamicPaths = enumerateDynamicAssetPaths();
+  if (dynamicPaths.length < 80) {
+    failures.push(
+      `동적 에셋 열거가 너무 작습니다 (${dynamicPaths.length}개) — ` +
+        "런타임 쪽 경로 조립이 바뀌어 열거가 낡았는지 확인하세요.",
+    );
+  }
+  for (const reference of dynamicPaths) {
+    const path = relative(root, resolve(root, "prototypes", reference))
+      .split(sep)
+      .join("/");
+    if (!path.startsWith("assets/") || !existsSync(resolve(root, path))) {
+      failures.push(`동적 에셋 경로가 유효하지 않습니다 (${reference}).`);
+    } else if (!trackedSet.has(path)) {
+      failures.push(`Git에 없는 에셋을 동적 경로가 참조합니다 (${path}).`);
+    }
+  }
+} catch (error) {
+  failures.push(`동적 에셋 열거 실패: ${error.message}`);
+}
+
 const lowerCasePaths = new Map();
 for (const file of tracked) {
   const lower = file.toLowerCase();
