@@ -865,6 +865,9 @@ function fail(reason = "다른 별지기와 다른 궤적으로 다시 관측하
   // The win path clears these; the fail path left split meteors alive on a
   // board nobody is playing any more.
   cloneBalls = [];
+  // 승리 쪽과 같은 이유. 패배 카드는 제 문구를 카드 안에 들고 있으므로
+  // 여기서는 남김없이 비운다.
+  clearToastQueue();
   U.over.className = "overlay";
   U.over.innerHTML = outcomeCine("lose", {
     kicker: "OBSERVATION LOST",
@@ -930,6 +933,14 @@ function scheduleWin() {
   });
   addPopup(boss.x, boss.y - 92, "STAR RETURN!", "#fff0a3", true);
   combatSfx?.("victory", 1.18);
+  /* 「토스트는 그것을 낸 전투의 것이다」 — setScene 이 이미 쓰는 규칙인데
+     정산은 장면이 game 그대로라 거기서 안 걸렸다. 실측: 승리 순간 큐에
+     전투 토스트가 5개 남아 있고, 결과 카드 위로 10초 동안 계속 떴다
+     (「유성 발사 · 위력 100%」, 「윤슬 충돌 · 유성과 별지기 동시 가속」).
+     카드 머리를 덮어 업적 토스트와도 겹쳤다.
+     아래 승리 문구 «앞»에서 비운다 — 그래야 정산 화면에 남는 토스트가
+     이 한 줄뿐이 된다. 되돌리려면 이 한 줄만 지운다. */
+  clearToastQueue();
   toast("별이 하늘로 돌아갑니다.");
   safeVibrate([20, 38, 22, 38, 55]);
 }
