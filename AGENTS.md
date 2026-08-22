@@ -90,8 +90,9 @@ gave confidently wrong answers in one night before those notes existed.
   select, roster, deployment, shop, summon, profile, archive, library, settings,
   pause) at 1280x900 and 1280x760, writes a screenshot of each and judges three
   things that are breakage rather than taste: a scroll box crushed to 0px, a
-  button off-screen that no ancestor scrolls to, and a child spilling out of its
-  own box. The text of each screen is dumped unjudged - read it yourself. Clean
+  button off-screen that no ancestor scrolls to, a child spilling out of its own
+  box, and a portrait whose sprite cell disagrees with its element box (which
+  clips the character into a corner). The text of each screen is dumped unjudged - read it yourself. Clean
   across 12 screens x 3 sizes as of 2026-08-22, and the checker was validated by
   re-injecting the archive bug it was written for. Meta state lives on
   `progress.*`, so a bare `gold = 4200` sets a new global and changes nothing.

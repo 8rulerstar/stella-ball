@@ -91,10 +91,11 @@ const TEXT = `(() => {
   return JSON.stringify({ lines, buttons, disabled: [...root.querySelectorAll("button:disabled")].filter(vis).map((b) => b.textContent.trim().slice(0, 24)) });
 })()`;
 
-/* 배치 판정. 세 가지만 본다 — 셋 다 «취향»이 아니라 «고장»이다.
+/* 배치 판정. 네 가지만 본다 — 넷 다 «취향»이 아니라 «고장»이다.
    ① 눌러야 하는 버튼이 화면 밖인데 스크롤로도 못 닿는다.
    ② 스크롤 상자가 0px 로 눌려 내용이 통째로 안 보인다.
-   ③ 자식이 제 상자 밖으로 나와 이웃에 겹친다(overflow:visible 인 곳). */
+   ③ 자식이 제 상자 밖으로 나와 이웃에 겹친다(overflow:visible 인 곳).
+   ④ 초상의 스프라이트 «칸»이 제 상자와 다르다(인물이 잘린다). */
 const AUDIT = `(() => {
   const vw = innerWidth, vh = innerHeight;
   const vis = (el) => {
@@ -141,7 +142,23 @@ const AUDIT = `(() => {
     const over = el.scrollHeight - el.clientHeight;
     if (over > 4) spill.push(name(el) + " +" + over + "px");
   }
-  return JSON.stringify({ unreachable, crushed, spill });
+  /* 초상이 제 틀에 안 맞는 것. setPortrait(el, hero, size) 는 인라인으로
+     background-size: (칸수*size)px (size)px 을 쓰므로, size 가 곧 스프라이트
+     «한 칸»의 변이다. 그 값이 요소 상자와 다르면 칸의 일부만 보이고 인물이
+     구석으로 밀린다 — 소환 리빌이 상자 72px 에 칸 96px 이라 지팡이가
+     잘려 있었다. 인라인 px 배경만 본다: 그것이 setPortrait 의 흔적이다. */
+  const cropped = [];
+  for (const el of document.querySelectorAll("[style*='background-size']")) {
+    if (!vis(el)) continue;
+    const m = /^(\\d+(?:\\.\\d+)?)px (\\d+(?:\\.\\d+)?)px$/.exec(el.style.backgroundSize || "");
+    if (!m) continue;
+    const cell = parseFloat(m[2]);
+    const w = el.clientWidth, h = el.clientHeight;
+    if (!w || !h) continue;
+    if (Math.abs(cell - w) > 1 || Math.abs(cell - h) > 1)
+      cropped.push(name(el) + " 칸 " + cell + "px / 상자 " + w + "x" + h);
+  }
+  return JSON.stringify({ unreachable, crushed, spill, cropped });
 })()`;
 
 let broken = 0;
@@ -161,6 +178,10 @@ for (const size of SIZES) {
       progress.bestShots = 3;
       progress.bestCombo = 7;
       progress.freeSummons = 1;
+      /* 「시작 데이터로만 본 화면은 안 본 것이다」(MAINTENANCE). 보유 셋이면
+         트레이·상점·도감이 절반만 그려지고, 트레이는 일곱부터 초상을 32px
+         로 줄이는 가지가 아예 안 돌아 본다. 전원 보유로 돌린다. */
+      progress.ownedHeroes = Object.keys(heroes).slice(0, 8);
       saveProgress();
       return 1;
     })()`);
@@ -176,7 +197,11 @@ for (const size of SIZES) {
       );
       const d = JSON.parse(await evaluate(TEXT));
       const a = JSON.parse(await evaluate(AUDIT));
-      const bad = a.unreachable.length + a.crushed.length + a.spill.length;
+      const bad =
+        a.unreachable.length +
+        a.crushed.length +
+        a.spill.length +
+        a.cropped.length;
       if (bad) broken += 1;
       console.log(
         `\n══ ${name}  글줄 ${d.lines.length} · 버튼 ${d.buttons.length} · 잠김 ${d.disabled.length}  ${bad ? "✗ 배치 문제 " + bad + "건" : "· 배치 정상"}`,
