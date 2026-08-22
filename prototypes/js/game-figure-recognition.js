@@ -187,6 +187,14 @@ function addGuideStars(state, contact) {
   for (const guide of guides)
     dropAimStar?.(guide.x, guide.y, guide.col, guide.label);
   state.guideStarClaimed = true;
+  /* 잔광은 «여기서» 깎는다. 원안은 finishFigureShot에서 «별자리가 실제로
+     떴을 때만» 값을 치르는 것이었는데(그 자리에 아직 코드가 있다), 노드
+     경제가 켜진 뒤 그 줄 위에서 함수가 먼저 돌아가 한 번도 실행되지
+     않았다 — 실측(scripts/probe-guide-star.mjs) 5샷 전부 안내별이 다시
+     떴고 잔광은 1로 남았다. 스테이지 문안은 「첫 공명이」라고 말하고
+     데이터도 ×1이므로, 값을 치르는 시점을 「밝힌 순간」으로 옮긴다.
+     GUIDE_STAR_SPEND를 false로 하면 예전(무한) 동작으로 돌아간다. */
+  if (GUIDE_STAR_SPEND) battle.guideStarCharges -= 1;
   pushParryFx({
     kind: "guide",
     x,
@@ -252,6 +260,11 @@ function nodeEconomyOn() {
    둘 다 값어치가 있고 공급은 유한하므로 매 샷 배분이 결정이 된다.
    false로 되돌리면 예전처럼 샷 끝에 자동으로 별자리가 발동한다. */
 const NODE_ECONOMY = true;
+/* 관측 잔광을 실제로 소모한다(2026-08-22 실측 수정). 켜기 전에는 잔광이
+   ×1로 표시되고 ×∞로 동작했다 — 스테이지 1-2·1-3에서 매 공명마다 안내별
+   둘이 다시 떠 샷당 조준점 둘을 공짜로 얹었다. false로 되돌리면 그
+   무한 동작이 그대로 돌아온다. */
+const GUIDE_STAR_SPEND = true;
 function consumeTrainingParry(
   g,
   contact = null,
@@ -415,16 +428,17 @@ function finishFigureShot({ missed = false } = {}) {
     return finish(Boolean(lostNodes));
   }
   if (!state.nodes.length) return finish(false);
-  const nodes = state.nodes,
-    spentGuideStars = state.guideStarClaimed;
+  const nodes = state.nodes;
   clearFigureShot();
   /* 노드 경제(2026-08-18 실험). 샷이 끝났다고 별자리가 저절로 터지지 않는다.
      모아 둔 별빛은 판에 남아(dropAimStar가 이미 넣었다) 두 가지로 쓰인다:
      Space로 태워 별자리를 그리거나, 다음 샷의 조준점으로 남기거나.
      여기서 자동으로 태워 버리면 그 선택 자체가 존재하지 않는다. */
   if (nodeEconomyOn()) return finish(false);
+  /* 잔광 차감이 여기 있었다. addGuideStars(밝힌 순간)로 옮겼으므로 이
+     경로에서 또 깎으면 NODE_ECONOMY를 false로 되돌렸을 때 이중으로
+     빠진다. 두 모드가 같은 한 곳에서만 값을 치른다. */
   if (nodes.length >= FIGURE_PARRY.minNodes) {
-    if (spentGuideStars) battle.guideStarCharges -= 1;
     resolveFigure(nodes);
     return finish(true);
   }
