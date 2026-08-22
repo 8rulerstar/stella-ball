@@ -452,6 +452,37 @@ function drawFieldFx() {
       }
     } else if (f.type === "flame") {
       x.fillRect(f.x - 5, f.y - 5, 10, 10);
+    } else if (f.type === "booster") {
+      /* 가속 — 위로 «뻗는» 갈매기 셋. 일반 흩뿌리기로 떨어져 있었는데,
+         그러면 빨라졌다는 사실이 그림에 안 남는다. 방향이 있어야 «밀렸다»가
+         읽힌다. 판 위 발판과 같은 금색을 쓴다. */
+      const reach = 10 + f.t * 46;
+      x.strokeStyle = x.fillStyle;
+      x.lineWidth = 3;
+      for (let i = 0; i < 3; i++) {
+        const up = reach - i * 13;
+        if (up < 4) continue;
+        x.globalAlpha *= 0.86;
+        x.beginPath();
+        x.moveTo(f.x - 13, f.y - up + 9);
+        x.lineTo(f.x, f.y - up);
+        x.lineTo(f.x + 13, f.y - up + 9);
+        x.stroke();
+      }
+    } else if (f.type === "drag") {
+      /* 흐림 — 아래로 «가라앉는» 가로줄 셋. 가속의 거울이라 방향이 반대다.
+         선이 흐려지며 내려가는 것이 「배율을 잃었다」의 그림이다. */
+      x.strokeStyle = x.fillStyle;
+      x.lineWidth = 2;
+      const sink = f.t * 26;
+      for (let i = 0; i < 3; i++) {
+        const w = 24 - i * 6;
+        x.globalAlpha *= 0.8;
+        x.beginPath();
+        x.moveTo(f.x - w, f.y + sink + i * 7);
+        x.lineTo(f.x + w, f.y + sink + i * 7);
+        x.stroke();
+      }
     } else {
       for (let i = 0; i < 4; i++) {
         const a = f.t * 6 + (i * Math.PI) / 2;
