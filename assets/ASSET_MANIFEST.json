@@ -636,7 +636,7 @@
     "note": "✦ 한 도안(논리 8x8)을 셀 1/2/3/4로 구운 정수 배율 사다리 + ✧용 저휘도 벌. CSS 크기를 8/16/24/32로 몰아 넣는 것이 사용 조건.",
     "source": "scripts/generate_dot_sprites.py",
     "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 작화 세션)",
-    "runtimeUse": "예정 — ✦/✧ 소비처 11군데의 크기 몰이(§4-6)와 「확인 못 함」 여섯 자리 실측이 선행 조건",
+    "runtimeUse": "prism-breakers-polish.css .outcome-constellation i(24) · stella-ball-theme.css .gacha-orbit i(16) · .gacha-reveal > span(32) · .stage-drawer-mark(16)",
     "cell": 2,
     "logical": 8,
     "regen": "python scripts/generate_dot_sprites.py",

@@ -717,9 +717,17 @@ button:hover {
 }
 .gacha-orbit i {
   position: absolute;
-  color: #ffe2b6;
+  /* 도트 사다리 16 — 글자는 투명, 그림만. ✧ 자리(2번째)는 저휘도 벌. */
+  width: 16px;
+  height: 16px;
+  background: url("../assets/library/icons/star/star-16.png") center no-repeat;
+  image-rendering: pixelated;
+  color: transparent;
   font-style: normal;
-  text-shadow: 0 0 9px #ffc98e;
+  text-shadow: none;
+}
+.gacha-orbit i:nth-child(2) {
+  background-image: url("../assets/library/icons/star/star-dim-16.png");
 }
 .gacha-orbit i:nth-child(1) {
   left: 12px;
@@ -746,9 +754,14 @@ button:hover {
   text-align: center;
 }
 .gacha-reveal > span:first-child {
-  color: #ffedd2;
+  /* 37px 글자였다 — 사다리 최대 단(32) 정수배로 몰아 넣는다. */
+  width: 32px;
+  height: 32px;
+  background: url("../assets/library/icons/star/star-32.png") center no-repeat;
+  image-rendering: pixelated;
+  color: transparent;
   font-size: 37px;
-  text-shadow: 0 0 16px #ffce9a;
+  text-shadow: none;
 }
 .gacha-reveal small {
   color: #d2cedb;
@@ -3859,6 +3872,15 @@ body.onboarding-locked .pause-button {
   border: 1px solid color-mix(in oklab, var(--w-node) 35%, #0e0616);
   background: #0c0414;
   overflow: hidden;
+}
+.stage-drawer-mark {
+  /* 상속 16px 글자였다(실측 13×23) — 사다리 16 정수배로. */
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: url("../assets/library/icons/star/star-16.png") center no-repeat;
+  image-rendering: pixelated;
+  color: transparent;
 }
 .stage-drawer-face img {
   width: 100%;

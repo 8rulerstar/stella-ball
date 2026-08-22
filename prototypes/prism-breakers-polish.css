@@ -137,16 +137,9 @@
   max-width: 430px !important;
   margin-bottom: 20px !important;
 }
-.title-enter {
-  min-width: 264px !important;
-  letter-spacing: 0.08em;
-}
-.title-enter:after {
-  content: "✦";
-  margin-left: 8px;
-  color: #fff7d5;
-  text-shadow: 0 0 8px #fff;
-}
+/* .title-enter 규칙이 여기 있었다 — 「별빛 점화」 타이틀(ig-*)로 마크업이
+   바뀐 뒤 이 클래스를 만드는 곳이 저장소에 없어 걷었다(2026-08-23 실측:
+   dawn.js의 버튼 목록에 문자열로만 남는다). */
 .survivor-hub {
   background:
     radial-gradient(circle at 80% 6%, #aa61cd29, transparent 26%),
@@ -270,7 +263,19 @@
 }
 .outcome-constellation i {
   font-style: normal;
+  /* ✦✧★✧✦ 글자를 도트 사다리(star-24)로. 글자는 투명하게 남겨
+     레이아웃·판독기를 그대로 두고 그림만 얹는다 — 정수 배율(24)만 쓴다
+     (2026-08-22 작화 납품 §4-6). 짝수 번째(✧ 자리)는 저휘도 벌. */
+  width: 24px;
+  height: 24px;
+  background: url("../assets/library/icons/star/star-24.png") center no-repeat;
+  image-rendering: pixelated;
+  color: transparent;
+  text-shadow: none;
   animation: outcomeStar 1.9s ease-in-out infinite;
+}
+.outcome-constellation i:nth-child(even) {
+  background-image: url("../assets/library/icons/star/star-dim-24.png");
 }
 .outcome-constellation i:nth-child(2) {
   animation-delay: 0.18s;
