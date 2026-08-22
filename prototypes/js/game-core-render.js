@@ -1223,7 +1223,22 @@ function draw() {
     if (born < 1) x.restore();
   }
   for (const a of adds) {
-    if (a.down > 0) continue;
+    if (a.down > 0) {
+      /* 사망 시트(2026-08-22 작화 납품). 예전에는 down 동안 아무것도 안
+         그려 잔재가 «한 프레임에 사라졌다». 죽음 직후 0.42초 동안 4프레임
+         (감긴 눈·파열·낙하·재, 105ms/장)을 재생한다 — 기존 사망 링의
+         d:0.42와 같은 박자다. down 기준값 1.6은 damageAdd가 세운다. */
+      const dead = 1.6 - a.down;
+      if (dead >= 0 && dead < 0.42)
+        drawAnimated(
+          "wispDeath",
+          a.x,
+          a.y,
+          96,
+          Math.min(3, Math.floor(dead / 0.105)),
+        );
+      continue;
+    }
     x.fillStyle = "#00000055";
     x.beginPath();
     x.ellipse(a.x, a.y + 30, 24, 7, 0, 0, Math.PI * 2);
@@ -1592,6 +1607,24 @@ function drawBossRoar() {
     x.beginPath();
     x.arc(boss.x, boss.y, 40 + w * 620, 0, Math.PI * 2);
     x.stroke();
+  }
+  /* 도착 각인(2026-08-22 작화 납품). 밀려난 것들이 닿는 고정 모서리 네 점
+     (runStagePhase의 corners와 같은 좌표·같은 순서)에 4프레임 각인을
+     찍는다 — 섬광·파열·잔금·재, 80ms/장 = 0.32s로 도착 창(0.46~0.78) 안.
+     방향별 시트는 원판 tl의 미러라 격자가 보존된다(회전 아님). */
+  if (t > 0.46 && t < 0.78) {
+    // 위 파형 루프가 남긴 알파를 물려받지 않는다 — 마지막 링의 (1-w)*0.5로
+    // 각인이 반투명하게 찍히는 사고를 막는다.
+    x.globalAlpha = 1;
+    const frame = Math.min(3, Math.floor((t - 0.46) / 0.08)),
+      engravings = [
+        ["roarArrivalTl", 96, 176],
+        ["roarArrivalTr", W - 96, 176],
+        ["roarArrivalBl", 96, H - 176],
+        ["roarArrivalBr", W - 96, H - 176],
+      ];
+    for (const [name, ex, ey] of engravings)
+      drawAnimated(name, ex, ey, 32, frame);
   }
   // 0.46초, 유성이 닿는 순간 그 모서리에 균열 쐐기와 섬광.
   if (t > 0.46 && t < 0.78 && ball) {

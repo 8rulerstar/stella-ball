@@ -1083,7 +1083,25 @@ registerRuntimeHook("afterDraw", function drawSteerPrompt() {
   if (!ball.steerUsed) {
     x.globalAlpha = 0.82;
     x.fillStyle = "#fff2c6";
-    x.fillText("좌클릭 ↶ · 우클릭 ↷ · 1회 전환", ball.x, ball.y - 27);
+    /* ↶↷를 도트 글리프로(납품 §1-7). 가운데 정렬 문자열 하나였던 것을
+       «글·그림·글·그림·글» 다섯 토막으로 짜서 전체 폭 기준으로 중앙을
+       유지한다. 완료 상태(아래)는 글자뿐이라 글리프가 필요 없다. */
+    const segs = ["좌클릭 ", " · 우클릭 ", " · 1회 전환"],
+      widths = segs.map((s) => x.measureText(s).width),
+      total = widths[0] + 16 + widths[1] + 16 + widths[2];
+    let gx = ball.x - total / 2;
+    const gy = ball.y - 27;
+    x.textAlign = "left";
+    x.fillText(segs[0], gx, gy);
+    gx += widths[0];
+    if (!drawGlyphSprite("glyphRotCcw", gx, gy - 13)) x.fillText("↶", gx, gy);
+    gx += 16;
+    x.fillText(segs[1], gx, gy);
+    gx += widths[1];
+    if (!drawGlyphSprite("glyphRotCw", gx, gy - 13)) x.fillText("↷", gx, gy);
+    gx += 16;
+    x.fillText(segs[2], gx, gy);
+    x.textAlign = "center";
   } else if (flash > 0) {
     x.globalAlpha = Math.min(1, flash * 2.4);
     x.fillStyle = "#e8f7df";
@@ -1204,6 +1222,19 @@ const GIMMICK_ICON_SPRITE = {
   roar: "../assets/library/icons/gimmick/roar.png",
   sleep: "../assets/library/icons/gimmick/sleep.png",
 };
+/* 판 위 글리프 스프라이트(2026-08-22 작화 납품). 16px 도트 아이콘 옆에서
+   유일하게 폰트로 남아 있던 ×·↶·↷·☝를 도트로 바꾼다. 정수 배율만 쓴다 —
+   16px 원본을 12px로 줄이면 2px 셀 격자가 깨진다(지시서 §2). 그림이 아직
+   안 온 프레임의 폴백은 각 자리의 기존 글자다. */
+function drawGlyphSprite(name, left, top, size = 16) {
+  const sprite =
+    typeof loadTexture === "function" && typeof staticArt === "object"
+      ? loadTexture(staticArt[name])
+      : null;
+  if (!sprite?.complete || !sprite.naturalWidth) return false;
+  x.drawImage(sprite, Math.round(left), Math.round(top), size, size);
+  return true;
+}
 function drawGimmickIcon(kind, cx, cy) {
   const sprite =
     typeof loadTexture === "function"
@@ -1317,7 +1348,15 @@ function drawGimmickLegend() {
     const cy = top + 18 + i * 20;
     drawGimmickIcon(kind, 52, cy);
     x.fillStyle = "#cfdad7";
-    x.fillText(name + (count > 1 ? " ×" + count : ""), 68, cy + 4);
+    /* «이름 ×N»의 ×만 도트 글리프로. 개수 전용이다 — 배율 «×1.0» 네 자리와
+       합치지 않는다(지시서 §4-5: 그쪽은 소수점이 있어 다른 조판이다). */
+    if (count > 1) {
+      x.fillText(name, 68, cy + 4);
+      const w = x.measureText(name).width;
+      if (drawGlyphSprite("glyphCountX", 68 + w + 3, cy - 8))
+        x.fillText(String(count), 68 + w + 21, cy + 4);
+      else x.fillText(" ×" + count, 68 + w, cy + 4);
+    } else x.fillText(name, 68, cy + 4);
   });
   x.restore();
 }
@@ -1562,11 +1601,20 @@ function drawAimStars() {
           x.fillStyle = "#ffe09a";
           x.font = "700 11px Galmuri11, ui-monospace";
           x.textAlign = "center";
-          x.fillText(
-            "↷ 빈 곳 클릭 = 반대편",
-            Math.max(90, Math.min(W - 90, oEx + (ball.x - oEx) * 0.12)),
-            Math.max(60, Math.min(H - 60, oEy + (ball.y - oEy) * 0.12)),
-          );
+          /* 뒤집기 ↷는 회전 ↶↷와 뜻이 달라 별도 도안이다(말뚝을 뛰어넘는
+             화살, 납품 §1-8). 깜빡임 알파는 위 기존 코드가 계속 맡는다. */
+          const fx = Math.max(
+              90,
+              Math.min(W - 90, oEx + (ball.x - oEx) * 0.12),
+            ),
+            fy = Math.max(60, Math.min(H - 60, oEy + (ball.y - oEy) * 0.12)),
+            flipText = " 빈 곳 클릭 = 반대편",
+            flipW = x.measureText(flipText).width;
+          if (drawGlyphSprite("glyphAimFlip", fx - (16 + flipW) / 2, fy - 13)) {
+            x.textAlign = "left";
+            x.fillText(flipText, fx - (16 + flipW) / 2 + 16, fy);
+            x.textAlign = "center";
+          } else x.fillText("↷ 빈 곳 클릭 = 반대편", fx, fy);
           x.restore();
         }
       }

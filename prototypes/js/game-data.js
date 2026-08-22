@@ -1705,6 +1705,25 @@ const staticArt = {
   rock4: "../assets/terrain/rock-04.png",
   wispIdle: "../assets/enemies/void-wisp-idle.png",
   wispHit: "../assets/enemies/void-wisp-hit.png",
+  /* 2026-08-22 작화 세션 납품(DOT_ART_HANDOFF §4). 경로 상수를 여기 두는
+     이유 둘 — Object.values 프리로드에 동승하고, 이식성 게이트의 리터럴
+     검사가 game-*.js만 훑기 때문(표현 파일에 두면 사각지대다).
+     scripts/generate_dot_sprites.py가 전부 굽는다. */
+  wispDeath: "../assets/enemies/void-wisp-death.png",
+  orbitGate: "../assets/library/gimmick/orbit-gate.png",
+  orbitGateHot: "../assets/library/gimmick/orbit-gate-hot.png",
+  roarArrivalTl: "../assets/library/gimmick/roar-arrival-tl.png",
+  roarArrivalTr: "../assets/library/gimmick/roar-arrival-tr.png",
+  roarArrivalBl: "../assets/library/gimmick/roar-arrival-bl.png",
+  roarArrivalBr: "../assets/library/gimmick/roar-arrival-br.png",
+  shieldShardA: "../assets/library/gimmick/shield-shard-a.png",
+  shieldShardB: "../assets/library/gimmick/shield-shard-b.png",
+  shieldShardC: "../assets/library/gimmick/shield-shard-c.png",
+  glyphCountX: "../assets/library/icons/glyph/count-x.png",
+  glyphRotCcw: "../assets/library/icons/glyph/rot-ccw.png",
+  glyphRotCw: "../assets/library/icons/glyph/rot-cw.png",
+  glyphAimFlip: "../assets/library/icons/glyph/aim-flip.png",
+  glyphHandTap: "../assets/library/icons/glyph/hand-tap.png",
 };
 // Existing pixel FX are intentionally reused in the combat pass.  They give
 // high-value events a recognizable silhouette instead of another coloured ring.

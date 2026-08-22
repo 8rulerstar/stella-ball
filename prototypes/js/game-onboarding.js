@@ -1195,13 +1195,31 @@ function drawLessonDim(holes, strength) {
 function drawLessonFinger(tx, ty, lift, press, alpha = 1) {
   x.save();
   x.globalAlpha = alpha;
-  x.font = "28px sans-serif";
-  x.textAlign = "center";
-  x.lineWidth = 4;
-  x.strokeStyle = "#15131c";
-  x.strokeText("☝", tx + 9, ty + 38 + lift);
-  x.fillStyle = "#fff4cc";
-  x.fillText("☝", tx + 9, ty + 38 + lift);
+  /* 손가락을 도트 스프라이트로(2026-08-22 작화 납품 §1-9) — 판 위 유일한
+     시스템 산세리프 글자가 이것으로 사라진다. 촉이 그림 위쪽에 있으므로
+     몸통을 목표 아래에 둔다(원래 ☝와 같은 앉음새). 진동(lift)·파문(press)·
+     알파는 기존 코드가 계속 맡는다. 그림이 안 온 프레임은 옛 글자 폴백. */
+  const fingerSprite =
+    typeof loadTexture === "function" && typeof staticArt === "object"
+      ? loadTexture(staticArt.glyphHandTap)
+      : null;
+  if (fingerSprite?.complete && fingerSprite.naturalWidth) {
+    x.drawImage(
+      fingerSprite,
+      Math.round(tx - 16),
+      Math.round(ty + 4 + lift),
+      32,
+      32,
+    );
+  } else {
+    x.font = "28px sans-serif";
+    x.textAlign = "center";
+    x.lineWidth = 4;
+    x.strokeStyle = "#15131c";
+    x.strokeText("☝", tx + 9, ty + 38 + lift);
+    x.fillStyle = "#fff4cc";
+    x.fillText("☝", tx + 9, ty + 38 + lift);
+  }
   if (press > 0) {
     x.globalAlpha = alpha * 0.9 * (1 - press);
     x.strokeStyle = "#ffe6a1";

@@ -444,6 +444,20 @@
         CELL * 2,
       );
     }
+    /* 관문 표지(2026-08-22 작화 납품) — 방벽 양 끝, 플레이어가 노리는
+       «틈»의 문설주. 방향 없는 마름모라 어느 각도에서도 회전 없이 그대로
+       찍는다(셀 스냅). 점등 벌은 방벽과 같은 hot 신호를 공유한다. 경로
+       상수는 이식성 게이트의 시야 때문에 game-data.js의 staticArt에 있다. */
+    if (typeof loadTexture === "function" && typeof staticArt === "object") {
+      const gate = loadTexture(staticArt[hot ? "orbitGateHot" : "orbitGate"]);
+      if (gate?.complete && gate.naturalWidth)
+        for (const ga of [a0, a1])
+          x.drawImage(
+            gate,
+            snap(cx + Math.cos(ga) * radius) - 8,
+            snap(cy + Math.sin(ga) * radius) - 8,
+          );
+    }
     pixelGem(
       x,
       o.x,
@@ -539,6 +553,15 @@
       span = (Math.PI * 2) / slots - gap;
     x.save();
     x.globalAlpha = 1 - age;
+    const shard =
+      typeof loadTexture === "function" && typeof staticArt === "object"
+        ? [
+            loadTexture(staticArt.shieldShardA),
+            loadTexture(staticArt.shieldShardB),
+            loadTexture(staticArt.shieldShardC),
+          ]
+        : [];
+    const shardFrame = Math.min(3, Math.floor(age * 4));
     for (let i = 0; i < shield.shattered.count; i++) {
       const a0 = -Math.PI / 2 + i * ((Math.PI * 2) / slots) + gap / 2;
       pixelArc(
@@ -550,6 +573,25 @@
         a0 + span * (1 - age * 0.5),
         SHIELD_L_HOT,
       );
+      /* 파편(2026-08-22 작화 납품). 조각 궤적 위 셀 스냅 산포 — 코드 고정
+         400ms를 4프레임(덩이·회전·조각·먼지, 100ms/장)이 정확히 나눈다.
+         변형은 조각 번호로 고른다(난수 금지 — 봇 결정론). */
+      const sp = shard[i % 3];
+      if (sp?.complete && sp.naturalWidth) {
+        const mid = a0 + span * (1 - age * 0.5) * 0.5,
+          rr = 78 + snap(age * 92) + 10;
+        x.drawImage(
+          sp,
+          shardFrame * 16,
+          0,
+          16,
+          16,
+          snap(boss.x + Math.cos(mid) * rr) - 8,
+          snap(boss.y + Math.sin(mid) * rr) - 8,
+          16,
+          16,
+        );
+      }
     }
     x.restore();
   }

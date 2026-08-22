@@ -131,6 +131,14 @@ const assetFiles = [
   ...Object.values(manifest.original),
   ...Object.values(manifest.combat ?? {}),
   ...Object.values(manifest.constellations?.files ?? {}),
+  // 2026-08-22 작화 납품 여섯 섹션(지시서 §7-4). files 맵이 곧 실재 검사 대상.
+  ...Object.values(manifest.gimmickIcons?.files ?? {}),
+  ...Object.values(manifest.wispDeath?.files ?? {}),
+  ...Object.values(manifest.orbitGate?.files ?? {}),
+  ...Object.values(manifest.roarArrival?.files ?? {}),
+  ...Object.values(manifest.shieldShards?.files ?? {}),
+  ...Object.values(manifest.boardGlyphs?.files ?? {}),
+  ...Object.values(manifest.starLadder?.files ?? {}),
 ];
 const missingAssets = assetFiles.filter(
   (asset) => !existsSync(resolve(root, "assets", asset)),

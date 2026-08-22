@@ -550,6 +550,105 @@
       "shield": "library/icons/gimmick/shield.png",
       "roar": "library/icons/gimmick/roar.png",
       "sleep": "library/icons/gimmick/sleep.png"
+    },
+    "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 야간 세션)",
+    "runtimeUse": "game-combat-physics.js drawGimmickIcon() — 기믹 범례·비행 안내"
+  },
+  "wispDeath": {
+    "note": "공허 잔재 사망 4프레임. 감긴 눈-파열-낙하-재. 셀 4px 논리 48 — 표시 96px(배율 0.5)에서 판 위 2px 셀. scripts/generate_dot_sprites.py 가 굽는다.",
+    "source": "scripts/generate_dot_sprites.py",
+    "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 작화 세션)",
+    "runtimeUse": "game-core-render.js update() adds 루프 — a.down 초반 0.42s 재생",
+    "frameWidth": 192,
+    "frameHeight": 192,
+    "frames": 4,
+    "cell": 4,
+    "regen": "python scripts/generate_dot_sprites.py",
+    "files": {
+      "wispDeath": "enemies/void-wisp-death.png"
+    }
+  },
+  "orbitGate": {
+    "note": "도는 방벽 사이 틈 표지. 방향 없는 마름모 — 회전 변환 금지 대응. 평시/점등 2벌, 점등은 방벽 warm 램프 가족.",
+    "source": "scripts/generate_dot_sprites.py",
+    "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 작화 세션)",
+    "runtimeUse": "stella-ball-dot-gimmicks.js orbital() — 방벽 양 끝 셀 스냅",
+    "cell": 2,
+    "logical": 8,
+    "size": 16,
+    "regen": "python scripts/generate_dot_sprites.py",
+    "files": {
+      "orbitGate": "library/gimmick/orbit-gate.png",
+      "orbitGateHot": "library/gimmick/orbit-gate-hot.png"
+    }
+  },
+  "roarArrival": {
+    "note": "포효 도착 각인 4프레임 × 4방향(tl 원판, 나머지 미러). 고정 모서리 (96,176)(624,176)(96,724)(624,724) 전용. #ff9d6e 계열 — 살구 예약색 불사용.",
+    "source": "scripts/generate_dot_sprites.py",
+    "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 작화 세션)",
+    "runtimeUse": "game-core-render.js drawBossRoar() 도착 구간 0.46-0.78s",
+    "frameWidth": 32,
+    "frameHeight": 32,
+    "frames": 4,
+    "cell": 2,
+    "regen": "python scripts/generate_dot_sprites.py",
+    "files": {
+      "roarArrivalTl": "library/gimmick/roar-arrival-tl.png",
+      "roarArrivalTr": "library/gimmick/roar-arrival-tr.png",
+      "roarArrivalBl": "library/gimmick/roar-arrival-bl.png",
+      "roarArrivalBr": "library/gimmick/roar-arrival-br.png"
+    }
+  },
+  "shieldShards": {
+    "note": "굳은 껍질 파편 4프레임 3종. SHIELD_L_HOT 가족(#ffffff 제외). 카시오페이아 껍질 파괴 400ms 전용.",
+    "source": "scripts/generate_dot_sprites.py",
+    "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 작화 세션)",
+    "runtimeUse": "stella-ball-dot-gimmicks.js shieldShatter() 산포",
+    "frameWidth": 16,
+    "frameHeight": 16,
+    "frames": 4,
+    "cell": 2,
+    "regen": "python scripts/generate_dot_sprites.py",
+    "files": {
+      "shieldShardA": "library/gimmick/shield-shard-a.png",
+      "shieldShardB": "library/gimmick/shield-shard-b.png",
+      "shieldShardC": "library/gimmick/shield-shard-c.png"
+    }
+  },
+  "boardGlyphs": {
+    "note": "판 위 폰트 글리프 대체 다섯. ×(개수)·↶·↷(회전)·↷(조준 뒤집기, 별도 도안)·☝(32px). 색은 각 자리의 기존 글자색 계열.",
+    "source": "scripts/generate_dot_sprites.py",
+    "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 작화 세션)",
+    "runtimeUse": "game-combat-physics.js drawGlyphSprite() 범례·비행 안내·뒤집기 힌트 · game-onboarding.js drawLessonFinger()",
+    "cell": 2,
+    "logical": 8,
+    "size": 16,
+    "regen": "python scripts/generate_dot_sprites.py",
+    "files": {
+      "countX": "library/icons/glyph/count-x.png",
+      "rotCcw": "library/icons/glyph/rot-ccw.png",
+      "rotCw": "library/icons/glyph/rot-cw.png",
+      "aimFlip": "library/icons/glyph/aim-flip.png",
+      "handTap": "library/icons/glyph/hand-tap.png"
+    }
+  },
+  "starLadder": {
+    "note": "✦ 한 도안(논리 8x8)을 셀 1/2/3/4로 구운 정수 배율 사다리 + ✧용 저휘도 벌. CSS 크기를 8/16/24/32로 몰아 넣는 것이 사용 조건.",
+    "source": "scripts/generate_dot_sprites.py",
+    "license": "프로젝트 오너 발주 절차 생성 (2026-08-22 작화 세션)",
+    "runtimeUse": "예정 — ✦/✧ 소비처 11군데의 크기 몰이(§4-6)와 「확인 못 함」 여섯 자리 실측이 선행 조건",
+    "cell": 2,
+    "logical": 8,
+    "regen": "python scripts/generate_dot_sprites.py",
+    "files": {
+      "star8": "library/icons/star/star-8.png",
+      "star16": "library/icons/star/star-16.png",
+      "star24": "library/icons/star/star-24.png",
+      "star32": "library/icons/star/star-32.png",
+      "starDim8": "library/icons/star/star-dim-8.png",
+      "starDim16": "library/icons/star/star-dim-16.png",
+      "starDim24": "library/icons/star/star-dim-24.png",
+      "starDim32": "library/icons/star/star-dim-32.png"
     }
   }
 }
