@@ -38,7 +38,7 @@ const KNOWN = `(() => {
   for (const line of String(combatSfx).split(String.fromCharCode(10))) {
     const t = line.trim();
     const at = t.indexOf(": [");
-    if (at > 0 && !t.startsWith("//") && /^[a-zA-Z]+$/.test(t.slice(0, at)))
+    if (at > 0 && !t.startsWith("//") && /^[a-zA-Z][a-zA-Z0-9]*$/.test(t.slice(0, at)) // figure4 처럼 숫자가 붙는다)
       names.push(t.slice(0, at));
   }
   return JSON.stringify(names);

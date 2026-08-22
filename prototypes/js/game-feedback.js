@@ -148,6 +148,9 @@ function combatSfx(kind = "hit", strength = 1, heroId = "") {
       // 판이 뒤집히는 순간이라 다른 접촉음과 구별되어야 한다.
       "roar",
       "shieldBreak",
+      "bossFall",
+      "figure6",
+      "figure7",
     ].includes(kind);
   if (sampled && !layered) return;
   const engine = ensureAudio();
@@ -180,6 +183,17 @@ function combatSfx(kind = "hit", strength = 1, heroId = "") {
          않게 길이는 전부 0.3초 아래로 둔다 — 유성이 구르는 동안 울리는
          소리라 길면 다음 접촉을 덮는다. */
 
+      /* 별자리 성립. combatSfx("figure" + tier) 로 불리므로 점 수마다
+         다른 소리가 난다 — 셋은 겨우 닫힌 선이고 일곱은 북두칠성이다.
+         등급이 오를수록 «더 높이, 더 길게» 올라간다. 지금까지는 전부
+         표에 없어 셋이든 일곱이든 같은 소리였다. */
+      figure3: [330, 494, 0.16],
+      figure4: [349, 587, 0.19],
+      figure5: [392, 698, 0.22],
+      figure6: [440, 831, 0.25],
+      figure7: [494, 988, 0.29],
+      // 거상이 무너진다. 판에서 가장 낮고 가장 긴 소리 — 끝났다는 신호다.
+      bossFall: [140, 44, 0.52],
       // 시스템 알림. 사람이 아닌 것이 말할 때라 가장 작고 중립적으로.
       toast: [470, 500, 0.045],
       parry: [610, 340, 0.11], // 쳐냈다 — 짧게 내려온다
@@ -222,7 +236,8 @@ function combatSfx(kind = "hit", strength = 1, heroId = "") {
           kind === "speechLuna" ||
           kind === "boost" ||
           kind === "shieldBreak" ||
-          kind === "sleep"
+          kind === "sleep" ||
+          kind.startsWith("figure")
         ? "triangle"
         : "square";
   osc.frequency.setValueAtTime(tones[0], now);
