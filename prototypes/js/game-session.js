@@ -293,8 +293,6 @@ function startShot(restingPoint = null) {
     power: 0,
     bounces: 0,
     launchPower: 0.35,
-    flipperCooldown: 0,
-    flipperContact: 0,
   };
   gates = deployed.map((id, i) => ({
     id,
@@ -375,17 +373,6 @@ function igTitleReveal() {
 }
 function renderTitlePresentation() {
   const sequence = ++titleSequence;
-  const stars = Array.from(
-    { length: 24 },
-    (_, i) =>
-      '<i style="left:' +
-      (((i * 37 + 11) % 94) + 3) +
-      "%;top:" +
-      (((i * 53 + 7) % 72) + 3) +
-      "%;--d:-" +
-      ((i % 7) * 0.31).toFixed(2) +
-      's"></i>',
-  ).join("");
   /* 「별빛 점화」 타이틀 (INTRO_REDESIGN_HANDOFF.md §2-2).
      예전 마크업의 오리온 성도·별밭·돔 SVG를 전부 걷어냈다. 배경 하늘은 이미
      `#dawn-sky`가 그리고 있어 두 벌을 겹쳐 놓을 이유가 없었고, 시안은 하늘을

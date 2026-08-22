@@ -1350,7 +1350,9 @@ function showStageSelect() {
   };
 }
 registerRuntimeHook("afterRosterShown", () => {
-  document.querySelector("#stageChoices")?.remove();
+  // A `#stageChoices` cleanup ran here for a screen that no longer exists -
+  // no producer of that id survives anywhere in the tree, so the query could
+  // never match. Removed 2026-08-23.
   // The hub now carries the constellation map, so backing out of the party
   // step returns there instead of opening the standalone map screen.
   document.querySelector("#backMeta").onclick = showMeta;

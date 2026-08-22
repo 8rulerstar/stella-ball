@@ -509,8 +509,7 @@ button:hover {
   color: #f3d58c !important;
   text-shadow: 0 0 9px #e3b35d88;
 }
-.tip,
-.pinball-flipper-hint {
+.tip {
   border-color: #83539e !important;
   background: #190424dd !important;
   color: #ebd1f9 !important;

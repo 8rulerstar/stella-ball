@@ -507,8 +507,7 @@ header,
   width: 16px;
   height: 16px;
 }
-.tip,
-.pinball-flipper-hint {
+.tip {
   display: none;
 }
 @media (max-width: 680px) {

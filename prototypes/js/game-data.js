@@ -390,8 +390,6 @@ for (const id of Object.keys(heroes))
    몰려 있어 「색이 적은 게 아니라 갈래가 둘」인 상태라, 월드마다 hue만 돌려
    일곱 갈래로 벌린다. 인접한 월드끼리 50도 이상 떨어뜨려 캠페인을 이어서 하면
    따뜻함과 차가움이 번갈아 온다.
-   L과 C는 톤 단계마다 고정이므로(WORLD_TONES) 어느 월드에서도 대비와 무게가
-   같고, 글자 가독성이 월드마다 달라지지 않는다.
    `outside`는 색을 받지 않는다 — 관측되지 않은 점이고, 인트로가 「없는 별」로
    부르는 그 빈 좌표다. 색이 없다는 것 자체가 그 월드의 성질이다. */
 const WORLD_HUES = {
@@ -403,33 +401,10 @@ const WORLD_HUES = {
   orion: 195,
   ursa: 95,
 };
-/* 톤 사다리. 이름은 쓰임새로 붙였다. 월드가 바뀌어도 이 L·C는 바뀌지 않는다. */
-const WORLD_TONES = {
-  deep: [0.26, 0.045],
-  ground: [0.4, 0.075],
-  line: [0.63, 0.115],
-  node: [0.72, 0.09],
-  glow: [0.79, 0.105],
-  text: [0.86, 0.075],
-  bright: [0.91, 0.055],
-};
-function worldTone(worldId, tone, alpha) {
-  const hue = WORLD_HUES[worldId];
-  const [l, c] = WORLD_TONES[tone] ?? WORLD_TONES.line;
-  // 월드색이 없는 자리는 뼈대 회색으로 떨어진다. 일곱 월드가 공유하는 넷 중
-  // 달빛 회색이다 — 색을 뺀 자리에 다른 월드의 색이 새면 안 된다.
-  if (hue === undefined) return alpha === undefined ? "#cfdad7" : "#cfdad7";
-  return (
-    "oklch(" +
-    l +
-    " " +
-    c +
-    " " +
-    hue +
-    (alpha === undefined ? "" : " / " + alpha) +
-    ")"
-  );
-}
+/* 톤 사다리(WORLD_TONES)와 worldTone()이 여기 있었다 — 부르는 곳이 저장소
+   어디에도 없는 죽은 코드였다(2026-08-23 전수 조사). WORLD_HUES만 산다:
+   game-meta.js(허브 카드)와 game-onboarding.js(수업 배지)가 읽는다.
+   사다리가 다시 필요하면 git 이력에서 한 커밋 거리다. */
 const WORLDS = [
   {
     id: "aries",
@@ -1712,8 +1687,9 @@ function buildBossArtSpec(slug) {
     slug,
     sprite: `../assets/library/boss10/${slug}.png`,
     weak: `../assets/library/boss10/${slug}-weakgem.png`,
-    weakCount: meta.weakCount,
-    tier: meta.tier,
+    /* weakCount·tier 사본이 여기 있었다 — 런타임에서 읽는 곳이 없어 걷었다
+       (2026-08-23). 진짜 원본은 scripts/boss-pack-core.js(아트 생성기)가
+       따로 갖고 있고, 다중 젬 규칙을 붙일 때 bossPack에서 다시 꺼내면 된다. */
     animations: {
       idle: `../assets/library/anim/boss10/${slug}-idle.png`,
       hit: `../assets/library/anim/boss10/${slug}-hit.png`,
@@ -1999,8 +1975,11 @@ let build,
   comboPulse = 0,
   battleSerial = 0,
   battleComplete = false,
-  msg = "파티를 편성하세요.",
-  flippers = { left: 0, right: 0 };
+  msg = "파티를 편성하세요.";
+/* `flippers`가 여기 마지막 선언자로 있었다 — 핀볼 시절의 잔재로, 대입도
+   읽기도 저장소 어디에도 없어 걷었다(2026-08-23). 같은 이유로
+   ball.flipperCooldown/flipperContact(game-session.js의 ball 리터럴)와
+   .pinball-flipper-hint 선택자(스타일시트 셋)도 함께 걷었다. */
 
 // Canvas shadowBlur re-rasterizes every affected primitive and measured 83 ms
 // impact frames even on the real Chromium probe. The same scene without that
