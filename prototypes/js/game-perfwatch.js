@@ -306,6 +306,11 @@
         longs.push({
           ms: Math.round(d),
           at: Math.round(now - startedAt),
+          /* wrapAll이 매 프레임 잰 함수별 비용. verdict()와 리포트의
+             spentTotals가 «이 키»를 읽는데 지금까지 아무도 싣지 않아,
+             원장은 매 프레임 버려지고 판정은 항상 「합성기 문제」로
+             나왔다(sp가 늘 undefined). 2026-08-23 실측 수정. */
+          spent: ledger,
           ...snapshot(),
         });
         if (longs.length > KEEP) longs.shift();
