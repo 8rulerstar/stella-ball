@@ -1746,6 +1746,13 @@ function update(d) {
     }
   }
   if (!run) return;
+  /* 판이 «실제로 돈» 시간. 기록은 여태 벽시계(performance.now)로 쟀는데,
+     프레임 루프는 숨긴 탭과 일시정지에서 조기 반환하므로 그 시간은 판이
+     멈춘 시간이다 — 5초 멈췄다 이기면 1초짜리 판이 6.0초로 기록됐다(실측).
+     이 저장소는 승리 컷에서 이미 같은 교훈을 배웠다(game-session.js 의
+     「A wall-clock timer used to own this and could resolve the win while
+     the table was frozen」). 같은 프레임 시계로 옮긴다. */
+  battle.liveMs = (battle.liveMs || 0) + d * 1000;
   if (battle.victory) {
     boss.a += d * 0.12;
     return;

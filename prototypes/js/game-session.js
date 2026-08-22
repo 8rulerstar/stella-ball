@@ -891,7 +891,13 @@ function scheduleWin() {
   battle.victory = {
     t: 0,
     d: 2.55,
-    elapsedMs: Math.round(performance.now() - battle.startedAt),
+    /* 판이 실제로 돈 시간(update 가 프레임마다 쌓는다). 벽시계로 재면
+       숨긴 탭과 일시정지가 기록에 그대로 들어간다 — game-core-render.js
+       의 liveMs 주석 참고. 그 값이 없는 경로(프레임을 한 번도 안 돈 판)를
+       위해 벽시계를 폴백으로 남긴다. */
+    elapsedMs: Math.round(
+      battle.liveMs ?? performance.now() - battle.startedAt,
+    ),
   };
   /* 퇴장(디자인 세션 §11). 지금까지는 값이 0이 되면 거상이 그냥 사라졌다 —
      죽음에 1.4초를 주는 것이 이 게임에서 가장 값싼 개선이다. 새 배관이 필요
@@ -977,7 +983,8 @@ function win() {
   assistShots = [];
   const shotsUsed = battle.shotMax - battle.shots,
     elapsedMs =
-      victory?.elapsedMs ?? Math.round(performance.now() - battle.startedAt);
+      victory?.elapsedMs ??
+      Math.round(battle.liveMs ?? performance.now() - battle.startedAt);
   battle.victory = null;
   window.PrismHive?.submitRun({
     stage: currentStage().id,
