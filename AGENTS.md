@@ -133,6 +133,20 @@ no-preference` over CDP first, or the sequence collapses to 0.42s and you are
   back (results vary run to run; read the range, not one cell).
 - `node scripts/probe-aim-nodes.mjs` - the node-aiming rules (starkeeper floor, 3-pick
   minimum, centroid direction, starkeeper non-burn) plus the direction-freedom menu.
+- `node scripts/probe-dialogue.mjs` - whether units, bosses and Luna actually
+  speak (wake/echo/hit, enter/phase/low) and that the rotation is deterministic.
+- `node scripts/probe-sound.mjs` - which sfx keys fire in a battle and that every
+  key named in code exists in the `combatSfx` table. Wrap-then-read: reading
+  `String(combatSfx)` after tapping it reads the wrapper, not the table.
+- `node scripts/probe-gimmick-stages.mjs` - boots every stage that carries a
+  `STAGE_GIMMICK_TRIAL` entry and checks the gimmick objects actually spawn.
+- `node scripts/probe-guide-star.mjs` - that a guide-star charge is spent when
+  claimed (label x1 must mean one). Calls `clearFigureShot()` between samples,
+  the same shot boundary the real code uses.
+- `node scripts/probe-boss-anim.mjs` - that the boss sheet states idle/attack/death
+  are all reachable (attack rides `bossRoar`, death rides `bossOutro`; both step
+  0->3 on the effect clock and hold the last frame). Sample right after arming -
+  `drawBossRoar` clears its own signal at t>0.95.
 
 New probes build on `scripts/lib/probe-harness.mjs` instead of copying the
 Chromium/CDP boilerplate; five predate it and still carry their own
