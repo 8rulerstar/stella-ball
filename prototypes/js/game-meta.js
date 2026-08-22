@@ -833,6 +833,7 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
         ? "무료 소환권 1장"
         : "보유 골드 " + goldBalance();
   };
+  let skipArmed = null;
   function onSkip(e) {
     /* The screen can be left while the 10s sequence is still running - 뒤로 is
        never disabled - and until this returned, the skip handlers stayed bound
@@ -847,6 +848,9 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
     }
     if (skipping || (e.type === "keydown" && (e.repeat || e.key === "Tab")))
       return;
+    // 의식이 선 직후 0.4초는 받지 않는다 — 시작시킨 클릭의 두 번째 타가
+    // 그대로 건너뛰기가 되는 것을 막는다(위 play() 주석).
+    if (typeof skipArmed === "function" && !skipArmed()) return;
     skipping = true;
     stop();
     removeEventListener("keydown", onSkip);
@@ -872,8 +876,22 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
     at(end, finish);
     if (allowSkip) {
       skipHint.textContent = "아무 키나 눌러 건너뛰기";
-      addEventListener("keydown", onSkip);
-      addEventListener("pointerdown", onSkip);
+      /* 다음 차례에 단다. 이 함수는 「별빛 소환」을 누른 «그 클릭» 안에서
+         도는데, 동기로 달면 더블클릭의 둘째 pointerdown(실측 90ms 뒤)이
+         곧바로 건너뛰기를 먹여 방금 100골드로 산 10초 의식이 사라졌다
+         (실측: 더블클릭 0.6초 뒤 이미 revealed, 골드는 100 빠진 상태).
+         프롤로그가 같은 이유로 이미 쓰는 수법이다 — game-onboarding.js 의
+         「Arm the dismiss handlers on the NEXT turn」 주석 참고.
+         한 차례 미루는 것만으로는 얇아서(더블클릭 간격이 더 길 수 있다)
+         첫 0.4초는 건너뛰기를 받지 않는다. 일부러 건너뛰려는 사람은
+         그 뒤로 아무 때나 누르면 된다. */
+      const armAt = performance.now() + 400;
+      skipArmed = () => performance.now() >= armAt;
+      setTimeout(() => {
+        if (!alive()) return;
+        addEventListener("keydown", onSkip);
+        addEventListener("pointerdown", onSkip);
+      }, 0);
     }
   }
   play(script, endAt, !reduced);
