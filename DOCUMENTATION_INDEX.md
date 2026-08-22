@@ -1,6 +1,6 @@
 # Stella Ball 문서 안내
 
-> 기준일: 2026-08-19
+> 기준일: 2026-08-23
 >
 > 현재 코드와 제출 자료를 헷갈리지 않기 위한 문서별 역할 안내다. 같은 사실을 여러 문서에서 고쳐야 할 때는 이 문서의 우선순위를 따른다.
 
@@ -39,6 +39,7 @@
 - [ASSET_BACKLOG.md](ASSET_BACKLOG.md): 기능 작업 중 발견한 신규 디자인·애니메이션·SFX 필요사항의 단일 접수처
 - [ASSET_PLAN.md](ASSET_PLAN.md), [assets/ASSET_MANIFEST.json](assets/ASSET_MANIFEST.json), [assets/ATTRIBUTION.md](assets/ATTRIBUTION.md): 실제 반입 에셋의 계획·목록·출처
 - [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md): 무한 훈련장 전용 별자리 도형·실루엣의 좌표 규약과 현재 제약
+- [INTRO_REDESIGN_HANDOFF.md](INTRO_REDESIGN_HANDOFF.md): 「별빛 점화」 타이틀 재설계 인수인계. 지금 화면의 `ig-*` 마크업과 그 규칙이 여기서 나왔다 — 옛 요소(`.title-stars`·`.title-constellation`)를 걷어낸 이유도 함께 있다
 - [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md): 데스크톱 양옆 관측창 밖의 심연, 외부의 관측자, 인트로 컷신의 디자인 요구서와 구현 상태
 - [UI_REVIEW_2026_08_14.md](UI_REVIEW_2026_08_14.md): 화면·연출 전수 검토와 디자인 세션 요청서. 픽셀 배율 정책이 최우선 결정 사항
 - [META_UI_REQUEST_2026_08_14.md](META_UI_REQUEST_2026_08_14.md): 위 검토의 후속. 허브(메타)와 별자리 지도의 실측 요청서. 별자리 좌표계 규약과 노드 상태 4종이 최우선 결정 사항
