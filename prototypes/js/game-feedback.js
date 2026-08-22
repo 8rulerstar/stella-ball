@@ -144,6 +144,10 @@ function combatSfx(kind = "hit", strength = 1, heroId = "") {
       "finisherHit",
       "victory",
       "fail",
+      // 큰 사건은 저음 몸통을 겹쳐 «무게»를 준다. 포효와 껍질 깨짐은
+      // 판이 뒤집히는 순간이라 다른 접촉음과 구별되어야 한다.
+      "roar",
+      "shieldBreak",
     ].includes(kind);
   if (sampled && !layered) return;
   const engine = ensureAudio();
@@ -166,16 +170,59 @@ function combatSfx(kind = "hit", strength = 1, heroId = "") {
       finisherHit: [92, 46, 0.34],
       victory: [262, 784, 0.62],
       fail: [180, 72, 0.46],
+      /* ── 새 음색 (2026-08-22) ─────────────────────────────────────────
+         아래 이름들은 코드에서 «불리고 있었지만» 이 표에 없어서 전부 같은
+         기본음 [260,420,0.08] 으로 떨어졌다. 화자 넷을 나눈 말풍선 체계도,
+         기믹 일곱도, 조준 키도 소리로는 한 덩어리였다.
+
+         읽는 법: [시작Hz, 끝Hz, 길이초]. 올라가면 «생겼다·빨라졌다»,
+         내려가면 «잃었다·막혔다», 짧고 낮으면 «닿았다». 판독을 해치지
+         않게 길이는 전부 0.3초 아래로 둔다 — 유성이 구르는 동안 울리는
+         소리라 길면 다음 접촉을 덮는다. */
+
+      // 시스템 알림. 사람이 아닌 것이 말할 때라 가장 작고 중립적으로.
+      toast: [470, 500, 0.045],
+      parry: [610, 340, 0.11], // 쳐냈다 — 짧게 내려온다
+      // 화자 셋. 같은 창구를 쓰지 않으니 소리도 갈라야 한다.
+      speechUnit: [520, 690, 0.07], // 별지기 — 짧고 높은 기척
+      speechBoss: [120, 82, 0.26], // 거상 — 낮게 내려앉는다
+      speechLuna: [430, 560, 0.11], // 루나 — 부드럽게 오른다
+
+      // 조준. 매 키마다 울리므로 아주 짧고 작아야 한다.
+      node: [640, 720, 0.035], // 커서가 노드에 얹힌다
+      steer: [300, 420, 0.09], // 반대편으로 뒤집는다
+      parryMiss: [280, 150, 0.12], // 고른 것을 전부 무른다 — 내려간다
+
+      // 기믹 일곱.
+      boost: [240, 880, 0.13], // 가속판 — 크게 올라간다
+      drag: [520, 190, 0.2], // 흐린 여울 — 배율을 잃는다
+      orbit: [330, 240, 0.1], // 도는 방벽에 막혔다
+      shield: [190, 140, 0.14], // 껍질이 먹었다 — 둔탁하게
+      shieldBreak: [210, 900, 0.3], // 마지막 겹이 깨진다
+      addDown: [420, 180, 0.16], // 잡졸이 떨어진다
+      roar: [90, 58, 0.34], // 포효 — 가장 낮게
+      sleep: [400, 120, 0.28], // 별지기가 다시 잠든다
     }[kind] || [260, 420, 0.08];
   const gain = ac.createGain(),
     osc = ac.createOscillator();
+  /* 파형도 성격이다. 톱니는 «날카롭게 벤다», 삼각은 «부드럽게 부푼다»,
+     사각은 «딱 닿는다». 새로 더한 것들도 그 규칙을 따른다 — 거상과 포효는
+     톱니로 거칠게, 루나와 가속·껍질깨짐은 삼각으로 부드럽게. */
   osc.type =
     kind === "weak" ||
     kind === "riposte" ||
     kind === "finisherRelease" ||
-    kind === "finisherHit"
+    kind === "finisherHit" ||
+    kind === "speechBoss" ||
+    kind === "roar" ||
+    kind === "drag"
       ? "sawtooth"
-      : kind === "finisherCharge" || kind === "victory"
+      : kind === "finisherCharge" ||
+          kind === "victory" ||
+          kind === "speechLuna" ||
+          kind === "boost" ||
+          kind === "shieldBreak" ||
+          kind === "sleep"
         ? "triangle"
         : "square";
   osc.frequency.setValueAtTime(tones[0], now);

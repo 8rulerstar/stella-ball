@@ -171,6 +171,7 @@ function applyBoostPad(o, pad, unit = null) {
     addPopup(pad.x, pad.y - 28, "운동량 상승!", "#caff9a", true);
     toast("가속 발판 · 유성 운동량 상승");
   }
+  combatSfx?.("boost", 0.85);
   return true;
 }
 // Every path that hurts the colossus routes through here, so a stage shield
@@ -188,7 +189,9 @@ function applyBossHit(amount) {
         ? "굳은 껍질 · 남은 " + bossShield.hits + "겹"
         : "껍질이 모두 깨졌습니다",
     );
-    combatSfx?.("fail", 0.5);
+    /* 막힌 것과 «마지막 겹이 깨진 것»은 다른 사건이다. 지금까지 둘 다
+       fail 한 소리라, 판이 열리는 순간을 귀로는 알 수 없었다. */
+    combatSfx?.(bossShield.hits > 0 ? "shield" : "shieldBreak", 0.9);
     return 0;
   }
   const before = boss.hp;
@@ -341,6 +344,7 @@ function applyDragPad(o, pad, unit = null) {
     d: 0.34,
     col: "#8ba39f",
   });
+  combatSfx?.("drag", 0.8);
   return true;
 }
 function applyStageGimmicks(o, unit = null) {
@@ -351,6 +355,7 @@ function applyStageGimmicks(o, unit = null) {
       if (!unit && o === ball) ball.firstImpact ??= "orbital";
       if (orbit.hitCooldown > 0) return;
       orbit.hitCooldown = 0.22;
+      combatSfx?.("orbit", 0.7);
       const amount = Math.max(
         6,
         Math.round(Math.hypot(o.vx, o.vy) / 46) + (unit ? 8 : 0),
@@ -365,6 +370,7 @@ function applyStageGimmicks(o, unit = null) {
       );
       if (orbit.hp <= 0) {
         orbit.down = 1.4;
+        combatSfx?.("addDown", 1);
         areaBursts.push({
           x: orbit.x,
           y: orbit.y,
