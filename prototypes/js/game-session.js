@@ -1355,8 +1355,87 @@ addEventListener("keydown", (e) => {
        조준 화면이 잠긴 탓에 얼었다가 판이 열리는 순간 입력 없이 뒤늦게
        떨렸다. */
     if (skipBattleIntro()) return;
-    launchAimStarShot?.();
+    /* 노드가 있으면 노드 조준으로, 하나도 없으면 드래그의 키보드 대응물로.
+       «둘 중 하나»만 고른다 — 앞의 반환값을 보고 뒤를 부르면 이중 발사가
+       생길 수 있고, battle.shots 를 두 번 깎으면 결과 카드가 거짓말한다.
+       노드 없는 판은 오늘 1-1 수업 1단계뿐이고, 그 단계는 키보드에게 발사
+       경로가 아예 없었다 — 근거는 launchKeyboardPull 주석. */
+    if (typeof aimStarReady === "function" && !aimStarReady())
+      launchKeyboardPull?.();
+    else launchAimStarShot?.();
     return;
+  }
+
+  /* 키보드 조준. 지금까지 전투에서 탭으로 닿는 것은 일시정지 버튼 하나뿐
+     이라, 키보드만 쓰는 사람은 판을 볼 수는 있어도 한 발도 못 쐈다.
+     자리가 여기인 이유가 셋 있다.
+     - Space 분기 «아래»: 위에 두면 Space를 먼저 먹어 발사가 죽는다.
+       온보딩 E2E의 pressSpace가 바로 거기서 멎는다.
+     - 온보딩 가드 «위»: 아래 가드는 수업 중 키보드를 통째로 잠그는데,
+       수업이 가르치는 것이 바로 이 손이다.
+     - `paused || isCombatInputLocked()` 아래: 수업 카드나 별자리 캐스트가
+       떠 있는 동안은 마우스와 똑같이 막힌다.
+     실제 판정은 aimKeyCommand가 전부 들고 있다 — 여기서는 키만 고른다.
+     함수가 game-combat.js(html:113)에 있어 이 파일(html:108)이 실행될 때는
+     아직 없으므로, 저장소 관례대로 optional call 로 부른다. */
+  if (typeof aimKeyCommand === "function" && isRuntimeScene("game")) {
+    /* 노드가 셋 이상이면 위아래도 «이웃 노드»다(한 줄로 도는 목록이라
+       네 방향이 같은 일을 한다). 셋 미만이면 마우스가 드래그로 떨어지는
+       판이고, 거기서는 위아래가 «세기»다 — 끄는 거리에 해당한다. */
+    const dragMode =
+      typeof aimStarReady === "function" && battle && !aimStarReady();
+    const cmd =
+      e.code === "ArrowLeft" || e.code === "KeyA"
+        ? "prev"
+        : e.code === "ArrowRight" || e.code === "KeyD"
+          ? "next"
+          : e.code === "ArrowUp"
+            ? dragMode
+              ? "stronger"
+              : "prev"
+            : e.code === "ArrowDown"
+              ? dragMode
+                ? "weaker"
+                : "next"
+              : e.code === "Enter" || e.code === "NumpadEnter"
+                ? "toggle"
+                : e.code === "KeyF"
+                  ? "flip"
+                  : e.code === "Backspace"
+                    ? "clear"
+                    : null;
+    /* 초점이 «누를 수 있는 것»에 있으면 Enter 는 그것의 키다. 전투에서
+       탭으로 닿는 것은 일시정지 버튼이라, 이 양보가 없으면 키보드로는
+       판을 멈출 방법이 사라진다. 화살표·F·Backspace 는 버튼에서 하는
+       일이 없으므로 그대로 조준이 가져간다. */
+    const owner = document.activeElement;
+    const ownerTakesEnter =
+      cmd === "toggle" &&
+      owner &&
+      owner !== document.body &&
+      owner.id !== "game" &&
+      typeof owner.matches === "function" &&
+      owner.matches("button, a[href], input, select, textarea, [tabindex]");
+    if (cmd && !ownerTakesEnter && !e.altKey && !e.ctrlKey && !e.metaKey) {
+      /* 입장 연출 중이면 마우스·Space와 같은 규칙으로 컷신부터 넘긴다. */
+      if (skipBattleIntro()) {
+        e.preventDefault();
+        return;
+      }
+      /* 누름 유지로 커서가 흐르는 것은 좋다. 찍기·반대편·전부 무르기는
+         한 번에 하나여야 한다 — 눌린 채로 있으면 켰다 껐다를 반복한다.
+         다만 «되돌아가기만» 하면 안 된다: 막지 않은 채 돌아가면 눌린 채의
+         Enter 가 초점 요소의 기본 동작을 반복해서 일으킨다. 이 판에서 이
+         키가 우리 것이면, 반복이어도 우리 것이다. */
+      if (e.repeat && cmd !== "prev" && cmd !== "next") {
+        if (aimKeysLive?.()) e.preventDefault();
+        return;
+      }
+      /* 명령이 실제로 먹혔을 때만 기본 동작을 막는다. 판 밖에서는 화살표가
+         평소대로 스크롤해야 한다. */
+      if (aimKeyCommand(cmd)) e.preventDefault();
+      return;
+    }
   }
 
   if (StellaRuntime.modules.optional("onboarding")?.isActive()) return;

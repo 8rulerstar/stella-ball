@@ -39,6 +39,13 @@ function setScene(scene) {
   document.body.classList.toggle("meta-mode", scene === "meta");
   document.body.classList.toggle("menu-mode", scene === "menu");
   document.body.classList.toggle("game-mode", scene === "game");
+  /* 판을 탭 순서에 넣은 것은 «판 위에서» 조준 키를 안내하기 위해서다
+     (game-combat.js의 equipAimKeyboardAffordance). 그대로 두면 허브·상점·
+     프로필에서도 보이지 않는 캔버스가 첫 탭 자리를 차지해, 탭 한 번이
+     아무 데도 안 간 것처럼 보인다. 화면이 바뀌는 유일한 자리에서 거둔다. */
+  const aimCanvas = document.getElementById?.("game");
+  if (aimCanvas?.dataset?.aimKeys)
+    aimCanvas.tabIndex = scene === "game" ? 0 : -1;
 }
 
 // Long names scroll rather than being clipped.  Called after a screen renders;

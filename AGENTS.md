@@ -53,7 +53,7 @@ The in-app Browser pane reports `document.hidden === true`, so `requestAnimation
 never fires there and its viewport can read `0x0`. Anything about frame pacing,
 motion or on-screen geometry measured through that pane is a proxy at best - two
 performance passes were tuned against one such proxy and missed the real cost.
-Eighteen probes drive a real Chromium over CDP the way the onboarding E2E does. None
+Twenty probes drive a real Chromium over CDP the way the onboarding E2E does. None
 is wired into a gate; run them by hand when the question is about the screen. Each
 file's header names the ways that probe has actually been read wrong - four probes
 gave confidently wrong answers in one night before those notes existed.
@@ -101,6 +101,15 @@ gave confidently wrong answers in one night before those notes existed.
   that the roster and the gold actually moved. Force `prefers-reduced-motion:
 no-preference` over CDP first, or the sequence collapses to 0.42s and you are
   measuring a different animation.
+- `node scripts/probe-keyboard-battle.mjs` - plays a campaign battle with the
+  keyboard only, never sending a mouse event: cursor, pick, flip, clear, launch,
+  boss kill. Also prints what the `#aimLive` region says at each step.
+- `node scripts/probe-keyboard-onboarding.mjs` - the whole 1-1 lesson with Tab,
+  Enter, arrows and Space only. This is the real gate for keyboard play: the
+  campaign being keyboard-playable is worth nothing if the tutorial locks. Send
+  text-bearing keys as `keyDown` with `text`, not `rawKeyDown` - the page's own
+  listeners see rawKeyDown but the browser's default action does not fire, so
+  Enter will not press a focused button and the lesson never opens.
 - `node scripts/probe-settlement.mjs` - the win and lose screens, reached the way a
   player reaches them. Fire with `fireMeteor()`, never by setting `ball.vx/vy`:
   the shot counter is decremented inside that function, so the shortcut rolls a

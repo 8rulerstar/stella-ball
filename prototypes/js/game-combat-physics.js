@@ -987,7 +987,18 @@ function drawAimGuide() {
     aimDx = preview.dx;
     aimDy = preview.dy;
   } else {
-    const p = cuePull(drag || { x: ball.x, y: ball.y + 145 });
+    /* 마우스가 실제로 끌고 있으면 그 점, 아니면 키보드가 겨눈 점, 둘 다
+       없으면 기본점. 키보드 점을 drag 에 «담지 않는» 이유: drag 는
+       billiardPointerMove/Up 의 소유라, 거기에 값이 있으면 마우스를 조금만
+       움직여도 손대지 않은 드래그가 진행되고 놓는 순간 의도 없는 발사가
+       나간다. 그리는 쪽에서만 합친다. */
+    const p = cuePull(
+      drag ||
+        (typeof keyPullRaw === "function" ? keyPullRaw() : null) || {
+          x: ball.x,
+          y: ball.y + 145,
+        },
+    );
     aimDx = ball.x - p.x;
     aimDy = ball.y - p.y;
   }
@@ -1241,12 +1252,11 @@ function drawAimStars() {
        한다. 저쪽은 하한(minPick)을 채우면 호버를 무시하는데 여기만 무조건
        붙이면, 확정된 3픽 조준선이 «가정» 점선으로 그려지고 안내선은 호버까지
        이어져 — 점선이 보여준 것과 다른 곳으로 쏘게 된다. */
+    const focus = aimFocus();
     const previewPicks =
-      aimPick.length >= AIM_STAR.minPick ||
-      aimHover < 0 ||
-      aimPick.includes(aimHover)
+      aimPick.length >= AIM_STAR.minPick || focus < 0 || aimPick.includes(focus)
         ? aimPick
-        : [...aimPick, aimHover];
+        : [...aimPick, focus];
     const p = previewPicks.map((i) => nodes[i]);
     if (p.length && p.every(Boolean)) {
       const cx = preview.cx,
@@ -1457,7 +1467,7 @@ function drawAimStars() {
     const node = nodes[i],
       order = aimPick.indexOf(i),
       picked = order >= 0,
-      hovered = i === aimHover;
+      hovered = i === aimFocus();
     let chipY;
     if (node.unit) {
       /* 별지기 노드. 스프라이트가 이미 「여기 있다」를 만드니 표식은 고리만 —
@@ -1625,7 +1635,7 @@ function drawAimStars() {
   x.font = "600 11px Galmuri11, ui-monospace";
   x.fillText(
     aimPick.length
-      ? "고른 노드들의 가운데로 갑니다 · 우클릭으로 무르기"
+      ? "고른 노드들의 가운데로 갑니다 · 우클릭/Backspace로 무르기"
       : "별지기·별빛을 셋 이상 찍으세요 · 넓게 벌릴수록 세게 나갑니다",
     W / 2,
     H - 10,

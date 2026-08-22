@@ -493,19 +493,12 @@ function billiardPointerDown(e) {
     if (aimStarReady()) {
       e.preventDefault();
       e.stopImmediatePropagation();
+      /* 손이 마우스로 넘어갔다. pointermove 에서만 놓아 주면, 마우스를
+         «움직이지 않고» 바로 누르는 손에서는 키보드 커서가 남아 링과
+         가정 선이 클릭한 곳이 아닌 데를 가리킨다. */
+      aimCursor = -1;
       if (e.button !== 0) {
-        if (aimPick.length) {
-          aimPick = [];
-          // 성립 플래시·거절 연출도 함께 무른다 — 하한 미달로 돌아간 선이
-          // «성립» 빛을 물고 있으면 안 된다. 반대편도 여기서 돌아온다:
-          // «전부 무르기» 뒤에 새로 고른 셋이 거울 방향으로 나가면, 지운
-          // 상태가 발사 방향을 몰래 쥐고 있는 셈이다.
-          aimReadyFlash = 0;
-          aimDenyT = 0;
-          aimFlip = false;
-          combatSfx?.("parryMiss", 0.5);
-          emitAimChanged("clear");
-        }
+        clearAimPicks();
         return;
       }
       const hit = aimStarAt(p.x, p.y);
@@ -513,10 +506,7 @@ function billiardPointerDown(e) {
         /* 빈 곳은 «가고 싶은 쪽»이다. 유성을 기준으로 무게중심 쪽을 누르면
            정방향, 반대쪽을 누르면 반대편으로 쏜다 — 누른 곳이 곧 갈 곳이라
            설명이 필요 없다. 아직 셋을 못 골랐으면 고르는 것이 먼저다. */
-        if (aimPick.length < AIM_STAR.minPick) {
-          toast("별지기·별빛을 셋 이상 찍고 Space로 발사하세요");
-          return;
-        }
+        if (!aimFlipReady()) return;
         const base = aimStarShot(aimPick);
         if (!base) return;
         // 부호를 뺀 «무게중심 쪽» 벡터로 판단해야 이미 뒤집힌 상태에서도
@@ -524,33 +514,7 @@ function billiardPointerDown(e) {
         const ux = base.cx - ball.x || 0,
           uy = base.cy - ball.y || 0,
           side = (p.x - ball.x) * ux + (p.y - ball.y) * uy;
-        const want = side < 0;
-        if (want !== aimFlip) {
-          aimFlip = want;
-          // 한 번 뒤집어 봤으면 어포던스 라벨을 끈다(핸드오프 §2-3).
-          // 세션이 아니라 저장 슬롯에서 영구 소등이라 progress에도 적는다.
-          // 단 수업 중은 제외 — 라벨이 lessonGuide로 접혀 «본 적 없는»
-          // 힌트가 소등되면 캠페인에서 영영 못 본다.
-          if (
-            !(
-              typeof onboardingLessonGuideActive === "function" &&
-              onboardingLessonGuideActive()
-            )
-          ) {
-            if (typeof aimTeach === "object" && aimTeach)
-              aimTeach.flipped = true;
-            markAimHintDone?.("flip");
-          }
-          combatSfx?.("steer", 0.5);
-          addPopup(
-            ball.x,
-            ball.y - 34,
-            aimFlip ? "반대편" : "가운데 쪽",
-            "#ffe09a",
-            true,
-          );
-          emitAimChanged("flip");
-        }
+        applyAimFlip(side < 0);
         return;
       }
       pickAimStar(hit);
@@ -573,6 +537,58 @@ function billiardPointerDown(e) {
 function cuePull(p) {
   const dy = p.y - ball.y;
   return { x: p.x, y: ball.y + (dy > 0 ? dy * 4.8 : dy) };
+}
+/* 고른 것을 전부 무른다. 마우스는 우클릭으로, 키보드는 Backspace로 여기
+   온다 — 부작용을 한 몸에 두어 두 손이 같은 상태로 돌아가게 한다. */
+function clearAimPicks() {
+  if (!aimPick.length) return false;
+  aimPick = [];
+  // 성립 플래시·거절 연출도 함께 무른다 — 하한 미달로 돌아간 선이
+  // «성립» 빛을 물고 있으면 안 된다. 반대편도 여기서 돌아온다:
+  // «전부 무르기» 뒤에 새로 고른 셋이 거울 방향으로 나가면, 지운
+  // 상태가 발사 방향을 몰래 쥐고 있는 셈이다.
+  aimReadyFlash = 0;
+  aimDenyT = 0;
+  aimFlip = false;
+  combatSfx?.("parryMiss", 0.5);
+  emitAimChanged("clear");
+  return true;
+}
+/* 반대편을 고르려면 먼저 셋을 골라야 한다. 마우스가 빈 곳을 눌렀을 때와
+   키보드가 F를 눌렀을 때 같은 안내를 받게 하려고 따로 뽑았다. */
+function aimFlipReady() {
+  if (aimPick.length >= AIM_STAR.minPick) return true;
+  toast("별지기·별빛을 셋 이상 찍고 Space로 발사하세요");
+  return false;
+}
+/* 반대편 토글. 마우스는 «누른 쪽»에서 want를 뽑아 넘기고, 키보드는 그냥
+   뒤집는다 — 부작용(교습 소등·효과음·팝업·훅)은 여기 한 몸에 있다. */
+function applyAimFlip(want) {
+  if (!aimFlipReady() || want === aimFlip) return false;
+  aimFlip = want;
+  // 한 번 뒤집어 봤으면 어포던스 라벨을 끈다(핸드오프 §2-3).
+  // 세션이 아니라 저장 슬롯에서 영구 소등이라 progress에도 적는다.
+  // 단 수업 중은 제외 — 라벨이 lessonGuide로 접혀 «본 적 없는»
+  // 힌트가 소등되면 캠페인에서 영영 못 본다.
+  if (
+    !(
+      typeof onboardingLessonGuideActive === "function" &&
+      onboardingLessonGuideActive()
+    )
+  ) {
+    if (typeof aimTeach === "object" && aimTeach) aimTeach.flipped = true;
+    markAimHintDone?.("flip");
+  }
+  combatSfx?.("steer", 0.5);
+  addPopup(
+    ball.x,
+    ball.y - 34,
+    aimFlip ? "반대편" : "가운데 쪽",
+    "#ffe09a",
+    true,
+  );
+  emitAimChanged("flip");
+  return true;
 }
 /* 노드(별지기·별빛)를 고르고 무른다. 상한은 없고 하한이 3이다 — 근거는
    AIM_STAR.minPick 주석. 개수가 많을수록 무게중심 위치가 촘촘해지는 성질은
@@ -631,6 +647,14 @@ function billiardPointerMove(e) {
     if (!ball?.moving && aimStarReady() && !isCombatInputLocked()) {
       const at = pointer(e);
       aimHover = aimStarAt(at.x, at.y);
+      /* 마우스가 실제로 움직였으면 손이 마우스로 넘어간 것이다 — 키보드
+         커서를 놓아 준다. 그래야 링이 두 곳에 뜨지 않는다.
+         넘겨줄 때 낭독도 갱신한다. 안 그러면 리전이 «옛 노드»를 말한 채
+         남아, 그 말을 믿고 누른 Enter 가 다른 노드를 찍는다. */
+      if (aimCursor !== -1) {
+        aimCursor = -1;
+        announceAim();
+      }
     } else if (aimHover !== -1) aimHover = -1;
     return;
   }
@@ -675,6 +699,76 @@ function billiardPointerUp(e) {
     return;
   }
   fireMeteor(dx, dy, clamp(pullLength / 220, 0.28, 1));
+}
+/* 노드가 하나도 없는 판에서의 키보드 발사.
+   그런 판은 오늘 1-1 수업 1단계 하나뿐이다. 그 단계는 파티를 일부러 비워
+   둔다 — 별지기가 서면 노드가 셋이 되어 좌클릭이 «찍기»로 넘어가고, 그
+   단계가 가르치는 드래그가 도달 불가능해지기 때문이다(onboardingLayouts
+   주석). 그 대가로 키보드만 쓰는 사람은 발사 경로가 «드래그 하나»가 되어
+   수업 1단계에서 영영 못 나갔다. 실측으로 확인했다: 노드가 0개면
+   aimStarReady()가 거짓이라 Space가 launchAimStarShot에서 즉시 되돌아간다.
+   그래서 드래그의 대응물을 키보드에 준다. 방향은 이 단계의
+   resolveBilliardAim 훅이 어차피 보스로 덮어쓰므로 여기서 정할 것이 없고,
+   세기는 고정으로 둔다 — 「멀리 끌수록 세다」는 마우스의 어포던스이고,
+   캠페인에서 세기를 가르치는 것은 «벌림»이라 그쪽은 키보드로도 배운다.
+   되돌리려면 이 함수와 game-session.js 의 호출 한 줄을 지운다. */
+/* 키보드가 겨누는 «끄는 점». 각도는 유성에서 나갈 방향, 거리는 세기다.
+   처음에는 보스 쪽을 가리킨다 — 첫 발이 허공으로 가지 않게. */
+function keyPullRaw() {
+  if (!ball) return null;
+  const a =
+    aimKeyPull?.a ??
+    Math.atan2(
+      (boss?.y ?? ball.y - 200) - ball.y,
+      (boss?.x ?? ball.x) - ball.x,
+    );
+  const d = aimKeyPull?.d ?? 150;
+  // 드래그는 «가고 싶은 반대쪽»으로 끈다. 같은 규칙을 그대로 쓴다.
+  return { x: ball.x - Math.cos(a) * d, y: ball.y - Math.sin(a) * d, a, d };
+}
+function steerKeyPull(dAngle, dPull) {
+  const cur = keyPullRaw();
+  if (!cur) return false;
+  aimKeyPull = {
+    a: cur.a + dAngle,
+    d: clamp(cur.d + dPull, 30, 220),
+  };
+  combatSfx?.("node", 0.28);
+  const deg = Math.round(((keyPullRaw().a * 180) / Math.PI + 360) % 360);
+  announceAim(
+    "겨눔 " +
+      deg +
+      "도, 세기 " +
+      Math.round(clamp(keyPullRaw().d / 220, 0.28, 1) * 100) +
+      "퍼센트",
+  );
+  return true;
+}
+function launchKeyboardPull() {
+  if (!battle || !run || battleComplete || ball?.moving) return false;
+  /* 마우스가 드래그로 «떨어지는» 조건과 똑같이 둔다: billiardPointerDown 은
+     aimStarReady() 가 거짓일 때 드래그로 간다. 처음에는 「노드가 0개일 때」로
+     좁게 잡았는데, 그러면 노드가 1~2개인 판에서 마우스는 드래그로 쏘고
+     키보드는 아무 경로도 없다. 실측으로 확인했다 — 별지기 2명(캠페인 1-1의
+     편성이다)이면 노드 2개, aimStarReady 거짓, Space 를 눌러도 유성이
+     5에서 그대로였다. 조건을 한 함수에 맡겨야 둘이 갈라지지 않는다. */
+  if (aimStarReady()) return false;
+  if (isCombatInputLocked()) {
+    toast("루나의 설명을 읽고 아래 버튼을 눌러 주세요.");
+    return false;
+  }
+  /* 드래그가 놓을 때 하는 계산을 그대로 지난다(billiardPointerUp) — 방향은
+     증폭된 벡터가, 세기는 «실제로 끈 거리»가 맡는다. 안내선도 같은 점을
+     쓰므로 보이는 선과 나가는 곳이 어긋나지 않는다. */
+  const raw = keyPullRaw();
+  if (!raw) return false;
+  const p = cuePull(raw),
+    dx = ball.x - p.x,
+    dy = ball.y - p.y;
+  if (Math.hypot(dx, dy) < 18) return false;
+  fireMeteor(dx, dy, clamp(raw.d / 220, 0.28, 1), "유성 발사 · 키보드 조준");
+  aimKeyPull = null;
+  return true;
 }
 /* ── 노드 조준 ──────────────────────────────────────────────────────────
    조준 노드는 두 종류다 — 배치된 별지기 셋(항상 있다), 그리고 공명과
@@ -786,9 +880,14 @@ function dropAimStar(x, y, col, label) {
     aimStars.splice(0, aimStars.length - AIM_STAR.max);
 }
 function resetAimStars() {
+  /* 판이 설 때 걸어야 한다. announceAim 쪽에서만 걸면 «키를 이미 쓴 뒤»에야
+     안내가 생겨, 그 키가 있는 줄 모르는 사람에게는 영영 안 닿는다. */
+  equipAimKeyboardAffordance();
   aimStars = [];
   aimPick = [];
   aimHover = -1;
+  aimCursor = -1;
+  aimKeyPull = null;
   aimFlip = false;
   aimLaunchFx = null;
   aimDenyT = 0;
@@ -859,6 +958,176 @@ function emitAimChanged(reason) {
 function aimStarReady() {
   if (typeof nodeEconomyOn === "function" && !nodeEconomyOn()) return false;
   return aimNodes().length >= AIM_STAR.minPick;
+}
+/* 「지금 다음 하나로 가정할 노드」. 마우스 호버와 키보드 커서를 읽는
+   쪽에서만 합친다 — 키보드가 켜져 있으면 키보드가 이긴다.
+   목록 길이로 잘라 두는 이유: aimPick과 달리 커서는 «샷을 건너» 살아남을
+   수 있는데, 별빛은 발사 중에 dropAimStar로 밀려나 인덱스가 당겨진다.
+   자르지 않으면 조용히 다른 별을 겨눈다. */
+function aimFocus() {
+  const n = aimNodes().length;
+  if (aimCursor >= 0) return aimCursor < n ? aimCursor : (aimCursor = -1);
+  return aimHover < n ? aimHover : -1;
+}
+/* 조준 상태를 «소리로» 내보낸다.
+   실측(2026-08-22): 지금 전투는 스크린리더에 아무것도 안 읽힌다. #tip은
+   aria-live="polite"지만 prism-breakers-interface.css:510에서 display:none이라
+   접근성 트리에서 통째로 빠지고 — 하필 조준 안내 문구가 그리로 간다 —
+   실제로 보이는 #toast에는 aria-live가 없다. A11Y_NOTE_2026_08_22.md의
+   「상태는 소리로 읽힌다」는 그래서 틀린 기록이었다.
+   눈에 보이는 것은 하나도 바꾸지 않는다: 화면 밖으로 잘라 낸 영역을 따로
+   두고 거기에만 쓴다. 일시정지 버튼과 같은 이유로 JS가 만든다 — HTML을
+   건드리면 스모크의 문서 계약이 흔들린다. */
+/* 키보드 조준이 «있다»는 것을 어떻게 아는가.
+   화면에 글자를 더 얹지 않는다 — 판 위 한글은 창에 따라 5.4px 까지 줄어들고
+   (BOARD_TEXT_2026_08_22.md), 온보딩을 「지저분하게 하지 말라」는 것이 이
+   화면의 방침이다. 대신 판 자체를 탭 순서에 넣고, 초점이 왔을 때 읽히는
+   이름표에 키를 적는다. 이 안내가 필요한 사람은 정확히 그 경로로 온다.
+   지금까지 전투에서 탭으로 닿는 것은 일시정지 버튼 하나뿐이었다. */
+const AIM_KEY_LEGEND =
+  "키보드로도 조준할 수 있습니다. 좌우 화살표로 노드를 옮기고, Enter로 찍거나 무르고, F로 반대편을 고르고, Backspace로 전부 무르고, Space로 발사합니다.";
+function equipAimKeyboardAffordance() {
+  /* 스모크(smoke-runtime.mjs)는 진짜 DOM 없이 이 스크립트들을 돌린다 —
+     document 는 있어도 getElementById 는 없다. 없는 자리에서 조용히
+     물러난다. 실제로 여기서 게이트가 한 번 빨개졌다. */
+  if (typeof document === "undefined" || !document.getElementById) return;
+  const c = document.getElementById("game");
+  if (!c || c.dataset?.aimKeys) return;
+  c.dataset.aimKeys = "1";
+  c.tabIndex = 0;
+  const had = c.getAttribute("aria-label") || "";
+  if (!had.includes("키보드로도"))
+    c.setAttribute("aria-label", had + " " + AIM_KEY_LEGEND);
+}
+let aimLiveRegion = null;
+function announceAim(extra) {
+  equipAimKeyboardAffordance();
+  if (typeof document === "undefined" || !document.createElement) return;
+  if (!aimLiveRegion) {
+    aimLiveRegion = document.createElement("div");
+    aimLiveRegion.id = "aimLive";
+    aimLiveRegion.setAttribute("aria-live", "polite");
+    aimLiveRegion.setAttribute("aria-atomic", "true");
+    /* 감추는 방식이 중요하다. display:none·visibility:hidden 은 접근성
+       트리에서 «빼» 버려서 낭독이 아예 안 나간다 — #tip이 정확히 그래서
+       조용하다. 잘라 내기는 트리에 남긴 채 화면에서만 지운다.
+       스타일시트가 아니라 인라인으로 두는 이유: 나중 시트가 .tip처럼
+       한 줄로 덮어 버리는 일을 원천적으로 막는다. */
+    aimLiveRegion.style.cssText =
+      "position:absolute;width:1px;height:1px;margin:-1px;padding:0;" +
+      "overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);" +
+      "white-space:nowrap;border:0";
+    (document.querySelector(".stage") || document.body).append(aimLiveRegion);
+  }
+  const nodes = aimNodes(),
+    at = aimFocus(),
+    node = at >= 0 ? nodes[at] : null,
+    order = at >= 0 ? aimPick.indexOf(at) : -1;
+  const parts = [];
+  if (node)
+    parts.push(
+      (node.label || (node.unit ? "별지기" : "별빛")) +
+        (order >= 0 ? " · " + (order + 1) + "번으로 고름" : " · 안 고름"),
+    );
+  parts.push("고른 노드 " + aimPick.length + "/" + AIM_STAR.minPick);
+  if (aimPick.length >= AIM_STAR.minPick) {
+    const shot = aimStarShot(aimPick);
+    if (shot) parts.push("위력 " + Math.round(shot.force * 100) + "퍼센트");
+    parts.push(aimFlip ? "반대편" : "가운데 쪽");
+  }
+  if (extra) parts.push(extra);
+  /* 같은 문장이 이어지면 리더가 다시 안 읽는다. 보이지 않는 영역이므로
+     끝에 붙는 마침표 수로 «달라졌다»를 만든다. */
+  const text = parts.join(", ");
+  aimLiveRegion.textContent =
+    text === aimLiveRegion.textContent ? text + " " : text;
+}
+/* 키보드 커서를 한 칸 옮긴다. aimNodes()의 인덱스 순서를 그대로 돈다 —
+   그 순서가 aimPick이 쓰는 인덱스 공간이고, 별지기가 먼저·별빛이 뒤라
+   「셋을 찍어라」를 처음 배우는 손이 별지기부터 만난다. 화면 위치로 도는
+   순서가 손에는 더 낫지만 이 저장소에 선례가 없고 동률 규칙을 따로
+   정해야 한다 — 필요해지면 그때 바꾼다. */
+function moveAimCursor(step) {
+  const n = aimNodes().length;
+  if (!n) return false;
+  const from = aimFocus();
+  aimCursor = from < 0 ? (step > 0 ? 0 : n - 1) : (from + step + n) % n;
+  combatSfx?.("node", 0.32);
+  announceAim();
+  return true;
+}
+/* 키보드가 조준에 하는 일은 이 다섯뿐이고, 전부 마우스와 «같은 함수»로
+   내려간다. 규칙이 두 벌이 되면 한쪽만 고쳐지는 날이 온다.
+   가드는 마우스 경로와 Space 경로의 «합집합»이다 — 어느 한쪽도 혼자서는
+   완전하지 않다(Space는 run·ball.moving을 안 보고, 포인터는 장면·battle을
+   안 본다). */
+/* 「지금 이 판에서 조준 키가 살아 있는가」. 반복 눌림 분기가 같은 질문을
+   해야 하는데 규칙을 두 벌로 적으면 한쪽만 고쳐지는 날이 온다. */
+function aimKeysLive() {
+  return Boolean(
+    battle &&
+      run &&
+      !battleComplete &&
+      !ball?.moving &&
+      isRuntimeScene("game") &&
+      aimStarReady() &&
+      !isCombatInputLocked(),
+  );
+}
+function aimKeyCommand(cmd) {
+  /* 노드가 셋 미만이면 마우스는 드래그로 떨어진다. 키보드도 같은 자리에서
+     같은 손을 갖는다 — 좌우로 겨누고, 위아래로 세기를 정하고, Space로
+     놓는다. 이 갈래가 없으면 캠페인 1-1(별지기 둘)에서 키보드는 «보스로
+     날아가는 고정 한 발»밖에 못 쏜다. */
+  if (
+    battle &&
+    run &&
+    !battleComplete &&
+    !ball?.moving &&
+    isRuntimeScene("game") &&
+    !isCombatInputLocked() &&
+    typeof aimStarReady === "function" &&
+    !aimStarReady()
+  ) {
+    if (cmd === "prev") return steerKeyPull(-Math.PI / 36, 0);
+    if (cmd === "next") return steerKeyPull(Math.PI / 36, 0);
+    if (cmd === "stronger") return steerKeyPull(0, 20);
+    if (cmd === "weaker") return steerKeyPull(0, -20);
+    if (cmd === "clear") {
+      if (!aimKeyPull) return false;
+      aimKeyPull = null;
+      announceAim("겨눔을 처음으로");
+      return true;
+    }
+    return false;
+  }
+  if (!aimKeysLive()) return false;
+  if (cmd === "prev") return moveAimCursor(-1);
+  if (cmd === "next") return moveAimCursor(1);
+  if (cmd === "toggle") {
+    const at = aimFocus();
+    if (at < 0) return moveAimCursor(1);
+    /* 반환값은 «찍었는가»가 아니라 «이 키를 먹었는가»다 — 부르는 쪽이
+       preventDefault 여부로만 쓴다. pickAimStar 는 무를 때 false 를
+       돌려주므로 그것을 그대로 넘기면, 무르기 성공이 「안 먹었다」가 되어
+       기본 동작이 살아남는다. 초점이 일시정지 버튼에 있으면 그 Enter 가
+       버튼을 눌러 조준 도중에 판이 멈춘다. 커서 아래에 노드가 있었으면
+       찍든 무르든 상태는 바뀌었다. */
+    pickAimStar(at);
+    announceAim();
+    return true;
+  }
+  if (cmd === "flip") {
+    const ok = applyAimFlip(!aimFlip);
+    if (ok) announceAim();
+    return ok;
+  }
+  if (cmd === "clear") {
+    const ok = clearAimPicks();
+    if (ok) announceAim();
+    return ok;
+  }
+  return false;
 }
 function aimStarAt(px, py) {
   const nodes = aimNodes();
@@ -982,8 +1251,9 @@ function aimStarPreview() {
   if (aimPick.length >= AIM_STAR.minPick) return aimStarShot();
   // 마우스가 올라간 것을 «다음 하나»로 가정해 미리 그린다. 아무것도 안 고른
   // 상태에서 별빛 위에 올리기만 해도 그 한 발이 어디로 갈지 바로 보인다.
-  if (aimHover >= 0 && !aimPick.includes(aimHover))
-    return aimStarShot([...aimPick, aimHover]);
+  const focus = aimFocus();
+  if (focus >= 0 && !aimPick.includes(focus))
+    return aimStarShot([...aimPick, focus]);
   return aimPick.length ? aimStarShot() : null;
 }
 /* 발사. 고른 셋이 «조준»이고, 고르지 않은 나머지가 «별자리»다.
@@ -1040,6 +1310,7 @@ function launchAimStarShot() {
      성립 플래시가 다음 조준까지 새어 들면 안 찍은 선이 빛난다. */
   aimPick = [];
   aimHover = -1;
+  aimCursor = -1;
   aimReadyFlash = 0;
   aimDenyT = 0;
   // 노드에 남긴 «방금 찍힘» 플래시도 여기서 끊는다. drawAimStars에서만
