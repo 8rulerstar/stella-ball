@@ -152,6 +152,9 @@ let battleCine = null;
 /* 비트 클래스는 `is-`로 시작한다. 요소 클래스와 같은 접두사를 쓰면 충돌한다 —
    실제로 비트 `cin-plate`가 요소 `.cin-plate`와 이름이 겹쳐, 그 비트가 켜지는
    순간 컨테이너에도 `.cin-plate { opacity: 0 }`이 걸려 연출 전체가 사라졌다. */
+/* 입장 연출 중 멈추면 연출을 끝낸 것으로 친다(2026-08-23). false 로
+   되돌리면 예전처럼 연출을 안고 멈춘다 — showPauseMenu 의 주석 참고. */
+const PAUSE_SKIPS_INTRO = true;
 const CINE_BEATS = [
   [0, "is-bars"],
   [2178, "is-land"],
@@ -1254,6 +1257,18 @@ function canPauseBattle() {
 }
 function showPauseMenu() {
   if (paused || !canPauseBattle() || isCombatInputLocked()) return;
+  /* 입장 연출 중에 멈추면 연출을 마저 돌리지 않고 끝낸 것으로 친다.
+     두 시계의 길이가 다르고(캔버스 강하 2.4초 / 레터박스 6초) 도는 자리도
+     달라서다 — 캔버스 쪽은 introProgress()가 «그리기» 중에 스스로 끝내는데
+     그리기는 멈춤 중에도 돌고, 레터박스 쪽은 afterFeedbackUpdate 에서
+     도는데 그 훅은 멈춤 중에 안 돈다. 그래서 멈췄다 돌아오면 판은 이미
+     열렸는데 레터박스·제목·자막이 그 위에 얹혀 있었다(실측 스크린샷).
+     이 파일이 :262에 적어 둔 「battleIntro만 끄면 건너뛰다 만 화면이
+     남는다」가 바로 이 모양이고, skipBattleIntro 가 둘을 함께 끄는 유일한
+     자리다. 멈춤을 누른 사람은 어차피 연출을 보고 있지 않다.
+     PAUSE_SKIPS_INTRO 를 false 로 하면 예전처럼 연출을 안고 멈춘다. */
+  if (PAUSE_SKIPS_INTRO && typeof skipBattleIntro === "function")
+    skipBattleIntro();
   paused = true;
   run = false;
   drag = null;
