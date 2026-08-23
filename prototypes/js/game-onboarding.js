@@ -7,11 +7,11 @@ if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
 const ONBOARDING_STORAGE = "stella-ball.onboarding.v1";
 const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
 const PARTY_SLOT_STORAGE = "stella-ball.party-slots.v1";
-const ONBOARDING_CARD_COUNT = 13;
+const ONBOARDING_CARD_COUNT = 17;
 /* 실습 한 발이 끝나면 그 단계의 «결과 카드»로 돌아온다. 개념 비트를 카드
    사이에 끼워 넣으면 결과 카드의 dialogue 인덱스가 밀리므로, 어느 자리에
    서는지 한곳에 표로 둔다: [0단계, 1단계, 2단계, 마지막]. */
-const ONBOARDING_RESULT_DIALOGUE = [1, 4, 1, 0];
+const ONBOARDING_RESULT_DIALOGUE = [1, 6, 3, 0];
 const onboardingStageSlots = stages[0].slots.map((point) => [...point]);
 let constellationReveal = null;
 function markStoryIntroSeen() {
@@ -466,13 +466,32 @@ function renderOnboarding() {
       },
       {
         n: 6,
-        title: "별지기와 부딪히면 각성을 준비해요.",
-        body: "유성이 별지기와 부딪히면 공명이 자동으로 일어나고, 별지기 둘레에 빛나는 고리가 켜집니다. 이 고리는 «각성 준비» 표시예요. 유성과 별지기가 모두 멈추면, 고리가 켜진 별지기가 현재 자리에서 자신의 고유 공격을 사용합니다. 부딪힌 자리에는 다음 별자리에 쓸 작은 별빛도 남아요.",
+        spot: "awaken-ring",
+        title: "부딪히면 공명해 고리가 켜져요.",
+        /* 각성 안내도 개념 하나씩으로 쪼갠다(2026-08-23). 판을 암전하고
+           손가락이 별지기를 짚어 «여기서 일어난다»를 몸으로 말한다. */
+        body: "유성이 별지기와 부딪히면 공명이 자동으로 일어나고, 별지기 둘레에 «각성 준비» 고리가 켜집니다.",
+        button: "다음 · 각성 공격",
+        action: "next-beat",
+      },
+      {
+        n: 7,
+        spot: "awaken-settle",
+        title: "모두 멈추면 각성 공격을 써요.",
+        body: "유성과 별지기가 모두 멈추면, 고리가 켜진 별지기가 그 자리에서 자신의 고유 공격을 사용합니다.",
+        button: "다음 · 남는 별빛",
+        action: "next-beat",
+      },
+      {
+        n: 8,
+        spot: "awaken-star",
+        title: "부딪힌 자리에 별빛이 남아요.",
+        body: "부딪힌 자리에는 다음 별자리에 쓸 작은 별빛이 남습니다. 이 별빛을 모아 별자리를 만들어요.",
         button: "각성까지 확인하고 발사",
         action: "practice",
       },
       {
-        n: 7,
+        n: 9,
         title:
           onboarding.aimed && onboarding.awakenedHero
             ? "각성 공격까지 확인했어요!"
@@ -494,17 +513,33 @@ function renderOnboarding() {
     ],
     [
       {
-        n: 8,
-        title: "남겨 둔 별빛으로 별자리를 만들어요.",
-        /* 판에는 북두칠성 안내별 일곱이 깔리고, 가르치는 손은 «별지기 셋만
-           찍기»다. 실전에서는 공명으로 모으는 재료임을 함께 밝혀, 수업이
-           매번 일곱 점을 공짜로 준다는 오해를 막는다. */
-        body: "이번 수업에서는 북두칠성을 바로 볼 수 있도록 보스 주위에 안내별 일곱을 놓았어요. 안내별은 누르지 말고, 별지기 위의 빛 세 곳만 고르세요. Space로 발사하면 남겨 둔 일곱 점이 이어져 북두칠성이 완성됩니다. 실전에서는 별지기와 부딪혀 이 작은 별빛을 모아요.",
+        n: 10,
+        spot: "figure-guide",
+        title: "보스 주위에 안내별 일곱을 놓았어요.",
+        /* 별자리 안내도 개념 하나씩으로 쪼갠다(2026-08-23). 판을 암전하고
+           손가락이 안내별을 훑어 «이건 남기는 것»을 보여 준다. */
+        body: "이번 수업에서는 북두칠성을 바로 볼 수 있도록 보스 주위에 안내별 일곱을 놓았어요. 안내별은 누르지 마세요.",
+        button: "다음 · 별지기 빛",
+        action: "next-beat",
+      },
+      {
+        n: 11,
+        spot: "figure-pick",
+        title: "별지기 위의 빛 세 곳만 고르세요.",
+        body: "조준에는 별지기 위의 빛 세 곳만 씁니다. 안내별은 건드리지 말고 그대로 남겨 두세요.",
+        button: "다음 · 완성",
+        action: "next-beat",
+      },
+      {
+        n: 12,
+        spot: "figure-complete",
+        title: "발사하면 북두칠성이 완성돼요.",
+        body: "Space로 발사하면 남긴 일곱 점이 이어져 북두칠성이 됩니다. 실전에서는 별지기와 부딪혀 이 작은 별빛을 모아요.",
         button: "안내별을 남기고 발사",
         action: "practice",
       },
       {
-        n: 9,
+        n: 13,
         title:
           onboarding.figureId === "bigdipper"
             ? "북두칠성이 완성됐어요!"
@@ -525,7 +560,7 @@ function renderOnboarding() {
          쪼갠다(2026-08-23 오너 지시). 각 비트는 판을 암전하고 그 개념이
          가리키는 요소를 스포트라이트+손가락으로 짚는다. */
       {
-        n: 10,
+        n: 14,
         spot: "recap-1",
         title: "실전 순서 ① 조준하고 발사",
         body: "별빛 세 곳을 고르고 Space로 발사합니다.",
@@ -533,7 +568,7 @@ function renderOnboarding() {
         action: "next-beat",
       },
       {
-        n: 11,
+        n: 15,
         spot: "recap-2",
         title: "실전 순서 ② 부딪혀 공명·각성 준비",
         body: "별지기와 부딪히면 공명하고 각성을 준비하며, 그 자리에 작은 별빛이 남습니다.",
@@ -541,7 +576,7 @@ function renderOnboarding() {
         action: "next-beat",
       },
       {
-        n: 12,
+        n: 16,
         spot: "recap-3",
         title: "실전 순서 ③ 멈추면 각성 공격",
         body: "모든 움직임이 멈추면 각성한 별지기가 고유 공격을 사용합니다.",
@@ -549,7 +584,7 @@ function renderOnboarding() {
         action: "next-beat",
       },
       {
-        n: 13,
+        n: 17,
         spot: "recap-4",
         title: "실전 순서 ④ 별빛을 남겨 별자리",
         body: "다음 발사 때 작은 별빛을 세 개 이상 남겨 두면, 유성이 출발하기 전에 별자리가 완성되어 먼저 공격합니다.",
@@ -1528,6 +1563,40 @@ function onboardingCardEmphasisTarget() {
       } else for (const g of gs) holes.push({ x: g.x, y: g.y, r: 50 });
       break;
     }
+    case "awaken-ring":
+      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 54 });
+      finger = gs[0] || null;
+      break;
+    case "awaken-settle": {
+      const g = gs[0] || null;
+      if (g) {
+        holes.push({ x: g.x, y: g.y, r: 56 });
+        finger = g;
+      }
+      break;
+    }
+    case "awaken-star": {
+      const g = gs[0] || null;
+      if (g) {
+        holes.push({ x: g.x, y: g.y, r: 50 });
+        finger = g;
+      }
+      if (boss) holes.push({ x: boss.x, y: boss.y, r: 54 });
+      break;
+    }
+    case "figure-guide":
+      for (const s of stars) holes.push({ x: s.x, y: s.y, r: 40 });
+      finger = mid(stars) || (boss ? { x: boss.x, y: boss.y } : null);
+      break;
+    case "figure-pick":
+      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 52 });
+      finger = gs[0] || null;
+      break;
+    case "figure-complete":
+      for (const s of stars) holes.push({ x: s.x, y: s.y, r: 38 });
+      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 44 });
+      finger = mid(stars);
+      break;
     case "recap-1":
       for (const g of gs) holes.push({ x: g.x, y: g.y, r: 52 });
       finger = gs[0] || null;

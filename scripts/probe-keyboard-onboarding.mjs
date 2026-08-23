@@ -172,12 +172,16 @@ try {
   if (!(await tabToAndPress("다음 · 벌림")))
     throw new Error("조준 벌림 카드 실패");
   if (!(await tabToAndPress("다음 · 각성")))
-    throw new Error("각성 사전 안내 카드 실패");
+    throw new Error("각성 공명 카드 실패");
+  if (!(await tabToAndPress("다음 · 각성 공격")))
+    throw new Error("각성 공격 카드 실패");
+  if (!(await tabToAndPress("다음 · 남는 별빛")))
+    throw new Error("남는 별빛 카드 실패");
   if (!(await tabToAndPress("각성까지 확인하고 발사")))
     throw new Error("2단계 실습 카드 실패");
   console.log("  " + (await aimAndFire(3)));
   await waitFor(
-    "!!onboarding?.aimed && !!onboarding?.awakenedHero && onboarding?.dialogue === 4 && onboarding?.panelVisible === true",
+    "!!onboarding?.aimed && !!onboarding?.awakenedHero && onboarding?.dialogue === 6 && onboarding?.panelVisible === true",
     25000,
   ).catch(() => {});
   s = JSON.parse(await evaluate(S));
@@ -189,6 +193,10 @@ try {
   console.log("\n════ 3단계 — 별자리");
   if (!(await tabToAndPress("다음 · 별자리")))
     throw new Error("3단계 안내 카드 실패");
+  if (!(await tabToAndPress("다음 · 별지기 빛")))
+    throw new Error("별자리 별지기 빛 카드 실패");
+  if (!(await tabToAndPress("다음 · 완성")))
+    throw new Error("별자리 완성 카드 실패");
   if (!(await tabToAndPress("안내별을 남기고 발사")))
     throw new Error("3단계 실습 카드 실패");
   console.log("  " + (await aimAndFire(3)));
