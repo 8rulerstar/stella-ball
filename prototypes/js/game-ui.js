@@ -39,6 +39,9 @@ function setScene(scene) {
   document.body.classList.toggle("meta-mode", scene === "meta");
   document.body.classList.toggle("menu-mode", scene === "menu");
   document.body.classList.toggle("game-mode", scene === "game");
+  // 씬에 배정된 곡으로 배경음을 바꾼다(game-bgm.js). 화면이 바뀌는 유일한
+  // 자리라 여기 한 번만 건다 — 잠금 전에는 «원하는 씬»만 기억된다.
+  if (typeof bgmToScene === "function") bgmToScene(scene);
   requestAnimationFrame(() => window.SkyAmbience?.layout());
   if (scene !== "game") {
     delete document.body.dataset.battleWorld;

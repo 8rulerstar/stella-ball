@@ -32,6 +32,9 @@ const expectedScripts = [
   "./js/game-core-physics.js",
   "./js/game-core-render.js",
   "./js/game-meta-state.js",
+  // 실제 곡 BGM. 오디오 엔진(meta-state)이 있어야 하고, 씬 훅(setScene)만
+  // 쓰므로 meta-state 뒤 어디든 되지만 오디오 이웃에 둔다.
+  "./js/game-bgm.js",
   "./js/game-meta.js",
   "./js/game-combat.js",
   "./js/game-combat-physics.js",

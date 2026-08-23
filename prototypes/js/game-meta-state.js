@@ -592,7 +592,12 @@ function startObservatoryScore(engine) {
 function syncAudio() {
   if (!audioEngine) return;
   audioEngine.master.gain.value = settings.master;
-  audioEngine.music.gain.value = settings.bgm;
+  /* 실제 곡(game-bgm.js)이 흐르는 동안은 합성 앰비언트를 눌러 곡과 겹치지
+     않게 한다. 곡이 없으면 1이라 앰비언트가 그대로 돌아온다. 곡 볼륨도 같은
+     슬라이더를 따라오게 여기서 함께 갱신한다. */
+  const duck = typeof bgmSynthDuck === "function" ? bgmSynthDuck() : 1;
+  audioEngine.music.gain.value = settings.bgm * duck;
+  if (typeof bgmRefreshVolume === "function") bgmRefreshVolume();
 }
 /* 메타 UI의 소리. 여태 합성 사각파 3종(confirm·flip·unlock)만 냈고, 50종
    샘플 팩은 전투 쪽만 썼다 — 그래서 팩의 `ui-01`~`ui-05`가 반입 이후 한 번도
