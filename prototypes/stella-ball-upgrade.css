@@ -345,20 +345,42 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   color: #97a0a4;
   font-size: 12px;
 }
+/* 단계 마커를 뜻이 있는 아이콘으로 — 별(선택)·화살(발사)·펄스링(공명)·
+   버스트(각성). 진행 표시는 밝기로 유지한다: 지금 단계만 또렷하고 나머지는
+   흐리다. 활성 규칙이 배경을 채우면 아이콘이 지워지므로, 채우기 대신 밝기·
+   글로만 준다. */
 .combat-flow li i {
   box-sizing: border-box;
-  width: 13px;
-  height: 13px;
-  border: 1px solid #596269;
-  transform: rotate(45deg);
+  width: 16px;
+  height: 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  image-rendering: auto;
+  opacity: 0.42;
+  transition:
+    opacity 0.18s ease,
+    filter 0.18s ease;
+}
+.combat-flow li[data-flow="select"] i {
+  background-image: url(../assets/library/icons/star/star-16.png);
+  image-rendering: pixelated;
+}
+.combat-flow li[data-flow="launch"] i {
+  background-image: url(../assets/library/ui/arrow-indicator.png);
+}
+.combat-flow li[data-flow="resonate"] i {
+  background-image: url(../assets/library/fx/pulse-wave.png);
+}
+.combat-flow li[data-flow="settle"] i {
+  background-image: url(../assets/library/icons/skill-ready.png);
 }
 .combat-flow li.active {
   color: #fff2c2;
 }
 .combat-flow li.active i {
-  border-color: #ffe09a;
-  background: #ffe09a;
-  box-shadow: 0 0 0 3px #ffe09a1f;
+  opacity: 1;
+  filter: drop-shadow(0 0 4px #ffe09a99);
 }
 .combat-flow p {
   min-height: 34px;
