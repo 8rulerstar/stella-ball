@@ -29,7 +29,7 @@ function finalizeBilliardShot() {
       run = false;
       return fail(
         bossDisplayName() +
-          "이 버텼습니다. 다른 노드 조합으로 항로를 바꿔보세요 — 넓게 벌릴수록 세게 나갑니다.",
+          "이 버텼습니다. 다른 별빛 조합으로 항로를 바꿔보세요. 서로 멀리 떨어진 별빛을 고를수록 세게 나갑니다.",
       );
     }
     // Position play is the point of billiards: the next meteor tees off from
@@ -37,7 +37,7 @@ function finalizeBilliardShot() {
     // stone, because their copy points the player at the bottom of the board.
     startShot(battle.tutorial ? null : restingPoint);
     msg =
-      "다음 샷 · 멈춘 자리에서 이어 갑니다. 노드를 셋 이상 찍고 Space로 발사하세요.";
+      "다음 샷 · 멈춘 자리에서 이어 갑니다. 별빛을 세 곳 이상 고르고 Space로 발사하세요.";
     toast("다음 샷 · 현재 위치에서 재개");
     sync();
   };
@@ -835,7 +835,7 @@ function aimFocus() {
    이름표에 키를 적는다. 이 안내가 필요한 사람은 정확히 그 경로로 온다.
    지금까지 전투에서 탭으로 닿는 것은 일시정지 버튼 하나뿐이었다. */
 const AIM_KEY_LEGEND =
-  "키보드로도 조준할 수 있습니다. 좌우 화살표로 노드를 옮기고, Enter로 찍거나 무르고, F로 반대편을 고르고, Backspace로 전부 무르고, Space로 발사합니다.";
+  "키보드로도 조준할 수 있습니다. 좌우 화살표로 별빛 사이를 옮기고, Enter로 고르거나 취소하고, F로 반대편을 고르고, Backspace로 전부 취소하고, Space로 발사합니다.";
 function equipAimKeyboardAffordance() {
   /* 스모크(smoke-runtime.mjs)는 진짜 DOM 없이 이 스크립트들을 돌린다 —
      document 는 있어도 getElementById 는 없다. 없는 자리에서 조용히
@@ -879,7 +879,7 @@ function announceAim(extra) {
       (node.label || (node.unit ? "별지기" : "별빛")) +
         (order >= 0 ? " · " + (order + 1) + "번으로 고름" : " · 안 고름"),
     );
-  parts.push("고른 노드 " + aimPick.length + "/" + AIM_STAR.minPick);
+  parts.push("고른 별빛 " + aimPick.length + "/" + AIM_STAR.minPick);
   if (aimPick.length >= AIM_STAR.minPick) {
     const shot = aimStarShot(aimPick);
     if (shot) parts.push("위력 " + Math.round(shot.force * 100) + "퍼센트");
@@ -1126,11 +1126,11 @@ function launchAimStarShot() {
      되지만, 발사가 가정을 쏘면 놀란다. */
   if (aimPick.length < AIM_STAR.minPick) {
     toast(
-      "노드 " +
+      "별빛 " +
         aimPick.length +
         "/" +
         AIM_STAR.minPick +
-        " · 별지기·별빛을 셋 이상 찍으세요",
+        " · 밝게 빛나는 곳을 세 군데 이상 고르세요",
     );
     // 거절도 연출이다 — HUD 카운트가 잠깐 붉게 흔들리고 낮게 톡 소리가 난다.
     aimDenyT = 0.5;
@@ -1139,7 +1139,7 @@ function launchAimStarShot() {
   }
   const shot = aimStarShot();
   if (!shot) {
-    toast("이 조합은 조준이 되지 않습니다 · 다른 노드로 바꿔보세요");
+    toast("이 조합으로는 조준할 수 없습니다 · 다른 별빛을 골라보세요");
     return false;
   }
   if (battle.stats) {
@@ -1196,7 +1196,7 @@ function launchAimStarShot() {
       shot.dx,
       shot.dy,
       shot.force,
-      "노드 조준 · 위력 " + Math.round(shot.force * 100) + "%",
+      "별빛 조준 · 위력 " + Math.round(shot.force * 100) + "%",
     );
     /* 조준 교습 배선(핸드오프 §패치가 못 하는 것 1·3). 슬롯·범례가 몇 샷
        뒤에 소등할지, 그리고 온보딩 조준 실습이 넘어갈지가 이 두 값을 본다.

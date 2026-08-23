@@ -43,7 +43,7 @@ These are ordered classic scripts sharing one global scope. Do not reorder their
 
 - `npm run verify` checks markers, runtime files, asset references, portability, and whitespace.
 - `npm run smoke` checks the document/runtime contract without a browser.
-- `npm run test:onboarding` drives the six-card tutorial, guaranteed pentagram, final battle, and reward in a fresh headless Chromium profile.
+- `npm run test:onboarding` drives the eight-card tutorial, awakening check, guided constellation, final battle, and reward in a fresh headless Chromium profile.
 - `npm run check` runs verification, smoke, and onboarding E2E in the handoff order.
 - `npm run format:check` checks formatting; use `npm run format` to apply it.
 
@@ -114,6 +114,11 @@ no-preference` over CDP first, or the sequence collapses to 0.42s and you are
   text-bearing keys as `keyDown` with `text`, not `rawKeyDown` - the page's own
   listeners see rawKeyDown but the browser's default action does not fire, so
   Enter will not press a focused button and the lesson never opens.
+- `node scripts/probe-onboarding-layout.mjs` - renders all eight lesson cards at
+  desktop and narrow widths, checks card/copy/button overflow, and verifies that
+  Luna's dialogue stays in the fixed lane between the boss banner and board.
+  It writes representative card and dialogue screenshots under
+  `artifacts/onboarding-layout/` for visual review.
 - `node scripts/probe-settlement.mjs` - the win and lose screens, reached the way a
   player reaches them. Fire with `fireMeteor()`, never by setting `ball.vx/vy`:
   the shot counter is decremented inside that function, so the shortcut rolls a

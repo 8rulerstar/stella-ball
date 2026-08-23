@@ -171,6 +171,7 @@ async function gameState() {
     steered: typeof onboarding === "undefined" ? false : Boolean(onboarding?.steered),
     parrySuccess: typeof onboarding === "undefined" ? false : Boolean(onboarding?.parrySuccess),
     figureResolved: typeof onboarding === "undefined" ? false : Boolean(onboarding?.figureResolved),
+    awakenedHero: typeof onboarding === "undefined" ? null : onboarding?.awakenedHero ?? null,
     parriedHero: typeof onboarding === "undefined" ? null : onboarding?.parriedHero ?? null,
     figure: typeof figureFx === "undefined" ? null : figureFx?.shape?.id ?? null,
     figurePoints: typeof figureFx === "undefined" ? 0 : figureFx?.drawn?.length ?? 0,
@@ -354,13 +355,17 @@ async function pressSpace() {
   record("key", { code: "Space" });
 }
 
-async function waitForLessonResult(phase, timeoutMs = 20000) {
+async function waitForLessonResult(
+  phase,
+  timeoutMs = 20000,
+  expectedDialogue = 1,
+) {
   return waitUntil(
     `lesson ${phase} result card`,
     async () => {
       const state = await gameState();
       return state.phase === phase &&
-        state.dialogue === 1 &&
+        state.dialogue === expectedDialogue &&
         state.panelVisible === true &&
         !state.transitioning
         ? state
@@ -383,32 +388,41 @@ async function runOnboarding() {
 
   await waitUntil(
     "lesson card 1",
-    async () => (await gameState()).card === "1 / 6",
+    async () => (await gameState()).card === "1 / 8",
   );
   await clickButton("유성 발사하기");
   await dragShot();
   const first = await waitForLessonResult(0);
   assert(first.bossHit, "Lesson 1 did not register the direct boss hit");
-  assert(first.card === "2 / 6", `Expected card 2 / 6, got ${first.card}`);
+  assert(first.card === "2 / 8", `Expected card 2 / 8, got ${first.card}`);
   record("lesson-pass", { lesson: 1, assertion: "bossHit" });
 
   /* 2026-08-21: 수업이 «조향·Space 패링»에서 «노드 조준·자동 공명·별빛
      경제»로 바뀌었다. 여정도 그대로 따라간다 — 카드 문구와 통과 조건이
      game-onboarding.js의 lessons 표와 한 몸이므로, 그쪽을 고치면 여기도
      같은 커밋에서 고쳐야 한다. */
-  await clickButton("다음 · 노드 조준");
+  await clickButton("다음 · 별빛으로 조준");
   await waitUntil(
     "lesson card 3",
-    async () => (await gameState()).card === "3 / 6",
+    async () => (await gameState()).card === "3 / 8",
   );
-  await clickButton("셋 찍고 Space로 발사");
+  await clickButton("다음 · 각성");
+  await waitUntil(
+    "lesson card 4",
+    async () => (await gameState()).card === "4 / 8",
+  );
+  await clickButton("각성까지 확인하고 발사");
   await nodeShot(3);
-  const second = await waitForLessonResult(1, 20000);
-  assert(second.card === "4 / 6", `Expected card 4 / 6, got ${second.card}`);
+  const second = await waitForLessonResult(1, 20000, 2);
+  assert(second.card === "5 / 8", `Expected card 5 / 8, got ${second.card}`);
   const aimed = await evaluate(
     "typeof onboarding === 'object' && onboarding ? !!onboarding.aimed : null",
   );
   assert(aimed === true, "Lesson 2 did not register a node-aimed shot");
+  assert(
+    Boolean(second.awakenedHero),
+    "Lesson 2 did not register a starkeeper awakening",
+  );
   const teachShots = await evaluate(
     "typeof aimTeach === 'object' && aimTeach ? aimTeach.shots : null",
   );
@@ -418,14 +432,18 @@ async function runOnboarding() {
     teachShots === 0,
     `aimTeach.shots consumed during lessons (got ${teachShots})`,
   );
-  record("lesson-pass", { lesson: 2, assertion: "nodeAimed" });
+  record("lesson-pass", {
+    lesson: 2,
+    assertion: "aimedAndAwakened",
+    awakenedHero: second.awakenedHero,
+  });
 
   await clickButton("다음 · 별자리");
   await waitUntil(
-    "lesson card 5",
-    async () => (await gameState()).card === "5 / 6",
+    "lesson card 6",
+    async () => (await gameState()).card === "6 / 8",
   );
-  await clickButton("별빛을 남기고 발사");
+  await clickButton("작은 별빛을 남겨 두고 발사");
   /* 별빛을 남겨야 별자리가 뜬다. 별지기 셋만 찍으면 별빛은 하나도 안 쓰이고
      전부 별자리 재료로 남는다 — 수업이 가르치는 손이 정확히 이것이다.
 
@@ -450,14 +468,19 @@ async function runOnboarding() {
     `Expected three or more starlight points, got ${resonance.figurePoints}`,
   );
   const third = await waitForLessonResult(2, 25000);
-  assert(third.card === "6 / 6", `Expected card 6 / 6, got ${third.card}`);
+  assert(third.card === "7 / 8", `Expected card 7 / 8, got ${third.card}`);
   record("lesson-pass", {
     lesson: 3,
     assertion: "figure",
     figure: resonance.figure,
   });
 
-  await clickButton("직접 잡아보기");
+  await clickButton("다음 · 실전 순서");
+  await waitUntil(
+    "lesson card 8",
+    async () => (await gameState()).card === "8 / 8",
+  );
+  await clickButton("순서 확인하고 실전 시작");
   const finalStart = await waitUntil("final battle", async () => {
     const state = await gameState();
     return state.phase === 3 && state.run && state.panelVisible === false
@@ -682,7 +705,16 @@ try {
         result: "passed",
         browser: basename(executable),
         durationMs: Date.now() - startedAt,
-        cards: ["1 / 6", "2 / 6", "3 / 6", "4 / 6", "5 / 6", "6 / 6"],
+        cards: [
+          "1 / 8",
+          "2 / 8",
+          "3 / 8",
+          "4 / 8",
+          "5 / 8",
+          "6 / 8",
+          "7 / 8",
+          "8 / 8",
+        ],
         figure: "pentagram",
         ...journey,
         events,

@@ -1849,7 +1849,7 @@ function drawAimStars() {
               " " +
               Math.round(preview.force * 100) +
               "%"
-          : "노드 " + p.length + "/" + AIM_STAR.minPick,
+          : "별빛 " + p.length + "/" + AIM_STAR.minPick,
         labelX,
         labelY - 18,
       );
@@ -1915,8 +1915,8 @@ function drawAimStars() {
     if (!picked && hovered) {
       /* 1e-4: 호버 한 줄 — 두 종류가 «무엇이 다른지»를 말한다. */
       const label = node.unit
-        ? "별지기 · 조준 전용"
-        : "별빛 · 안 쓰면 별자리 재료";
+        ? "별지기 위 별빛 · 조준 전용"
+        : "작은 별빛 · 남기면 별자리 완성";
       x.save();
       x.font = "700 11px Galmuri11, ui-monospace";
       const tw = x.measureText(label).width + 16,
@@ -1993,10 +1993,10 @@ function drawAimStars() {
     x.fillStyle = "#cfdad7";
     x.font = "11px Galmuri11, ui-monospace";
     x.textAlign = "left";
-    x.fillText("별지기 — 조준 노드 (별자리 안 탐)", 68, 84);
+    x.fillText("별지기 위 빛 — 조준에만 사용", 68, 84);
     pixelSparkle(52, 100, 7, "#ffe09acc", 2);
     x.fillStyle = "#cfdad7";
-    x.fillText("별빛 — 조준 + 남기면 별자리", 68, 104);
+    x.fillText("작은 별빛 — 남기면 별자리", 68, 104);
     x.restore();
   }
   /* 기믹 범례는 노드 범례와 «다른 조건»으로 산다. 노드 규칙은 세 샷이면
@@ -2026,12 +2026,12 @@ function drawAimStars() {
   x.textAlign = "center";
   x.fillText(
     aimPick.length >= AIM_STAR.minPick
-      ? "SPACE 발사   ·   우클릭 / Backspace 무르기"
-      : "노드 " +
+      ? "SPACE 발사   ·   우클릭 / Backspace 선택 취소"
+      : "별빛 " +
           aimPick.length +
           "/" +
           AIM_STAR.minPick +
-          "   ·   별지기와 별빛을 고르세요",
+          "   ·   밝게 빛나는 곳을 고르세요",
     W / 2 + denyShake,
     H - 11,
   );

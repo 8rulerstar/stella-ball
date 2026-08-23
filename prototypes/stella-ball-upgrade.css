@@ -131,22 +131,89 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
 }
 .game-mode .battle-column {
   position: relative;
+  width: min(720px, calc(80dvh - 134px));
 }
-.game-mode .luna-speech {
-  bottom: 8px;
-  width: min(520px, calc(100% - 20px));
+
+/* Dialogue and the persistent instruction share a reserved lane above the
+   board. The lane never jumps the canvas when Luna starts or stops speaking. */
+.battle-guidance {
+  display: none;
+}
+.game-mode .battle-guidance {
+  position: relative;
+  display: grid;
+  align-items: stretch;
+  width: 100%;
+  height: 72px;
+  min-height: 72px;
+  overflow: hidden;
+  border: 1px solid #42575d;
+  background: #0d161aec;
+  box-shadow:
+    0 3px 0 #04080a,
+    inset 0 0 0 1px #93b6b414;
+}
+.game-mode .battle-guidance .tip {
+  position: static;
+  display: flex !important;
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  min-height: 70px;
+  padding: 10px 15px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #d9e3e1;
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: left;
+  transform: none;
+  transition: opacity 0.16s ease;
+}
+.game-mode .battle-guidance .tip:empty {
+  display: flex !important;
+}
+.game-mode .battle-guidance:has(.luna-speech.show) .tip {
+  opacity: 0;
+}
+.game-mode .battle-guidance .luna-speech {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 70px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 0;
+  background: #111922f7;
+  box-shadow: inset 3px 0 0 #91b6bd;
+  transform: translateY(-7px);
+}
+.game-mode .battle-guidance .luna-speech.show {
+  transform: translateY(0);
+}
+.game-mode .battle-guidance .luna-speech-face {
+  width: 50px;
+  height: 50px;
+  border-color: #67858c;
+  border-radius: 4px;
+}
+.game-mode .battle-guidance .luna-speech-body b {
+  color: #9fc8c6;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+.game-mode .battle-guidance .luna-speech-text {
+  color: #edf4f2;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 @media (min-width: 1180px) and (min-height: 621px) {
-  .game-mode .luna-speech {
-    right: calc(100% + 12px);
-    bottom: 0;
-    left: auto;
-    width: 300px;
-    transform: translateY(12px);
-  }
-  .game-mode .luna-speech.show {
-    transform: translateY(0);
+  .game-mode .battle-guidance .luna-speech {
+    inset: 0;
+    width: 100%;
   }
 }
 .combat-flow ol {
@@ -261,7 +328,33 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
     line-height: 1.4;
   }
   .game-mode .stage {
-    width: min(720px, calc(80dvh - 202px));
+    width: min(720px, calc(80dvh - 260px));
+  }
+  .game-mode .battle-guidance {
+    height: 60px;
+    min-height: 60px;
+  }
+  .game-mode .battle-guidance .tip,
+  .game-mode .battle-guidance .luna-speech {
+    min-height: 58px;
+  }
+  .game-mode .battle-guidance .luna-speech {
+    padding: 7px 9px;
+  }
+  .game-mode .battle-guidance .luna-speech-face {
+    width: 42px;
+    height: 42px;
+  }
+  .game-mode .battle-guidance .luna-speech-text {
+    font-size: 11px;
+  }
+  .onboarding-dock .onboarding-card button[data-pbtn] {
+    color: #fff7e2 !important;
+    text-shadow:
+      -1px 0 0 #54260d,
+      1px 0 0 #54260d,
+      0 -1px 0 #54260d,
+      0 2px 0 #54260d !important;
   }
 }
 
@@ -279,7 +372,7 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
 
 @media (max-height: 620px) and (min-width: 761px) {
   .game-mode .battle-column {
-    width: min(720px, calc(80dvh - 116px));
+    width: min(720px, calc(80dvh - 174px));
   }
 }
 /* 나머지 규칙은 셀렉터를 유지한다 — 전투에서만 보이지만 모양은 한 곳에서

@@ -6,15 +6,17 @@ The onboarding is the highest-value first-session path and the only place that p
 
 ## Journey and assertions
 
-|  Card | Player action                                                     | Required evidence                                                                                |
-| ----: | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-|     1 | Click the tutorial CTA, reveal the card, drag the meteor downward | The live damage hook records a boss hit                                                          |
-|     2 | Read the result and continue                                      | The card is exactly `2 / 6` and cannot advance before settlement                                 |
-|     3 | Drag, then click the moving meteor twice                          | Only the first click emits `afterMeteorSteer`; combined steering stays one use per shot          |
-|     4 | Read the steering result and continue                             | The live onboarding state records the consumed steer                                             |
-|     5 | Drag on Luna's locked route, then press physical `Space`          | Aim assist is active, the genuine contact is Mirinae, and the single guide charge is consumed    |
-|     6 | Wait through correction, reveal, and cast                         | The resolved figure is `pentagram` with exactly five points and the success copy is visible      |
-| Final | Enter the starter-party battle and use real drag/Space input      | The normal win hook opens `첫 관측자의 증명`, unlocks slot 3, and grants exactly one free summon |
+|  Card | Player action                                                        | Required evidence                                                                                |
+| ----: | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+|     1 | Read the firing rule, then drag and release the meteor               | The live damage hook records a boss hit                                                          |
+|     2 | Read the direct-hit result and the upcoming resonance preview        | The card is exactly `2 / 8` and cannot advance before settlement                                 |
+|     3 | Read how three starlight selections determine direction and strength | No gameplay starts before the player advances to the awakening explanation                       |
+|     4 | Read resonance, awakening-ready, settlement attack, and starlight    | The next browser input selects three points and launches only after this card                    |
+|     5 | Read the result of the selection and awakening practice              | The state records both a selected shot and the id of an awakened starkeeper                      |
+|     6 | Leave the three seeded small starlights unselected and launch        | The real figure path resolves three or more points                                               |
+|     7 | Read the constellation result                                        | The resolved figure is visible before the final sequence explanation                             |
+|     8 | Read the complete select → launch → resonate → awaken → figure order | The final battle cannot start until the player confirms this card                                |
+| Final | Enter the starter-party battle and use real selection/Space input    | The normal win hook opens `첫 관측자의 증명`, unlocks slot 3, and grants exactly one free summon |
 
 The final battle starts with its production value of 120 HP and the expected `gaon`, `biyeon`, `ria` party. After asserting those values, the runner changes the isolated boss fixture to 1 HP so CI verifies progression and reward wiring without spending time measuring combat balance. The next real browser input must still reach the normal damage, victory, and onboarding completion paths.
 
@@ -27,7 +29,7 @@ The final battle starts with its production value of 120 HP and the expected `ga
 ## Intentional gaps
 
 - The E2E does not approve pixels or compare screenshots.
-- It checks that Space and the pentagram resolve, not the quality or loudness of sound.
+- It checks that Space, awakening, and the guided constellation resolve, not the quality or loudness of sound.
 - The 1-HP fixture means this test must not be used as final-battle balance evidence.
 - Failure/retry copy remains covered by state-level checks when that branch changes; this golden path deliberately tests success without retrying.
 

@@ -28,8 +28,8 @@
           <div class="tag">전략 당구 × 파티 조합 / 수직 슬라이스</div>
           <h1>STELLA BALL</h1>
           <p>
-            유성을 굴려 별빛을 모으고, 노드 셋을 찍어 조준하세요. 남긴 별빛이
-            별자리가 됩니다.
+            유성을 굴려 별빛을 만들고, 빛나는 곳을 세 군데 골라 조준하세요.
+            고르지 않고 남겨 둔 별빛이 별자리가 됩니다.
           </p>
         </div>
         <button onclick="showMeta()">메인</button>
@@ -60,7 +60,7 @@
             id="blazeCard"
             data-heat="0"
             aria-live="polite"
-            title="별지기와 부딪히면 자동으로 공명해 별빛이 남습니다. 조준에 쓰지 않은 별빛 셋부터 별자리가 발동합니다."
+            title="유성이 별지기와 부딪히면 자동으로 공명하고 각성을 준비하며, 그 자리에 작은 별빛이 남습니다. 다음 발사 때 남겨 둔 별빛이 세 개 이상이면 별자리가 완성됩니다."
           >
             <span class="blaze-score-label">CONSTELLATION</span
             ><b id="blazeValue">×1.0</b
@@ -69,7 +69,7 @@
           <section class="combat-flow" id="combatFlow" aria-label="전투 흐름">
             <ol>
               <li data-flow="select">
-                <i aria-hidden="true"></i><span>노드 선택</span>
+                <i aria-hidden="true"></i><span>별빛 선택</span>
               </li>
               <li data-flow="launch">
                 <i aria-hidden="true"></i><span>발사</span>
@@ -78,7 +78,7 @@
                 <i aria-hidden="true"></i><span>공명</span>
               </li>
               <li data-flow="settle">
-                <i aria-hidden="true"></i><span>정산</span>
+                <i aria-hidden="true"></i><span>각성 공격</span>
               </li>
             </ol>
             <p id="combatPrompt" aria-live="polite">전투를 준비합니다</p>
@@ -92,6 +92,13 @@
             </div>
             <div class="meter hp"><i id="hpFill"></i></div>
             <div class="combo-readout" id="comboText">COMBO —</div>
+          </section>
+          <section
+            class="battle-guidance"
+            id="battleGuidance"
+            aria-label="현재 전투 안내"
+          >
+            <div class="tip" id="tip" aria-live="polite"></div>
           </section>
           <section class="stage">
             <!-- 캔버스에는 정체를 준다. 스크린리더에게 이 판은 지금까지
@@ -107,7 +114,6 @@
             ></canvas>
             <div class="toast" id="toast"></div>
             <div class="impact-flash" id="impactFlash"></div>
-            <div class="tip" id="tip" aria-live="polite"></div>
             <div id="overlay" class="overlay"></div>
             <div
               class="onboarding-dock"

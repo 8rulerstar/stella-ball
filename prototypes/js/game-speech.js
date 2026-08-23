@@ -94,8 +94,8 @@ function say(who, text, opts = {}) {
   else speechQueue.push(bubble);
 }
 
-/* 루나는 판 밖 아래에 선다. 이 자리는 매 프레임 갱신되지 않으므로 DOM이어도
-   프레임 예산을 건드리지 않는다. */
+/* 루나는 보스 정보와 전장 사이의 고정 안내 띠에 선다. 이 자리는 매 프레임
+   갱신되지 않으므로 DOM이어도 프레임 예산을 건드리지 않는다. */
 let lunaTimer = 0;
 function sayLuna(text, opts = {}) {
   const dock = document.querySelector("#lunaSpeech") ?? buildLunaDock();
@@ -109,7 +109,9 @@ function sayLuna(text, opts = {}) {
   );
 }
 function buildLunaDock() {
-  const host = document.querySelector(".stage")?.parentElement;
+  const host =
+    document.querySelector("#battleGuidance") ||
+    document.querySelector(".stage")?.parentElement;
   if (!host) return null;
   const dock = document.createElement("div");
   dock.id = "lunaSpeech";

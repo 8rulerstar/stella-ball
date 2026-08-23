@@ -93,6 +93,7 @@ const S = `JSON.stringify({
   phase: typeof onboarding !== "undefined" ? onboarding?.phase : "없음",
   bossHit: typeof onboarding !== "undefined" ? !!onboarding?.bossHit : false,
   aimed: typeof onboarding !== "undefined" ? !!onboarding?.aimed : false,
+  awakened: typeof onboarding !== "undefined" ? onboarding?.awakenedHero ?? null : null,
   figure: typeof onboarding !== "undefined" ? !!onboarding?.figureResolved : false,
   nodes: typeof aimNodes === "function" ? aimNodes().length : -1,
   picks: typeof aimPick !== "undefined" ? aimPick.length : -1,
@@ -116,7 +117,7 @@ async function aimAndFire(picks = 3) {
   if (before.nodes <= 0) {
     // 노드가 없는 판(수업 1단계) — 드래그의 키보드 대응물로 바로 쏜다.
     await press("Space", 900);
-    return "노드 0개 · Space 로 바로 발사";
+    return "조준 별빛 0개 · Space 로 바로 발사";
   }
   /* 커서가 없을 때의 첫 Enter 는 «커서를 세우는» 동작이다 — 어디를 찍을지
      들려주고 나서 찍게 하는 것이 설계다. 그래서 화살표로 커서를 먼저
@@ -128,7 +129,7 @@ async function aimAndFire(picks = 3) {
   }
   const mid = JSON.parse(await evaluate(S));
   await press("Space", 900);
-  return `노드 ${before.nodes}개 · 찍기 ${mid.picks}개 · Space`;
+  return `조준 별빛 ${before.nodes}개 · 선택 ${mid.picks}개 · Space`;
 }
 
 try {
@@ -147,7 +148,7 @@ try {
     throw new Error("수업 진입 실패");
   await delay(2500);
 
-  console.log("\n════ 1단계 — 드래그를 가르치는 판 (노드 0개)");
+  console.log("\n════ 1단계 — 드래그를 가르치는 판 (조준 별빛 0개)");
   if (!(await tabToAndPress("유성 발사하기")))
     throw new Error("1단계 카드 실패");
   console.log("  " + (await aimAndFire()));
@@ -161,21 +162,28 @@ try {
   /* 카드 순서는 test-onboarding-e2e.mjs 의 여정과 같아야 한다. 안내 카드
      뒤에 실습을 «여는» 카드가 하나 더 있는데, 그것을 빠뜨리면 입력이 잠긴
      채로 키를 눌러 「찍기가 모자라다」로 보인다 — 실제로 그렇게 읽었다. */
-  console.log("\n════ 2단계 — 노드 조준");
-  if (!(await tabToAndPress("다음 · 노드 조준")))
+  console.log("\n════ 2단계 — 별빛 조준");
+  if (!(await tabToAndPress("다음 · 별빛으로 조준")))
     throw new Error("2단계 안내 카드 실패");
-  if (!(await tabToAndPress("셋 찍고 Space로 발사")))
+  if (!(await tabToAndPress("다음 · 각성")))
+    throw new Error("각성 사전 안내 카드 실패");
+  if (!(await tabToAndPress("각성까지 확인하고 발사")))
     throw new Error("2단계 실습 카드 실패");
   console.log("  " + (await aimAndFire(3)));
-  await waitFor("!!onboarding?.aimed", 25000).catch(() => {});
+  await waitFor(
+    "!!onboarding?.aimed && !!onboarding?.awakenedHero && onboarding?.dialogue === 2 && onboarding?.panelVisible === true",
+    25000,
+  ).catch(() => {});
   s = JSON.parse(await evaluate(S));
-  console.log(`  노드 조준 완료 ${s.aimed ? "예" : "✗ 아니오"}`);
-  if (!s.aimed) throw new Error("2단계에서 갇혔다");
+  console.log(
+    `  별빛 조준 ${s.aimed ? "완료" : "실패"} · 각성 ${s.awakened || "실패"}`,
+  );
+  if (!s.aimed || !s.awakened) throw new Error("2단계에서 갇혔다");
 
   console.log("\n════ 3단계 — 별자리");
   if (!(await tabToAndPress("다음 · 별자리")))
     throw new Error("3단계 안내 카드 실패");
-  if (!(await tabToAndPress("별빛을 남기고 발사")))
+  if (!(await tabToAndPress("작은 별빛을 남겨 두고 발사")))
     throw new Error("3단계 실습 카드 실패");
   console.log("  " + (await aimAndFire(3)));
   await waitFor("!!onboarding?.figureResolved", 30000).catch(() => {});
@@ -184,8 +192,11 @@ try {
     `  별자리 성립 ${s.figure ? "예" : "✗ 아니오"} · 단계 ${s.phase}`,
   );
 
-  console.log("\n════ 4단계 — 실전");
-  await tabToAndPress("직접 잡아보기").catch(() => {});
+  console.log("\n════ 4단계 — 실전 순서 확인");
+  if (!(await tabToAndPress("다음 · 실전 순서")))
+    throw new Error("실전 순서 안내 진입 실패");
+  if (!(await tabToAndPress("순서 확인하고 실전 시작")))
+    throw new Error("실전 시작 실패");
   for (let shot = 0; shot < 8; shot += 1) {
     const now = JSON.parse(
       await evaluate("JSON.stringify({done: battleComplete, hp: boss?.hp})"),

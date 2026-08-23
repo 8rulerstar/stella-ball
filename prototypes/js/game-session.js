@@ -97,7 +97,7 @@ function setupBattle() {
       : s.guideStarCharges
         ? s.name + " · 첫 공명이 안내별 둘을 밝혀 별자리를 돕습니다."
         : s.name +
-          " · 노드를 셋 찍고 Space로 발사, 남긴 별빛이 별자리가 됩니다.";
+          " · 별빛 세 곳을 고르고 Space로 발사하세요. 남겨 둔 작은 별빛이 별자리가 됩니다.";
   toast(
     s.training
       ? "훈련 시작 · " + bossDisplayName()
@@ -816,7 +816,7 @@ function outcomeCine(
 
 function failureAdvice() {
   const stats = battle?.stats;
-  if (!stats) return "다른 노드 조합으로 첫 충돌 경로를 바꿔보세요.";
+  if (!stats) return "다른 별빛 조합으로 첫 충돌 경로를 바꿔보세요.";
   if (stats.weakHits === 0)
     return "약점 명중이 없었습니다. 거상 둘레의 밝은 핵을 먼저 노리세요.";
   if (stats.orbitHits >= 2)
@@ -831,7 +831,7 @@ function failureAdvice() {
       return (
         "평균 조준 위력 " +
         Math.round(averageForce * 100) +
-        "%였습니다. 노드를 더 넓게 벌려 고르세요."
+        "%였습니다. 서로 멀리 떨어진 별빛을 골라보세요."
       );
   }
   if (stats.wallHits >= 3)
@@ -1226,12 +1226,12 @@ function combatFlowState() {
   if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
     return {
       id: "settle",
-      prompt: "남은 별빛과 각성 효과를 정산하는 중",
+      prompt: "별자리가 끝나면 각성한 별지기가 고유 공격을 사용합니다",
     };
   if (ball?.moving)
     return {
       id: "resonate",
-      prompt: "충돌로 별빛과 별자리 배율을 모으는 중",
+      prompt: "별지기와 부딪히면 공명하고 각성을 준비하며 별빛이 남습니다",
     };
   const nodeAim = typeof aimStarReady === "function" && aimStarReady();
   if (!nodeAim)
@@ -1241,11 +1241,11 @@ function combatFlowState() {
     return {
       id: "select",
       prompt:
-        "노드 " +
+        "별빛 " +
         aimPick.length +
         "/" +
         minimum +
-        " · 넓게 고를수록 강해집니다",
+        " · 서로 멀리 고를수록 강해집니다",
     };
   const preview = typeof aimStarShot === "function" ? aimStarShot() : null;
   const force = preview?.force ?? 0;
