@@ -340,6 +340,7 @@
     { every: [34000, 48000], fn: guestRocket, guest: true },
     { every: [52000, 70000], fn: guestUfo, guest: true },
     { every: [78000, 96000], fn: guestAlien, guest: true },
+    { every: [88000, 112000], fn: guestSatellite, guest: true },
   ];
   function schedule() {
     for (var i = 0; i < slots.length; i++) plan(slots[i], 1200 * (i + 1));
@@ -510,6 +511,37 @@
     }, 6000);
     endGuest(img, 6000);
   }
+  /* 인공위성. 여백 하늘 위쪽을 천천히 가로지르며 신호등을 깜빡인다.
+     로켓(수직)·UFO(정지)·외계인(보행)과 겹치지 않는 수평 저속 표류다.
+     움직임은 transform 으로 준다 — 손님 셋을 layout→transform 으로 옮긴
+     2026-08-23 성능 수정과 같은 규칙이다. */
+  function guestSatellite() {
+    var band = marginBand();
+    if (!band) return;
+    guestBusy = true;
+    var top = 10 + Math.random() * 22;
+    var img = guestSprite(
+      "satelliteA",
+      "left:" +
+        (band.x0 - 60).toFixed(0) +
+        "px;top:" +
+        top.toFixed(0) +
+        "%;width:46px;transition:transform 6.4s linear",
+    );
+    setTimeout(function () {
+      img.style.transform = "translateX(" + (band.w + 120).toFixed(0) + "px)";
+    }, 30);
+    var on = true,
+      blink = setInterval(function () {
+        if (!img.isConnected) return clearInterval(blink);
+        on = !on;
+        img.src = window.StellaPixelUI.sprite(on ? "satelliteA" : "satelliteB");
+      }, 520);
+    setTimeout(function () {
+      clearInterval(blink);
+    }, 6400);
+    endGuest(img, 6800);
+  }
   function driftCloud() {
     var left = Math.random() < 0.5;
     var d = el(
@@ -660,7 +692,12 @@
     /* 손님 소품은 34~96초에 한 번 오므로 기다려서는 확인할 수 없다. QA와
        회귀 확인용으로 한 번 부르는 창구를 연다 — 게임 로직은 이걸 쓰지 않는다. */
     guest: function (which) {
-      var fns = { rocket: guestRocket, ufo: guestUfo, alien: guestAlien };
+      var fns = {
+        rocket: guestRocket,
+        ufo: guestUfo,
+        alien: guestAlien,
+        satellite: guestSatellite,
+      };
       var fn = fns[which];
       if (!fn) return Object.keys(fns);
       guestBusy = false;
