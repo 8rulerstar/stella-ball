@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The onboarding is the highest-value first-session path and the only place that promises a guaranteed five-point pentagram. `npm run test:onboarding` opens the real game in a fresh headless Chrome/Edge profile and drives browser-level mouse and keyboard input. It uses no third-party test package; the package script enables Node.js 20's built-in WebSocket client and talks to Chromium through the DevTools protocol.
+The onboarding is the highest-value first-session path and the only place that promises a guaranteed seven-point Big Dipper. `npm run test:onboarding` opens the real game in a fresh headless Chrome/Edge profile and drives browser-level mouse and keyboard input. It uses no third-party test package; the package script enables Node.js 20's built-in WebSocket client and talks to Chromium through the DevTools protocol.
 
 ## Journey and assertions
 
@@ -13,8 +13,8 @@ The onboarding is the highest-value first-session path and the only place that p
 |     3 | Read how three starlight selections determine direction and strength | No gameplay starts before the player advances to the awakening explanation                       |
 |     4 | Read resonance, awakening-ready, settlement attack, and starlight    | The next browser input selects three points and launches only after this card                    |
 |     5 | Read the result of the selection and awakening practice              | The state records both a selected shot and the id of an awakened starkeeper                      |
-|     6 | Leave the three seeded small starlights unselected and launch        | The real figure path resolves three or more points                                               |
-|     7 | Read the constellation result                                        | The resolved figure is visible before the final sequence explanation                             |
+|     6 | Leave the seven seeded guide stars unselected and launch             | The real figure path resolves exactly seven points as `bigdipper`                                |
+|     7 | Read the Big Dipper result                                           | The resolved figure and its meteor-refund ability are explained before the final sequence        |
 |     8 | Read the complete select → launch → resonate → awaken → figure order | The final battle cannot start until the player confirms this card                                |
 | Final | Enter the starter-party battle and use real selection/Space input    | The normal win hook opens `첫 관측자의 증명`, unlocks slot 3, and grants exactly one free summon |
 

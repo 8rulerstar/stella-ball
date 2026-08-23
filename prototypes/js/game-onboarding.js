@@ -286,6 +286,7 @@ function setOnboardingPhase(phase) {
     aimed: false,
     awakenedHero: null,
     figurePoints: 0,
+    figureId: null,
     figureResolved: false,
     parriedHero: null,
     launched: finalLesson,
@@ -294,15 +295,15 @@ function setOnboardingPhase(phase) {
     panelVisible: !finalLesson,
   };
   setupBattle();
-  // 별빛 경제 수업(phase 2)은 안내별 보정으로 «남긴 별빛» 양자리 한 번을
-  // 보장한다 — 실전과 같은 규칙(자동 공명·별빛 경제)의 3점 도형이다.
+  // 별빛 경제 수업(phase 2)은 안내별 보정으로 «남긴 별빛» 북두칠성 한 번을
+  // 보장한다. 일곱 점을 남겨 최고 단계 별자리까지 이어지는 흐름을 보여 준다.
   // 실전 수업(phase 3)은 보정 없이 캠페인과 같은 규칙으로 돈다.
   /* 안내별 «충전»은 쓰지 않는다(0). 충전 경로의 전시 판정은 아직 옛
      pentagram 수업의 것이라, 켜 두면 첫 공명에서 「별을 둘 얹어 뒀어요」
      같은, 이 수업이 가르치지 않는 두-별 서사가 독에 떠 한 화자가 두
-     이야기를 하게 된다 — 안내별 셋은 아래에서 직접 깐다. */
+     이야기를 하게 된다 — 안내별 일곱은 아래에서 직접 깐다. */
   battle.guideStarCharges = 0;
-  battle.guideFigure = phase === 2 ? "aries" : null;
+  battle.guideFigure = phase === 2 ? "bigdipper" : null;
   /* 별빛을 미리 깐다 — 이것이 문안이 말하는 「루나의 안내별」이다.
 
      노드 경제에서 별자리는 «이전 샷이 남긴» 별빛으로 발동한다
@@ -311,22 +312,17 @@ function setOnboardingPhase(phase) {
      않으면 이 수업은 «구조적으로» 별자리를 못 보여준다 — 첫 샷은 재료를
      만들 뿐이고 그것을 태울 둘째 샷이 없다.
 
-     보스 둘레 삼각형으로 셋을 놓아, 별지기 셋만 찍고 쏘면(수업이 가르치는
-     그 손) 남은 셋이 그대로 양자리가 되고 보스를 감싼다. 실전 규칙은 그대로다
-     — 별빛을 «주는» 것이지 규칙을 바꾸는 것이 아니다. */
+     북두칠성 뼈대대로 일곱 점을 놓아, 별지기 셋만 찍고 쏘면(수업이 가르치는
+     그 손) 남은 일곱 점이 그대로 북두칠성이 된다. 실전 규칙은 그대로다 —
+     별빛을 «주는» 것이지 규칙을 바꾸는 것이 아니다. */
   if (phase === 2 && typeof dropAimStar === "function" && boss) {
-    /* 세 번째 점은 [0, 165]였는데 그 좌표가 2단계 가온의 슬롯(360, 405)과
-       정확히 겹쳤다 — 안내별이 별지기 머리 위에 앉아, 남길 것과 찍을 것이
-       한 자리에 포개졌다. 위로 올려도 삼각형은 여전히 거상을 감싼다. */
-    const ring = [
-      [-150, -95],
-      [155, -90],
-      [0, 95],
-    ];
-    for (const [ox, oy] of ring)
+    const template = StellaRuntime.modules
+      .require("figure")
+      .templatePoints("bigdipper");
+    for (const point of template)
       dropAimStar(
-        clamp(boss.x + ox, 30, W - 30),
-        clamp(boss.y + oy, 30, H - 30),
+        clamp(boss.x + point.x * 175, 30, W - 30),
+        clamp(boss.y + point.y * 175, 30, H - 30),
         "#ffd27f",
         "안내별",
       );
@@ -334,7 +330,7 @@ function setOnboardingPhase(phase) {
   msg = [
     "도우미 루나 · 유성을 보스에게 곧장 보내 보세요.",
     "도우미 루나 · 별빛 세 곳을 고른 뒤, 별지기와 부딪혀 각성을 준비하세요.",
-    "도우미 루나 · 보스 주위의 작은 별빛은 누르지 말고 남겨 두세요.",
+    "도우미 루나 · 보스 주위의 안내별 일곱은 누르지 말고 남겨 두세요.",
     "실전 · 별지기와 부딪혀 별빛을 만들고, 남긴 별빛으로 별자리를 완성하세요.",
   ][phase];
   sync();
@@ -473,26 +469,31 @@ function renderOnboarding() {
       {
         n: 6,
         title: "남겨 둔 별빛으로 별자리를 만들어요.",
-        /* 판에는 안내별이 «셋» 깔리고, 가르치는 손은 «별지기 셋만 찍기»다.
-           예전 문안 「별빛 하나만 남기고」는 개수도 행동도 판과 달랐고
-           6/6 실패 문안(「셋 이상 남긴 채로」)과도 모순이었다 — 깔린 것과
-           할 일을 그대로 말한다. */
-        body: "이번 판에는 보스 주위에 작은 별빛 세 개를 미리 놓았어요. 그 별빛은 누르지 말고, 별지기 위에 켜진 별빛 세 곳만 고르세요. Space로 발사하면 남겨 둔 세 개가 이어져 별자리가 완성됩니다.",
-        button: "작은 별빛을 남겨 두고 발사",
+        /* 판에는 북두칠성 안내별 일곱이 깔리고, 가르치는 손은 «별지기 셋만
+           찍기»다. 실전에서는 공명으로 모으는 재료임을 함께 밝혀, 수업이
+           매번 일곱 점을 공짜로 준다는 오해를 막는다. */
+        body: "이번 수업에서는 북두칠성을 바로 볼 수 있도록 보스 주위에 안내별 일곱을 놓았어요. 안내별은 누르지 말고, 별지기 위의 빛 세 곳만 고르세요. Space로 발사하면 남겨 둔 일곱 점이 이어져 북두칠성이 완성됩니다. 실전에서는 별지기와 부딪혀 이 작은 별빛을 모아요.",
+        button: "안내별을 남기고 발사",
         action: "practice",
       },
       {
         n: 7,
-        title: onboarding.figureResolved
-          ? "첫 별자리가 완성됐어요!"
-          : "별자리를 완성할 별빛이 부족했어요.",
-        body: onboarding.figureResolved
-          ? "고른 별빛은 유성의 방향을 정하고, 고르지 않은 작은 별빛은 서로 이어져 별자리를 만듭니다. 별지기 위의 빛은 조준에만 쓰이고 사라지지 않아요. 마지막으로 실전에서 일어날 전체 순서를 확인할게요."
-          : "보스 주위의 작은 별빛까지 조준에 골라 버리면 별자리를 만들 빛이 부족해져요. 작은 별빛 세 개는 누르지 말고, 별지기 위의 빛 세 곳만 골라 다시 발사해 보세요.",
-        button: onboarding.figureResolved ? "다음 · 실전 순서" : "다시 시도",
+        title:
+          onboarding.figureId === "bigdipper"
+            ? "북두칠성이 완성됐어요!"
+            : "별자리를 완성할 별빛이 부족했어요.",
+        body:
+          onboarding.figureId === "bigdipper"
+            ? "남겨 둔 안내별 일곱이 국자 모양의 북두칠성으로 이어졌어요. 고른 빛은 유성의 방향을 정하고, 고르지 않은 작은 별빛은 별자리를 만듭니다. 북두칠성은 유성을 한 발 되찾아 줘요. 마지막으로 실전의 전체 순서를 확인할게요."
+            : "보스 주위의 안내별까지 조준에 골라 버리면 북두칠성을 만들 일곱 점이 부족해져요. 안내별은 누르지 말고, 별지기 위의 빛 세 곳만 골라 다시 발사해 보세요.",
+        button:
+          onboarding.figureId === "bigdipper"
+            ? "다음 · 실전 순서"
+            : "다시 시도",
         // The showcase is the promise of the combat system. Do not let a
         // skipped practice advance before the player has actually seen it.
-        action: onboarding.figureResolved ? "explain-final" : "practice",
+        action:
+          onboarding.figureId === "bigdipper" ? "explain-final" : "practice",
       },
       {
         n: 8,
@@ -583,6 +584,7 @@ function showOnboardingTutorial(replay = false) {
     bossHit: false,
     parrySuccess: false,
     figureResolved: false,
+    figureId: null,
     parriedHero: null,
     launched: false,
     settled: false,
@@ -720,6 +722,7 @@ registerRuntimeHook("afterFigureResolve", ({ points }) => {
   if (!onboarding || !points || points.length < 3) return;
   onboarding.figureResolved = true;
   onboarding.figurePoints = points.length;
+  onboarding.figureId = points.length === 7 ? "bigdipper" : null;
 });
 registerRuntimeHook("afterFigureShot", ({ missed, resolved }) => {
   if (onboarding?.phase === 2 && !missed && resolved)
@@ -1320,7 +1323,7 @@ function onboardingLessonGuideActive() {
 function drawOnboardingGuide() {
   if (!run || !onboardingLessonGuideActive() || !ball || ball.moving) return;
   /* 별자리 현현이 도는 동안(입력 잠금)은 가이드도 접는다. 2단계는 발사
-     순간 양자리가 뜨는데, 어둠막이 그 위를 덮으면 수업이 약속한 보상이
+     순간 북두칠성이 뜨는데, 어둠막이 그 위를 덮으면 수업이 약속한 보상이
      어둠 속에서 재생되고 손가락은 잠긴 클릭을 유도한다. */
   if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
     return;

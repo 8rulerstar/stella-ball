@@ -33,8 +33,8 @@ for (const size of sizes) {
       "setOnboardingPhase(1); onboarding.dialogue=1",
       "setOnboardingPhase(1); onboarding.aimed=true; onboarding.awakenedHero='gaon'; onboarding.dialogue=2",
       "setOnboardingPhase(2); onboarding.dialogue=0",
-      "setOnboardingPhase(2); onboarding.figureResolved=true; onboarding.dialogue=1",
-      "setOnboardingPhase(2); onboarding.figureResolved=true; onboarding.dialogue=2",
+      "setOnboardingPhase(2); onboarding.figureResolved=true; onboarding.figureId='bigdipper'; onboarding.dialogue=1",
+      "setOnboardingPhase(2); onboarding.figureResolved=true; onboarding.figureId='bigdipper'; onboarding.dialogue=2",
     ];
     for (let index = 0; index < states.length; index += 1) {
       const card = await probe.evaluate(`(() => {

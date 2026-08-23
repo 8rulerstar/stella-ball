@@ -13,15 +13,15 @@
 
 ## Completed in the 2026-08-13 maintenance passes
 
-| Resolved debt                            | Result                                                                                                                               |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Global function replacement chains       | Reduced from 37 names to 0; `npm run smoke` now rejects every duplicate definition and function-alias replacement                    |
-| Per-dispatch hook-list copies            | Hooks now use immutable copy-on-write snapshots, so frame dispatch performs no callback-list copy                                    |
-| Clone-ball cleanup allocation            | Physics compacts `cloneBalls` in place and uses squared settle comparisons                                                           |
-| Cross-file arena replacement             | `game-arena-carve.js` installs an owner-controlled `render` strategy                                                                 |
-| Hidden Figure/combat/onboarding coupling | Replaced with frozen minimal APIs and validated lifecycle hooks                                                                      |
-| 1,700–2,300-line mixed owner files       | Extracted meta state, combat physics, and figure recognition into ordered sub-owner files with smoke-checked load order              |
-| Six-card onboarding browser regression   | Fresh Chromium profile now drives drag, one consumed steer, route-locked Space parry, five-point pentagram, final battle, and reward |
+| Resolved debt                            | Result                                                                                                                  |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Global function replacement chains       | Reduced from 37 names to 0; `npm run smoke` now rejects every duplicate definition and function-alias replacement       |
+| Per-dispatch hook-list copies            | Hooks now use immutable copy-on-write snapshots, so frame dispatch performs no callback-list copy                       |
+| Clone-ball cleanup allocation            | Physics compacts `cloneBalls` in place and uses squared settle comparisons                                              |
+| Cross-file arena replacement             | `game-arena-carve.js` installs an owner-controlled `render` strategy                                                    |
+| Hidden Figure/combat/onboarding coupling | Replaced with frozen minimal APIs and validated lifecycle hooks                                                         |
+| 1,700–2,300-line mixed owner files       | Extracted meta state, combat physics, and figure recognition into ordered sub-owner files with smoke-checked load order |
+| Onboarding browser regression            | Fresh Chromium now drives all eight cards, awakening, the seven-point Big Dipper, final battle, and reward              |
 
 ## Phased remediation rule
 

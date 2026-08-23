@@ -171,6 +171,7 @@ async function gameState() {
     steered: typeof onboarding === "undefined" ? false : Boolean(onboarding?.steered),
     parrySuccess: typeof onboarding === "undefined" ? false : Boolean(onboarding?.parrySuccess),
     figureResolved: typeof onboarding === "undefined" ? false : Boolean(onboarding?.figureResolved),
+    figureId: typeof onboarding === "undefined" ? null : onboarding?.figureId ?? null,
     awakenedHero: typeof onboarding === "undefined" ? null : onboarding?.awakenedHero ?? null,
     parriedHero: typeof onboarding === "undefined" ? null : onboarding?.parriedHero ?? null,
     figure: typeof figureFx === "undefined" ? null : figureFx?.shape?.id ?? null,
@@ -443,29 +444,28 @@ async function runOnboarding() {
     "lesson card 6",
     async () => (await gameState()).card === "6 / 8",
   );
-  await clickButton("작은 별빛을 남겨 두고 발사");
-  /* 별빛을 남겨야 별자리가 뜬다. 별지기 셋만 찍으면 별빛은 하나도 안 쓰이고
-     전부 별자리 재료로 남는다 — 수업이 가르치는 손이 정확히 이것이다.
-
-     두 샷이 필요하다. 노드 경제에서 별자리는 «이전 샷이 남긴» 별빛으로
-     발동하는데(launchAimStarShot이 발사 직전에 남은 별빛을 태운다),
-     단계 진입 때 setupBattle이 별빛을 비우므로 첫 샷은 재료를 만드는 샷이고
-     둘째 샷의 발사가 그것을 태운다. 수업 문안은 한 번에 되는 것처럼 읽히므로
-     그쪽은 별도 항목으로 남긴다. */
+  await clickButton("안내별을 남기고 발사");
+  /* 별지기 셋만 찍으면 안내별 일곱은 하나도 조준에 쓰이지 않고 전부 별자리
+     재료로 남는다. 발사 직전 launchAimStarShot이 그 일곱 점을 실제 판정기로
+     넘기므로, 수업이 가르치는 한 번의 입력으로 북두칠성이 떠야 한다. */
   const seeded = await evaluate("aimStars.length");
-  assert(seeded >= 3, `Lesson 3 needs pre-seeded starlight, got ${seeded}`);
+  assert(seeded === 7, `Lesson 3 needs seven guide stars, got ${seeded}`);
   await nodeShot(3);
   const resonance = await waitUntil(
     "guided figure resolution",
     async () => {
       const state = await gameState();
-      return state.figureResolved ? state : false;
+      return state.figureId === "bigdipper" ? state : false;
     },
     25000,
   );
   assert(
-    resonance.figurePoints >= 3,
-    `Expected three or more starlight points, got ${resonance.figurePoints}`,
+    resonance.figurePoints === 7,
+    `Expected seven starlight points, got ${resonance.figurePoints}`,
+  );
+  assert(
+    resonance.figure === "bigdipper",
+    `Expected Big Dipper, got ${resonance.figure}`,
   );
   const third = await waitForLessonResult(2, 25000);
   assert(third.card === "7 / 8", `Expected card 7 / 8, got ${third.card}`);
@@ -715,7 +715,7 @@ try {
           "7 / 8",
           "8 / 8",
         ],
-        figure: "pentagram",
+        figure: "bigdipper",
         ...journey,
         events,
       },

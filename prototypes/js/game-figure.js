@@ -1093,6 +1093,7 @@ registerRuntimeHook("afterDraw", function drawFigure() {
 const FigureModule = StellaRuntime.modules.register("figure", {
   isResolutionPending: isFigureResolutionPending,
   castAt: FIGURE_CAST_AT,
+  templatePoints: figureTemplatePoints,
 });
 /* --- the training table seats four, so the meteor makes a fifth point ------
  * The fourth seat is a real party slot now: the stage carries four `slots` and

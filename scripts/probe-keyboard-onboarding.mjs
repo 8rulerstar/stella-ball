@@ -95,6 +95,8 @@ const S = `JSON.stringify({
   aimed: typeof onboarding !== "undefined" ? !!onboarding?.aimed : false,
   awakened: typeof onboarding !== "undefined" ? onboarding?.awakenedHero ?? null : null,
   figure: typeof onboarding !== "undefined" ? !!onboarding?.figureResolved : false,
+  figureId: typeof onboarding !== "undefined" ? onboarding?.figureId ?? null : null,
+  resolvedShape: typeof figureFx !== "undefined" ? figureFx?.shape?.id ?? null : null,
   nodes: typeof aimNodes === "function" ? aimNodes().length : -1,
   picks: typeof aimPick !== "undefined" ? aimPick.length : -1,
   shots: battle?.shots,
@@ -183,14 +185,16 @@ try {
   console.log("\n════ 3단계 — 별자리");
   if (!(await tabToAndPress("다음 · 별자리")))
     throw new Error("3단계 안내 카드 실패");
-  if (!(await tabToAndPress("작은 별빛을 남겨 두고 발사")))
+  if (!(await tabToAndPress("안내별을 남기고 발사")))
     throw new Error("3단계 실습 카드 실패");
   console.log("  " + (await aimAndFire(3)));
   await waitFor("!!onboarding?.figureResolved", 30000).catch(() => {});
   s = JSON.parse(await evaluate(S));
   console.log(
-    `  별자리 성립 ${s.figure ? "예" : "✗ 아니오"} · 단계 ${s.phase}`,
+    `  북두칠성 성립 ${s.figureId === "bigdipper" ? "예" : "✗ 아니오"} · 단계 ${s.phase}`,
   );
+  if (s.figureId !== "bigdipper" || s.resolvedShape !== "bigdipper")
+    throw new Error("3단계가 북두칠성으로 판정되지 않았다");
 
   console.log("\n════ 4단계 — 실전 순서 확인");
   if (!(await tabToAndPress("다음 · 실전 순서")))

@@ -858,6 +858,14 @@ for (const tier of Object.values(FIGURE_SHAPES))
     shape.cloud = figureNormalize(shape.raw);
     if (shape.art) loadTexture(shape.art);
   }
+
+function figureTemplatePoints(id) {
+  for (const tier of Object.values(FIGURE_SHAPES)) {
+    const shape = tier.find((entry) => entry.id === id);
+    if (shape) return shape.raw.map(({ x, y }) => ({ x, y }));
+  }
+  return [];
+}
 // The silhouette sheets are 384px square, drawn on a 128 grid at ×3 with the
 // skeleton origin dead centre and one skeleton unit spanning 46 grid cells.
 // Both numbers come from the art delivery and are what tie a sheet to its
