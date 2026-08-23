@@ -129,10 +129,25 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   gap: 9px;
   padding: 10px;
 }
+/* 루나가 위 안내 띠에서 오른쪽 열로 빠진 뒤, 헤더를 조금 조여 판을 예전
+   크기(≈586)에 가깝게 되살린다. 안내 띠(72px)는 전각 안내문이 두 줄로
+   꽉 차 못 줄이지만, 보스 배너 위아래 여백(9→6)과 열 간격(8→5)에서
+   ~12px를 회수하면 판을 577로 키우면서도 위아래 8px 여백이 남는다(실측).
+   왼쪽 계기판 188 + 판 577 + 오른쪽 루나 168 + 간격은 957이라 main
+   980 안에 들어간다. */
 .game-mode .battle-column {
   position: relative;
-  width: min(720px, calc(80vh - 164px));
-  width: min(720px, calc(80dvh - 164px));
+  gap: 5px;
+  width: min(720px, calc(80vh - 143px));
+  width: min(720px, calc(80dvh - 143px));
+}
+.game-mode .boss-banner {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.game-mode main {
+  width: min(980px, calc(100vw - 32px));
+  width: min(980px, calc(100dvw - 32px));
 }
 
 /* Dialogue and the persistent instruction share a reserved lane above the
