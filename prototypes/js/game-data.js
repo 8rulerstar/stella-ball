@@ -1483,7 +1483,7 @@ function outsideStarName() {
 /* 1-1 수업의 상대를 최종 보스와 같은 개체로 둔다. 프롤로그에서 창밖을
    지나간 것이 첫 수업의 상대이고, 34스테이지 뒤 8-1에서 다시 만난다.
    수업 중에는 불멸이라 해칠 수 없고, 마지막 수업만 실제로 눕힌다 —
-   그 화면은 「무너뜨렸다」가 아니라 「첫 관측자의 증명」 업적을 띄운다. */
+   그 화면은 「무너뜨렸다」가 아니라 「관측 수업 완료」를 알린다. */
 function isTutorialOuterObserver(stage = currentStage()) {
   return Boolean(
     stage?.tutorial && StellaRuntime.modules.optional("onboarding")?.isActive(),

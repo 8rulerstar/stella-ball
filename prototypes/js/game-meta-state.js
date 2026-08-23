@@ -643,21 +643,9 @@ function formatRunTime(ms) {
   return (ms / 1000).toFixed(1) + "s";
 }
 function achievementList() {
-  const thirdPartySlot =
-    typeof hasThirdPartySlot === "function" && hasThirdPartySlot();
+  /* «첫 관측자의 증명 · 파티 슬롯 +1» 업적은 걷었다(2026-08-23 오너 지시 —
+     세 번째 자리는 처음부터 열려 있어 해금할 것이 없다). */
   return [
-    {
-      id: "observer",
-      name:
-        settings.language === "ko" ? "첫 관측자의 증명" : "OBSERVER’S PROOF",
-      text:
-        settings.language === "ko"
-          ? "1-1 관측 수업을 마치고 파티 슬롯을 하나 해금하세요."
-          : "Complete 1-1 observation training and unlock a party slot.",
-      done: thirdPartySlot,
-      gold: 150,
-      ratio: thirdPartySlot ? "1/1 · 파티 슬롯 +1" : "0/1 · 파티 슬롯 +1",
-    },
     {
       id: "first",
       name: settings.language === "ko" ? "첫 별" : "FIRST STAR",

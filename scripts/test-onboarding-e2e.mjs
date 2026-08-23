@@ -561,27 +561,27 @@ async function runOnboarding() {
     );
   }
 
+  /* 2026-08-23: «세 번째 별지기 자리 해제» 보상을 걷었다 — 세 자리는 처음부터
+     열려 있고, 클리어는 그냥 «수업을 마쳤다»만 알린다. */
   const reward = await waitUntil(
-    "onboarding reward",
+    "onboarding clear card",
     async () => {
       const state = await gameState();
-      return state.outcome === "첫 관측자의 증명" ? state : false;
+      return state.outcome === "첫 관측을 마쳤어요" ? state : false;
     },
     15000,
   );
   const unlock = await evaluate(`({
     clear: hasOnboardingClear(),
-    thirdSlot: hasThirdPartySlot(),
-    freeSummons: Number(progress.freeSummons || 0),
+    slots: partySlotCount(),
     rewardButton: document.querySelector("#openOnboardingAchievement")?.textContent.trim()
   })`);
   assert(unlock.clear, "Onboarding clear flag was not stored");
-  assert(unlock.thirdSlot, "Third party slot was not unlocked");
   assert(
-    unlock.freeSummons === 1,
-    `Expected one free summon, got ${unlock.freeSummons}`,
+    unlock.slots === 3,
+    `Expected 3 party slots from the start, got ${unlock.slots}`,
   );
-  assert(unlock.rewardButton === "무료로 소환하기", "Reward CTA is missing");
+  assert(unlock.rewardButton === "다음 관측", "Clear CTA is missing");
   record("reward", { outcome: reward.outcome, ...unlock });
   return {
     unlock,
