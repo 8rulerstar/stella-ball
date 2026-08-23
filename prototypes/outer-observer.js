@@ -152,9 +152,6 @@
       "@media (prefers-reduced-motion:reduce){main.oo2-grabbed,main.oo2-shake,",
       "main.oo2-squeeze,main.oo2-kick{animation:none}",
       "#" + LAYER_ID + " *{animation:none!important}}",
-      "@keyframes oo2Diamond{0%{opacity:0;transform:translate(-50%,-50%) ",
-      "rotate(45deg) scale(1.6)}100%{opacity:1;transform:translate(-50%,-50%) ",
-      "rotate(45deg) scale(1)}}",
       /* 「관측당한다」 신호 전용 수축 링(§1-3). 확장 링과 방향이 반대다 —
          밖에서 조여 들어오는 것이 이 연출의 문장이다. */
       "@keyframes oo2Contract{0%{transform:translate(-50%,-50%) scale(1.5);",
@@ -708,11 +705,9 @@
     var eye = add(
       "left:50%;top:43%;width:288px;height:288px;transform:translate(-50%,-50%);opacity:0",
     );
-    el(
-      "div",
-      "position:absolute;left:50%;top:50%;width:330px;height:330px;border:3px solid #e84ff0aa;transform:translate(-50%,-50%) rotate(45deg);box-shadow:0 0 26px #c94ff044,inset 0 0 26px #c94ff022;animation:oo2Diamond .5s cubic-bezier(.2,.85,.3,1) both",
-      eye,
-    );
+    /* 예전엔 눈을 마젠타 다이아몬드 테두리로 감쌌지만, 오너 지적대로 그
+       「보라 네모」가 추상적이라 뜻이 안 읽히고 눈을 가렸다. 뺀다 — 눈을
+       감싸는 것은 아래 두 동심원(ring1·ring2)만으로 충분하다. */
     /* 시트는 384×96(96px 4프레임). 3배로 키우면 프레임이 288px이 되어 정수
        배율이 유지된다 — 시안이 쓰는 1152×288이 바로 그 값이다. */
     var frame = el(
@@ -1025,7 +1020,9 @@
     });
 
     // 비트 2 · 관측 이상. 점이 한 번에 켜지지 않고 계단으로 들어온다.
-    at(900, function () {
+    // 첫 캡션(마지막 천문대…)이 0.9초 만에 밀려 못 읽힌다는 지적 — 2.2초로
+    // 늦춰 첫 문장이 읽힐 시간을 준다. 뒤 비트도 함께 밀린다.
+    at(2200, function () {
       cineCaption(C, "ANOMALY", "…별의 간격이, 틀렸다.");
       P.anomaly.style.opacity = "1";
       Array.prototype.forEach.call(P.grid.children, function (c, i) {
@@ -1039,7 +1036,7 @@
     });
 
     // 비트 3 · 통과. 그림자가 몸보다 먼저 도착한다.
-    at(2300, function () {
+    at(3600, function () {
       st.phase = "pass";
       P.sweep.style.transition = "opacity 1.1s ease-out";
       P.sweep.style.opacity = "0.9";
@@ -1053,7 +1050,7 @@
     });
 
     // 비트 4 · 눈이 멈춘다. 동공이 4프레임으로 조여든다.
-    at(6100, function () {
+    at(6900, function () {
       st.phase = "hold";
       P.anomaly.style.opacity = "0.4";
       P.sweep.style.opacity = "0.34";
@@ -1086,7 +1083,7 @@
       cineCaption(C, "CONTACT", "저쪽이 먼저, 이쪽을 보았다.");
     });
     // 알아본 뒤 한 번 더 조인다 — 이 반복이 「보고 있다」를 확정한다.
-    at(7100, function () {
+    at(7900, function () {
       P.being.src = P.tight[1];
       at(120, function () {
         P.being.src = P.tight[2];
@@ -1109,7 +1106,7 @@
       void m.offsetWidth;
       m.classList.add(cls);
     }
-    at(7700, function () {
+    at(8500, function () {
       claw(P, "in");
       // 위에서 한 번, 0.18초 뒤 아래에서 한 번. 한 번에 물면 타격이 한 번이지만,
       // 엇갈리면 관측창이 잡힐 때까지 둘째 발톱을 기다리게 된다.
@@ -1378,9 +1375,9 @@
   /* 시작 버튼을 연출이 끝날 때까지 잠근다. 처음 온 사람이 가장 먼저 하는
      행동이 「버튼을 찾아 누르기」인데, 그 버튼이 살아 있으면 그 행동이 곧
      연출을 건너뛰는 행동이 된다 — 보라고 만든 것을 보지 못한다.
-     푸는 시점은 발톱이 관측창을 붙잡고 흔드는 순간(7700+280ms)이다. 그때까지가
+     푸는 시점은 발톱이 관측창을 붙잡고 흔드는 순간(8500+280ms)이다. 그때까지가
      이 연출이 하려는 말이고, 그 뒤로는 퇴장이라 기다리게 할 이유가 없다.
-     안전장치를 함께 둔다: 무슨 일이 있어도 9.5초 뒤에는 풀린다. 연출이 실패해도
+     안전장치를 함께 둔다: 무슨 일이 있어도 10.4초 뒤에는 풀린다. 연출이 실패해도
      플레이어가 갇히면 안 된다. 튜토리얼 버튼은 잠그지 않는다 — 그쪽을 누르는
      사람은 건너뛰는 게 아니라 참여하는 것이다. */
   /* CTA 정책 충돌의 타협안(§10-2). 인트로 스펙 §5는 「CTA는 연출 완료를
@@ -1414,7 +1411,7 @@
   /* 버튼을 잠그는 것만으로는 부족했다 — 잠긴 「관측 시작」이 컷신 내내 화면에
      떠 있어서 연출 위에 UI가 겹쳐 보였다(제보). 규격도 타이틀 리빌을 「컷신
      종료 직후」로 두므로, 잠그는 동안에는 타이틀 문안 자체를 감춘다.
-     푸는 시점은 그대로다(발톱이 관측창을 잡는 7700+280ms). 그 순간 타이틀이
+     푸는 시점은 발톱이 관측창을 잡는 순간(8500+280ms)이다. 그 순간 타이틀이
      리빌 연출과 함께 들어온다 — 보이는 때와 누를 수 있는 때가 같아진다. */
   function holdStart() {
     var b = startButton();
@@ -1424,7 +1421,7 @@
     }
     document.body.classList.add("oo-intro");
     clearTimeout(holdTimer);
-    holdTimer = setTimeout(releaseStart, 9500);
+    holdTimer = setTimeout(releaseStart, 10400);
   }
   function releaseStart() {
     clearTimeout(holdTimer);
