@@ -138,36 +138,39 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
 .game-mode .battle-column {
   position: relative;
   gap: 5px;
-  width: min(720px, calc(80vh - 143px));
-  width: min(720px, calc(80dvh - 143px));
+  /* 위 안내 띠(대사 패널)를 걷어 그 72px를 판에 돌려준다(2026-08-23 오너
+     지시). 헤더가 보스판만 남아 얇아졌으므로 -143 → -90 으로 판을 키운다. */
+  width: min(720px, calc(80vh - 90px));
+  width: min(720px, calc(80dvh - 90px));
 }
 .game-mode .boss-banner {
   padding-top: 6px;
   padding-bottom: 6px;
 }
 .game-mode main {
-  width: min(980px, calc(100vw - 32px));
-  width: min(980px, calc(100dvw - 32px));
+  /* 커진 판 + 왼쪽 계기판 + 오른쪽 루나 세 열이 들어가게 넓힌다. */
+  width: min(1080px, calc(100vw - 32px));
+  width: min(1080px, calc(100dvw - 32px));
 }
 
-/* Dialogue and the persistent instruction share a reserved lane above the
-   board. The lane never jumps the canvas when Luna starts or stops speaking. */
+/* 위 안내 띠(대사 패널)는 시각적으로 걷는다 — 판을 넓히려는 오너 지시.
+   다만 #tip 은 캔버스 aria-label 이 가리키는 진행 상황 낭독 리전이라,
+   화면에서만 빼고(0 크기 sr-only) 스크린리더에는 그대로 남긴다. */
 .battle-guidance {
   display: none;
 }
 .game-mode .battle-guidance {
-  position: relative;
-  display: grid;
-  align-items: stretch;
-  width: 100%;
-  height: 72px;
-  min-height: 72px;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
-  border: 1px solid #42575d;
-  background: #0d161aec;
-  box-shadow:
-    0 3px 0 #04080a,
-    inset 0 0 0 1px #93b6b414;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  background: none;
+  box-shadow: none;
 }
 .game-mode .battle-guidance .tip {
   position: static;
