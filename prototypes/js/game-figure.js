@@ -846,14 +846,40 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceFigureFx(d) {
   // The pentagram pays off once the corrected star is standing, not at the
   // settle that queued it: the figure has to arrive before the burst means
   // anything.
-  if (figureFx.rune && !figureFx.burst && figureFx.t >= FIGURE_REVEAL_AT) {
+  if (!figureFx.burst && figureFx.t >= FIGURE_REVEAL_AT) {
     figureFx.burst = true;
     const c = figureFx.fit?.origin ?? figureCentroid(figureFx.ring);
-    areaBursts.push({ x: c.x, y: c.y, r: 210, col: "#ffe6b0", t: 0, d: 0.62 });
-    areaBursts.push({ x: c.x, y: c.y, r: 128, col: "#fff6e0", t: 0, d: 0.44 });
-    screenFlash = Math.max(screenFlash, 0.42);
-    screenShake = Math.max(screenShake, 14);
-    combatSfx?.("unlock", 1);
+    /* 리빌 페이오프를 «모든» 별자리에 준다(2026-08-23). 여태 플래시·흔들림·
+       2단 버스트가 figureFx.rune(오망성)에만 걸려 있어, 나머지 일곱 별자리는
+       실루엣이 서고 능력이 나가는 순간 화면이 조용했다 — 캐스트가 밋밋한
+       원인이었다(실측: 까마귀 4점 캐스트에 리빌 반응 0). 점 개수(3~7)로
+       세기를 펴고, 「전원 각성」인 오망성은 한 단계 위로 둔다. 피해·캐스트
+       소리(figureN)는 그대로라 봇 리포트는 불변이다. */
+    const rune = figureFx.rune,
+      tier = Math.max(3, Math.min(7, figureFx.ring?.length || 3)),
+      power = (tier - 3) / 4; // 3점 0 → 7점 1
+    areaBursts.push({
+      x: c.x,
+      y: c.y,
+      r: (rune ? 210 : 150) + power * 44,
+      col: "#ffe6b0",
+      t: 0,
+      d: rune ? 0.62 : 0.5,
+    });
+    areaBursts.push({
+      x: c.x,
+      y: c.y,
+      r: (rune ? 128 : 90) + power * 30,
+      col: "#fff6e0",
+      t: 0,
+      d: rune ? 0.44 : 0.36,
+    });
+    screenFlash = Math.max(screenFlash, (rune ? 0.42 : 0.22) + power * 0.12);
+    screenShake = Math.max(screenShake, (rune ? 14 : 8) + power * 5);
+    /* 오망성만 리빌에서 별도 소리를 낸다(«전원 각성»의 큰 순간). 나머지는
+       0.06초 뒤 FIGURE_CAST_AT의 figureN 소리가 청각 페이오프를 맡으므로
+       여기서 겹쳐 울리지 않는다. */
+    if (rune) combatSfx?.("unlock", 1);
   }
   // The ability lands after the creature has shown itself, so the constellation
   // reads as the cause and not as decoration over damage that already happened.
