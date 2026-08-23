@@ -39,6 +39,151 @@
       return false;
     }
   }
+
+  /* 인트로 괴수 효과음 (2026-08-23, 오너 지시 — 인트로를 더 연출적으로).
+     합성음이라 파일·라이선스가 없다(관측소 스코어와 같은 원칙). 기존 오디오
+     엔진(game-meta-state.js)이 있고 잠금이 풀렸을 때만 소리를 낸다 — 브라우저
+     자동재생 정책상 첫 로드(제스처 전)엔 무음이고, «인트로 다시 보기»나 어떤
+     상호작용 뒤에는 울린다. 값은 settings.master(엔진 마스터)·settings.sfx가
+     쥔다. 통과=다가오는 울림, 응시=으르렁, 발톱=타격+포효. */
+  function mEngine() {
+    if (typeof ensureAudio !== "function") return null;
+    var eng = ensureAudio();
+    if (!eng || !eng.ac || eng.ac.state !== "running") return null;
+    return eng;
+  }
+  function mLevel(base) {
+    var s = typeof settings === "object" && settings ? settings : {};
+    return base * (typeof s.sfx === "number" ? s.sfx : 0.65);
+  }
+  function mNoise(ac, dur) {
+    var n = Math.max(1, Math.floor(ac.sampleRate * dur));
+    var buf = ac.createBuffer(1, n, ac.sampleRate);
+    var d = buf.getChannelData(0),
+      last = 0;
+    for (var i = 0; i < n; i++) {
+      var w = Math.random() * 2 - 1;
+      last = (last + 0.02 * w) / 1.02;
+      d[i] = last * 3.2;
+    }
+    var src = ac.createBufferSource();
+    src.buffer = buf;
+    return src;
+  }
+  // 저역 톱니 스윕 + 저역 노이즈 — 다가오는 울림/노려보는 으르렁.
+  function mRumble(dur, peak, f0, f1) {
+    var eng = mEngine();
+    if (!eng) return;
+    var ac = eng.ac,
+      now = ac.currentTime;
+    var out = ac.createGain();
+    out.gain.setValueAtTime(0.0001, now);
+    out.gain.exponentialRampToValueAtTime(
+      mLevel(peak) + 0.0001,
+      now + dur * 0.3,
+    );
+    out.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    out.connect(eng.master);
+    var osc = ac.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(f0, now);
+    osc.frequency.exponentialRampToValueAtTime(f1, now + dur);
+    var lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 220;
+    lp.Q.value = 5;
+    osc.connect(lp);
+    lp.connect(out);
+    var noise = mNoise(ac, dur),
+      nlp = ac.createBiquadFilter();
+    nlp.type = "lowpass";
+    nlp.frequency.value = 360;
+    var ng = ac.createGain();
+    ng.gain.value = 0.5;
+    noise.connect(nlp);
+    nlp.connect(ng);
+    ng.connect(out);
+    osc.start(now);
+    osc.stop(now + dur + 0.05);
+    noise.start(now);
+    noise.stop(now + dur + 0.05);
+  }
+  // 피치 떨어지는 저역 사인 텅 + 노이즈 버스트 — 발톱 타격.
+  function mImpact(peak) {
+    var eng = mEngine();
+    if (!eng) return;
+    var ac = eng.ac,
+      now = ac.currentTime;
+    var thumpGain = ac.createGain();
+    thumpGain.gain.setValueAtTime(mLevel(peak), now);
+    thumpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+    thumpGain.connect(eng.master);
+    var thump = ac.createOscillator();
+    thump.type = "sine";
+    thump.frequency.setValueAtTime(120, now);
+    thump.frequency.exponentialRampToValueAtTime(38, now + 0.28);
+    thump.connect(thumpGain);
+    var noise = mNoise(ac, 0.22),
+      bp = ac.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 900;
+    bp.Q.value = 0.7;
+    var ng = ac.createGain();
+    ng.gain.setValueAtTime(mLevel(peak * 0.9), now);
+    ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    noise.connect(bp);
+    bp.connect(ng);
+    ng.connect(eng.master);
+    thump.start(now);
+    thump.stop(now + 0.42);
+    noise.start(now);
+    noise.stop(now + 0.24);
+  }
+  // 톱니 피치 스윕 + 비브라토 + 노이즈 — 붙잡는 포효.
+  function mRoar(dur, peak) {
+    var eng = mEngine();
+    if (!eng) return;
+    var ac = eng.ac,
+      now = ac.currentTime;
+    var out = ac.createGain();
+    out.gain.setValueAtTime(0.0001, now);
+    out.gain.exponentialRampToValueAtTime(mLevel(peak) + 0.0001, now + 0.12);
+    out.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    out.connect(eng.master);
+    var osc = ac.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(70, now + dur * 0.6);
+    osc.frequency.exponentialRampToValueAtTime(92, now + dur);
+    var lfo = ac.createOscillator();
+    lfo.frequency.value = 17;
+    var lfoGain = ac.createGain();
+    lfoGain.gain.value = 12;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    var lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 900;
+    lp.Q.value = 3;
+    osc.connect(lp);
+    lp.connect(out);
+    var noise = mNoise(ac, dur),
+      nlp = ac.createBiquadFilter();
+    nlp.type = "lowpass";
+    nlp.frequency.value = 680;
+    var ng = ac.createGain();
+    ng.gain.value = 0.4;
+    noise.connect(nlp);
+    nlp.connect(ng);
+    ng.connect(out);
+    osc.start(now);
+    osc.stop(now + dur + 0.05);
+    lfo.start(now);
+    lfo.stop(now + dur + 0.05);
+    noise.start(now);
+    noise.stop(now + dur + 0.05);
+  }
+
   var bakeCache = {};
   function bakeBeing(pupil) {
     var key = "b" + pupil;
@@ -1038,6 +1183,7 @@
     // 비트 3 · 통과. 그림자가 몸보다 먼저 도착한다.
     at(3600, function () {
       st.phase = "pass";
+      mRumble(2.4, 0.3, 30, 56); // 그림자가 다가오는 저역 울림
       P.sweep.style.transition = "opacity 1.1s ease-out";
       P.sweep.style.opacity = "0.9";
       P.eater.style.transition = "opacity 1.4s ease-out";
@@ -1052,6 +1198,7 @@
     // 비트 4 · 눈이 멈춘다. 동공이 4프레임으로 조여든다.
     at(6900, function () {
       st.phase = "hold";
+      mRumble(1.9, 0.34, 66, 40); // 눈이 멈추며 노려보는 으르렁
       P.anomaly.style.opacity = "0.4";
       P.sweep.style.opacity = "0.34";
       [0, 130, 260, 390].forEach(function (d, i) {
@@ -1064,6 +1211,7 @@
          「눈이 마주쳤다」가 읽히지 않는다 — 화면을 덮고 눈만 크게 넣는다.
          플래시로 하드컷을 만든다. 크로스페이드는 픽셀을 뭉갠다(§1-3). */
       cineFlash();
+      mImpact(0.34); // 아이컷 하드컷과 함께 낮은 서브 텅
       /* 시안은 빈 하늘 위에 인서트를 얹지만 게임은 «타이틀 위»다. 0.86으로는
          워드마크와 CTA가 비쳐 인서트가 아니라 겹쳐 어질러진 화면으로 읽힌다
          — 실제로 「인트로 때 UI가 가린다」는 제보가 그것이었다. 완전히 덮어야
@@ -1108,10 +1256,13 @@
     }
     at(8500, function () {
       claw(P, "in");
+      mRumble(0.5, 0.32, 44, 150); // 발톱이 빠르게 다가오는 상승 울림
       // 위에서 한 번, 0.18초 뒤 아래에서 한 번. 한 번에 물면 타격이 한 번이지만,
       // 엇갈리면 관측창이 잡힐 때까지 둘째 발톱을 기다리게 된다.
       at(280, function () {
         claw(P, "bite", 0);
+        mImpact(0.62); // 첫 발톱 타격
+        mRoar(1.3, 0.42); // 붙잡는 포효
         shake("oo2-shake");
         chips(P, 14, "tr");
         jolt(P);
@@ -1120,12 +1271,14 @@
       });
       at(460, function () {
         claw(P, "bite", 1);
+        mImpact(0.58); // 둘째 발톱 타격
         shake("oo2-shake");
         chips(P, 14, "bl");
         jolt(P);
       });
       at(1150, function () {
         claw(P, "squeeze");
+        mRumble(0.9, 0.3, 100, 36); // 쥐어짜는 저역 그르렁
         shake("oo2-squeeze");
         chips(P, 8, "tr");
         chips(P, 8, "bl");
