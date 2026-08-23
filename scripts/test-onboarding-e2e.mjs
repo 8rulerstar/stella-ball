@@ -380,6 +380,18 @@ async function runOnboarding() {
   await evaluate(`(() => {
     return true;
   })()`);
+  /* 「1분 튜토리얼」 링크는 인트로가 도는 동안 opacity:0 이라 사람 눈엔 안
+     보인다 — 실제 사용자는 인트로가 끝나(타이틀 리빌) 링크가 드러난 뒤에야
+     누른다. 테스트는 DOM 위치로 찾아 인트로 중에도 누를 수 있는데, 그러면
+     인트로 정지와 수업 시작이 겹쳐 첫 카드가 간헐적으로 안 떴다. 사람과
+     같게 인트로가 풀린 뒤 누른다. */
+  await waitUntil(
+    "intro released",
+    async () =>
+      (await evaluate(`!document.body.classList.contains("oo-intro")`)) ===
+      true,
+    16000,
+  );
   await waitUntil(
     "title screen",
     () => buttonPoint("처음인가요? 1분 튜토리얼"),
