@@ -377,8 +377,20 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
    또렷하게 세워 한눈에 읽히게 한다. */
 .game-mode .hud-label span,
 .game-mode .status-line span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   color: #aab4b7;
+}
+/* 스탯 앞 아이콘 — 조준(약점)·별(별빛)·화살(운동)로 한눈에 읽힌다.
+   원본이 256px인 것은 작게 줄면 부드럽게(auto) 내려 선명하게 둔다. */
+.game-mode .stat-ico {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  object-fit: contain;
+  image-rendering: auto;
 }
 .game-mode .hud-label b,
 .game-mode .status-line b {
