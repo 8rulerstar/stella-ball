@@ -338,17 +338,17 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
 }
 .combat-flow li {
   display: grid;
-  grid-template-columns: 14px 1fr;
+  grid-template-columns: 16px 1fr;
   align-items: center;
-  gap: 7px;
-  min-height: 22px;
-  color: #7e8589;
-  font-size: 10px;
+  gap: 8px;
+  min-height: 26px;
+  color: #97a0a4;
+  font-size: 12px;
 }
 .combat-flow li i {
   box-sizing: border-box;
-  width: 10px;
-  height: 10px;
+  width: 13px;
+  height: 13px;
   border: 1px solid #596269;
   transform: rotate(45deg);
 }
@@ -365,9 +365,48 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   margin: 0;
   padding-top: 8px;
   border-top: 1px solid #39313f;
-  color: #d8dddc;
-  font-size: 10px;
+  color: #dde2e1;
+  font-size: 12px;
   line-height: 1.55;
+}
+
+/* ── 계기판·보스판·루나 글씨 키우기 (2026-08-23) ─────────────────────────
+   전투 텍스트가 전부 9~10px라 작다는 지적. 세로 여유가 있는 왼쪽 계기판과
+   오른쪽 루나 열은 넉넉히 키우고, 판 높이를 먹는 보스판은 이름만 살짝
+   키운다(방금 되살린 판 여백 8px를 지키려고). 값(숫자)은 굵은 큰 글씨로
+   또렷하게 세워 한눈에 읽히게 한다. */
+.game-mode .hud-label span,
+.game-mode .status-line span {
+  font-size: 12px;
+  color: #aab4b7;
+}
+.game-mode .hud-label b,
+.game-mode .status-line b {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f3f7f5;
+}
+.game-mode .status-line {
+  align-items: center;
+}
+.game-mode .blaze-score-label {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.game-mode #blazeDetail {
+  font-size: 11px;
+}
+.game-mode .boss-banner .boss-name {
+  font-size: 12px;
+}
+.game-mode .boss-banner .combo-readout {
+  font-size: 12px;
+}
+.game-mode .luna-side-name small {
+  font-size: 10px;
+}
+.game-mode .luna-side-name span {
+  font-size: 15px;
 }
 
 .oc-advice {
