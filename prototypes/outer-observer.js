@@ -688,12 +688,18 @@
     );
     var kick = el(
       "small",
-      "display:block;white-space:nowrap;color:#c94ff0;font:700 11px 'Galmuri11',monospace;letter-spacing:.3em;margin-bottom:9px;text-shadow:0 0 12px #c94ff055",
+      "display:block;white-space:nowrap;color:#e07cff;font:700 12px 'Galmuri11',monospace;letter-spacing:.32em;margin-bottom:9px;text-shadow:0 0 16px #c94ff0cc,0 0 6px #ffffff44",
       cap,
     );
+    /* 서사 비트가 화면에 실려야 인트로에 «감»이 산다(2026-08-23). 여태
+       본문 글로가 #ffd98e33(20%)뿐이라, 클라이맥스의 어두운 배경 위에서
+       흐린 회색으로 묻혀 「저쪽이 먼저 보았다」 같은 결정적 문장이 안
+       읽혔다(실측 확대). 색은 그대로 두고, 뒤에 어두운 후광 한 겹을 깔아
+       배경에서 떼어낸 뒤 따뜻한 글로 두 겹으로 «빛나게» 한다 — 밝기를
+       올리는 게 아니라 어둠에서 분리한다. */
     var line = el(
       "div",
-      "max-width:640px;padding:0 20px;text-align:center;color:#fdf6e8;font:22px 'Galmuri11',sans-serif;line-height:1.6;text-shadow:0 2px 0 #0a0418,0 0 18px #ffd98e33",
+      "max-width:640px;padding:0 20px;text-align:center;color:#fff4dc;font:22px 'Galmuri11',sans-serif;line-height:1.6;text-shadow:0 0 2px #05020c,0 2px 4px #05020c,0 0 22px #ffe6a888,0 0 9px #fff6e066",
       cap,
     );
     var veil = add(
