@@ -450,7 +450,6 @@ function renderOnboarding() {
       },
       {
         n: 4,
-        spot: "aim-center",
         title: "유성은 한가운데로 날아가요.",
         body: "고른 세 빛의 한가운데가 유성의 항로예요. 어느 곳을 고르느냐로 방향이 정해집니다.",
         button: "다음 · 벌림",
@@ -458,7 +457,6 @@ function renderOnboarding() {
       },
       {
         n: 5,
-        spot: "aim-spread",
         title: "멀리 벌릴수록 강해요.",
         body: "서로 멀리 떨어진 빛을 고를수록 유성이 세게 날아가요. 같은 곳을 다시 누르면 선택이 취소됩니다.",
         button: "다음 · 각성",
@@ -466,7 +464,6 @@ function renderOnboarding() {
       },
       {
         n: 6,
-        spot: "awaken-ring",
         title: "부딪히면 공명해 고리가 켜져요.",
         /* 각성 안내도 개념 하나씩으로 쪼갠다(2026-08-23). 판을 암전하고
            손가락이 별지기를 짚어 «여기서 일어난다»를 몸으로 말한다. */
@@ -476,7 +473,6 @@ function renderOnboarding() {
       },
       {
         n: 7,
-        spot: "awaken-settle",
         title: "모두 멈추면 각성 공격을 써요.",
         body: "유성과 별지기가 모두 멈추면, 고리가 켜진 별지기가 그 자리에서 자신의 고유 공격을 사용합니다.",
         button: "다음 · 남는 별빛",
@@ -484,7 +480,6 @@ function renderOnboarding() {
       },
       {
         n: 8,
-        spot: "awaken-star",
         title: "부딪힌 자리에 별빛이 남아요.",
         body: "부딪힌 자리에는 다음 별자리에 쓸 작은 별빛이 남습니다. 이 별빛을 모아 별자리를 만들어요.",
         button: "각성까지 확인하고 발사",
@@ -532,7 +527,6 @@ function renderOnboarding() {
       },
       {
         n: 12,
-        spot: "figure-complete",
         title: "발사하면 북두칠성이 완성돼요.",
         body: "Space로 발사하면 남긴 일곱 점이 이어져 북두칠성이 됩니다. 실전에서는 별지기와 부딪혀 이 작은 별빛을 모아요.",
         button: "안내별을 남기고 발사",
@@ -561,7 +555,6 @@ function renderOnboarding() {
          가리키는 요소를 스포트라이트+손가락으로 짚는다. */
       {
         n: 14,
-        spot: "recap-1",
         title: "실전 순서 ① 조준하고 발사",
         body: "별빛 세 곳을 고르고 Space로 발사합니다.",
         button: "다음 · ②",
@@ -569,7 +562,6 @@ function renderOnboarding() {
       },
       {
         n: 15,
-        spot: "recap-2",
         title: "실전 순서 ② 부딪혀 공명·각성 준비",
         body: "별지기와 부딪히면 공명하고 각성을 준비하며, 그 자리에 작은 별빛이 남습니다.",
         button: "다음 · ③",
@@ -577,7 +569,6 @@ function renderOnboarding() {
       },
       {
         n: 16,
-        spot: "recap-3",
         title: "실전 순서 ③ 멈추면 각성 공격",
         body: "모든 움직임이 멈추면 각성한 별지기가 고유 공격을 사용합니다.",
         button: "다음 · ④",
@@ -585,7 +576,6 @@ function renderOnboarding() {
       },
       {
         n: 17,
-        spot: "recap-4",
         title: "실전 순서 ④ 별빛을 남겨 별자리",
         body: "다음 발사 때 작은 별빛을 세 개 이상 남겨 두면, 유성이 출발하기 전에 별자리가 완성되어 먼저 공격합니다.",
         button: "순서 확인하고 실전 시작",
@@ -1518,16 +1508,6 @@ function onboardingCardEmphasisTarget() {
   if (constellationReveal) return null;
   const gs = Array.isArray(gates) ? gates : [];
   const stars = Array.isArray(aimStars) ? aimStars : [];
-  const mid = (pts) => {
-    if (!pts.length) return null;
-    let sx = 0,
-      sy = 0;
-    for (const p of pts) {
-      sx += p.x;
-      sy += p.y;
-    }
-    return { x: sx / pts.length, y: sy / pts.length };
-  };
   const holes = [];
   let finger = null;
   switch (onboarding.spot) {
@@ -1535,95 +1515,14 @@ function onboardingCardEmphasisTarget() {
       for (const g of gs) holes.push({ x: g.x, y: g.y, r: 54 });
       finger = gs[0] || null;
       break;
-    case "aim-center": {
-      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 46 });
-      const c = mid(gs);
-      if (c) {
-        holes.push({ x: c.x, y: c.y, r: 40 });
-        finger = c;
-      }
-      break;
-    }
-    case "aim-spread": {
-      let a = null,
-        b = null,
-        best = -1;
-      for (let i = 0; i < gs.length; i++)
-        for (let j = i + 1; j < gs.length; j++) {
-          const d = (gs[i].x - gs[j].x) ** 2 + (gs[i].y - gs[j].y) ** 2;
-          if (d > best) {
-            best = d;
-            a = gs[i];
-            b = gs[j];
-          }
-        }
-      if (a && b) {
-        holes.push({ x: a.x, y: a.y, r: 50 }, { x: b.x, y: b.y, r: 50 });
-        finger = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-      } else for (const g of gs) holes.push({ x: g.x, y: g.y, r: 50 });
-      break;
-    }
-    case "awaken-ring":
-      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 54 });
-      finger = gs[0] || null;
-      break;
-    case "awaken-settle": {
-      const g = gs[0] || null;
-      if (g) {
-        holes.push({ x: g.x, y: g.y, r: 56 });
-        finger = g;
-      }
-      break;
-    }
-    case "awaken-star": {
-      const g = gs[0] || null;
-      if (g) {
-        holes.push({ x: g.x, y: g.y, r: 50 });
-        finger = g;
-      }
-      if (boss) holes.push({ x: boss.x, y: boss.y, r: 54 });
-      break;
-    }
     case "figure-guide":
+      // 안내별을 «남기는 것»으로 보여 줄 뿐 누르라는 게 아니라, 손가락은 없이
+      // 조명만 준다 — 「누르지 마세요」와 손가락이 어긋나지 않게.
       for (const s of stars) holes.push({ x: s.x, y: s.y, r: 40 });
-      finger = mid(stars) || (boss ? { x: boss.x, y: boss.y } : null);
       break;
     case "figure-pick":
       for (const g of gs) holes.push({ x: g.x, y: g.y, r: 52 });
       finger = gs[0] || null;
-      break;
-    case "figure-complete":
-      for (const s of stars) holes.push({ x: s.x, y: s.y, r: 38 });
-      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 44 });
-      finger = mid(stars);
-      break;
-    case "recap-1":
-      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 52 });
-      finger = gs[0] || null;
-      break;
-    case "recap-2":
-      if (gs[0]) {
-        holes.push({ x: gs[0].x, y: gs[0].y, r: 54 });
-        finger = gs[0];
-      }
-      if (boss) holes.push({ x: boss.x, y: boss.y, r: 60 });
-      break;
-    case "recap-3": {
-      const g = gs[0] || boss;
-      if (g) {
-        holes.push({ x: g.x, y: g.y, r: 54 });
-        finger = g;
-      }
-      break;
-    }
-    case "recap-4":
-      if (stars.length) {
-        for (const s of stars) holes.push({ x: s.x, y: s.y, r: 40 });
-        finger = mid(stars);
-      } else if (boss) {
-        holes.push({ x: boss.x, y: boss.y, r: 58 });
-        finger = boss;
-      }
       break;
   }
   if (!holes.length) return null;
