@@ -131,7 +131,8 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
 }
 .game-mode .battle-column {
   position: relative;
-  width: min(720px, calc(80dvh - 134px));
+  width: min(720px, calc(80vh - 190px));
+  width: min(720px, calc(80dvh - 190px));
 }
 
 /* Dialogue and the persistent instruction share a reserved lane above the

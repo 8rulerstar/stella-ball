@@ -807,8 +807,17 @@ body.oo-intro .ig-wm {
    히트 테스트는 받으므로, 원래 코드가 「튜토리얼 버튼은 잠그지 않는다」고
    못 박아 둔 탈출구와 온보딩 E2E의 클릭이 모두 살아 있다.
    0.55로 남겨 뒀더니 컷신 캡션 바로 위에 겹쳐 떠서, 로고만 사라지고 UI는
-   그대로라는 제보를 받았다. pointer-events는 건드리지 않는다. */
-body.oo-intro .ig-sub {
+   그대로라는 제보를 받았다. pointer-events는 건드리지 않는다.
+
+   2026-08-23: 키아트(.ig-keyart, 화면 중앙 y≈469)와 부제 문안(.ig-copy,
+   「ARIES · 양자리 관측 항로」)이 숨김 목록에서 빠져 인트로 내내 유효
+   opacity 0.92~1.0으로 비쳤다 — 「인트로 때 UI가 희미하게 남아 부자연스
+   럽다」는 제보의 정체다. 같은 규칙에 넣어 감춘다. ig-copy 안의 「1분
+   튜토리얼」 링크는 opacity:0이어도 히트 테스트를 받으므로 탈출구와
+   온보딩 E2E의 클릭이 그대로 살아 있다(pointer-events 미변경). */
+body.oo-intro .ig-sub,
+body.oo-intro .ig-keyart,
+body.oo-intro .ig-copy {
   animation: none !important;
   opacity: 0 !important;
 }
