@@ -9,7 +9,7 @@
 
      별지기   판 위 · 캔버스   고유색 테두리 + 32px 초상 + 꼬리
      거상     판 상단 전면 띠  초상 없음 · 큰 서체 · 떨림
-     루나     판 밖 하단 · DOM 64px 초상 + 보라 테두리
+     루나     판 오른쪽 세로 열 · DOM 초상 상시 + 보라 말풍선
      내레이션 판 중앙 하단     테두리·초상 없음 · 이탤릭
 
    판 위는 캔버스에 그린다(§4-7 예산: 캔버스는 여유가 있고 DOM 레이어는 없다).
@@ -94,8 +94,10 @@ function say(who, text, opts = {}) {
   else speechQueue.push(bubble);
 }
 
-/* 루나는 보스 정보와 전장 사이의 고정 안내 띠에 선다. 이 자리는 매 프레임
-   갱신되지 않으므로 DOM이어도 프레임 예산을 건드리지 않는다. */
+/* 루나는 판 오른쪽 세로 열(#lunaSide)에 상시 선다 — 초상은 늘 보이고,
+   말할 때만 그 아래로 말풍선(#lunaSpeech)이 펼쳐진다. 이 자리는 매 프레임
+   갱신되지 않으므로 DOM이어도 프레임 예산을 건드리지 않는다. 초상·이름은
+   HTML에 이미 있으므로, 여기서는 말풍선 텍스트만 채우고 펼침을 토글한다. */
 let lunaTimer = 0;
 function sayLuna(text, opts = {}) {
   const dock = document.querySelector("#lunaSpeech") ?? buildLunaDock();
@@ -108,19 +110,19 @@ function sayLuna(text, opts = {}) {
     (opts.d ?? 4.2) * 1000,
   );
 }
+/* 말풍선은 보통 HTML(#lunaSide 안)에 이미 있다. 없을 때만 오른쪽 열에
+   텍스트 상자 하나를 만든다 — 초상·이름은 HTML 카드가 들고 있으므로
+   여기서 다시 그리지 않는다. */
 function buildLunaDock() {
   const host =
-    document.querySelector("#battleGuidance") ||
-    document.querySelector(".stage")?.parentElement;
+    document.querySelector("#lunaSide") ||
+    document.querySelector(".battle-column");
   if (!host) return null;
   const dock = document.createElement("div");
   dock.id = "lunaSpeech";
   dock.className = "luna-speech";
   dock.setAttribute("aria-live", "polite");
-  dock.innerHTML =
-    '<img class="luna-speech-face" src="../assets/library/guide/luna-portrait.png" alt="" aria-hidden="true">' +
-    '<div class="luna-speech-body"><b>밤의 관측자 · 루나</b>' +
-    '<p class="luna-speech-text"></p></div>';
+  dock.innerHTML = '<p class="luna-speech-text"></p>';
   host.appendChild(dock);
   return dock;
 }

@@ -217,6 +217,103 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
     width: 100%;
   }
 }
+
+/* 루나 오른쪽 세로 열. 예전의 «판 밖 관측 보조»를 판 오른쪽에 상시 세운다.
+   초상·이름은 늘 보이고(온보딩 중에도 안내자가 곁에 있다), 말할 때만 그
+   아래로 보라 말풍선이 펼쳐진다. 왼쪽 계기판(188px)과 좌우로 짝을 이뤄
+   판은 가운데 그대로다. 폭이 좁아 세 열이 못 들어가는 화면에서는 접는다. */
+.luna-side {
+  display: none;
+}
+.game-mode .luna-side {
+  display: flex;
+  flex: 0 0 168px;
+  flex-direction: column;
+  gap: 10px;
+  font-family: "Apple SD Gothic Neo", "Noto Sans KR", ui-monospace, monospace;
+}
+.game-mode .luna-side-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 12px 12px;
+  border: 1px solid #6f5aa8;
+  background: linear-gradient(160deg, #16112ef4, #1b1638ee);
+  box-shadow:
+    0 3px 0 #05030b,
+    inset 0 0 0 1px #9f8ad018;
+}
+.game-mode .luna-side-face {
+  width: 92px;
+  height: 92px;
+  border: 1px solid #8f7ad0;
+  border-radius: 8px;
+  background: #0e0616;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 3px #8f7ad014;
+}
+.game-mode .luna-side-name {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  text-align: center;
+}
+.game-mode .luna-side-name small {
+  color: #9a86cf;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+}
+.game-mode .luna-side-name span {
+  color: #ece7ff;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+/* 오른쪽 열의 말풍선은 흐름 안에 있어 펼쳐지면 아래로 밀려난다 —
+   초상은 그대로 있고 말풍선만 나타난다(초상이 튀지 않는다). */
+.game-mode .luna-side .luna-speech {
+  position: static;
+  inset: auto;
+  transform: none;
+  display: block;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    max-height 0.24s ease;
+}
+.game-mode .luna-side .luna-speech.show {
+  opacity: 1;
+  max-height: 220px;
+}
+.game-mode .luna-side .luna-speech-text {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #6f5aa8;
+  border-radius: 8px;
+  background: #14102bf4;
+  box-shadow: inset 3px 0 0 #91b6bd;
+  color: #ece7ff;
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: left;
+}
+@media (max-width: 980px) {
+  .game-mode .luna-side {
+    display: none;
+  }
+}
+
 .combat-flow ol {
   display: grid;
   gap: 4px;
