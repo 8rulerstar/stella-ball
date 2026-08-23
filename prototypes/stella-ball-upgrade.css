@@ -421,6 +421,27 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   font-size: 15px;
 }
 
+/* ── 결과(정산) 화면 글씨·아이콘 (2026-08-23) ────────────────────────────
+   행 라벨이 9px, 키커가 10px라 작다는 지적. 라벨을 키우고 유성·시간·피해
+   앞에 metric 아이콘을 세워 무슨 수치인지 한눈에 읽히게 한다. 값(17px)·
+   제목(30px)은 이미 크므로 그대로 둔다. */
+.oc-kicker {
+  font-size: 11px;
+}
+.oc-row small {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+.oc-row-ico {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
 .oc-advice {
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);

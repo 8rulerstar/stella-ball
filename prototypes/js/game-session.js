@@ -772,6 +772,16 @@ function showDeployment() {
    골드는 재도전 CTA 하나뿐이고 플래시·파티클은 없다(§1-1, §2-6).
    시간은 CSS animation-delay가 쥔다. 결과 화면은 전투 루프가 이미 멈춘 뒤라
    frameClock이 흐르지 않으므로 여기서는 프레임 시계를 쓸 이유가 없다. */
+/* 결과 행 라벨에 뜻이 바로 읽히는 아이콘을 붙인다. 유성 수는 도트, 시간은
+   시계, 피해는 별폭발 — 승리·패배 카드가 같은 어휘를 쓴다. 맞는 라벨만
+   붙으므로 새 라벨이 생겨도 조용히 글자만 나온다. */
+const OUTCOME_ROW_ICON = {
+  "남은 유성": "../assets/library/results/metric-shots.png",
+  "사용 유성": "../assets/library/results/metric-shots.png",
+  "관측 시간": "../assets/library/results/metric-time.png",
+  "최대 피해": "../assets/library/results/metric-damage.png",
+  "가한 피해": "../assets/library/results/metric-damage.png",
+};
 function outcomeCine(
   kind,
   { kicker, title, caption, rows, advice = "", ctas },
@@ -791,16 +801,23 @@ function outcomeCine(
     "</p>" +
     '<div class="oc-rows">' +
     rows
-      .map(
-        (r, i) =>
+      .map((r, i) => {
+        const ico = OUTCOME_ROW_ICON[r[0]];
+        return (
           '<span class="oc-row" style="--i:' +
           i +
           '"><small>' +
+          (ico
+            ? '<img class="oc-row-ico" src="' +
+              ico +
+              '" alt="" aria-hidden="true">'
+            : "") +
           r[0] +
           "</small><b>" +
           r[1] +
-          "</b></span>",
-      )
+          "</b></span>"
+        );
+      })
       .join("") +
     "</div>" +
     (advice
