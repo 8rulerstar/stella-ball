@@ -3428,6 +3428,19 @@ body.onboarding-locked .pause-button {
   padding: 13px 16px !important;
   font-size: 13px !important;
 }
+/* 강조 비트(2026-08-23): 설명 카드가 자기 스포트라이트를 가리지 않게 판
+   하단으로 내린다. 별지기는 판 중단, 거상·안내별은 상단이라 하단 고정이
+   모두를 비운다. 개념 하나짜리라 카드도 작게 둔다. */
+.onboarding-dock .onboarding-card.onboarding-emphasis {
+  align-self: flex-end !important;
+  width: min(400px, calc(100% - 28px)) !important;
+  margin-bottom: 12px !important;
+  padding: 13px 16px 12px !important;
+}
+.onboarding-dock .onboarding-card.onboarding-emphasis h3 {
+  margin: 7px 0 6px !important;
+  font-size: 15px !important;
+}
 /* Practice steps: out of the play area entirely. */
 .onboarding-dock .onboarding-card.table-live {
   position: fixed !important;

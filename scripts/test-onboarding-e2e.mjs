@@ -389,13 +389,13 @@ async function runOnboarding() {
 
   await waitUntil(
     "lesson card 1",
-    async () => (await gameState()).card === "1 / 8",
+    async () => (await gameState()).card === "1 / 13",
   );
   await clickButton("유성 발사하기");
   await dragShot();
   const first = await waitForLessonResult(0);
   assert(first.bossHit, "Lesson 1 did not register the direct boss hit");
-  assert(first.card === "2 / 8", `Expected card 2 / 8, got ${first.card}`);
+  assert(first.card === "2 / 13", `Expected card 2 / 13, got ${first.card}`);
   record("lesson-pass", { lesson: 1, assertion: "bossHit" });
 
   /* 2026-08-21: 수업이 «조향·Space 패링»에서 «노드 조준·자동 공명·별빛
@@ -405,17 +405,28 @@ async function runOnboarding() {
   await clickButton("다음 · 별빛으로 조준");
   await waitUntil(
     "lesson card 3",
-    async () => (await gameState()).card === "3 / 8",
+    async () => (await gameState()).card === "3 / 13",
+  );
+  // 조준 카드가 개념 셋으로 쪼개졌다(별지기 빛 · 유성 항로 · 벌림).
+  await clickButton("다음 · 유성 항로");
+  await waitUntil(
+    "lesson card 4",
+    async () => (await gameState()).card === "4 / 13",
+  );
+  await clickButton("다음 · 벌림");
+  await waitUntil(
+    "lesson card 5",
+    async () => (await gameState()).card === "5 / 13",
   );
   await clickButton("다음 · 각성");
   await waitUntil(
-    "lesson card 4",
-    async () => (await gameState()).card === "4 / 8",
+    "lesson card 6",
+    async () => (await gameState()).card === "6 / 13",
   );
   await clickButton("각성까지 확인하고 발사");
   await nodeShot(3);
-  const second = await waitForLessonResult(1, 20000, 2);
-  assert(second.card === "5 / 8", `Expected card 5 / 8, got ${second.card}`);
+  const second = await waitForLessonResult(1, 20000, 4);
+  assert(second.card === "7 / 13", `Expected card 7 / 13, got ${second.card}`);
   const aimed = await evaluate(
     "typeof onboarding === 'object' && onboarding ? !!onboarding.aimed : null",
   );
@@ -441,8 +452,8 @@ async function runOnboarding() {
 
   await clickButton("다음 · 별자리");
   await waitUntil(
-    "lesson card 6",
-    async () => (await gameState()).card === "6 / 8",
+    "lesson card 8",
+    async () => (await gameState()).card === "8 / 13",
   );
   await clickButton("안내별을 남기고 발사");
   /* 별지기 셋만 찍으면 안내별 일곱은 하나도 조준에 쓰이지 않고 전부 별자리
@@ -468,7 +479,7 @@ async function runOnboarding() {
     `Expected Big Dipper, got ${resonance.figure}`,
   );
   const third = await waitForLessonResult(2, 25000);
-  assert(third.card === "7 / 8", `Expected card 7 / 8, got ${third.card}`);
+  assert(third.card === "9 / 13", `Expected card 9 / 13, got ${third.card}`);
   record("lesson-pass", {
     lesson: 3,
     assertion: "figure",
@@ -476,9 +487,26 @@ async function runOnboarding() {
   });
 
   await clickButton("다음 · 실전 순서");
+  // 실전 순서 recap이 네 비트(①②③④)로 쪼개졌다 — 각 비트가 판을 암전하고
+  // 그 단계가 가리키는 요소를 스포트라이트+손가락으로 짚는다.
   await waitUntil(
-    "lesson card 8",
-    async () => (await gameState()).card === "8 / 8",
+    "lesson card 10",
+    async () => (await gameState()).card === "10 / 13",
+  );
+  await clickButton("다음 · ②");
+  await waitUntil(
+    "lesson card 11",
+    async () => (await gameState()).card === "11 / 13",
+  );
+  await clickButton("다음 · ③");
+  await waitUntil(
+    "lesson card 12",
+    async () => (await gameState()).card === "12 / 13",
+  );
+  await clickButton("다음 · ④");
+  await waitUntil(
+    "lesson card 13",
+    async () => (await gameState()).card === "13 / 13",
   );
   await clickButton("순서 확인하고 실전 시작");
   const finalStart = await waitUntil("final battle", async () => {
@@ -706,14 +734,19 @@ try {
         browser: basename(executable),
         durationMs: Date.now() - startedAt,
         cards: [
-          "1 / 8",
-          "2 / 8",
-          "3 / 8",
-          "4 / 8",
-          "5 / 8",
-          "6 / 8",
-          "7 / 8",
-          "8 / 8",
+          "1 / 13",
+          "2 / 13",
+          "3 / 13",
+          "4 / 13",
+          "5 / 13",
+          "6 / 13",
+          "7 / 13",
+          "8 / 13",
+          "9 / 13",
+          "10 / 13",
+          "11 / 13",
+          "12 / 13",
+          "13 / 13",
         ],
         figure: "bigdipper",
         ...journey,

@@ -167,13 +167,17 @@ try {
   console.log("\n════ 2단계 — 별빛 조준");
   if (!(await tabToAndPress("다음 · 별빛으로 조준")))
     throw new Error("2단계 안내 카드 실패");
+  if (!(await tabToAndPress("다음 · 유성 항로")))
+    throw new Error("조준 항로 카드 실패");
+  if (!(await tabToAndPress("다음 · 벌림")))
+    throw new Error("조준 벌림 카드 실패");
   if (!(await tabToAndPress("다음 · 각성")))
     throw new Error("각성 사전 안내 카드 실패");
   if (!(await tabToAndPress("각성까지 확인하고 발사")))
     throw new Error("2단계 실습 카드 실패");
   console.log("  " + (await aimAndFire(3)));
   await waitFor(
-    "!!onboarding?.aimed && !!onboarding?.awakenedHero && onboarding?.dialogue === 2 && onboarding?.panelVisible === true",
+    "!!onboarding?.aimed && !!onboarding?.awakenedHero && onboarding?.dialogue === 4 && onboarding?.panelVisible === true",
     25000,
   ).catch(() => {});
   s = JSON.parse(await evaluate(S));
@@ -199,6 +203,12 @@ try {
   console.log("\n════ 4단계 — 실전 순서 확인");
   if (!(await tabToAndPress("다음 · 실전 순서")))
     throw new Error("실전 순서 안내 진입 실패");
+  if (!(await tabToAndPress("다음 · ②")))
+    throw new Error("실전 순서 ② 카드 실패");
+  if (!(await tabToAndPress("다음 · ③")))
+    throw new Error("실전 순서 ③ 카드 실패");
+  if (!(await tabToAndPress("다음 · ④")))
+    throw new Error("실전 순서 ④ 카드 실패");
   if (!(await tabToAndPress("순서 확인하고 실전 시작")))
     throw new Error("실전 시작 실패");
   for (let shot = 0; shot < 8; shot += 1) {

@@ -7,7 +7,11 @@ if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
 const ONBOARDING_STORAGE = "stella-ball.onboarding.v1";
 const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
 const PARTY_SLOT_STORAGE = "stella-ball.party-slots.v1";
-const ONBOARDING_CARD_COUNT = 8;
+const ONBOARDING_CARD_COUNT = 13;
+/* 실습 한 발이 끝나면 그 단계의 «결과 카드»로 돌아온다. 개념 비트를 카드
+   사이에 끼워 넣으면 결과 카드의 dialogue 인덱스가 밀리므로, 어느 자리에
+   서는지 한곳에 표로 둔다: [0단계, 1단계, 2단계, 마지막]. */
+const ONBOARDING_RESULT_DIALOGUE = [1, 4, 1, 0];
 const onboardingStageSlots = stages[0].slots.map((point) => [...point]);
 let constellationReveal = null;
 function markStoryIntroSeen() {
@@ -352,6 +356,13 @@ function continueOnboarding(action) {
   if (!onboarding) return;
   playSfx?.("confirm");
   if (action === "learn-aim") return setOnboardingPhase(1);
+  /* 같은 단계 안에서 다음 설명 비트로 넘어간다 — 개념 하나짜리 카드를
+     선형으로 잇는다. 예전 explain-awaken·explain-final의 +1 동작을 일반화한
+     것이라, 새 조준·순서 비트가 모두 이 한 액션을 쓴다. */
+  if (action === "next-beat") {
+    onboarding.dialogue = (onboarding.dialogue ?? 0) + 1;
+    return renderOnboarding();
+  }
   if (action === "explain-awaken") {
     onboarding.dialogue = 1;
     return renderOnboarding();
@@ -428,24 +439,40 @@ function renderOnboarding() {
     [
       {
         n: 3,
-        title: "별빛 세 곳을 골라 조준해요.",
-        /* 이 판에는 아직 별빛이 없다(단계 진입의 setupBattle이 비운다).
-           규칙은 «별지기든 별빛이든»이 맞지만, 문안이 판에 없는 것을 먼저
-           말하면 플레이어는 별빛부터 찾는다 — 지금 판의 노드가 무엇인지를
-           문안이 짚는다. */
-        body: "별지기마다 조준에 쓸 수 있는 빛이 켜져 있어요. 세 명을 차례로 누르면 번호 1·2·3과 금빛 선이 나타납니다. 유성은 세 빛의 한가운데로 날아가고, 서로 멀리 떨어진 빛을 고를수록 강해져요. 같은 곳을 다시 누르면 선택이 취소됩니다.",
-        button: "다음 · 각성",
-        action: "explain-awaken",
+        spot: "aim-pick",
+        title: "별지기의 빛 세 곳을 골라요.",
+        /* 조준 카드를 개념 하나씩으로 쪼갠다(2026-08-23 오너 지시 — «와다다»
+           금지). 이 판에는 아직 별빛이 없어(setupBattle이 비운다) 별지기의
+           빛부터 짚는다. 판이 암전되고 손가락이 별지기 빛을 두드린다. */
+        body: "별지기마다 조준에 쓸 수 있는 빛이 켜져 있어요. 세 명을 차례로 누르면 번호 1·2·3과 금빛 선이 나타납니다.",
+        button: "다음 · 유성 항로",
+        action: "next-beat",
       },
       {
         n: 4,
+        spot: "aim-center",
+        title: "유성은 한가운데로 날아가요.",
+        body: "고른 세 빛의 한가운데가 유성의 항로예요. 어느 곳을 고르느냐로 방향이 정해집니다.",
+        button: "다음 · 벌림",
+        action: "next-beat",
+      },
+      {
+        n: 5,
+        spot: "aim-spread",
+        title: "멀리 벌릴수록 강해요.",
+        body: "서로 멀리 떨어진 빛을 고를수록 유성이 세게 날아가요. 같은 곳을 다시 누르면 선택이 취소됩니다.",
+        button: "다음 · 각성",
+        action: "next-beat",
+      },
+      {
+        n: 6,
         title: "별지기와 부딪히면 각성을 준비해요.",
         body: "유성이 별지기와 부딪히면 공명이 자동으로 일어나고, 별지기 둘레에 빛나는 고리가 켜집니다. 이 고리는 «각성 준비» 표시예요. 유성과 별지기가 모두 멈추면, 고리가 켜진 별지기가 현재 자리에서 자신의 고유 공격을 사용합니다. 부딪힌 자리에는 다음 별자리에 쓸 작은 별빛도 남아요.",
         button: "각성까지 확인하고 발사",
         action: "practice",
       },
       {
-        n: 5,
+        n: 7,
         title:
           onboarding.aimed && onboarding.awakenedHero
             ? "각성 공격까지 확인했어요!"
@@ -467,7 +494,7 @@ function renderOnboarding() {
     ],
     [
       {
-        n: 6,
+        n: 8,
         title: "남겨 둔 별빛으로 별자리를 만들어요.",
         /* 판에는 북두칠성 안내별 일곱이 깔리고, 가르치는 손은 «별지기 셋만
            찍기»다. 실전에서는 공명으로 모으는 재료임을 함께 밝혀, 수업이
@@ -477,7 +504,7 @@ function renderOnboarding() {
         action: "practice",
       },
       {
-        n: 7,
+        n: 9,
         title:
           onboarding.figureId === "bigdipper"
             ? "북두칠성이 완성됐어요!"
@@ -492,13 +519,40 @@ function renderOnboarding() {
             : "다시 시도",
         // The showcase is the promise of the combat system. Do not let a
         // skipped practice advance before the player has actually seen it.
-        action:
-          onboarding.figureId === "bigdipper" ? "explain-final" : "practice",
+        action: onboarding.figureId === "bigdipper" ? "next-beat" : "practice",
+      },
+      /* 실전 순서 ①②③④를 한 카드에 몰아넣던 «와다다» 카드를 네 비트로
+         쪼갠다(2026-08-23 오너 지시). 각 비트는 판을 암전하고 그 개념이
+         가리키는 요소를 스포트라이트+손가락으로 짚는다. */
+      {
+        n: 10,
+        spot: "recap-1",
+        title: "실전 순서 ① 조준하고 발사",
+        body: "별빛 세 곳을 고르고 Space로 발사합니다.",
+        button: "다음 · ②",
+        action: "next-beat",
       },
       {
-        n: 8,
-        title: "실전은 이 순서로 진행돼요.",
-        body: "① 별빛 세 곳을 고르고 Space로 발사합니다. ② 별지기와 부딪히면 공명하고 각성을 준비하며 작은 별빛이 남습니다. ③ 모든 움직임이 멈추면 각성한 별지기가 고유 공격을 사용합니다. ④ 다음 발사 때 작은 별빛을 세 개 이상 남겨 두면, 유성이 출발하기 전에 별자리가 완성되어 먼저 공격합니다.",
+        n: 11,
+        spot: "recap-2",
+        title: "실전 순서 ② 부딪혀 공명·각성 준비",
+        body: "별지기와 부딪히면 공명하고 각성을 준비하며, 그 자리에 작은 별빛이 남습니다.",
+        button: "다음 · ③",
+        action: "next-beat",
+      },
+      {
+        n: 12,
+        spot: "recap-3",
+        title: "실전 순서 ③ 멈추면 각성 공격",
+        body: "모든 움직임이 멈추면 각성한 별지기가 고유 공격을 사용합니다.",
+        button: "다음 · ④",
+        action: "next-beat",
+      },
+      {
+        n: 13,
+        spot: "recap-4",
+        title: "실전 순서 ④ 별빛을 남겨 별자리",
+        body: "다음 발사 때 작은 별빛을 세 개 이상 남겨 두면, 유성이 출발하기 전에 별자리가 완성되어 먼저 공격합니다.",
         button: "순서 확인하고 실전 시작",
         action: "final-battle",
       },
@@ -506,6 +560,9 @@ function renderOnboarding() {
     [],
   ];
   const copy = lessons[step][Math.min(dialogue, lessons[step].length - 1)];
+  /* 이 카드가 판의 어느 요소를 가리키는지 판 그리기 훅이 읽는다. spot이
+     없는 카드(결과·dense)는 판을 어둡게 하지 않는다. */
+  onboarding.spot = copy.spot || null;
   const revealId = String((onboarding.revealId || 0) + 1);
   onboarding.revealId = Number(revealId);
   const revealDelay = Math.min(1900, 620 + copy.body.split(" ").length * 28);
@@ -516,6 +573,7 @@ function renderOnboarding() {
   card.className =
     "onboarding-card onboarding-enter " +
     (onboarding.launched ? "waiting " : "") +
+    (copy.spot ? "onboarding-emphasis " : "") +
     (copy.n === ONBOARDING_CARD_COUNT ? "complete" : "");
   const bars = Array.from(
     { length: ONBOARDING_CARD_COUNT },
@@ -1127,7 +1185,7 @@ registerRuntimeHook("afterPartySettle", ({ figureActive, awakened = [] }) => {
   // A practice shot resolved: bring back this lesson's result card and let the
   // player read it for as long as they want.
   onboarding.attempts = (onboarding.attempts ?? 0) + 1;
-  onboarding.dialogue = onboarding.phase === 1 ? 2 : 1;
+  onboarding.dialogue = ONBOARDING_RESULT_DIALOGUE[onboarding.phase] ?? 1;
   onboarding.launched = false;
   // Let the first constellation complete its trace, correction and cast before
   // the result card covers the table. Input stays locked during this short beat.
@@ -1407,6 +1465,116 @@ function drawOnboardingGuide() {
   x.restore();
 }
 registerRuntimeHook("afterDraw", drawOnboardingGuide);
+
+/* 설명 카드가 떠 있는 동안의 «암전 + 스포트라이트 + 손가락»(2026-08-23 오너
+   지시 — 튜토리얼을 «와다다»에서 개념 하나씩으로). 실습용 drawOnboardingGuide는
+   panelVisible === false 에서만 돌고 이쪽은 panelVisible === true 에서만 도므로
+   프레임당 서로 배타적이다 — 같은 dim 캔버스를 두고 다투지 않는다. 카드가 spot을
+   선언한 비트에서만, 그 개념이 가리키는 판 위 요소(별지기·거상·안내별)를 좁은 빛
+   구멍으로 남기고 손가락이 그 자리를 두드린다. 좁은 반지름이 «확대»를 대신한다. */
+function onboardingCardEmphasisTarget() {
+  if (!onboarding || onboarding.panelVisible !== true || !onboarding.spot)
+    return null;
+  if (onboarding.phase === ONBOARDING_FINAL_PHASE) return null;
+  if (!run || !battle || !ball || ball.moving) return null;
+  if (onboarding.transitioning) return null;
+  /* 설명 카드를 읽는 동안은 조준 입력이 잠겨 있는 게 정상이라 그걸로 접지
+     않는다 — 별자리 현현(입력 잠금 + 보상 재생) 때만 접는다. */
+  if (constellationReveal) return null;
+  const gs = Array.isArray(gates) ? gates : [];
+  const stars = Array.isArray(aimStars) ? aimStars : [];
+  const mid = (pts) => {
+    if (!pts.length) return null;
+    let sx = 0,
+      sy = 0;
+    for (const p of pts) {
+      sx += p.x;
+      sy += p.y;
+    }
+    return { x: sx / pts.length, y: sy / pts.length };
+  };
+  const holes = [];
+  let finger = null;
+  switch (onboarding.spot) {
+    case "aim-pick":
+      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 54 });
+      finger = gs[0] || null;
+      break;
+    case "aim-center": {
+      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 46 });
+      const c = mid(gs);
+      if (c) {
+        holes.push({ x: c.x, y: c.y, r: 40 });
+        finger = c;
+      }
+      break;
+    }
+    case "aim-spread": {
+      let a = null,
+        b = null,
+        best = -1;
+      for (let i = 0; i < gs.length; i++)
+        for (let j = i + 1; j < gs.length; j++) {
+          const d = (gs[i].x - gs[j].x) ** 2 + (gs[i].y - gs[j].y) ** 2;
+          if (d > best) {
+            best = d;
+            a = gs[i];
+            b = gs[j];
+          }
+        }
+      if (a && b) {
+        holes.push({ x: a.x, y: a.y, r: 50 }, { x: b.x, y: b.y, r: 50 });
+        finger = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      } else for (const g of gs) holes.push({ x: g.x, y: g.y, r: 50 });
+      break;
+    }
+    case "recap-1":
+      for (const g of gs) holes.push({ x: g.x, y: g.y, r: 52 });
+      finger = gs[0] || null;
+      break;
+    case "recap-2":
+      if (gs[0]) {
+        holes.push({ x: gs[0].x, y: gs[0].y, r: 54 });
+        finger = gs[0];
+      }
+      if (boss) holes.push({ x: boss.x, y: boss.y, r: 60 });
+      break;
+    case "recap-3": {
+      const g = gs[0] || boss;
+      if (g) {
+        holes.push({ x: g.x, y: g.y, r: 54 });
+        finger = g;
+      }
+      break;
+    }
+    case "recap-4":
+      if (stars.length) {
+        for (const s of stars) holes.push({ x: s.x, y: s.y, r: 40 });
+        finger = mid(stars);
+      } else if (boss) {
+        holes.push({ x: boss.x, y: boss.y, r: 58 });
+        finger = boss;
+      }
+      break;
+  }
+  if (!holes.length) return null;
+  return { holes, finger };
+}
+function drawOnboardingCardEmphasis() {
+  const spot = onboardingCardEmphasisTarget();
+  if (!spot) return;
+  x.save();
+  drawLessonDim(spot.holes, 0.62);
+  if (spot.finger) {
+    const cycle = (frameClock % 1050) / 1050;
+    const down =
+      cycle < 0.4 ? cycle / 0.4 : cycle < 0.55 ? 1 : 1 - (cycle - 0.55) / 0.45;
+    const press = cycle > 0.4 && cycle < 0.7 ? (cycle - 0.4) / 0.3 : 0;
+    drawLessonFinger(spot.finger.x, spot.finger.y, (1 - down) * 14, press);
+  }
+  x.restore();
+}
+registerRuntimeHook("afterDraw", drawOnboardingCardEmphasis);
 /* 「카드가 판에 자리를 내준다」(table-live) 장치는 걷었다. 재작성 뒤
    카드는 panelVisible이 false인 순간 DOM에서 제거되므로, «카드가 떠 있는
    채로 판이 움직이는» 상태 자체가 없다 — 매 프레임 있지도 않은 카드를
