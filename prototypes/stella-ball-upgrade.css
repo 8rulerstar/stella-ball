@@ -442,6 +442,39 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   image-rendering: auto;
 }
 
+/* ── 로스터(배치) 화면 글씨 (2026-08-23) ─────────────────────────────────
+   자리·별지기 역할·능력 설명이 10~11px라 작다는 지적. 초상·번호 아이콘은
+   이미 있으므로 설명 텍스트만 키운다. */
+.squad-head small,
+.squad-head p {
+  font-size: 12px;
+}
+.squad-detail-copy small {
+  font-size: 12px;
+}
+.squad-detail-copy p {
+  font-size: 12px;
+  line-height: 1.55;
+}
+.squad-detail-zone {
+  font-size: 12px;
+}
+.squad-detail-zone i {
+  font-size: 11px;
+}
+.squad-tray-head small {
+  font-size: 12px;
+}
+.slot-name {
+  font-size: 12px;
+}
+.slot-zone {
+  font-size: 11px;
+}
+.map-launch {
+  font-size: 11px;
+}
+
 .oc-advice {
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
