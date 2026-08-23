@@ -116,10 +116,11 @@ async function waitPlayable(ms = 20000) {
 async function aimAndFire(picks = 3) {
   await waitPlayable();
   const before = JSON.parse(await evaluate(S));
-  if (before.nodes <= 0) {
-    // 노드가 없는 판(수업 1단계) — 드래그의 키보드 대응물로 바로 쏜다.
+  if (before.nodes < 3) {
+    // 노드가 셋 미만인 판(1단계 자유조준 각성 = 별지기 1) — aimStarReady가
+    // 거짓이라 드래그의 키보드 대응물(launchKeyboardPull)로 바로 쏜다.
     await press("Space", 900);
-    return "조준 별빛 0개 · Space 로 바로 발사";
+    return "노드 " + before.nodes + "개 · Space 로 바로 발사";
   }
   /* 커서가 없을 때의 첫 Enter 는 «커서를 세우는» 동작이다 — 어디를 찍을지
      들려주고 나서 찍게 하는 것이 설계다. 그래서 화살표로 커서를 먼저
@@ -150,16 +151,15 @@ try {
     throw new Error("수업 진입 실패");
   await delay(2500);
 
-  console.log("\n════ 1단계 — 드래그를 가르치는 판 (조준 별빛 0개)");
-  if (!(await tabToAndPress("유성 발사하기")))
-    throw new Error("1단계 카드 실패");
+  console.log("\n════ 1단계 — 자유조준으로 각성 (별지기 1)");
+  if (!(await tabToAndPress("유성 굴리기"))) throw new Error("1단계 카드 실패");
   console.log("  " + (await aimAndFire()));
-  await waitFor("!!onboarding?.bossHit", 20000).catch(() => {});
+  await waitFor("!!onboarding?.awakenedHero", 20000).catch(() => {});
   let s = JSON.parse(await evaluate(S));
   console.log(
-    `  보스 명중 ${s.bossHit ? "예 — 잠김이 풀렸다" : "✗ 아니오 (여기서 갇힌다)"}`,
+    `  각성 ${s.awakened ? "예 — " + s.awakened + " (잠김이 풀렸다)" : "✗ 아니오 (여기서 갇힌다)"}`,
   );
-  if (!s.bossHit) throw new Error("1단계에서 갇혔다");
+  if (!s.awakened) throw new Error("1단계에서 각성 못 함");
 
   /* 카드 순서는 test-onboarding-e2e.mjs 의 여정과 같아야 한다. 안내 카드
      뒤에 실습을 «여는» 카드가 하나 더 있는데, 그것을 빠뜨리면 입력이 잠긴
@@ -171,24 +171,16 @@ try {
     throw new Error("조준 항로 카드 실패");
   if (!(await tabToAndPress("다음 · 벌림")))
     throw new Error("조준 벌림 카드 실패");
-  if (!(await tabToAndPress("다음 · 각성")))
-    throw new Error("각성 공명 카드 실패");
-  if (!(await tabToAndPress("다음 · 각성 공격")))
-    throw new Error("각성 공격 카드 실패");
-  if (!(await tabToAndPress("다음 · 남는 별빛")))
-    throw new Error("남는 별빛 카드 실패");
-  if (!(await tabToAndPress("각성까지 확인하고 발사")))
+  if (!(await tabToAndPress("조준해서 발사")))
     throw new Error("2단계 실습 카드 실패");
   console.log("  " + (await aimAndFire(3)));
   await waitFor(
-    "!!onboarding?.aimed && !!onboarding?.awakenedHero && onboarding?.dialogue === 6 && onboarding?.panelVisible === true",
+    "!!onboarding?.aimed && onboarding?.dialogue === 3 && onboarding?.panelVisible === true",
     25000,
   ).catch(() => {});
   s = JSON.parse(await evaluate(S));
-  console.log(
-    `  별빛 조준 ${s.aimed ? "완료" : "실패"} · 각성 ${s.awakened || "실패"}`,
-  );
-  if (!s.aimed || !s.awakened) throw new Error("2단계에서 갇혔다");
+  console.log(`  별빛 조준 ${s.aimed ? "완료" : "실패"}`);
+  if (!s.aimed) throw new Error("2단계에서 갇혔다");
 
   console.log("\n════ 3단계 — 별자리");
   if (!(await tabToAndPress("다음 · 별자리")))
@@ -211,12 +203,8 @@ try {
   console.log("\n════ 4단계 — 실전 순서 확인");
   if (!(await tabToAndPress("다음 · 실전 순서")))
     throw new Error("실전 순서 안내 진입 실패");
-  if (!(await tabToAndPress("다음 · ②")))
-    throw new Error("실전 순서 ② 카드 실패");
-  if (!(await tabToAndPress("다음 · ③")))
-    throw new Error("실전 순서 ③ 카드 실패");
-  if (!(await tabToAndPress("다음 · ④")))
-    throw new Error("실전 순서 ④ 카드 실패");
+  if (!(await tabToAndPress("다음 · ③④")))
+    throw new Error("실전 순서 ①② 카드 실패");
   if (!(await tabToAndPress("순서 확인하고 실전 시작")))
     throw new Error("실전 시작 실패");
   for (let shot = 0; shot < 8; shot += 1) {

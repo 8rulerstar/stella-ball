@@ -7,11 +7,11 @@ if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
 const ONBOARDING_STORAGE = "stella-ball.onboarding.v1";
 const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
 const PARTY_SLOT_STORAGE = "stella-ball.party-slots.v1";
-const ONBOARDING_CARD_COUNT = 17;
+const ONBOARDING_CARD_COUNT = 12;
 /* 실습 한 발이 끝나면 그 단계의 «결과 카드»로 돌아온다. 개념 비트를 카드
    사이에 끼워 넣으면 결과 카드의 dialogue 인덱스가 밀리므로, 어느 자리에
    서는지 한곳에 표로 둔다: [0단계, 1단계, 2단계, 마지막]. */
-const ONBOARDING_RESULT_DIALOGUE = [1, 6, 3, 0];
+const ONBOARDING_RESULT_DIALOGUE = [1, 3, 3, 0];
 const onboardingStageSlots = stages[0].slots.map((point) => [...point]);
 let constellationReveal = null;
 function markStoryIntroSeen() {
@@ -222,14 +222,15 @@ function isOnboardingFinalLesson() {
    것도 없다. 반입 패치가 문안만 바꾸고 배치를 안 바꾼 자리이고, 핸드오프
    §3-1의 「접점 별지기를 발사 항로 위에 두어 공명 1회를 보장」이 이것이다.
 
-   다만 1단계는 비워 둔다. 별지기가 서면 노드가 셋이 되어 aimStarReady()가
-   참이 되고, 그 순간 좌클릭이 «찍기»로 넘어가 드래그가 도달 불가능해진다 —
-   1단계가 가르치는 것이 바로 그 드래그다. 드래그는 노드가 없을 때의 경로이고,
-   수업은 그 순서를 그대로 따라간다: 1단계 드래그 -> 2단계부터 찍기.
-   2단계는 셋을 벌려 세워 «넓게 찍으면 세다»가 손에 잡히게 한다. */
+   1단계(phase 0)에는 별지기 «한 명»(가온)만 세운다(2026-08-23 오너 지시 —
+   자유조준으로 각성을 가장 먼저 가르친다). 한 명이면 노드가 1개라
+   aimStarReady()가 여전히 거짓이고, 좌클릭은 «찍기»가 아니라 드래그로 남는다 —
+   그 드래그를 resolveBilliardAim이 그 별지기로 유도해 부딪혀 각성시킨다.
+   가온이어야 한다: 정착 공격(slash)이 보이는 얼굴이라 「멈추면 고유 공격을
+   써요」가 참이 된다. 2단계는 셋을 벌려 «넓게 찍으면 세다»를 손에 쥐여 준다. */
 const onboardingLayouts = [
   {
-    party: [],
+    party: ["gaon"],
     slots: [
       [360, 430],
       [360, 340],
@@ -332,8 +333,8 @@ function setOnboardingPhase(phase) {
       );
   }
   msg = [
-    "도우미 루나 · 유성을 보스에게 곧장 보내 보세요.",
-    "도우미 루나 · 별빛 세 곳을 고른 뒤, 별지기와 부딪혀 각성을 준비하세요.",
+    "도우미 루나 · 유성을 끌어 앞의 별지기에게 부딪혀 보세요.",
+    "도우미 루나 · 별지기 위의 빛 세 곳을 골라 조준해 발사하세요.",
     "도우미 루나 · 보스 주위의 안내별 일곱은 누르지 말고 남겨 두세요.",
     "실전 · 별지기와 부딪혀 별빛을 만들고, 남긴 별빛으로 별자리를 완성하세요.",
   ][phase];
@@ -363,15 +364,7 @@ function continueOnboarding(action) {
     onboarding.dialogue = (onboarding.dialogue ?? 0) + 1;
     return renderOnboarding();
   }
-  if (action === "explain-awaken") {
-    onboarding.dialogue = 1;
-    return renderOnboarding();
-  }
   if (action === "learn-figure") return setOnboardingPhase(2);
-  if (action === "explain-final") {
-    onboarding.dialogue = 2;
-    return renderOnboarding();
-  }
   if (action === "final-battle")
     return setOnboardingPhase(ONBOARDING_FINAL_PHASE);
   if (action === "practice") return beginOnboardingPractice();
@@ -414,26 +407,25 @@ function renderOnboarding() {
       {
         n: 1,
         title: "안녕하세요, 관측자님. 루나예요.",
-        /* 0단계는 resolveBilliardAim이 항로를 거상으로 고정한다. 「당긴
-           방향의 반대로 날아간다」라고만 써 두면 옆으로 끌어 본 사람에게
-           문안이 거짓말이 된다 — 루나가 항로를 잡아 준다는 사실을 문안이
-           직접 말해야 한다. */
-        body: "아래의 작은 빛이 유성이에요. 잡고 아래로 끌었다 놓으면 위로 날아갑니다. 첫 발은 제가 항로를 잡아 둘게요.",
-        button: "유성 발사하기",
+        /* 1단계는 자유조준으로 «각성»을 먼저 가르친다(2026-08-23 오너 지시).
+           resolveBilliardAim이 항로를 앞에 선 별지기(가온)로 잡아 주므로
+           문안은 «끌어서 별지기에게 굴린다»만 말하면 된다. */
+        body: "아래의 작은 빛이 유성이에요. 잡고 아래로 끌었다 놓으면 위로 날아가요. 항로는 제가 앞의 별지기에게 맞춰 둘게요. 부딪혀 볼까요?",
+        button: "유성 굴리기",
         action: "practice",
       },
       {
         n: 2,
-        title: onboarding.bossHit ? "직격! 잘했어요." : "빗나갔네요. 괜찮아요.",
-        body: onboarding.bossHit
-          ? "보스만 바로 맞히면 피해가 작아요. 다음 판에는 별지기 세 명이 서 있습니다. 유성이 별지기와 부딪히면 자동으로 공명하고, 부딪힌 자리에 작은 별빛이 남아요."
-          : "각도만 조금 바꾸면 돼요. 아래로 길게 끌수록 세게 날아갑니다. 한 번 더 해볼까요?",
-        button: onboarding.bossHit
+        title: onboarding.awakenedHero ? "각성했어요!" : "다시 해볼까요?",
+        body: onboarding.awakenedHero
+          ? "유성이 별지기와 부딪히자 공명이 일어났어요. 모두 멈추면 각성한 별지기가 고유 공격을 씁니다. 부딪힌 자리엔 다음 별자리에 쓸 작은 별빛이 남아요."
+          : "괜찮아요. 아래로 길게 끌었다 놓으면 유성이 별지기에게 날아가 부딪혀요. 한 번 더 해볼까요?",
+        button: onboarding.awakenedHero
           ? "다음 · 별빛으로 조준"
           : retried
             ? "괜찮아요, 다음으로"
             : "다시 시도",
-        action: onboarding.bossHit || retried ? "learn-aim" : "practice",
+        action: onboarding.awakenedHero || retried ? "learn-aim" : "practice",
       },
     ],
     [
@@ -458,67 +450,37 @@ function renderOnboarding() {
       {
         n: 5,
         title: "멀리 벌릴수록 강해요.",
-        body: "서로 멀리 떨어진 빛을 고를수록 유성이 세게 날아가요. 같은 곳을 다시 누르면 선택이 취소됩니다.",
-        button: "다음 · 각성",
-        action: "next-beat",
-      },
-      {
-        n: 6,
-        title: "부딪히면 공명해 고리가 켜져요.",
-        /* 각성 안내도 개념 하나씩으로 쪼갠다(2026-08-23). 판을 암전하고
-           손가락이 별지기를 짚어 «여기서 일어난다»를 몸으로 말한다. */
-        body: "유성이 별지기와 부딪히면 공명이 자동으로 일어나고, 별지기 둘레에 «각성 준비» 고리가 켜집니다.",
-        button: "다음 · 각성 공격",
-        action: "next-beat",
-      },
-      {
-        n: 7,
-        title: "모두 멈추면 각성 공격을 써요.",
-        body: "유성과 별지기가 모두 멈추면, 고리가 켜진 별지기가 그 자리에서 자신의 고유 공격을 사용합니다.",
-        button: "다음 · 남는 별빛",
-        action: "next-beat",
-      },
-      {
-        n: 8,
-        title: "부딪힌 자리에 별빛이 남아요.",
-        body: "부딪힌 자리에는 다음 별자리에 쓸 작은 별빛이 남습니다. 이 별빛을 모아 별자리를 만들어요.",
-        button: "각성까지 확인하고 발사",
+        /* 각성은 1단계에서 이미 라이브로 봤으므로, 조준 단계는 «조준»만
+           가르치고 마지막 카드가 곧 발사 실습이다. 각성 설명 3장은 걷었다. */
+        body: "서로 멀리 떨어진 빛을 고를수록 유성이 세게 날아가요. 같은 곳을 다시 누르면 취소돼요. 셋을 고른 뒤 Space로 발사해 보세요.",
+        button: "조준해서 발사",
         action: "practice",
       },
       {
-        n: 9,
-        title:
-          onboarding.aimed && onboarding.awakenedHero
-            ? "각성 공격까지 확인했어요!"
-            : "아직 각성 공격이 나오지 않았어요.",
-        body:
-          onboarding.aimed && onboarding.awakenedHero
-            ? (heroes[onboarding.awakenedHero]?.s || "별지기") +
-              "에게 고리가 켜진 뒤, 모든 움직임이 멈추자 고유 공격이 나갔어요. 기억하세요: 부딪힐 때 공명과 각성 준비, 모두 멈춘 뒤 각성 공격입니다. 이제 남겨 둔 작은 별빛으로 별자리를 만들어 볼게요."
-            : "별빛 세 곳을 고른 뒤 Space로 발사하고, 유성이 별지기와 부딪히게 해보세요. 별지기 둘레에 고리가 켜지고 모든 움직임이 멈출 때까지 기다리면 고유 공격이 나갑니다.",
-        button:
-          onboarding.aimed && onboarding.awakenedHero
-            ? "다음 · 별자리"
-            : "다시 시도",
-        action:
-          onboarding.aimed && onboarding.awakenedHero
-            ? "learn-figure"
-            : "practice",
+        n: 6,
+        title: onboarding.aimed
+          ? "조준해서 발사했어요!"
+          : "아직 셋을 못 골랐어요.",
+        body: onboarding.aimed
+          ? "고른 세 빛의 한가운데로 유성이 날아갔어요. 부딪힌 별지기는 각성해 고유 공격을 쓰고, 그 자리엔 작은 별빛이 남았죠. 이제 남긴 별빛으로 별자리를 만들어 볼게요."
+          : "별지기 위의 빛 세 곳을 차례로 누른 뒤 Space로 발사해 보세요.",
+        button: onboarding.aimed ? "다음 · 별자리" : "다시 시도",
+        action: onboarding.aimed ? "learn-figure" : "practice",
       },
     ],
     [
       {
-        n: 10,
+        n: 7,
         spot: "figure-guide",
         title: "보스 주위에 안내별 일곱을 놓았어요.",
-        /* 별자리 안내도 개념 하나씩으로 쪼갠다(2026-08-23). 판을 암전하고
-           손가락이 안내별을 훑어 «이건 남기는 것»을 보여 준다. */
+        /* 별자리 안내: 판을 암전하고 손가락 없이 안내별을 조명만 해
+           «이건 남기는 것»을 보여 준다(「누르지 마세요」와 안 어긋나게). */
         body: "이번 수업에서는 북두칠성을 바로 볼 수 있도록 보스 주위에 안내별 일곱을 놓았어요. 안내별은 누르지 마세요.",
         button: "다음 · 별지기 빛",
         action: "next-beat",
       },
       {
-        n: 11,
+        n: 8,
         spot: "figure-pick",
         title: "별지기 위의 빛 세 곳만 고르세요.",
         body: "조준에는 별지기 위의 빛 세 곳만 씁니다. 안내별은 건드리지 말고 그대로 남겨 두세요.",
@@ -526,14 +488,14 @@ function renderOnboarding() {
         action: "next-beat",
       },
       {
-        n: 12,
+        n: 9,
         title: "발사하면 북두칠성이 완성돼요.",
         body: "Space로 발사하면 남긴 일곱 점이 이어져 북두칠성이 됩니다. 실전에서는 별지기와 부딪혀 이 작은 별빛을 모아요.",
         button: "안내별을 남기고 발사",
         action: "practice",
       },
       {
-        n: 13,
+        n: 10,
         title:
           onboarding.figureId === "bigdipper"
             ? "북두칠성이 완성됐어요!"
@@ -550,34 +512,19 @@ function renderOnboarding() {
         // skipped practice advance before the player has actually seen it.
         action: onboarding.figureId === "bigdipper" ? "next-beat" : "practice",
       },
-      /* 실전 순서 ①②③④를 한 카드에 몰아넣던 «와다다» 카드를 네 비트로
-         쪼갠다(2026-08-23 오너 지시). 각 비트는 판을 암전하고 그 개념이
-         가리키는 요소를 스포트라이트+손가락으로 짚는다. */
+      /* 실전 순서 요약. 예전 ①②③④ 네 장을 둘로 합친다(2026-08-23 오너
+         지시 — 전체 축소). 요약이라 판 강조는 없다. */
       {
-        n: 14,
-        title: "실전 순서 ① 조준하고 발사",
-        body: "별빛 세 곳을 고르고 Space로 발사합니다.",
-        button: "다음 · ②",
+        n: 11,
+        title: "실전 순서 ①② 조준·발사 → 부딪혀 각성",
+        body: "① 별빛 세 곳을 고르고 Space로 발사합니다. ② 별지기와 부딪히면 공명·각성하고, 그 자리에 작은 별빛이 남아요.",
+        button: "다음 · ③④",
         action: "next-beat",
       },
       {
-        n: 15,
-        title: "실전 순서 ② 부딪혀 공명·각성 준비",
-        body: "별지기와 부딪히면 공명하고 각성을 준비하며, 그 자리에 작은 별빛이 남습니다.",
-        button: "다음 · ③",
-        action: "next-beat",
-      },
-      {
-        n: 16,
-        title: "실전 순서 ③ 멈추면 각성 공격",
-        body: "모든 움직임이 멈추면 각성한 별지기가 고유 공격을 사용합니다.",
-        button: "다음 · ④",
-        action: "next-beat",
-      },
-      {
-        n: 17,
-        title: "실전 순서 ④ 별빛을 남겨 별자리",
-        body: "다음 발사 때 작은 별빛을 세 개 이상 남겨 두면, 유성이 출발하기 전에 별자리가 완성되어 먼저 공격합니다.",
+        n: 12,
+        title: "실전 순서 ③④ 각성 공격 → 별자리",
+        body: "③ 모두 멈추면 각성한 별지기가 고유 공격을 씁니다. ④ 다음 발사에 작은 별빛을 세 개 이상 남기면, 유성이 출발하기 전에 별자리가 완성되어 먼저 공격해요.",
         button: "순서 확인하고 실전 시작",
         action: "final-battle",
       },
@@ -745,10 +692,6 @@ function completeOnboarding() {
     showMeta();
   };
 }
-registerRuntimeHook("afterDirectBossDamage", () => {
-  // Record only.  The lesson card advances when the player presses the button.
-  if (onboarding?.phase === 0) onboarding.bossHit = true;
-});
 registerRuntimeHook(
   "resolveBilliardAim",
   ({ dx, dy }) => {
@@ -767,7 +710,9 @@ registerRuntimeHook(
 
        1단계(드래그)만 남긴다. 거기서는 아직 노드가 없어 드래그가 유일한
        조준이고, 「보스에게 곧장」이라는 문안이 항로를 약속한다. */
-    const target = onboarding?.phase === 0 ? boss : null;
+    // 1단계(phase 0)는 이제 «별지기에게 부딪혀 각성»이라, 드래그를 보스가
+    // 아니라 판에 선 한 명(gates[0])으로 유도한다. 별지기가 없으면 보스로 폴백.
+    const target = onboarding?.phase === 0 ? (gates?.[0] ?? boss) : null;
     if (target && ball) {
       const tx = target.x - ball.x,
         ty = target.y - ball.y,
@@ -1202,7 +1147,9 @@ registerRuntimeHook("afterPartySettle", ({ figureActive, awakened = [] }) => {
     };
   }
   if (!onboarding) return;
-  if (onboarding.phase === 1 && awakened.length)
+  // 1단계(phase 0)의 각성 수업도 각성한 별지기를 기록한다 — 결과 카드가
+  // «각성했어요!»를 그걸로 판단한다(예전 bossHit 대신).
+  if ((onboarding.phase === 0 || onboarding.phase === 1) && awakened.length)
     onboarding.awakenedHero = awakened[0].id;
   onboarding.settled = true;
   // The closing lesson is a real fight, so no card interrupts it.
@@ -1413,19 +1360,20 @@ function drawOnboardingGuide() {
   const phase = onboarding.phase;
   x.save();
   if (phase === 0) {
-    /* 끌기 수업: 유성과 거상만 빛에 남긴다. 손가락이 유성을 잡고 아래로
-       끄는 시늉을 반복한다 — «여기서 아래로»를 글자 없이 몸으로 말한다. */
+    /* 각성 수업: 유성과 그 앞의 별지기 한 명만 빛에 남긴다. 손가락이 유성을
+       잡고 아래로 끄는 시늉을 반복한다 — 유성이 별지기로 굴러가 부딪힌다. */
+    const target = gates?.[0] || boss;
     const holes = [{ x: ball.x, y: ball.y, r: 96 }];
-    if (boss) holes.push({ x: boss.x, y: boss.y, r: 106 });
+    if (target) holes.push({ x: target.x, y: target.y, r: 78 });
     drawLessonDim(holes, 0.6);
-    if (boss) {
+    if (target) {
       x.globalAlpha = 0.45;
       x.strokeStyle = "#ffe6a1";
       x.lineWidth = 1.5;
       x.setLineDash([4, 8]);
       x.beginPath();
       x.moveTo(ball.x, ball.y);
-      x.lineTo(boss.x, boss.y);
+      x.lineTo(target.x, target.y);
       x.stroke();
       x.setLineDash([]);
       x.globalAlpha = 1;
