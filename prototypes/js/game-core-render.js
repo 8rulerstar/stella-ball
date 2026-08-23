@@ -1691,6 +1691,31 @@ function drawBossOutro(t) {
   if (t >= 0.62 && t < 0.9) {
     const k = (t - 0.62) / 0.28;
     if (t < 0.66) screenShake = Math.max(screenShake, 34);
+    /* 산산조각 나는 그 순간의 «폭발» 한 방(2026-08-23). 여태 파편과 큰
+       흔들림은 있어도 밝은 플래시·버스트가 없어, 게임 최대 페이오프인
+       거상 격파가 «조용히» 부서졌다. 셔터 시작에 큰 버스트 둘(밝은 심이
+       얹혀 팝한다)과 화면 플래시를 한 번만 낸다. bossOutro.burst 로 1회
+       보장 — drawBossOutro 는 매 프레임 불린다. */
+    if (bossOutro && !bossOutro.burst) {
+      bossOutro.burst = true;
+      areaBursts.push({
+        x: boss.x,
+        y: boss.y,
+        r: 260,
+        col: "#ffe6b0",
+        t: 0,
+        d: 0.66,
+      });
+      areaBursts.push({
+        x: boss.x,
+        y: boss.y,
+        r: 150,
+        col: "#fff6e0",
+        t: 0,
+        d: 0.46,
+      });
+      screenFlash = Math.max(screenFlash || 0, 0.5);
+    }
     x.globalAlpha = 1 - k;
     x.fillStyle = "#ffe9ad";
     for (let i = 0; i < shards; i++) {
