@@ -1262,6 +1262,21 @@ function draw() {
   for (const burst of areaBursts) {
     const t = burst.t / burst.d;
     x.save();
+    /* 터지는 «순간»의 밝은 심(2026-08-23). 확장 링만으로는 «퍼지는 파문»은
+       있어도 «터졌다»는 한 방이 약했다. 첫 32%에 확 켜졌다 꺼지는 채움 원
+       하나로 팝을 준다 — 별자리 캐스트 페이오프·궤도 방벽 격파·잔재 소멸
+       등 모든 버스트가 함께 또렷해진다. 값싸다: 버스트당 fill 하나(배열
+       상한 10), 대부분 프레임엔 버스트가 없다. */
+    if (t < 0.32) {
+      const pop = 1 - t / 0.32;
+      x.globalAlpha = pop * 0.4;
+      x.fillStyle = burst.col;
+      x.shadowBlur = combatFxBlur(18);
+      x.shadowColor = burst.col;
+      x.beginPath();
+      x.arc(burst.x, burst.y, 8 + burst.r * t * 0.55, 0, Math.PI * 2);
+      x.fill();
+    }
     x.globalAlpha = 1 - t;
     x.strokeStyle = burst.col;
     x.shadowBlur = combatFxBlur(16);
