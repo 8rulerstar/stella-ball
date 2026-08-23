@@ -632,6 +632,14 @@
       "handTap": "library/icons/glyph/hand-tap.png"
     }
   },
+  "skyReaction": {
+    "file": "original/sky/constellation-reaction-overlay.png",
+    "width": 768,
+    "height": 512,
+    "source": "OpenAI image generation; project owner approved 2026-08-23",
+    "license": "Project-owned generated asset",
+    "runtimeUse": "sky-ambience.js: 5+ point figure resolve and first boss clear margin reaction"
+  },
   "starLadder": {
     "note": "✦ 한 도안(논리 8x8)을 셀 1/2/3/4로 구운 정수 배율 사다리 + ✧용 저휘도 벌. CSS 크기를 8/16/24/32로 몰아 넣는 것이 사용 조건.",
     "source": "scripts/generate_dot_sprites.py",

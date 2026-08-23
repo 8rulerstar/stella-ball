@@ -166,6 +166,7 @@ function applyBoostPad(o, pad, unit = null) {
     wakeUnit(unit);
     addPopup(unit.x, unit.y - 32, "가속!", "#caff9a", false);
   } else if (o === ball) {
+    if (battle?.stats) battle.stats.boostHits += 1;
     ball.power += 0.2;
     ball.bounces++;
     addPopup(pad.x, pad.y - 28, "운동량 상승!", "#caff9a", true);
@@ -355,6 +356,7 @@ function applyStageGimmicks(o, unit = null) {
       if (!unit && o === ball) ball.firstImpact ??= "orbital";
       if (orbit.hitCooldown > 0) return;
       orbit.hitCooldown = 0.22;
+      if (!unit && o === ball && battle?.stats) battle.stats.orbitHits += 1;
       combatSfx?.("orbit", 0.7);
       const amount = Math.max(
         6,
@@ -405,6 +407,25 @@ function applyStageGimmicks(o, unit = null) {
       else o.bounces = (o.bounces || 0) + 1;
     });
   for (const pad of boostPads) applyBoostPad(o, pad, unit);
+}
+function advanceOrbitalRecovery(orbit, d) {
+  if (!(orbit.down > 0)) return false;
+  orbit.down = Math.max(0, orbit.down - d);
+  if (orbit.down > 0) return true;
+  orbit.hp = orbit.maxHp;
+  orbit.hitCooldown = 0.22;
+  addPopup(orbit.x, orbit.y - 26, "방벽 재점화", "#c3f3ff", true);
+  areaBursts.push({
+    x: orbit.x,
+    y: orbit.y,
+    r: 38,
+    col: "#9adfc9",
+    t: 0,
+    d: 0.36,
+  });
+  toast("도는 방벽이 최대 내구도로 돌아왔습니다");
+  combatSfx?.("orbit", 0.55);
+  return true;
 }
 /* 별지기 질량. 1이면 등질량 — 실제 당구와 같고, 지금 값이다.
 
@@ -667,10 +688,7 @@ function simulatePhysics(d) {
   // player is always timing a moving gap rather than a static wall.
   for (const orbit of orbitals) {
     orbit.hitCooldown = Math.max(0, orbit.hitCooldown - d);
-    if (orbit.down > 0) {
-      orbit.down = Math.max(0, orbit.down - d);
-      continue;
-    }
+    if (advanceOrbitalRecovery(orbit, d)) continue;
     orbit.a += orbit.speed * d;
     orbit.x = boss.x + Math.cos(orbit.a) * orbit.radius;
     orbit.y = boss.y + Math.sin(orbit.a) * orbit.radius;
@@ -1361,6 +1379,158 @@ function drawGimmickLegend() {
   x.restore();
 }
 
+function rayRectHit(ox, oy, dx, dy, rect, padding = 0) {
+  const left = rect.x - rect.w / 2 - padding,
+    right = rect.x + rect.w / 2 + padding,
+    top = rect.y - rect.h / 2 - padding,
+    bottom = rect.y + rect.h / 2 + padding,
+    hits = [];
+  if (Math.abs(dx) > 0.0001) {
+    const leftT = (left - ox) / dx,
+      leftY = oy + dy * leftT,
+      rightT = (right - ox) / dx,
+      rightY = oy + dy * rightT;
+    if (leftT > 0 && leftY >= top && leftY <= bottom)
+      hits.push({ t: leftT, x: left, y: leftY, nx: -1, ny: 0 });
+    if (rightT > 0 && rightY >= top && rightY <= bottom)
+      hits.push({ t: rightT, x: right, y: rightY, nx: 1, ny: 0 });
+  }
+  if (Math.abs(dy) > 0.0001) {
+    const topT = (top - oy) / dy,
+      topX = ox + dx * topT,
+      bottomT = (bottom - oy) / dy,
+      bottomX = ox + dx * bottomT;
+    if (topT > 0 && topX >= left && topX <= right)
+      hits.push({ t: topT, x: topX, y: top, nx: 0, ny: -1 });
+    if (bottomT > 0 && bottomX >= left && bottomX <= right)
+      hits.push({ t: bottomT, x: bottomX, y: bottom, nx: 0, ny: 1 });
+  }
+  hits.sort((a, b) => a.t - b.t);
+  return hits[0] ?? null;
+}
+
+function drawAimGimmickTelegraphs() {
+  if (!run || battleComplete || !ball || ball.moving || introProgress() < 1)
+    return;
+  if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
+    return;
+  const preview =
+    typeof aimStarPreview === "function" ? aimStarPreview() : null;
+  if (preview) {
+    const length = Math.hypot(preview.dx, preview.dy) || 1,
+      dx = preview.dx / length,
+      dy = preview.dy / length;
+    let wallHit = null,
+      wallTarget = null;
+    for (const wall of stageWalls) {
+      const hit = rayRectHit(ball.x, ball.y, dx, dy, wall, ball.r + 2);
+      if (hit && hit.t < 760 && (!wallHit || hit.t < wallHit.t)) {
+        wallHit = hit;
+        wallTarget = wall;
+      }
+    }
+    if (wallHit) {
+      const dot = dx * wallHit.nx + dy * wallHit.ny,
+        rx = dx - 2 * dot * wallHit.nx,
+        ry = dy - 2 * dot * wallHit.ny;
+      x.save();
+      x.globalAlpha = 0.78;
+      x.strokeStyle = "#bdeff2";
+      x.lineWidth = 2;
+      x.setLineDash([6, 6]);
+      x.beginPath();
+      x.moveTo(wallHit.x, wallHit.y);
+      x.lineTo(wallHit.x + rx * 118, wallHit.y + ry * 118);
+      x.stroke();
+      x.setLineDash([]);
+      x.strokeRect(
+        wallTarget.x - wallTarget.w / 2 - 3,
+        wallTarget.y - wallTarget.h / 2 - 3,
+        wallTarget.w + 6,
+        wallTarget.h + 6,
+      );
+      x.translate(wallHit.x, wallHit.y);
+      x.rotate(Math.PI / 4);
+      x.fillStyle = "#d8ffff";
+      x.fillRect(-5, -5, 10, 10);
+      x.restore();
+    }
+    for (const pad of boostPads) {
+      const hit = rayRectHit(ball.x, ball.y, dx, dy, pad, ball.r);
+      if (!hit || hit.t > Math.min(760, wallHit?.t ?? 760)) continue;
+      x.save();
+      x.globalAlpha = 0.72;
+      x.strokeStyle = "#caff9a";
+      x.lineWidth = 3;
+      for (let i = 0; i < 3; i++) {
+        const px = hit.x + dx * (18 + i * 22),
+          py = hit.y + dy * (18 + i * 22),
+          sx = -dy * 7,
+          sy = dx * 7;
+        x.beginPath();
+        x.moveTo(px - dx * 7 + sx, py - dy * 7 + sy);
+        x.lineTo(px + dx * 7, py + dy * 7);
+        x.lineTo(px - dx * 7 - sx, py - dy * 7 - sy);
+        x.stroke();
+      }
+      x.restore();
+    }
+  }
+
+  for (const orbit of orbitals) {
+    if (orbit.down > 0 || !boss) continue;
+    const futureA = orbit.a + orbit.speed * 0.55,
+      gx = boss.x + Math.cos(futureA) * orbit.radius,
+      gy = boss.y + Math.sin(futureA) * orbit.radius;
+    x.save();
+    x.globalAlpha = 0.34;
+    x.strokeStyle = "#9adfc9";
+    x.lineWidth = 2;
+    x.setLineDash([3, 5]);
+    x.beginPath();
+    x.arc(gx, gy, orbit.r + 6, 0, Math.PI * 2);
+    x.stroke();
+    x.setLineDash([]);
+    x.fillStyle = "#9adfc9";
+    x.translate(gx, gy);
+    x.rotate(futureA + (orbit.speed >= 0 ? Math.PI / 2 : -Math.PI / 2));
+    x.beginPath();
+    x.moveTo(0, -8);
+    x.lineTo(6, 5);
+    x.lineTo(-6, 5);
+    x.closePath();
+    x.fill();
+    x.restore();
+  }
+
+  const nextPhase = stagePhases?.at?.[stagePhases.fired],
+    hpRatio = boss?.maxHp ? boss.hp / boss.maxHp : 1;
+  if (
+    boss &&
+    nextPhase !== undefined &&
+    hpRatio > nextPhase &&
+    hpRatio - nextPhase <= 0.1
+  ) {
+    const warning = 0.55 + 0.35 * Math.sin(frameClock / 130);
+    x.save();
+    x.globalAlpha = warning;
+    x.strokeStyle = "#ef9f73";
+    x.lineWidth = 3;
+    x.setLineDash([12, 8]);
+    x.beginPath();
+    x.arc(boss.x, boss.y, 92, 0, Math.PI * 2);
+    x.stroke();
+    x.setLineDash([]);
+    x.fillStyle = "#ef9f73";
+    x.font = "700 11px Galmuri11, ui-monospace";
+    x.textAlign = "center";
+    x.fillText("PHASE IMMINENT", boss.x, boss.y - 101);
+    x.restore();
+  }
+}
+
+registerRuntimeHook("afterArenaDraw", drawAimGimmickTelegraphs);
+
 function drawAimStars() {
   if (!run || battle?.victory || ball?.moving || !aimStarReady()) return;
   if (introProgress() < 1) return;
@@ -1666,9 +1836,17 @@ function drawAimStars() {
         labelY = clamp(gy, 44, H - 44);
       // 하한 미달이면 위력 대신 몇 개 모자란지를 말한다 — 이 선은 아직
       // 쏠 수 있는 조준이 아니라 «되어가는 중»이다.
+      const forceGrade =
+        preview.force >= 0.78
+          ? "강함"
+          : preview.force >= 0.55
+            ? "보통"
+            : "약함";
       x.fillText(
         p.length >= AIM_STAR.minPick
-          ? (preview.flipped ? "반대편 · 위력 " : "위력 ") +
+          ? (preview.flipped ? "반대편 · " : "") +
+              forceGrade +
+              " " +
               Math.round(preview.force * 100) +
               "%"
           : "노드 " + p.length + "/" + AIM_STAR.minPick,
@@ -1836,7 +2014,7 @@ function drawAimStars() {
   }
   x.globalAlpha = 0.92;
   x.fillStyle = "#0b0718cc";
-  x.fillRect(0, H - 46, W, 46);
+  x.fillRect(0, H - 31, W, 31);
   /* 하한 미달 Space의 거절: 카운트 줄이 잠깐 붉어지며 가로로 떨린다.
      토스트는 위에 뜨는데 시선은 아래 카운트에 있어, 거절의 이유가 바로
      그 줄에서 읽혀야 한다. */
@@ -1847,26 +2025,15 @@ function drawAimStars() {
   x.font = "700 13px Galmuri11, ui-monospace";
   x.textAlign = "center";
   x.fillText(
-    "고른 노드 " +
-      aimPick.length +
-      "/" +
-      AIM_STAR.minPick +
-      "   ·   남은 별빛 " +
-      restCount +
-      "개가 별자리" +
-      (restCount >= 3 ? "" : " (셋부터)") +
-      "   ·   Space 발사",
+    aimPick.length >= AIM_STAR.minPick
+      ? "SPACE 발사   ·   우클릭 / Backspace 무르기"
+      : "노드 " +
+          aimPick.length +
+          "/" +
+          AIM_STAR.minPick +
+          "   ·   별지기와 별빛을 고르세요",
     W / 2 + denyShake,
-    H - 26,
-  );
-  x.fillStyle = "#cfc4e8";
-  x.font = "600 11px Galmuri11, ui-monospace";
-  x.fillText(
-    aimPick.length
-      ? "고른 노드들의 가운데로 갑니다 · 우클릭/Backspace로 무르기"
-      : "별지기·별빛을 셋 이상 찍으세요 · 넓게 벌릴수록 세게 나갑니다",
-    W / 2,
-    H - 10,
+    H - 11,
   );
   x.restore();
 }

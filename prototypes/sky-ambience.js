@@ -31,7 +31,7 @@
     { id: "L2", name: "가까운 소품", par: 1.0, alpha: 1.0, input: true },
   ];
 
-  var sky, root, l0, l1, l2, hud, state;
+  var sky, root, l0, l1, l2, hud, state, reactionArt;
   var cooldownUntil = 0;
 
   function el(parent, css, tag) {
@@ -59,6 +59,17 @@
     l0.dataset.skyLayer = "L0";
     l1.dataset.skyLayer = "L1";
     l2.dataset.skyLayer = "L2";
+
+    reactionArt = el(
+      root,
+      "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" +
+        "image-rendering:pixelated;opacity:0;transform:scale(.97);" +
+        "transition:opacity .28s ease-out,transform .72s ease-out",
+      "img",
+    );
+    reactionArt.src =
+      "../assets/original/sky/constellation-reaction-overlay.png";
+    reactionArt.alt = "";
 
     /* ── L0 먼 배경 ─────────────────────────────────
        성운 2점 + 은하수 띠. 대비 상한 0.10, 6분 주기 드리프트.
@@ -187,6 +198,21 @@
     }
     var ring = document.getElementById("sky-gauge-ring");
     if (ring) ring.style.left = Math.round(R.a + (R.b - R.a) / 2 - 85) + "px";
+  }
+
+  function pulseReactionArt(kind) {
+    if (!reactionArt) return;
+    reactionArt.style.filter =
+      kind === "boss" ? "sepia(.28) saturate(1.15)" : "none";
+    reactionArt.style.opacity = kind === "boss" ? ".22" : ".34";
+    reactionArt.style.transform = "scale(1)";
+    setTimeout(
+      function () {
+        reactionArt.style.opacity = "0";
+        reactionArt.style.transform = "scale(1.015)";
+      },
+      kind === "boss" ? 1700 : 1100,
+    );
   }
 
   function paintHangers() {
@@ -544,31 +570,8 @@
   // (A) 5점 이상 별자리 현현 — 스펙 6절 미구현 1
   function reactFigure(points) {
     if (RM) return staticFallback("figure");
-    say("현현 " + (points || 5) + "점 · 하늘이 비켜난다");
-    // 1) 별이 존재의 윤곽을 피해 흐른다 — 32프레임(≈0.53s) 이동 + 0.9s 복귀
-    var stars = l0.querySelectorAll("div");
-    var cx = window.innerWidth / 2;
-    for (var i = 0; i < stars.length; i++) {
-      var s = stars[i];
-      if (s.style.width !== "1px") continue;
-      var r = s.getBoundingClientRect();
-      var dir = r.left < cx ? -1 : 1;
-      var dist = 6 + Math.random() * 10;
-      s.style.transition = "transform .53s cubic-bezier(.2,.8,.3,1)";
-      s.style.transform =
-        "translate(" +
-        dir * dist +
-        "px," +
-        (-4 + Math.random() * 8).toFixed(1) +
-        "px)";
-      (function (n) {
-        setTimeout(function () {
-          n.style.transition = "transform .9s ease-in-out";
-          n.style.transform = "";
-        }, 900);
-      })(s);
-    }
-    // 2) 눈금 고리 1회 수축 — 0.42s 수축, 1.1s 이완
+    pulseReactionArt("figure");
+    // 눈금 고리 1회 수축 — 0.42s 수축, 1.1s 이완
     var ring = document.getElementById("sky-gauge-ring");
     if (ring) {
       ring.style.transition =
@@ -586,29 +589,7 @@
   // (B) 월드 첫 진입 / 첫 보스 처치 — 스펙 6절 미구현 2
   function reactFrameAnomaly(kind) {
     if (RM) return staticFallback("anomaly");
-    say(kind === "boss" ? "관측 이상 · 첫 처치" : "관측 이상 · 새 월드");
-    // 별 하나 역행: 3.2초 동안 반대 방향으로 흐르고 제자리로
-    var hs = l0.querySelectorAll("div");
-    var pick = null;
-    for (var i = 0; i < hs.length && !pick; i++)
-      if (hs[i].style.width === "1px" && Math.random() < 0.06) pick = hs[i];
-    pick = pick || hs[3];
-    if (pick) {
-      pick.style.width = "2px";
-      pick.style.height = "2px";
-      pick.style.background = COL.warm;
-      pick.style.transition = "transform 3.2s linear,opacity .6s";
-      pick.style.opacity = "1";
-      pick.style.transform = "translateX(-34px)";
-      setTimeout(function () {
-        pick.style.transition = "transform 1.2s ease-out,opacity 1.2s";
-        pick.style.transform = "";
-        pick.style.width = "1px";
-        pick.style.height = "1px";
-        pick.style.background = COL.mid;
-        pick.style.opacity = ".5";
-      }, 3300);
-    }
+    pulseReactionArt(kind);
     // 성운 굴절: 렌즈처럼 한 번 휜다. transform만 쓴다 — blur 반경을 트랜지션
     // 하면 텍스처 캐시가 깨져 3초 내내 큰 표면을 매 프레임 다시 흐리게 된다.
     var neb = l0.firstElementChild;
@@ -648,7 +629,7 @@
   }
 
   function staticFallback(kind) {
-    say("모션 감소 · 정지 한 장으로 대체 (" + kind + ")");
+    if (reactionArt) reactionArt.style.opacity = ".34";
     var ring = document.getElementById("sky-gauge-ring");
     if (ring) ring.style.borderColor = "#9578ca99";
   }
@@ -672,6 +653,7 @@
       state.world = v.world;
       paintHangers();
     },
+    layout: layoutBands,
     layers: function (on) {
       root.style.display = on ? "" : "none";
     },
@@ -698,6 +680,17 @@
     },
   };
   window.SkyAmbience = API;
+
+  var bossReactionUsed = false;
+  registerRuntimeHook("afterFigureResolve", function (info) {
+    var points = info && info.points ? info.points.length : 0;
+    if (points >= 5 && gate(false)) reactFigure(points);
+  });
+  registerRuntimeHook("afterBattleWin", function () {
+    if (bossReactionUsed || !gate(false)) return;
+    bossReactionUsed = true;
+    reactFrameAnomaly("boss");
+  });
 
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", function () {

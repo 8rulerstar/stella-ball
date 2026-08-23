@@ -535,6 +535,29 @@ header,
 .game-mode .runes {
   display: none;
 }
+/* A short landscape window used to make the whole observatory column narrow
+   through the shared 80dvh width cap. The inner screens then kept their wide
+   layouts because their media queries saw a 920px viewport, not the resulting
+   ~340px column. Meta screens do not need the 720:900 combat canvas contract,
+   so give them the available landscape rectangle and let their overlay own
+   vertical scrolling. */
+@media (max-height: 620px) and (min-width: 681px) {
+  .menu-mode main,
+  .meta-mode main {
+    width: min(720px, calc(100dvw - 24px));
+    height: calc(100dvh - 12px);
+    padding: 0;
+  }
+  .menu-mode .stage,
+  .meta-mode .stage {
+    height: calc(100dvh - 12px);
+    min-height: 0;
+  }
+  .menu-mode canvas,
+  .meta-mode canvas {
+    display: none;
+  }
+}
 /* 넘치면 잘리는 것이 아니라 닿을 수 있어야 한다. `hidden`이던 이 규칙은
    미디어 쿼리 밖 전역이라, 좁은 화면용으로 앞쪽(417행 블록)에 넣어 둔
    `.overlay { overflow: auto }`를 같은 특정도로 덮어 무력화하고 있었다.

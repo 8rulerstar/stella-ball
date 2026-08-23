@@ -39,13 +39,13 @@
           <div class="hud">
             <section class="hud-card">
               <div class="hud-label">
-                <span>남은 유성</span><b id="shotsText">4 / 4</b>
+                <span>남은 유성</span><b id="shotsText">5 / 5</b>
               </div>
-              <div class="shot-dots" id="shotDots">● ● ● ●</div>
+              <div class="shot-dots" id="shotDots">● ● ● ● ●</div>
             </section>
             <section class="hud-card">
               <div class="hud-label">
-                <span>약점 위력</span><b id="powerText">16</b>
+                <span>약점 위력</span><b id="powerText">24</b>
               </div>
               <div class="status-line">
                 <span>별빛 연계</span><b id="chainText">—</b>
@@ -66,12 +66,29 @@
             ><b id="blazeValue">×1.0</b
             ><small id="blazeDetail">별자리 배율 대기</small>
           </section>
+          <section class="combat-flow" id="combatFlow" aria-label="전투 흐름">
+            <ol>
+              <li data-flow="select">
+                <i aria-hidden="true"></i><span>노드 선택</span>
+              </li>
+              <li data-flow="launch">
+                <i aria-hidden="true"></i><span>발사</span>
+              </li>
+              <li data-flow="resonate">
+                <i aria-hidden="true"></i><span>공명</span>
+              </li>
+              <li data-flow="settle">
+                <i aria-hidden="true"></i><span>정산</span>
+              </li>
+            </ol>
+            <p id="combatPrompt" aria-live="polite">전투를 준비합니다</p>
+          </section>
         </aside>
         <div class="battle-column">
           <section class="boss-panel boss-banner">
-            <div class="phase" id="phaseText">전투 · 공허 거상</div>
+            <div class="phase" id="phaseText">전투 준비</div>
             <div class="boss-name">
-              <span id="bossName">공허 거상</span><b id="hpText">체력 240</b>
+              <span id="bossName">관측 대상</span><b id="hpText">체력 —</b>
             </div>
             <div class="meter hp"><i id="hpFill"></i></div>
             <div class="combo-readout" id="comboText">COMBO —</div>

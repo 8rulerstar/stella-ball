@@ -136,6 +136,7 @@ function drawAssists() {
   runRuntimeHooks("afterAssistsDraw");
 }
 function registerBossHit(weak) {
+  if (battle?.stats && weak) battle.stats.weakHits += 1;
   hitCombo = comboTimer > 0 ? hitCombo + 1 : 1;
   comboTimer = 1.18;
   comboPulse = 1;
@@ -1794,10 +1795,7 @@ function update(d) {
        멈춰 있으면 기믹이 성립하지 않는다. 여기서도 같은 식으로 돌린다. */
     for (const orbit of orbitals) {
       orbit.hitCooldown = Math.max(0, orbit.hitCooldown - d);
-      if (orbit.down > 0) {
-        orbit.down = Math.max(0, orbit.down - d);
-        continue;
-      }
+      if (advanceOrbitalRecovery(orbit, d)) continue;
       if (!boss) continue;
       orbit.a += orbit.speed * d;
       orbit.x = boss.x + Math.cos(orbit.a) * orbit.radius;

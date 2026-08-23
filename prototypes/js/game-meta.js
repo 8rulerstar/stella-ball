@@ -6,7 +6,7 @@ function showSettings(onBack) {
   run = false;
   drag = null;
   setScene("meta");
-  U.over.className = "overlay meta-scene";
+  U.over.className = "overlay meta-scene settings-scene";
   const volume = (key, label, note) =>
     '<label class="setting-row"><span><b>' +
     label +
@@ -718,7 +718,9 @@ function showShop() {
     };
 }
 // --- summon presentation ---------------------------------------------------
-// About ten seconds, staged so the anticipation has somewhere to arrive. This
+// A compact six-beat ritual: long enough to make the unlock an event, short
+// enough that a guaranteed pull does not hold the player on a nearly static
+// menu for ten seconds. This
 // is presentation only: `pullGachaHero()` has already picked the starkeeper,
 // taken the gold and saved. Nothing here may imply a rarity or a roll — the
 // summon is one guaranteed unlock for 100 gold, and hinting at a system the
@@ -726,12 +728,12 @@ function showShop() {
 const SUMMON = {
   full: [
     [0, "call", "부름"],
-    [2000, "observe", "관측"],
-    [5500, "answer", "응답"],
-    [7000, "manifest", "현현"],
-    [8500, "intro", null],
+    [1200, "observe", "관측"],
+    [3000, "answer", "응답"],
+    [4200, "manifest", "현현"],
+    [5300, "intro", null],
   ],
-  fullEnd: 10000,
+  fullEnd: 6800,
   short: [
     [0, "manifest", "현현"],
     [520, "intro", null],
@@ -798,7 +800,8 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
        그려져 있으므로 오른쪽 아래 구석으로 밀려 지팡이와 몸이 잘렸다 —
        10초짜리 의식의 보상 화면인데 인물이 잘려 나왔다.
        저장소의 다른 호출은 전부 맞춰져 있다(편성 58/58, 도감 56/56,
-       도색 44/44). 되돌리려면 96으로. */
+       도색 44/44). `.gacha-reveal > span:first-child`도 이 초상에 별 아이콘
+       규칙을 씌우고 있었으므로 CSS에서는 `.portrait`을 제외한다. */
     setPortrait(document.querySelector("#gachaHeroReveal"), h, 72);
     playSfx("unlock");
   };
@@ -835,7 +838,7 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
   };
   let skipArmed = null;
   function onSkip(e) {
-    /* The screen can be left while the 10s sequence is still running - 뒤로 is
+    /* The screen can be left while the sequence is still running - 뒤로 is
        never disabled - and until this returned, the skip handlers stayed bound
        to the window for the rest of that window, eating the first click or
        keypress made anywhere else in the app (hub, shop, pause). Releasing on
@@ -878,7 +881,7 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
       skipHint.textContent = "아무 키나 눌러 건너뛰기";
       /* 다음 차례에 단다. 이 함수는 「별빛 소환」을 누른 «그 클릭» 안에서
          도는데, 동기로 달면 더블클릭의 둘째 pointerdown(실측 90ms 뒤)이
-         곧바로 건너뛰기를 먹여 방금 100골드로 산 10초 의식이 사라졌다
+         곧바로 건너뛰기를 먹여 방금 100골드로 산 의식이 사라졌다
          (실측: 더블클릭 0.6초 뒤 이미 revealed, 골드는 100 빠진 상태).
          프롤로그가 같은 이유로 이미 쓰는 수법이다 — game-onboarding.js 의
          「Arm the dismiss handlers on the NEXT turn」 주석 참고.
@@ -1377,21 +1380,39 @@ registerRuntimeHook("afterRosterShown", () => {
 });
 const tutorialSteps = [
   {
-    tag: "01 / 03 · 발사",
+    tag: "01 / 06 · 발사",
     title: "당겨서 발사",
     text: "유성을 아래로 끌어 당긴 뒤 놓으세요. 끈 방향의 반대로 강하게 출발하며, 점선이 첫 충돌 경로를 보여줍니다.",
     art: "../assets/library/tutorial/hint-drag-shot.png",
   },
   {
-    tag: "02 / 03 · 연쇄",
-    title: "별지기를 굴려라",
-    text: "별지기에 부딪히면 공과 별지기가 함께 가속합니다. 움직인 별지기는 모든 공이 멈춘 뒤, 현재 위치에서 고유 공격을 합니다.",
+    tag: "02 / 06 · 공명",
+    title: "공명은 자동",
+    text: "유성이 별지기에 닿으면 공명이 자동으로 일어나 둘이 함께 가속합니다. 따로 키를 누를 필요가 없습니다.",
     art: "../assets/library/projectiles/support-bolt.png",
   },
   {
-    tag: "03 / 03 · 마무리",
-    title: "약점에 집중",
-    text: "보스 몸체도 피해를 받지만, 빛나는 약점은 더 큰 피해를 줍니다. 별지기를 모두 깨우고 배율을 쌓아 한 번에 마무리하세요.",
+    tag: "03 / 06 · 조준",
+    title: "노드 셋을 선택",
+    text: "유성이 멈추면 별지기나 별빛을 셋 이상 고르고 Space로 발사하세요. 다시 고르면 선택을 무를 수 있습니다.",
+    art: "../assets/library/projectiles/support-bolt.png",
+  },
+  {
+    tag: "04 / 06 · 항로",
+    title: "넓을수록 강하게",
+    text: "고른 노드들의 가운데로 유성이 향합니다. 노드를 넓게 고르면 더 강해지고, 빈 곳을 누르면 반대편 항로로 전환됩니다.",
+    art: "../assets/library/tutorial/hint-drag-shot.png",
+  },
+  {
+    tag: "05 / 06 · 별자리",
+    title: "남긴 별빛을 사용",
+    text: "조준에 고르지 않은 별빛이 셋 이상 남으면 발사 직전에 별자리로 타오릅니다. 별지기는 별자리 재료로 소모되지 않습니다.",
+    art: "../assets/library/projectiles/marked-orb.png",
+  },
+  {
+    tag: "06 / 06 · 정산",
+    title: "공명 뒤 고유 공격",
+    text: "모든 공이 멈추면 움직인 별지기가 현재 위치에서 고유 공격을 합니다. 유성의 보스 직격과 전원 공명으로 별자리 배율을 쌓으세요.",
     art: "../assets/library/projectiles/marked-orb.png",
   },
 ];
@@ -1418,7 +1439,7 @@ function showTutorial(step = 0) {
     guide.text +
     '</p></div></section><div class="tutorial-progress">' +
     progress +
-    '</div><div class="tutorial-actions"><button id="tutorialBack">메타로</button><span><button id="tutorialPrev" ' +
+    '</div><div class="tutorial-actions"><button id="tutorialBack">관측소로</button><span><button id="tutorialPrev" ' +
     (index === 0 ? "disabled" : "") +
     '>이전</button><button id="tutorialNext">' +
     (index === tutorialSteps.length - 1 ? "완료" : "다음") +
@@ -1567,14 +1588,12 @@ function claimAttendance() {
 
 /* Library ------------------------------------------------------------------
    The record shelf: which starkeepers the observatory holds, and the exact
-   conditions that move the constellation multiplier.  The multiplier table is
-   built from the same numbers the combat code uses, not retyped, so it cannot
-   quietly go stale. */
+   conditions that move the constellation multiplier. Keep these labels aligned
+   with trackBlazeDirect, afterTableWall, trackBlazeUnit and loseBlaze. */
 const BLAZE_RULES = [
   { label: "유성이 보스를 직격", gain: "+1.0" },
-  { label: "별지기가 보스를 직격", gain: "+0.5" },
-  { label: "유성이 반사 벽에 튕김", gain: "+0.2" },
-  { label: "파티 전원이 깨어남", gain: "+3.0" },
+  { label: "유성이 벽·쿠션에 튕김 (최대 2회)", gain: "+0.2" },
+  { label: "파티 전원이 공명", gain: "+3.0" },
   { label: "흐린 발판을 지나감", gain: "−0.5", down: true },
 ];
 function showLibrary() {
@@ -1621,9 +1640,9 @@ function showLibrary() {
   U.over.innerHTML =
     '<div class="meta-hub">' +
     metaHeader("LIBRARY") +
-    '<section class="system-panel"><div class="archive-tabs"><button class="archive-tab on" id="tabLibrary">도서관</button><button class="archive-tab" id="tabAchievements">업적</button></div><h2>관측 도서관</h2><p>관측소가 확보한 별지기와, 점수 배율이 움직이는 조건입니다.</p><div class="codex-split"><div class="codex-list">' +
+    '<section class="system-panel"><div class="archive-tabs"><button class="archive-tab on" id="tabLibrary">도서관</button><button class="archive-tab" id="tabAchievements">업적</button></div><h2>관측 도서관</h2><p>관측소가 확보한 별지기와, 별자리 배율이 움직이는 조건입니다.</p><div class="codex-split"><div class="codex-list">' +
     cards +
-    '</div><aside class="codex-side"><div class="panel-title"><small>CONSTELLATION</small><h3>점수 배율 조건</h3></div><table class="codex-table"><thead><tr><th>조건</th><th>배율</th></tr></thead><tbody>' +
+    '</div><aside class="codex-side"><div class="panel-title"><small>CONSTELLATION</small><h3>별자리 배율 조건</h3></div><table class="codex-table"><thead><tr><th>조건</th><th>배율</th></tr></thead><tbody>' +
     blazeRows +
     '</tbody></table><p class="codex-note">배율은 한 발사 안에서만 쌓이고, 최대 ×9.9까지 오릅니다. 1.0 아래로는 내려가지 않습니다.</p></aside></div><div class="settings-actions"><span></span><button id="libraryBack">' +
     tr("back") +

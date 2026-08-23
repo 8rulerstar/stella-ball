@@ -1142,6 +1142,10 @@ function launchAimStarShot() {
     toast("이 조합은 조준이 되지 않습니다 · 다른 노드로 바꿔보세요");
     return false;
   }
+  if (battle.stats) {
+    battle.stats.aimShots += 1;
+    battle.stats.aimForceTotal += shot.force;
+  }
   const nodes = aimNodes(),
     // 별지기 노드는 태울 수 없다 — 별자리 재료는 별빛뿐이다. 별빛 노드는
     // aimNodes가 같은 객체를 그대로 넘기므로 Set 동일성으로 걸러진다.
@@ -1242,6 +1246,7 @@ function launchAimStarShot() {
 /* 끄고 켜는 스위치. 껐을 때 굶는지 다시 확인하려면 true로 되돌린다. */
 const WALL_STARS = false;
 registerRuntimeHook("afterTableWall", () => {
+  if (battle?.stats) battle.stats.wallHits += 1;
   if (!WALL_STARS) return;
   if (typeof nodeEconomyOn !== "function" || !nodeEconomyOn()) return;
   if (!battle || battleComplete || !ball?.moving) return;
@@ -2298,7 +2303,7 @@ function wakeUnit(g, { subtle = false } = {}) {
     addPopup(
       g.x,
       g.y - 40,
-      g.s + (subtle ? " 공명 각성" : " 깨어남!"),
+      g.s + (subtle ? " 공명 깨어남" : " 깨어남!"),
       g.col,
       true,
     );

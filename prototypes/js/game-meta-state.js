@@ -187,11 +187,15 @@ function goldBalance() {
 // and unlocks read as a claim instead of a number quietly changing.
 let rewardToastTimer = 0;
 function rewardToast(kicker, title, detail = "", { onClick = null } = {}) {
-  const host = document.querySelector(".stage") ?? document.body;
+  const outcome = document.querySelector(".overlay:not(.hide) .outcome-cut"),
+    host = outcome ?? document.querySelector(".stage") ?? document.body;
   document.querySelector(".reward-toast")?.remove();
   const card = document.createElement(onClick ? "button" : "div");
   if (onClick) card.type = "button";
-  card.className = "reward-toast" + (onClick ? " actionable" : "");
+  card.className =
+    "reward-toast" +
+    (outcome ? " inline" : "") +
+    (onClick ? " actionable" : "");
   card.setAttribute("role", "status");
   card.innerHTML =
     "<small>" +
@@ -200,7 +204,8 @@ function rewardToast(kicker, title, detail = "", { onClick = null } = {}) {
     title +
     "</b>" +
     (detail ? "<span>" + detail + "</span>" : "");
-  host.append(card);
+  if (outcome) outcome.insertBefore(card, outcome.querySelector("button"));
+  else host.append(card);
   requestAnimationFrame(() => card.classList.add("show"));
   const dismiss = () => {
     clearTimeout(rewardToastTimer);

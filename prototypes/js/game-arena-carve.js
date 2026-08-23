@@ -58,51 +58,47 @@ function carveVioletFor(index) {
   const span = CARVE_WORLD_ORDER.length - 1;
   return 0.3 + (carveWorldIndex(index) / span) * 0.55;
 }
-/* 돌판 색조도 월드를 따라간다. 밝기와 채도는 건드리지 않고 색상만 옮기므로
-   새벽 관측소의 어두운 바탕은 그대로다. 청록(양자리)에서 보랏빛(바깥)으로
-   가는 70도짜리 호 하나만 쓴다 — 공허가 짙어진다는 기존 연출과 같은 방향이라
-   두 신호가 서로를 거스르지 않는다. */
-const CARVE_WORLD_HUE_ARC = 70;
-function carveHueShift(hex, deg) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = ((n >> 16) & 255) / 255,
-    g = ((n >> 8) & 255) / 255,
-    b = (n & 255) / 255;
-  const max = Math.max(r, g, b),
-    min = Math.min(r, g, b),
-    l = (max + min) / 2,
-    d = max - min;
-  if (d === 0) return hex;
-  const sat = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-  let h =
-    max === r
-      ? (g - b) / d + (g < b ? 6 : 0)
-      : max === g
-        ? (b - r) / d + 2
-        : (r - g) / d + 4;
-  h = (h / 6 + deg / 360) % 1;
-  const q = l < 0.5 ? l * (1 + sat) : l + sat - l * sat,
-    pp = 2 * l - q;
-  const chan = (t) => {
-    t = (t + 1) % 1;
-    const v =
-      t < 1 / 6
-        ? pp + (q - pp) * 6 * t
-        : t < 1 / 2
-          ? q
-          : t < 2 / 3
-            ? pp + (q - pp) * (2 / 3 - t) * 6
-            : pp;
-    return Math.round(v * 255);
+/* The old 70-degree arc made the first and last floor measurably different,
+   but adjacent worlds still read as the same teal stone. The map already owns
+   a seven-spoke hue wheel; reuse it here while keeping saturation and lightness
+   fixed so unit, health and aim colours retain their hierarchy. */
+function carvePaletteFor(index) {
+  const worldId = stages[index]?.world;
+  if (worldId === "outside") {
+    return {
+      ramp: [
+        "hsl(274 22% 7%)",
+        "hsl(274 24% 9%)",
+        "hsl(274 20% 11%)",
+        "hsl(274 22% 6%)",
+        "hsl(274 25% 10%)",
+      ],
+      seam: "hsl(274 22% 5%)",
+      highlight: "hsl(274 25% 17%)",
+      engraving: "hsl(274 30% 18%)",
+      hot: "hsl(274 34% 34%)",
+      dust: ["hsl(274 20% 15%)", "hsl(274 22% 21%)", "hsl(274 28% 32%)"],
+    };
+  }
+  const hue = WORLD_HUES[worldId];
+  if (hue === undefined) {
+    return {
+      ramp: CARVE_PLATE_RAMP,
+      seam: "#060d10",
+      highlight: "#18292d",
+      engraving: "#1c383c",
+      hot: "#3f6f5f",
+      dust: ["#1d3236", "#2b4449", "#4f7b74"],
+    };
+  }
+  return {
+    ramp: [7, 9, 11, 6, 10].map((light) => `hsl(${hue} 24% ${light}%)`),
+    seam: `hsl(${hue} 20% 5%)`,
+    highlight: `hsl(${hue} 26% 17%)`,
+    engraving: `hsl(${hue} 32% 18%)`,
+    hot: `hsl(${hue} 38% 34%)`,
+    dust: [`hsl(${hue} 20% 15%)`, `hsl(${hue} 23% 21%)`, `hsl(${hue} 30% 32%)`],
   };
-  const out = (chan(h + 1 / 3) << 16) | (chan(h) << 8) | chan(h - 1 / 3);
-  return "#" + out.toString(16).padStart(6, "0");
-}
-function carveRampFor(index) {
-  const span = CARVE_WORLD_ORDER.length - 1;
-  const deg = (carveWorldIndex(index) / span) * CARVE_WORLD_HUE_ARC;
-  if (deg === 0) return CARVE_PLATE_RAMP;
-  return CARVE_PLATE_RAMP.map((hex) => carveHueShift(hex, deg));
 }
 
 function carveFigureFor(index) {
@@ -114,7 +110,8 @@ function carveFigureFor(index) {
 // Voronoi plates baked at 4px.  A tiled PNG repeats every 128px and the seam
 // is visible; a voronoi field has no period at all, so the floor never shows
 // a grid the player can accidentally read as gameplay information.
-function carvePlates(layerX, seed, ramp) {
+function carvePlates(layerX, seed, palette) {
+  const ramp = palette.ramp;
   const count = 78;
   const sx = [];
   const sy = [];
@@ -146,13 +143,13 @@ function carvePlates(layerX, seed, ramp) {
       owner[gy * cols + gx] = bestIndex;
       const seam = Math.sqrt(second) - Math.sqrt(best);
       layerX.fillStyle =
-        seam < 3 ? "#060d10" : seam < 7 ? "#081115" : shade[bestIndex];
+        seam < 3 ? palette.seam : seam < 7 ? ramp[0] : shade[bestIndex];
       layerX.fillRect(px, py, 4, 4);
     }
   }
   // One highlight row on each plate's upper edge.  This is the whole reason
   // the floor reads as slabs with thickness instead of flat noise.
-  layerX.fillStyle = "#18292d";
+  layerX.fillStyle = palette.highlight;
   for (let gy = 1; gy < H / 4; gy++) {
     for (let gx = 0; gx < cols; gx++) {
       if (
@@ -280,13 +277,17 @@ function carveLighting(layerX, bx, by, violet) {
   layerX.fillRect(0, 0, W, H);
 }
 
-function carveDust(layerX, seed) {
+function carveDust(layerX, seed, palette) {
   for (let i = 0; i < 130; i++) {
     const px = carveNoise(i + seed, 11) * W;
     const py = carveNoise(i + seed, 13) * H;
     const brightness = carveNoise(i, 17);
     layerX.fillStyle =
-      brightness > 0.88 ? "#4f7b74" : brightness > 0.6 ? "#2b4449" : "#1d3236";
+      brightness > 0.88
+        ? palette.dust[2]
+        : brightness > 0.6
+          ? palette.dust[1]
+          : palette.dust[0];
     layerX.fillRect(Math.round(px), Math.round(py), 2, 2);
   }
 }
@@ -375,25 +376,26 @@ function buildCarveLayer(index) {
   const layerX = layer.getContext("2d");
   layerX.imageSmoothingEnabled = false;
   const violet = carveVioletFor(index);
+  const palette = carvePaletteFor(index);
   const seed = index * 4 + 1;
   const bx = stages[index]?.boss?.x ?? W / 2;
   const by = stages[index]?.boss?.y ?? 196;
   layerX.fillStyle = "#080e11";
   layerX.fillRect(0, 0, W, H);
-  carvePlates(layerX, seed, carveRampFor(index));
+  carvePlates(layerX, seed, palette);
   carveAstrolabe(
     layerX,
     W / 2,
     462,
     244,
     carveFigureFor(index),
-    "#1c383c",
-    "#3f6f5f",
+    palette.engraving,
+    palette.hot,
   );
   carveDebris(layerX, seed);
   carveBossFracture(layerX, bx, by, violet, seed);
   carveLighting(layerX, bx, by, violet);
-  carveDust(layerX, seed);
+  carveDust(layerX, seed, palette);
   carveInnerShadow(layerX);
   carveWall(layerX);
   carveLayers.set(key, layer);

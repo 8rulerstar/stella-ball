@@ -14,7 +14,7 @@ function pixelDustBurst(kind, px, py, col, power) {
   const count =
       kind === "riposte"
         ? 24
-        : kind === "weak" || kind === "awaken"
+        : kind === "weak" || kind === "awaken" || kind === "constellation"
           ? 18
           : kind === "unit"
             ? 12
@@ -32,7 +32,7 @@ function pixelDustBurst(kind, px, py, col, power) {
       y: Math.round(py / 2) * 2,
       vx: Math.cos(angle) * speed * spread,
       vy: Math.sin(angle) * speed * spread - (kind === "awaken" ? 62 : 18),
-      grav: kind === "awaken" ? -16 : 135,
+      grav: kind === "awaken" || kind === "constellation" ? -16 : 135,
       col,
       size,
       t: 0,
@@ -105,7 +105,7 @@ function feedbackBeat(kind, px, py, col = "#fff1a6", power = 1, label = "") {
     d:
       kind === "weak" || kind === "riposte"
         ? 0.68
-        : kind === "awaken"
+        : kind === "awaken" || kind === "constellation"
           ? 0.58
           : 0.42,
   });
@@ -549,6 +549,15 @@ function drawFeedbackBeats() {
         fade * 0.54,
         -p * 1.7,
       );
+    else if (beat.kind === "constellation")
+      paintFeedbackAsset(
+        feedbackArt.comet,
+        beat.x,
+        beat.y,
+        size * 1.72,
+        fade * 0.62,
+        p * 1.1,
+      );
     else if (beat.kind === "hit")
       paintFeedbackAsset(
         feedbackArt.burst,
@@ -565,7 +574,7 @@ function drawFeedbackBeats() {
     x.fillStyle = beat.col;
     x.shadowBlur = combatFxBlur(16);
     x.shadowColor = beat.col;
-    if (beat.kind === "unit" || beat.kind === "awaken") {
+    if (beat.kind === "unit") {
       for (let i = 0; i < 8; i++) {
         const a = (i * Math.PI) / 4 + p * 1.4,
           inner = 10,
@@ -587,6 +596,39 @@ function drawFeedbackBeats() {
           block,
           block,
         );
+      }
+    } else if (beat.kind === "awaken") {
+      x.rotate(Math.PI / 4);
+      for (let i = 0; i < 4; i++) {
+        x.rotate(Math.PI / 2);
+        x.lineWidth = 4;
+        x.beginPath();
+        x.moveTo(8, 0);
+        x.lineTo(size * 0.54, 0);
+        x.stroke();
+        x.fillRect(size * 0.42, -5, 10, 10);
+      }
+      x.rotate(-Math.PI / 4);
+    } else if (beat.kind === "constellation") {
+      x.lineWidth = 3;
+      x.beginPath();
+      for (let i = 0; i <= 5; i++) {
+        const node = i % 5,
+          a = -Math.PI / 2 + (node * Math.PI * 2) / 5 + p * 0.35,
+          radius = size * 0.46,
+          px = Math.cos(a) * radius,
+          py = Math.sin(a) * radius;
+        i ? x.lineTo(px, py) : x.moveTo(px, py);
+      }
+      x.stroke();
+      for (let i = 0; i < 5; i++) {
+        const a = -Math.PI / 2 + (i * Math.PI * 2) / 5 + p * 0.35,
+          radius = size * 0.46;
+        x.save();
+        x.translate(Math.cos(a) * radius, Math.sin(a) * radius);
+        x.rotate(Math.PI / 4);
+        x.fillRect(-4, -4, 8, 8);
+        x.restore();
       }
     } else if (beat.kind === "weak" || beat.kind === "riposte") {
       for (let i = 0; i < 3; i++) {
@@ -804,7 +846,7 @@ registerRuntimeHook("afterMobilePairCollision", ({ a, b, kind }) => {
 });
 registerRuntimeHook("afterBlazeEarned", ({ amount }) => {
   feedbackBeat(
-    "awaken",
+    "constellation",
     ball?.x ?? W / 2,
     ball?.y ?? H / 2,
     "#ffe09a",

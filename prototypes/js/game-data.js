@@ -77,6 +77,8 @@ const U = {
   blaze: document.querySelector("#blazeValue"),
   blazeDetail: document.querySelector("#blazeDetail"),
   blazeCard: document.querySelector("#blazeCard"),
+  combatFlow: document.querySelector("#combatFlow"),
+  combatPrompt: document.querySelector("#combatPrompt"),
 };
 const stageEl = document.querySelector(".stage");
 U.combo = document.querySelector("#comboText");
@@ -290,8 +292,8 @@ const heroes = {
   sera: {
     n: "궤도 사제 달무리",
     s: "달무리",
-    e: "전환 명령",
-    d: "유성에 닿으면 기본 충돌 반응을 냅니다. 전환 명령의 새 발동 조건은 재설계 중입니다.",
+    e: "기본 공명",
+    d: "유성에 닿으면 기본 공명으로 함께 가속합니다. 별도의 고유 공격은 없습니다.",
     lore: "달을 지키는 고리가 되어 궤도를 다스리는, 고리의 별.",
     fx: "turn",
     col: "#bca7ff",
@@ -950,7 +952,7 @@ const CAMPAIGN_WORLD_PLANS = [
         "α Sge",
         "첫 화살",
         190,
-        "별지기 경유 뒤 보스에게 향하는 한 줄을 만드세요.",
+        "별지기를 먼저 맞힌 뒤 보스에게 향하는 한 줄을 만드세요.",
       ],
       [
         "화살의 허리",
@@ -1030,7 +1032,7 @@ const CAMPAIGN_WORLD_PLANS = [
         "γ Cas",
         "중앙의 틈",
         275,
-        "가운데를 비워 둔 경유선의 리턴을 확인하세요.",
+        "가운데를 비워 둔 되돌아오는 경로를 확인하세요.",
       ],
       [
         "루크바",
@@ -1111,7 +1113,7 @@ const CAMPAIGN_WORLD_PLANS = [
         "ε Ori",
         "허리의 중심",
         340,
-        "세 접점으로 별자리 발동을 노리세요.",
+        "별빛 셋을 남겨 별자리 발동을 노리세요.",
       ],
       [
         "민타카",
@@ -1137,7 +1139,7 @@ const CAMPAIGN_WORLD_PLANS = [
         "α UMa",
         "국자의 시작",
         350,
-        "마지막 월드의 첫 경유선을 세우세요.",
+        "마지막 월드의 첫 충돌 경로를 세우세요.",
       ],
       [
         "메라크",

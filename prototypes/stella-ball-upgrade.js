@@ -35,7 +35,10 @@
 
     /* ---- 1) dawn MAP 이 놓친 셀렉터 (§6-2 실측 23종 중 화면 8종 분) ---- */
     var MAP = [
-      [".ig-cta, .stage-drawer-go, .oc-go, .outcome-cut button", "cta"],
+      [
+        ".ig-cta, .stage-drawer-go, .oc-go, .outcome-cut button:not(.reward-toast)",
+        "cta",
+      ],
       [
         ".oc-ghost, .world-step, .constellation-training, .language-choice button, #tutorialBack, #tutorialPrev, #tutorialNext",
         "sub",

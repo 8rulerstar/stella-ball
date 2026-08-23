@@ -466,7 +466,7 @@ function renderOnboarding() {
           : "별빛이 별자리가 되지 못했어요.",
         body: onboarding.figureResolved
           ? "고른 별빛은 조준, 남긴 별빛은 별자리 — 한 선택이 두 결과를 냅니다. 별지기는 별자리로 타지 않아요. 이제 진짜로 잡아 볼까요?"
-          : "부딪힌 자리의 별빛을 조준에 다 써버리면 별자리 재료가 남지 않아요. 셋 이상 남긴 채로 샷을 끝내 보세요.",
+          : "부딪힌 자리의 별빛을 조준에 다 써버리면 별자리 재료가 남지 않아요. 별빛 셋 이상을 고르지 말고 남긴 뒤 발사해 보세요.",
         button: onboarding.figureResolved ? "직접 잡아보기" : "다시 시도",
         // The showcase is the promise of the combat system. Do not let a
         // skipped practice advance before the player has actually seen it.

@@ -18,6 +18,15 @@ function setupBattle() {
     onboardingApi = StellaRuntime.modules.optional("onboarding");
   const tutorial = Boolean(s.tutorial && onboardingApi?.isActive());
   setScene("game");
+  document.body.dataset.battleWorld = s.world;
+  document.body.style.setProperty?.(
+    "--battle-world-hue",
+    String(WORLD_HUES[s.world] ?? 0),
+  );
+  document.body.style.setProperty?.(
+    "--battle-world-chroma",
+    WORLD_HUES[s.world] === undefined ? "0" : "1",
+  );
   clearToastQueue();
   battle = {
     id: ++battleSerial,
@@ -29,6 +38,14 @@ function setupBattle() {
     guideStarCharges: s.guideStarCharges ?? 0,
     training: Boolean(s.training),
     tutorial,
+    stats: {
+      weakHits: 0,
+      wallHits: 0,
+      orbitHits: 0,
+      boostHits: 0,
+      aimShots: 0,
+      aimForceTotal: 0,
+    },
   };
   battleComplete = false;
   primeCombatTextures(s);
@@ -755,7 +772,10 @@ function showDeployment() {
    골드는 재도전 CTA 하나뿐이고 플래시·파티클은 없다(§1-1, §2-6).
    시간은 CSS animation-delay가 쥔다. 결과 화면은 전투 루프가 이미 멈춘 뒤라
    frameClock이 흐르지 않으므로 여기서는 프레임 시계를 쓸 이유가 없다. */
-function outcomeCine(kind, { kicker, title, caption, rows, ctas }) {
+function outcomeCine(
+  kind,
+  { kicker, title, caption, rows, advice = "", ctas },
+) {
   return (
     '<div class="oc oc-' +
     kind +
@@ -782,9 +802,48 @@ function outcomeCine(kind, { kicker, title, caption, rows, ctas }) {
           "</b></span>",
       )
       .join("") +
-    '</div><div class="oc-ctas">' +
+    "</div>" +
+    (advice
+      ? '<div class="oc-advice"><i aria-hidden="true"></i><span><small>다음 관측</small><b>' +
+        advice +
+        "</b></span></div>"
+      : "") +
+    '<div class="oc-ctas">' +
     ctas +
     "</div></div>"
+  );
+}
+
+function failureAdvice() {
+  const stats = battle?.stats;
+  if (!stats) return "다른 노드 조합으로 첫 충돌 경로를 바꿔보세요.";
+  if (stats.weakHits === 0)
+    return "약점 명중이 없었습니다. 거상 둘레의 밝은 핵을 먼저 노리세요.";
+  if (stats.orbitHits >= 2)
+    return (
+      "도는 방벽에 " +
+      stats.orbitHits +
+      "회 막혔습니다. 잔상이 비운 틈으로 발사하세요."
+    );
+  if (stats.aimShots > 0) {
+    const averageForce = stats.aimForceTotal / stats.aimShots;
+    if (averageForce < 0.55)
+      return (
+        "평균 조준 위력 " +
+        Math.round(averageForce * 100) +
+        "%였습니다. 노드를 더 넓게 벌려 고르세요."
+      );
+  }
+  if (stats.wallHits >= 3)
+    return (
+      "반사벽에 " +
+      stats.wallHits +
+      "회 닿았습니다. 점선 반사 경로를 이용해 약점 각도를 만드세요."
+    );
+  return (
+    "약점 명중 " +
+    stats.weakHits +
+    "회. 남은 별빛을 감싸는 조합으로 별자리 피해를 더하세요."
   );
 }
 function resultCard(shotsUsed, elapsedMs) {
@@ -862,6 +921,9 @@ function fail(reason = "다른 별지기와 다른 궤적으로 다시 관측하
   // 승리 쪽과 같은 이유. 패배 카드는 제 문구를 카드 안에 들고 있으므로
   // 여기서는 남김없이 비운다.
   clearToastQueue();
+  if (typeof clearSpeech === "function") clearSpeech();
+  msg = "";
+  U.tip.textContent = "";
   U.over.className = "overlay";
   U.over.innerHTML = outcomeCine("lose", {
     kicker: "OBSERVATION LOST",
@@ -879,6 +941,7 @@ function fail(reason = "다른 별지기와 다른 궤적으로 다시 관측하
         (battle?.shotMax || 0) - Math.max(0, battle?.shots || 0) + "개",
       ],
     ],
+    advice: failureAdvice(),
     ctas:
       '<button class="oc-go" onclick="showRoster()">다시 관측</button>' +
       '<button class="oc-ghost" onclick="showTitle()">타이틀로</button>',
@@ -989,6 +1052,12 @@ function win() {
       victory?.elapsedMs ??
       Math.round(battle.liveMs ?? performance.now() - battle.startedAt);
   battle.victory = null;
+  // Battle dialogue belongs to the table. Keeping Luna's dock open under the
+  // result card pushed half of it below the viewport and made three messages
+  // compete at once (result, achievement, dialogue).
+  if (typeof clearSpeech === "function") clearSpeech();
+  msg = "";
+  U.tip.textContent = "";
   window.PrismHive?.submitRun({
     stage: currentStage().id,
     party: deployed,
@@ -1148,7 +1217,59 @@ const hudState = {
   chain: null,
   tip: null,
   summary: null,
+  flow: null,
 };
+
+function combatFlowState() {
+  if (!battle) return null;
+  if (battleComplete) return { id: "settle", prompt: "관측 결과를 확인하세요" };
+  if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
+    return {
+      id: "settle",
+      prompt: "남은 별빛과 각성 효과를 정산하는 중",
+    };
+  if (ball?.moving)
+    return {
+      id: "resonate",
+      prompt: "충돌로 별빛과 별자리 배율을 모으는 중",
+    };
+  const nodeAim = typeof aimStarReady === "function" && aimStarReady();
+  if (!nodeAim)
+    return { id: "launch", prompt: "유성을 끌어 발사 방향을 정하세요" };
+  const minimum = typeof AIM_STAR === "object" ? AIM_STAR.minPick : 3;
+  if (aimPick.length < minimum)
+    return {
+      id: "select",
+      prompt:
+        "노드 " +
+        aimPick.length +
+        "/" +
+        minimum +
+        " · 넓게 고를수록 강해집니다",
+    };
+  const preview = typeof aimStarShot === "function" ? aimStarShot() : null;
+  const force = preview?.force ?? 0;
+  const grade = force >= 0.78 ? "강함" : force >= 0.55 ? "보통" : "약함";
+  return {
+    id: "launch",
+    prompt: grade + " " + Math.round(force * 100) + "% · Space로 발사",
+  };
+}
+
+function syncCombatFlow() {
+  if (!U.combatFlow) return;
+  const state = combatFlowState();
+  const key = state ? state.id + "|" + state.prompt : "none";
+  if (hudState.flow === key) return;
+  U.combatFlow.dataset.active = state?.id ?? "";
+  for (const item of U.combatFlow.querySelectorAll("[data-flow]"))
+    item.classList.toggle("active", item.dataset.flow === state?.id);
+  if (U.combatPrompt)
+    U.combatPrompt.textContent = state?.prompt ?? "전투를 준비합니다";
+  hudState.flow = key;
+}
+
+registerRuntimeHook("afterFeedbackUpdate", syncCombatFlow);
 function sync() {
   const unlimitedShots = Boolean(
     battle && (battle.training || battle.tutorial),
@@ -1208,6 +1329,7 @@ function sync() {
     U.tip.textContent = msg;
     hudState.tip = msg;
   }
+  syncCombatFlow();
   const summaryKey =
     (currentStage()?.id ?? stageIndex) +
     "|" +

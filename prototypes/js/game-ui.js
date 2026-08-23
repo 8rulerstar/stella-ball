@@ -39,6 +39,12 @@ function setScene(scene) {
   document.body.classList.toggle("meta-mode", scene === "meta");
   document.body.classList.toggle("menu-mode", scene === "menu");
   document.body.classList.toggle("game-mode", scene === "game");
+  requestAnimationFrame(() => window.SkyAmbience?.layout());
+  if (scene !== "game") {
+    delete document.body.dataset.battleWorld;
+    document.body.style.removeProperty?.("--battle-world-hue");
+    document.body.style.removeProperty?.("--battle-world-chroma");
+  }
   /* 판을 탭 순서에 넣은 것은 «판 위에서» 조준 키를 안내하기 위해서다
      (game-combat.js의 equipAimKeyboardAffordance). 그대로 두면 허브·상점·
      프로필에서도 보이지 않는 캔버스가 첫 탭 자리를 차지해, 탭 한 번이

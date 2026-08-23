@@ -369,7 +369,7 @@ const BOSS_VOICE = {
   },
   cass: {
     enter: "왕좌는 기울어도 왕좌다.",
-    phase: "껍질 하나. 아직 넷이 남았다.",
+    phase: "금이 가도 왕좌는 무너지지 않는다.",
     low: "앉은 자리는 바뀌지 않는다.",
   },
   cygnus: {

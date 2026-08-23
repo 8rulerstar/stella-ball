@@ -753,7 +753,7 @@ button:hover {
   color: #ffe6be;
   text-align: center;
 }
-.gacha-reveal > span:first-child {
+.gacha-reveal > span:first-child:not(.portrait) {
   /* 37px 글자였다 — 사다리 최대 단(32) 정수배로 몰아 넣는다. */
   width: 32px;
   height: 32px;
@@ -906,7 +906,7 @@ button:hover {
     filter: brightness(1);
   }
 }
-/* --- summon sequence (about 10s) --------------------------------------
+/* --- summon sequence (about 7s) ---------------------------------------
    Phases come from [data-phase] on .summon-stage; game-meta.js owns the
    clock. Palette is the Dawn Observatory set only: --star #ffd2a0,
    --gold #f2b35c, --moon #d2cedb, --mist #938aa4 over --night-0 #0e0616. */
@@ -944,6 +944,10 @@ button:hover {
 }
 .summon-stage[data-phase="answer"]::before {
   opacity: 0.52;
+}
+.summon-stage[data-phase="manifest"]::before {
+  opacity: 0.12;
+  animation: summonFlash 0.72s ease-out both;
 }
 .summon-circle {
   position: absolute;
@@ -1121,16 +1125,26 @@ button:hover {
 }
 @keyframes summonAnswer {
   0% {
-    transform: scale(0.2);
+    transform: rotate(45deg) scale(0.2);
   }
   28% {
-    transform: scale(2.7);
+    transform: rotate(45deg) scale(2.7);
   }
   58% {
-    transform: scale(1);
+    transform: rotate(45deg) scale(1);
   }
   100% {
-    transform: scale(1.7);
+    transform: rotate(45deg) scale(1.7);
+  }
+}
+@keyframes summonFlash {
+  0% {
+    opacity: 0.82;
+    background: #ffe6c4;
+  }
+  100% {
+    opacity: 0.12;
+    background: #0e0616;
   }
 }
 @keyframes summonTrace {
@@ -1449,6 +1463,12 @@ body.onboarding-locked .pause-button {
   font-size: 12px;
 }
 .hub-map .constellation-node .node-status {
+  display: none;
+}
+/* The mission bar already carries the selected stage's full rule. Repeating
+   that sentence on every map node made the edge nodes wider than the map and
+   buried the constellation silhouette under scrolling labels. */
+.hub-map .constellation-node .stage-copy > span {
   display: none;
 }
 .hub-mission-bar {
@@ -1778,6 +1798,34 @@ body.onboarding-locked .pause-button {
 .reward-toast span {
   color: var(--mist);
   font-size: 10px;
+}
+.reward-toast.inline {
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: auto;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  min-width: 0;
+  width: max-content;
+  max-width: 100%;
+  margin: 6px auto;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transform: translateY(-8px) scale(0.98);
+}
+.reward-toast.inline.show {
+  transform: translateY(0) scale(1);
+}
+.reward-toast.inline b {
+  font-size: 12px;
+}
+.reward-toast.inline span {
+  display: none;
+}
+.reward-toast.inline.actionable::after {
+  content: "업적 보기";
 }
 
 /* ---------------------------------------------------------------------
@@ -2386,7 +2434,25 @@ body.onboarding-locked .pause-button {
   overflow: visible;
   min-height: 118px !important;
   padding: 12px 13px 12px 74px !important;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
+  background:
+    linear-gradient(90deg, var(--record-tone, #d6a55c) 0 3px, transparent 3px),
+    linear-gradient(145deg, #180c22, #110919) !important;
+}
+.achievement-card:nth-child(3n + 2) {
+  --record-tone: #69b8b2;
+  background:
+    linear-gradient(90deg, var(--record-tone) 0 3px, transparent 3px),
+    linear-gradient(145deg, #0f1a21, #0d1018) !important;
+}
+.achievement-card:nth-child(3n) {
+  --record-tone: #c57996;
+  background:
+    linear-gradient(90deg, var(--record-tone) 0 3px, transparent 3px),
+    linear-gradient(145deg, #20101d, #120a16) !important;
+}
+.achievement-card.locked {
+  --record-tone: #625b69;
 }
 .achievement-card img {
   left: 13px !important;
@@ -2931,13 +2997,33 @@ body.onboarding-locked .pause-button {
   min-height: 0;
 }
 .profile-panel {
+  position: relative;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 15px 15px 13px;
   border: 1px solid #3f2e53;
-  border-radius: 12px;
+  border-radius: 8px;
   background: linear-gradient(165deg, #1a0c27f0, #10061bf7);
+}
+.profile-panel::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 42%;
+  height: 2px;
+  background: var(--profile-line, #f2b35c);
+  content: "";
+  opacity: 0.82;
+}
+.profile-panel:nth-child(2) {
+  --profile-line: #73c9c2;
+  background: linear-gradient(165deg, #101c27f0, #0d111cf7);
+}
+.profile-panel.mail-panel {
+  --profile-line: #d58aa6;
+  background: linear-gradient(165deg, #21101ff0, #120a18f7);
 }
 .panel-title small {
   display: block;
@@ -3130,7 +3216,7 @@ body.onboarding-locked .pause-button {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 .overlay.archive-scene .achievement-grid {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   /* 이 값을 220px 으로 낮춰 두 열을 세워 봤다가 되돌렸다. 두 열은 서지만
      카드 폭이 224px 이 되어 다섯 장 전부에서 글자가 25~42px 넘쳤고,
      늘어난 높이가 「뒤로」를 화면 밖으로 밀었다. 「측정이 이득을 보이지
@@ -3152,7 +3238,7 @@ body.onboarding-locked .pause-button {
      삐져나와 다음 카드에 잘렸다 — 이 화면에서 골드를 주는 유일한 버튼이다.
      카드가 overflow:visible 이라 잘리지 않고 겹쳐 그려져서 더 눈에 띈다. */
   grid-auto-rows: max-content;
-  overflow-y: auto;
+  overflow: visible;
   padding-right: 4px;
 }
 /* 바닥을 준 대신 패널이 넘칠 수 있다. 넘칠 때만 패널이 스크롤한다 —
@@ -3165,6 +3251,26 @@ body.onboarding-locked .pause-button {
   flex: 0 0 auto;
   margin-top: auto;
   padding-top: 4px;
+}
+
+/* Archive and library used an inner list scrollbar inside an already
+   scrollable panel. One scroll surface keeps the heading, cards and exit in a
+   predictable reading order and avoids a detached button well at the bottom. */
+.overlay.library-scene .codex-split {
+  flex: 0 0 auto;
+  align-items: flex-start;
+}
+.overlay.library-scene .codex-list {
+  overflow: visible;
+}
+
+@media (min-height: 700px) {
+  .overlay.settings-scene {
+    place-content: center !important;
+  }
+  .overlay.settings-scene .meta-hub {
+    height: auto;
+  }
 }
 .overlay.archive-scene .settings-actions button {
   min-width: 120px;
@@ -3482,8 +3588,9 @@ body.onboarding-locked .pause-button {
   font-size: 10px;
   text-shadow: 0 2px 0 #07020c;
 }
-/* The rule text and the status word belong to the mission bar, not to a node
-   that has to sit inside a constellation. */
+/* The stage name, rule text and status word belong to the mission bar, not to
+   a node that has to sit inside a constellation. */
+.hub-map .constellation-node .stage-copy > strong,
 .hub-map .constellation-node .stage-copy > span,
 .hub-map .constellation-node .node-status,
 .hub-map .constellation-node .stage-cleared-mark {
@@ -3972,9 +4079,55 @@ body.onboarding-locked .pause-button {
   inset: 6%;
   pointer-events: none;
   background: var(--figure) center/contain no-repeat;
-  opacity: 0.085;
-  filter: saturate(0.2) brightness(1.5);
+  opacity: 0.16;
+  filter: saturate(0.55) brightness(1.42)
+    drop-shadow(0 0 18px oklch(0.72 0.09 var(--wh) / 0.22));
   image-rendering: pixelated;
+}
+.constellation-map-scene .constellation-map:after {
+  inset: 3%;
+  background:
+    linear-gradient(var(--w-line), var(--w-line)) 50% 0 / 1px 100% no-repeat,
+    linear-gradient(90deg, var(--w-line), var(--w-line)) 0 50% / 100% 1px
+      no-repeat,
+    radial-gradient(circle at 50% 48%, var(--w-deep), transparent 58%);
+  opacity: 0.2;
+}
+
+/* Carry the selected world's observatory tone out of the canvas and into the
+   fixed instrument frame. Gameplay colours remain untouched. */
+.game-mode {
+  --battle-world-line: oklch(
+    0.68 calc(0.1 * var(--battle-world-chroma, 0)) var(--battle-world-hue, 0)
+  );
+  --battle-world-deep: oklch(
+    0.24 calc(0.05 * var(--battle-world-chroma, 0)) var(--battle-world-hue, 0)
+  );
+}
+.game-mode .stage {
+  border-color: color-mix(
+    in oklab,
+    var(--battle-world-line) 62%,
+    #665184
+  ) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--battle-world-line) 24%, transparent),
+    0 18px 42px #0a020dbb !important;
+}
+.game-mode .hud-card,
+.game-mode .boss-panel,
+.game-mode .boss-banner,
+.game-mode .blaze-card {
+  border-color: color-mix(
+    in oklab,
+    var(--battle-world-line) 48%,
+    #543c75
+  ) !important;
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--battle-world-deep) 46%, #260736),
+    #17051ff4
+  ) !important;
 }
 
 /* ---------------------------------------------------------------------

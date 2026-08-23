@@ -1160,8 +1160,45 @@ body.oo-intro .title-sequence::after {
   animation: ocVeil 0.9s ease-out 0.15s forwards;
 }
 .oc-lose .oc-veil {
-  background: radial-gradient(ellipse at 50% 42%, #9fb4bd1a, transparent 72%);
+  background:
+    linear-gradient(
+      112deg,
+      transparent 48.8%,
+      #9fb4bd22 49.7% 50.3%,
+      transparent 51.2%
+    ),
+    linear-gradient(
+      68deg,
+      transparent 48.8%,
+      #9fb4bd18 49.7% 50.3%,
+      transparent 51.2%
+    ),
+    radial-gradient(ellipse at 50% 42%, #9fb4bd1a, transparent 72%);
   animation: ocVeil 1.4s ease-out 0.3s forwards;
+}
+.oc-lose::before,
+.oc-lose::after {
+  position: absolute;
+  top: 9%;
+  bottom: 9%;
+  z-index: 0;
+  width: 42%;
+  border: 1px solid #7d95a044;
+  content: "";
+  pointer-events: none;
+  opacity: 0;
+}
+.oc-lose::before {
+  left: -4%;
+  border-right: 0;
+  transform: translateX(-34px) skewY(12deg);
+  animation: ocShutterLeft 1.05s ease-out 0.35s forwards;
+}
+.oc-lose::after {
+  right: -4%;
+  border-left: 0;
+  transform: translateX(34px) skewY(-12deg);
+  animation: ocShutterRight 1.05s ease-out 0.35s forwards;
 }
 .oc-kicker {
   color: var(--magenta-dim, #c94ff0);
@@ -1298,6 +1335,18 @@ body.oo-intro .title-sequence::after {
     opacity: 1;
   }
 }
+@keyframes ocShutterLeft {
+  to {
+    opacity: 0.65;
+    transform: translateX(0) skewY(12deg);
+  }
+}
+@keyframes ocShutterRight {
+  to {
+    opacity: 0.65;
+    transform: translateX(0) skewY(-12deg);
+  }
+}
 @keyframes ocFade {
   to {
     opacity: 1;
@@ -1341,6 +1390,12 @@ body.oo-intro .title-sequence::after {
   .oc-ctas,
   .oc-veil {
     opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .oc-lose::before,
+  .oc-lose::after {
+    opacity: 0.65;
     transform: none;
     animation: none;
   }

@@ -745,35 +745,6 @@ registerRuntimeHook("afterDraw", function drawFigureShot() {
     }
     x.restore();
   }
-  // The post-contact echo is deliberately local and short. It tells the
-  // player which bounce can still be answered without predicting a future
-  // route or asking them to select a target in a crowded corner.
-  if (state.contact?.t > 0) {
-    const contact = state.contact,
-      pulse = contact.t / FIGURE_PARRY.contactMemory,
-      g = contact.g;
-    x.save();
-    x.globalAlpha = 0.2 + pulse * 0.55;
-    x.strokeStyle = g.col || "#fff1bd";
-    x.lineWidth = 2 + pulse * 2;
-    x.shadowBlur = combatFxBlur(14);
-    x.shadowColor = g.col || "#fff1bd";
-    x.beginPath();
-    x.arc(
-      contact.x,
-      contact.y,
-      ball.r + g.r + 4 + (1 - pulse) * 9,
-      0,
-      Math.PI * 2,
-    );
-    x.stroke();
-    x.globalAlpha = 0.86;
-    x.fillStyle = "#fff3d6";
-    x.textAlign = "center";
-    x.font = "bold 11px ui-monospace";
-    x.fillText("Space · 공명", contact.x, contact.y - ball.r - g.r - 13);
-    x.restore();
-  }
   if (!nodes.length) return;
   /* classifyFigure + figureFit are the shape recogniser, and it is expensive:
      for each template it walks every rotation x every start offset, and its

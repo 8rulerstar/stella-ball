@@ -15,6 +15,7 @@ This project ships only the selected game-ready files listed in `ASSET_MANIFEST.
 - `assets/original/prism-orb.svg`
 - `assets/original/rune-glyphs.svg`
 - `assets/original/weakpoint.svg`
+- `assets/original/sky/constellation-reaction-overlay.png` — OpenAI image generation, project-owner-approved transparent pixel overlay (2026-08-23). Generated for this project and locally resized with nearest-neighbour sampling.
 - `assets/enemies/void-wisp.png` and `assets/library/**` — OpenAI image generation, chroma-key background removed locally.
 - `assets/library/constellations/*.png` — project-owner-commissioned procedural generation (2026-08-13, the 6- and 7-point pair on the same order). It is used only by the training-table constellation reveal. The 6- and 7-point sheets regenerate from `scripts/generate_constellation_art_6_7.mjs`. The project owner retains the original-asset rights; third-party redistribution terms are 미정.
 - **The eight starkeeper sheets and their action sheets** — created by the project owner, 2026-08-13. Covers `characters/gaon-warrior-idle.png`, `biyeon-archer-idle.png`, `lumi-shaman-idle.png`, `haru-lancer-idle.png`, `ria-bladewheel-idle.png`, `sera-monk-idle.png`, `taeo-orc-idle.png`, `nyx-oracle-idle.png` and all sixteen `characters/anim/*-roll.png` / `*-attack.png`. No third-party pack terms apply to these; the filenames keep their old class words only because the hero ids never changed.
