@@ -362,8 +362,11 @@ function cineScriptFor(fx) {
     E.push({ at: CAST + 1.25, fn: () => (st.aim = 0) });
     // 못이 빠지기 시작하는 시각. 대격보다 한참 뒤라 «부은 것이 남아 있다»가
     // 읽히고, 그 뒤 1초에 걸쳐 수면이 내려간다.
-    E.push({ at: CAST + 1.0, fn: () => (st.drain = 0) });
-    return { end: CAST + 2.4, evts: E, dipper: st };
+    /* 은하수가 «다 퍼진 뒤»에 걷힌다. 처음에는 CAST+1.0 이었는데, 실측으로
+       그때 퍼짐이 0.28 이라 다 퍼지기도 전에 사라지고 있었다 —
+       붓기 시작(CAST-0.62) + 닿기 0.9 + 퍼짐 0.75 = CAST+1.03 이 완성 시각이다. */
+    E.push({ at: CAST + 1.6, fn: () => (st.drain = 0) });
+    return { end: CAST + 2.8, evts: E, dipper: st };
   }
   return null;
 }
@@ -1128,75 +1131,89 @@ function drawCineOrion(s) {
    난수를 쓰지 않는다. 별 하나하나의 흔들림을 자리 인덱스의 사인으로 정해,
    같은 별이 매 프레임 같은 자리에 있다 — 그래야 «흐르는 띠»로 보이고
    «지지직거리는 잡음»으로 안 보인다. */
-/* 판에 고인 별빛. 수영장처럼 «수면»이 올라오고, 대격 뒤에 다시 빠진다.
+/* 판 바닥에 «얕게 퍼지는» 은하수.
 
-   판 «안»에서만 산다. 채우는 그릇이 전투 판이라는 것이 이 연출의 전부다 —
-   판 밖으로 번지면 「고인다」가 아니라 「번진다」가 된다.
+   앞서는 수영장이었다 — 수면이 화면 아래에서 위로 차올랐다. 오너 지적대로
+   그건 측면도의 은유다. 이 판은 탑다운이라 화면의 세로축이 «높이»가 아니라
+   «깊이»이고, 바닥에 부은 것은 위로 쌓이는 게 아니라 옆으로 번져야 한다.
 
-   반투명이라 그 아래의 별지기·유성·바닥 각인이 그대로 비친다. 판단색을
-   덮지 않는 것이 규칙이고(§1-4), 물이라면 원래 비쳐야 맞다. */
-function drawDipperPool(level, fade) {
-  if (level <= 0) return;
-  const top = H - H * 0.56 * level, // 최대 수위는 판의 56% — 위쪽 국자와 보스는 물 밖에 남는다
-    now = frameClock / 1000;
+   그래서 떨어진 자리에서 «타원»으로 퍼진다. 세로를 0.42배로 눌러 둔 것이
+   탑다운의 원근이다 — 같은 반지름이라도 깊이 방향은 짧게 보인다.
+
+   물이 아니다. 수면선도 깊이 그러데이션도 두지 않는다. 대신 별의 «밀도»가
+   중심에서 가장자리로 옅어지고, 나선 팔 두 줄이 아주 느리게 돈다 — 고인
+   것이 액체가 아니라 별빛이 담긴 은하수로 읽혀야 한다.
+
+   별 자리는 인덱스로만 정해 프레임마다 떨지 않고, 회전만 시간을 탄다. */
+function drawDipperGalaxy(cx, cy, spread, fade) {
+  if (spread <= 0) return;
+  const RX = W * 0.62,
+    SQUASH = 0.42, // 탑다운 원근: 깊이 방향은 짧게 보인다
+    rx = RX * spread,
+    ry = rx * SQUASH,
+    now = frameClock / 1000,
+    spin = now * 0.16;
   x.save();
-  /* 수면 아래. 위쪽이 밝고 아래로 갈수록 짙어진다 — 빛이 표면에서 들어와
-     깊이로 사라지는 인상이다. */
-  const g = x.createLinearGradient(0, top, 0, H);
-  g.addColorStop(0, "#9ec7ff3d");
-  g.addColorStop(0.35, "#6d93d62e");
-  g.addColorStop(1, "#1b2a5522");
-  x.fillStyle = g;
+  x.translate(cx, cy);
+  /* 아주 옅은 바닥 물듦. «얕게»가 이 연출의 조건이라 판을 덮지 않는다 —
+     아래의 바닥 각인과 별지기가 그대로 읽혀야 한다. */
+  const g = x.createRadialGradient(0, 0, 0, 0, 0, rx || 1);
+  g.addColorStop(0, "#9ec7ff4a");
+  g.addColorStop(0.55, "#7fa8e02b");
+  g.addColorStop(1, "#7fa8e000");
   x.globalAlpha = fade;
-  x.fillRect(0, top, W, H - top);
-  /* 고인 별. 자리는 인덱스로만 정해 프레임마다 떨지 않고, 아주 느리게
-     위로 흔들려 «물속에서 떠오르는» 정도만 준다. */
-  const N = 90;
-  for (let i = 0; i < N; i++) {
-    const px = ((i * 97) % 71) / 71,
-      py = ((i * 53) % 37) / 37;
-    const sy = top + (H - top) * py + Math.sin(now * 0.9 + i) * 3;
-    if (sy < top) continue;
-    x.globalAlpha = (0.18 + 0.5 * (1 - py)) * fade;
-    x.fillStyle = i % 4 === 0 ? "#fff6e6" : "#cfe6ff";
-    x.fillRect(Math.round(px * W), Math.round(sy), 1 + (i % 2), 1 + (i % 2));
-  }
-  /* 수면. 사인 두 겹이라 마루가 같은 자리에 반복되지 않는다. */
-  x.globalAlpha = 0.85 * fade;
-  x.strokeStyle = "#cfe6ff";
-  x.shadowBlur = combatFxBlur(12);
-  x.shadowColor = "#9ec7ff";
-  x.lineWidth = 2;
+  x.save();
+  x.scale(1, SQUASH);
+  x.fillStyle = g;
   x.beginPath();
-  for (let sx = 0; sx <= W; sx += 8) {
-    const wy =
-      top +
-      Math.sin(sx / 46 + now * 1.5) * 3 +
-      Math.sin(sx / 17 - now * 2.2) * 1.6;
-    if (sx === 0) x.moveTo(sx, wy);
-    else x.lineTo(sx, wy);
+  x.arc(0, 0, rx, 0, Math.PI * 2);
+  x.fill();
+  x.restore();
+  /* 별. 중심이 촘촘하고 가장자리로 갈수록 성기다 — sqrt 분포를 뒤집어
+     r = u^1.6 으로 안쪽에 몰아 둔다. */
+  const N = 340;
+  for (let i = 0; i < N; i++) {
+    const u = ((i * 61) % 197) / 197,
+      a = (((i * 37) % 211) / 211) * Math.PI * 2,
+      /* 나선 팔 둘. 반지름이 커질수록 각을 비틀어 팔이 생긴다. */
+      arm = (i % 2) * Math.PI,
+      r = Math.pow(u, 1.6),
+      ang = a * 0.25 + arm + r * 2.6 + spin;
+    if (r > spread) continue;
+    const px = Math.cos(ang) * r * RX,
+      py = Math.sin(ang) * r * RX * SQUASH;
+    // 가장자리는 옅고, 갓 닿은 테두리는 잠깐 밝다.
+    const edge = 1 - Math.min(1, Math.abs(spread - r) / 0.12);
+    x.globalAlpha = (0.3 + 0.55 * (1 - r) + edge * 0.5) * fade;
+    x.fillStyle = i % 7 === 0 ? "#fff6e6" : i % 3 === 0 ? "#cfe6ff" : "#9ec7ff";
+    const sz = 1 + (i % 3 === 0 ? 1 : 0) + (edge > 0.6 ? 1 : 0);
+    x.fillRect(Math.round(px), Math.round(py), sz, sz);
   }
-  x.stroke();
   x.restore();
 }
+/* 떨어지는 자리. 판의 «가운데 조금 위»다 — 여기서 은하수가 사방으로
+   퍼지므로, 너무 위면 아래 절반이 비고 너무 아래면 국자와 이어지지 않는다. */
+const DIPPER_LAND = { x: 0.5, y: 0.44 };
 function drawDipperPour(lip, tip, age, fade, st) {
-  const RUN = 1.9; // 띠가 판 바닥까지 닿는 데 걸리는 시간
+  const RUN = 0.9; // 띠가 바닥에 닿는 데 걸리는 시간
   const grow = Math.min(1, age / RUN);
-  /* 수위. 띠가 바닥에 «닿은 뒤»부터 차오른다 — 닿기도 전에 물이 고이면
-     어디서 온 물인지 읽히지 않는다. 대격 뒤에는 1초에 걸쳐 빠진다. */
-  const reach = 0.62, // 띠가 바닥에 닿는 진행률
-    rise = Math.max(0, Math.min(1, (grow - reach) / (1 - reach))),
+  const lz = { x: W * DIPPER_LAND.x, y: H * DIPPER_LAND.y };
+  /* 퍼짐. 띠가 «닿은 뒤»부터 번진다 — 닿기도 전에 고이면 어디서 온 것인지
+     읽히지 않는다. 대격 뒤에는 1초에 걸쳐 옅어지며 걷힌다. */
+  const spread = Math.max(0, Math.min(1, (age - RUN) / 0.75)),
     drained = st?.drain >= 0 ? Math.min(1, st.drain / 1.0) : 0;
-  drawDipperPool(rise * (1 - drained), fade);
+  drawDipperGalaxy(lz.x, lz.y, spread, fade * (1 - drained));
   if (grow <= 0) return;
   // 기운 국자의 주둥이. tip 만큼 돌린 자리에서 흘러나온다.
   const lx = lip.x + Math.cos(tip - 0.35) * 62,
     ly = lip.y + Math.sin(tip - 0.35) * 62 + 26;
-  // 판 아래 중앙으로 휘어 내려간다. 제어점을 옆으로 밀어 «쏟아지는» 호를 만든다.
-  const ex = W * 0.5,
-    ey = H + 40,
-    cx = lx - (lx - ex) * 0.25 + 150,
-    cy = (ly + ey) * 0.42;
+  /* 떨어지는 자리까지 짧게 휜다. 예전에는 판 바닥(H+40)까지 길게 흘렀는데,
+     퍼지는 자리가 판 가운데인 지금은 거기서 «끊겨야» 「부어서 고였다」가
+     된다 — 계속 흐르면 관통해 지나간 것으로 읽힌다. */
+  const ex = lz.x,
+    ey = lz.y,
+    cx = lx + (ex - lx) * 0.35 + 80,
+    cy = ly + (ey - ly) * 0.62;
   const at = (t) => ({
     x: (1 - t) * (1 - t) * lx + 2 * (1 - t) * t * cx + t * t * ex,
     y: (1 - t) * (1 - t) * ly + 2 * (1 - t) * t * cy + t * t * ey,
@@ -1223,10 +1240,13 @@ function drawDipperPour(lip, tip, age, fade, st) {
     const t = i / (N - 1);
     if (t > grow) break;
     const p = at(t),
-      spread = 8 + t * 96,
+      /* 띠는 아래로 갈수록 «좁아진다». 예전에는 넓어졌는데, 그때는 띠가 곧
+         은하수였다. 지금 은하수는 닿은 자리에서 따로 퍼지므로, 띠는 부어
+         내리는 줄기로 남아야 두 그림이 같은 일을 두 번 하지 않는다. */
+      band = 26 - t * 18,
       wob = Math.sin(i * 1.7) * 0.5 + Math.sin(i * 0.41) * 0.5,
-      off = wob * spread,
-      nx = Math.sin(i * 2.3) * spread * 0.35;
+      off = wob * band,
+      nx = Math.sin(i * 2.3) * band * 0.35;
     const px = p.x + off,
       py = p.y + nx * 0.2;
     // 앞머리가 가장 밝다 — 지금 «흘러 나오는» 자리가 눈에 걸리게.
@@ -1278,9 +1298,10 @@ function drawCineDipper(st, s) {
       });
   }
   if (fly >= 1) {
-    // 기우는 각도는 이제 자기 시계를 탄다(st.tip). 0.5 -> 0.62 rad 로 더
-    // 깊게 기울여 «붓는다»가 각도만으로 읽히게 한다.
-    const tip = cineEase(st.tip >= 0 ? st.tip / 0.75 : 0) * 0.62,
+    /* 국자를 «앞으로» 깊게 기울인다(0.62 -> 0.95 rad). 탑다운 판에서
+       앞으로 기운다는 것은 화면 아래쪽으로 주둥이가 돌아간다는 뜻이고,
+       그래야 쏟아진 것이 판 위에 떨어지는 것으로 읽힌다. */
+    const tip = cineEase(st.tip >= 0 ? st.tip / 0.75 : 0) * 0.95,
       fade =
         s > cine.end - 1.0 ? Math.max(0, 1 - (s - (cine.end - 1.0)) / 1.0) : 1;
     x.save();
