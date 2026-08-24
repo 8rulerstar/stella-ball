@@ -1437,3 +1437,42 @@ body.oo-intro .title-sequence::after {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------
+   허브 상단의 「타이틀」 나가기 (2026-08-24)
+   프로필 안쪽에 있던 것을 자원 줄 끝으로 올렸다. 옆의 칩들(업적·골드·
+   최단 기록)은 «값을 읽는» 것이고 이것은 «누르는» 것이라, 같은 높이에
+   서되 문법을 흉내 내지 않는다 — 칩은 라벨 위 금색 값 두 줄이고 이쪽은
+   한 줄이다. 평소에는 물러나 있다가 가리키면 살구빛으로 올라온다.
+   --------------------------------------------------------------------- */
+.hub-title-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: stretch;
+  padding: 6px 10px;
+  border: 1px solid #3b2a55;
+  border-radius: 4px;
+  background: #12041f;
+  color: #8d80a8;
+  cursor: pointer;
+  font:
+    700 9px ui-monospace,
+    monospace;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  transition:
+    border-color 0.16s ease,
+    color 0.16s ease,
+    background-color 0.16s ease;
+}
+.hub-title-exit span {
+  font-size: 11px;
+  line-height: 1;
+}
+.hub-title-exit:hover,
+.hub-title-exit:focus-visible {
+  border-color: #f2b35c;
+  background: #1b0a2b;
+  color: #f3ede2;
+}

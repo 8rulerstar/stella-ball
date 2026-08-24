@@ -481,7 +481,7 @@ function showProfile() {
     ownedSkinIds().length +
     " / " +
     METEOR_SKINS.length +
-    '</b></div></div><button class="profile-exit" id="profileToTitle">타이틀 화면으로</button></section><section class="profile-panel"><div class="panel-title"><small>LEADERBOARD</small><h2>오늘의 밤하늘 순위</h2></div><table class="rank-table"><thead><tr><th>#</th><th>관측자</th><th>별</th><th>최단</th><th>최소</th></tr></thead><tbody>' +
+    '</b></div></div></section><section class="profile-panel"><div class="panel-title"><small>LEADERBOARD</small><h2>오늘의 밤하늘 순위</h2></div><table class="rank-table"><thead><tr><th>#</th><th>관측자</th><th>별</th><th>최단</th><th>최소</th></tr></thead><tbody>' +
     rows +
     '</tbody></table><p class="rank-note">현재는 이 브라우저에 저장된 <b>로컬 기록</b>입니다. Hive 리더보드 연동은 준비 중이며, 연동되면 같은 표에 다른 관측자의 기록이 함께 표시됩니다.</p></section><section class="profile-panel mail-panel"><div class="panel-title"><small>MAILBOX</small><h2>우편함' +
     (unread ? ' <i class="claim-badge">' + unread + "</i>" : "") +
@@ -502,17 +502,6 @@ function showProfile() {
     playClaimBurst(event.currentTarget.closest(".claim-banner"), gold, () => {
       rewardToast("출석 보상", "+" + gold + " 골드", "보유 " + goldBalance());
       showProfile();
-    });
-  };
-  document.querySelector("#profileToTitle").onclick = () => {
-    playSfx();
-    showConfirm({
-      kicker: "TITLE",
-      title: "타이틀 화면으로 나갈까요?",
-      body: "진행한 기록은 저장되어 있습니다. 타이틀에서 다시 이어서 관측할 수 있습니다.",
-      confirmLabel: "타이틀로 나가기",
-      onConfirm: () => showTitle(),
-      onCancel: () => showProfile(),
     });
   };
   for (const button of document.querySelectorAll("[data-mail]"))

@@ -3060,12 +3060,6 @@ body.onboarding-locked .pause-button {
   color: #f3ede2;
   font-size: 15px;
 }
-.profile-exit {
-  margin-top: auto;
-  width: 100%;
-  padding: 10px 12px !important;
-  font-size: 11px !important;
-}
 .rank-table {
   width: 100%;
   border-collapse: collapse;

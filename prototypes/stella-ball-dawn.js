@@ -16,11 +16,13 @@
       "cta",
     ],
     [
-      ".hub-stage-change, .settings-actions button, .profile-exit, .shop-buy, .claim-banner button, .achievement-claim, .mail-item button, .pause-actions button, .confirm-actions button, header button, #shopBack, #gachaBack, #profileBack, #settingsBack, #settingsReset, #achievementBack, #backMeta, #profileIconClose, #hubTraining",
+      ".hub-stage-change, .settings-actions button, .shop-buy, .claim-banner button, .achievement-claim, .mail-item button, .pause-actions button, .confirm-actions button, header button, #shopBack, #gachaBack, #profileBack, #settingsBack, #settingsReset, #achievementBack, #backMeta, #profileIconClose, #hubTraining",
       "sub",
     ],
     [".meta-tab, .hub-tab", "tab"],
-    [".hub-battle-tags span, .hub-record-chip", "chip"],
+    /* 타이틀 나가기는 업적 칩 바로 옆에 서므로 같은 chip 처리를 받는다 —
+       한 줄에서 하나만 다른 손으로 그려지면 그것부터 눈에 띈다. */
+    [".hub-battle-tags span, .hub-record-chip, .hub-title-exit", "chip"],
     /* The pause button keeps the plain round CSS control.  A crescent
        silhouette behind the ❚❚ glyph read as a shoe, not as pause. */
   ];

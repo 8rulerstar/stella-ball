@@ -989,7 +989,7 @@ function showMeta() {
     gold +
     '</b></span><span class="hub-resource">최단 기록<b>' +
     best +
-    '</b></span></div></div><div class="world-band">' +
+    '</b></span><button class="hub-title-exit" id="hubToTitle" aria-label="타이틀 화면으로 나가기"><span aria-hidden="true">⏏</span>타이틀</button></div></div><div class="world-band">' +
     WORLDS.filter((entry) => WORLD_HUES[entry.id] !== undefined)
       .map(
         (entry) =>
@@ -1091,6 +1091,27 @@ function showMeta() {
   document.querySelector("#hubSettings").onclick = () => {
     playSfx();
     showSettings();
+  };
+  /* 타이틀로 나가는 길(2026-08-24, 오너 지시로 프로필에서 옮겼다).
+
+     예전에는 프로필 화면 안쪽 「타이틀 화면으로」 버튼 하나뿐이었다 —
+     탭바 프로필 → 스크롤 → 버튼. 게임을 그만두는 것은 흔한 행동인데
+     찾는 길이 셋 깊이였고, 프로필(기록·순위·출석)과 성격도 다르다.
+     허브 상단 자원 줄 끝으로 올린다. 어느 화면에서든 「뒤로」가 허브로
+     돌아오므로 여기 하나면 항상 두 번 안에 닿는다.
+
+     확인 대화는 그대로 둔다 — 오히려 여기서 더 필요하다. 한 번 눌러
+     닿는 자리라 손이 미끄러지면 판이 아니라 세션이 끝난다. */
+  document.querySelector("#hubToTitle").onclick = () => {
+    playSfx();
+    showConfirm({
+      kicker: "TITLE",
+      title: "타이틀 화면으로 나갈까요?",
+      body: "진행한 기록은 저장되어 있습니다. 타이틀에서 다시 이어서 관측할 수 있습니다.",
+      confirmLabel: "타이틀로 나가기",
+      onConfirm: () => showTitle(),
+      onCancel: () => showMeta(),
+    });
   };
 }
 registerRuntimeHook("afterBattleSetup", ({ stage, battle: activeBattle }) => {
