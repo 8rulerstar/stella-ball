@@ -66,6 +66,7 @@ const U = {
   hp: document.querySelector("#hpText"),
   bossName: document.querySelector("#bossName"),
   hpFill: document.querySelector("#hpFill"),
+  fireButton: document.querySelector("#fireButton"),
   forceText: document.querySelector("#forceText"),
   forceFill: document.querySelector("#forceFill"),
   forceNote: document.querySelector("#forceNote"),

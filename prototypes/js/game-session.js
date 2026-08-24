@@ -1485,6 +1485,46 @@ function togglePauseMenu() {
 c.addEventListener("pointercancel", () => {
   drag = null;
 });
+/* 「지금 발사가 가능한 판인가」. Space 와 판 오른쪽 발사 버튼이 같은 질문을
+   해야 한다 — 규칙을 두 벌로 적으면 한쪽만 고쳐지는 날이 온다. 여기에
+   paused·isCombatInputLocked 는 넣지 않는다: 키보드 쪽은 그 둘을 핸들러
+   앞에서 이미 걸렀고, 버튼 쪽은 자기 자리에서 따로 묻는다. */
+function canFireCurrentAim() {
+  return Boolean(
+    typeof nodeEconomyOn === "function" &&
+      nodeEconomyOn() &&
+      isRuntimeScene("game") &&
+      battle &&
+      !battleComplete,
+  );
+}
+/* 실제 발사. 2026-08-24에 Space 핸들러에서 뽑아냈다 — 발사 버튼이 생기면서
+   같은 결정을 두 곳이 하게 됐기 때문이다. */
+function fireCurrentAim() {
+  /* 입장 연출 중이면 포인터와 같은 규칙으로 컷신을 넘긴다. 예전에는 이
+     확인이 없어 거절 토스트·효과음이 컷신 위에 울리고, aimDenyT 는 조준
+     화면이 잠긴 탓에 얼었다가 판이 열리는 순간 입력 없이 뒤늦게 떨렸다. */
+  if (skipBattleIntro()) return true;
+  /* 별빛 조준이 열려 있으면 그쪽으로, 아니면 드래그의 키보드 대응물로.
+     «둘 중 하나»만 고른다 — 앞의 반환값을 보고 뒤를 부르면 이중 발사가
+     생길 수 있고, battle.shots 를 두 번 깎으면 결과 카드가 거짓말한다. */
+  if (typeof aimStarReady === "function" && !aimStarReady())
+    launchKeyboardPull?.();
+  else launchAimStarShot?.();
+  return true;
+}
+/* 판 오른쪽 발사 버튼. 키보드 경로와 «같은» 두 함수를 지난다.
+
+   눌린 뒤 초점을 놓는 이유: 버튼에 초점이 남으면 브라우저가 Space 를 그
+   버튼의 활성화로도 해석한다. 지금은 keydown 이 preventDefault 로 그것을
+   막아 이중 발사가 나지는 않지만, 발사할 때마다 초점 테두리가 판 옆에
+   남아 「내가 뭘 눌러 둔 건가」로 읽힌다. */
+U.fireButton?.addEventListener("click", () => {
+  if (paused || isCombatInputLocked()) return;
+  if (!canFireCurrentAim()) return;
+  fireCurrentAim();
+  U.fireButton.blur();
+});
 addEventListener("keydown", (e) => {
   // Escape is checked before the combat guards so it still works during a
   // tutorial practice shot, where the rest of the keyboard stays locked.
@@ -1497,28 +1537,9 @@ addEventListener("keydown", (e) => {
      통째로 잠그는데, 이제 수업이 가르치는 조작이 바로 이 키다. 수업 카드가
      떠 있는 동안은 isCombatInputLocked()가 참이라 여전히 막히고, 실습 중에만
      열린다. Escape가 같은 이유로 위에 있다. */
-  if (
-    e.code === "Space" &&
-    typeof nodeEconomyOn === "function" &&
-    nodeEconomyOn() &&
-    isRuntimeScene("game") &&
-    battle &&
-    !battleComplete
-  ) {
+  if (e.code === "Space" && canFireCurrentAim()) {
     e.preventDefault();
-    /* 입장 연출 중의 Space는 포인터와 같은 규칙으로 컷신을 넘긴다. 예전에는
-       이 확인이 없어 거절 토스트·효과음이 컷신 위에 울리고, aimDenyT는
-       조준 화면이 잠긴 탓에 얼었다가 판이 열리는 순간 입력 없이 뒤늦게
-       떨렸다. */
-    if (skipBattleIntro()) return;
-    /* 노드가 있으면 노드 조준으로, 하나도 없으면 드래그의 키보드 대응물로.
-       «둘 중 하나»만 고른다 — 앞의 반환값을 보고 뒤를 부르면 이중 발사가
-       생길 수 있고, battle.shots 를 두 번 깎으면 결과 카드가 거짓말한다.
-       노드 없는 판은 오늘 1-1 수업 1단계뿐이고, 그 단계는 키보드에게 발사
-       경로가 아예 없었다 — 근거는 launchKeyboardPull 주석. */
-    if (typeof aimStarReady === "function" && !aimStarReady())
-      launchKeyboardPull?.();
-    else launchAimStarShot?.();
+    fireCurrentAim();
     return;
   }
 

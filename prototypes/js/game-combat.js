@@ -625,7 +625,9 @@ function launchKeyboardPull() {
     dx = ball.x - p.x,
     dy = ball.y - p.y;
   if (Math.hypot(dx, dy) < 18) return false;
-  fireMeteor(dx, dy, clamp(raw.d / 220, 0.28, 1), "유성 발사 · 키보드 조준");
+  // 세기 식은 cueForce 한 곳에서만 나온다(2026-08-24). 여기 있던
+  // clamp(raw.d / 220, ...) 는 그것과 같은 값을 다시 적은 두 번째 벌이었다.
+  fireMeteor(dx, dy, cueForce(raw), "유성 발사 · 키보드 조준");
   aimKeyPull = null;
   return true;
 }

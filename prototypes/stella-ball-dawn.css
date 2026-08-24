@@ -1681,3 +1681,54 @@ body.oo-intro .title-sequence::after {
   border-color: #2a2038;
   color: #6d6382;
 }
+
+/* 발사 버튼 — 세기 게이지 바로 아래(2026-08-24).
+   게이지가 «얼마나»를 말하고 이 버튼이 «지금»을 맡는다. 쏠 수 없을 때는
+   흐려지고 커서도 바뀐다 — 눌리지 않는 이유가 손에 먼저 닿아야 한다. */
+.force-rail .force-fire {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  width: 100%;
+  margin-top: 2px;
+  padding: 8px 6px 7px;
+  border: 1px solid #f2b35c;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #3a1f10, #1d0d08);
+  color: #ffe6b8;
+  cursor: pointer;
+  font:
+    700 12px "Galmuri11",
+    ui-monospace,
+    monospace;
+  letter-spacing: 0.04em;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    opacity 0.16s ease;
+}
+.force-rail .force-fire small {
+  color: #c79a63;
+  font:
+    700 7px ui-monospace,
+    monospace;
+  letter-spacing: 0.16em;
+}
+.force-rail .force-fire:hover:not(:disabled),
+.force-rail .force-fire:focus-visible:not(:disabled) {
+  border-color: #ffd98e;
+  background: linear-gradient(180deg, #4a2814, #26120a);
+}
+.force-rail .force-fire:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.force-rail .force-fire:disabled {
+  border-color: #3b2a55;
+  background: #12041f;
+  color: #6d6382;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.force-rail .force-fire:disabled small {
+  color: #55496b;
+}

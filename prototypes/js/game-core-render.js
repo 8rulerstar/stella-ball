@@ -532,6 +532,19 @@ function updateForceHud() {
         : force >= 0.55
           ? "mid"
           : "low";
+  /* 발사 버튼은 «지금 쏠 수 있는가»를 그대로 입는다. 별빛 조준은 하한 셋을
+     채워야 하고, 끌기 쪽은 언제든 나간다(안내선이 이미 그 항로를 그리고
+     있다). 판이 잠겼거나 유성이 날고 있으면 꺼진다. */
+  if (U.fireButton) {
+    const nodeAim = typeof aimStarReady === "function" && aimStarReady();
+    const picks = typeof aimPick !== "undefined" ? aimPick.length : 0;
+    const minPick = typeof AIM_STAR !== "undefined" ? AIM_STAR.minPick : 3;
+    const canFire =
+      Boolean(ball && !ball.moving && run && !battle?.victory) &&
+      !(typeof isCombatInputLocked === "function" && isCombatInputLocked()) &&
+      (!nodeAim || picks >= minPick);
+    if (U.fireButton.disabled === canFire) U.fireButton.disabled = !canFire;
+  }
 }
 function updateSpecial(d) {
   if (ball?.runeBurst) ball.runeBurst = Math.max(0, ball.runeBurst - d);
