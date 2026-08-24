@@ -1415,11 +1415,55 @@ function drawFinisherImpactMotif(impact, p, radius) {
   }
   x.restore();
 }
+/* 정산 명중의 «누가 때렸는가» (2026-08-24 도트 반입). 아래의 링·광선은
+   로스터 여덟이 색만 다른 같은 그림이다 — 각성 요구서 §4-2가 「깨어남과 각성
+   공격을 눈으로 갈라 달라」고 한 자리다. 별지기 전용 타격 시트를 명중 지점에
+   한 번 얹어 그 한 명을 표시한다.
+
+   시계는 impact.d(0.58초)와 다르다 — 프레임당 90ms × 4 = 0.36초로 먼저 끝난다.
+   시트가 «때린 순간»이고 링이 «퍼지는 여파»라 둘의 길이가 같을 이유가 없다.
+   아래의 일반 섬광이 screen 합성이라 이 시트 위로 더해진다. */
+const FINISHER_HIT_FRAME = 0.09;
+function drawFinisherHitSheet(impact) {
+  if (typeof heroFxSheets === "undefined" || !impact.sourceId) return;
+  const sheet = textures[heroFxSheets[impact.sourceId + "Hit"]];
+  // 실패한 로드는 0×0 이고 0 === 0 * 4 가 통과한다 — 폭이 양수인지 먼저 본다.
+  if (
+    !sheet?.complete ||
+    !(sheet.naturalWidth > 0) ||
+    sheet.naturalWidth !== sheet.naturalHeight * 4
+  )
+    return;
+  const span = FINISHER_HIT_FRAME * 4;
+  if (impact.t >= span) return;
+  const cell = sheet.naturalHeight,
+    fi = Math.min(3, Math.floor(impact.t / FINISHER_HIT_FRAME)),
+    q = impact.t / span,
+    size = 150 + q * 70;
+  x.save();
+  x.globalAlpha = 1 - q * q;
+  x.imageSmoothingEnabled = false;
+  x.shadowBlur = combatFxBlur(18);
+  x.shadowColor = impact.col;
+  x.drawImage(
+    sheet,
+    fi * cell,
+    0,
+    cell,
+    cell,
+    Math.round(boss.x - size / 2),
+    Math.round(boss.y - size / 2),
+    size,
+    size,
+  );
+  x.restore();
+}
 function drawFinisherImpacts() {
   for (const impact of finisherImpacts) {
     const p = Math.min(1, impact.t / impact.d),
       fade = 1 - p,
       radius = 34 + p * 180;
+    drawFinisherHitSheet(impact);
     x.save();
     x.globalCompositeOperation = "screen";
     x.globalAlpha = fade * 0.58;

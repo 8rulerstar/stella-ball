@@ -343,6 +343,60 @@
     }
   });
 
+  /* ═══ 4-b. 각성 인장 — 별지기마다 다른 그림 (2026-08-24 도트 반입) ═════
+     요구서 §4-3 「별지기마다 다른 각성」의 답이다. 위의 4번은 어휘가 하나라
+     여덟 명이 크기만 달랐다 — 이쪽은 로스터 여덟이 각자의 시트를 갖는다.
+
+     시계는 위와 따로 돈다. 4번은 0.42초에서 끝나는데 인장은 프레임당 120ms
+     × 4프레임 = 0.48초라, 같은 문턱을 쓰면 마지막 프레임이 잘린다.
+
+     발밑에 선다. 시트가 «아래 고리 + 위로 솟는 무엇»으로 그려져 있으므로
+     중심을 살짝 내려 고리가 별지기의 발에 오게 한다. afterDraw 라 별지기
+     위에 얹히는데, 알파를 눌러 «가리는 것»이 아니라 «찍히는 것»으로 읽게
+     한다 — 판단색 불가침(§1-4)이 이 자리의 규칙이다. */
+  const AWAKEN_FRAME = 0.12, // 프레임당 120ms
+    AWAKEN_SPAN = AWAKEN_FRAME * 4;
+  registerRuntimeHook("afterDraw", () => {
+    if (typeof gates === "undefined" || !gates) return;
+    if (typeof heroFxSheets === "undefined") return;
+    for (const g of gates) {
+      if (g.wakeFxT === undefined || g.wakeFxT >= AWAKEN_SPAN) continue;
+      const sheet = textures[heroFxSheets[g.id + "Awaken"]];
+      /* 실패한 로드는 0×0 을 보고하고 0 === 0 * 4 가 통과하므로 폭이 양수인지
+         먼저 본다 — game-combat.js 의 시트 검사와 같은 함정이다. */
+      if (
+        !sheet?.complete ||
+        !(sheet.naturalWidth > 0) ||
+        sheet.naturalWidth !== sheet.naturalHeight * 4
+      )
+        continue;
+      const q = g.wakeFxT / AWAKEN_SPAN,
+        cell = sheet.naturalHeight,
+        fi = Math.min(3, Math.floor(g.wakeFxT / AWAKEN_FRAME)),
+        // 세기가 크기를 읽는다. 위 4번의 쐐기와 같은 축(k)을 쓴다.
+        size = (g.r * 2.1 + (g.wakeK || 0) * 34) * (g.wakeSubtle ? 0.8 : 1),
+        // 고리를 발에 놓는다. 시트의 아래쪽 1/4 이 고리다.
+        cy = g.y + size * 0.18;
+      x.save();
+      x.globalAlpha = (1 - q * q) * 0.85 * (g.wakeSoft || 1);
+      x.imageSmoothingEnabled = false;
+      x.shadowBlur = combatFxBlur(14);
+      x.shadowColor = g.col;
+      x.drawImage(
+        sheet,
+        fi * cell,
+        0,
+        cell,
+        cell,
+        Math.round(g.x - size / 2),
+        Math.round(cy - size / 2),
+        size,
+        size,
+      );
+      x.restore();
+    }
+  });
+
   /* ═══ 5. 정산 — 결정 1·2·6 ════════════════════════════════════════
      drawFinisherFocus 를 통째로 갈아 끼운다. 호출부(afterSpecialDraw 훅)는
      전역 이름으로 부르므로 재대입만으로 바뀐다. finisherFocus 자체는

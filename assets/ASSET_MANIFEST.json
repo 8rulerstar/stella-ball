@@ -658,5 +658,48 @@
       "starDim24": "library/icons/star/star-dim-24.png",
       "starDim32": "library/icons/star/star-dim-32.png"
     }
+  },
+  "heroFx": {
+    "note": "별지기 8명 × 세 박자(시전·타격·각성) 24장. abilityFxSheets 는 능력 «종류»별 한 장이라 여덟 명이 같은 그림을 썼다 — 각성 요구서 §4-3 이 지적한 자리다. 색은 각 별지기 고유색(heroes[].col) 5단 + 외곽선이고 예약색(살구 램프·안내별 금·CTA 금·경고 적색)은 24장 어디에도 없다(반입 시 전수 확인). 알려진 한계: sera(#bca7ff) 와 nyx(#9f83ff) 가 hue 0.8° 차이라 그 여섯 장은 사실상 구분되지 않는다 — 시트가 아니라 로스터 팔레트의 충돌이다.",
+    "batch": "hero-fx-dots-2026-08-24",
+    "source": "자체 제작 (굽는 스크립트, 손그림 아님)",
+    "license": "프로젝트 자체 제작 — 제약 없음",
+    "runtimeUse": "game-data.js heroFxSheets → 시전은 game-combat.js drawAbilityFx(per-hero 가 per-kind 를 이긴다), 각성 인장은 game-awaken-fx.js afterDraw(발밑, 120ms/프레임), 정산 명중은 game-feedback.js drawFinisherHitSheet(90ms/프레임)",
+    "cell": 8,
+    "frameWidth": 192,
+    "frameHeight": 192,
+    "frames": 4,
+    "sheetSize": "768x192",
+    "modes": {
+      "loop": 6,
+      "oneshot": 18
+    },
+    "perf": "rAF p95 변화 0ms — 시트 OFF/ON 을 같은 판에서 비교(scripts/probe-hero-fx.mjs, headed 120Hz, 세 효과를 계속 터뜨리는 구간 431프레임)",
+    "files": {
+      "gaonCast": "library/anim/fx/gaon-swordwave.png",
+      "gaonHit": "library/anim/fx/gaon-impact.png",
+      "gaonAwaken": "library/anim/fx/gaon-awaken.png",
+      "biyeonCast": "library/anim/fx/biyeon-arrow.png",
+      "biyeonHit": "library/anim/fx/biyeon-impact.png",
+      "biyeonAwaken": "library/anim/fx/biyeon-awaken.png",
+      "lumiCast": "library/anim/fx/lumi-split.png",
+      "lumiHit": "library/anim/fx/lumi-impact.png",
+      "lumiAwaken": "library/anim/fx/lumi-awaken.png",
+      "haruCast": "library/anim/fx/haru-dash.png",
+      "haruHit": "library/anim/fx/haru-impact.png",
+      "haruAwaken": "library/anim/fx/haru-awaken.png",
+      "riaCast": "library/anim/fx/ria-bladewheel.png",
+      "riaHit": "library/anim/fx/ria-impact.png",
+      "riaAwaken": "library/anim/fx/ria-awaken.png",
+      "seraCast": "library/anim/fx/sera-orbit.png",
+      "seraHit": "library/anim/fx/sera-impact.png",
+      "seraAwaken": "library/anim/fx/sera-awaken.png",
+      "taeoCast": "library/anim/fx/taeo-shockwave.png",
+      "taeoHit": "library/anim/fx/taeo-impact.png",
+      "taeoAwaken": "library/anim/fx/taeo-awaken.png",
+      "nyxCast": "library/anim/fx/nyx-copy.png",
+      "nyxHit": "library/anim/fx/nyx-impact.png",
+      "nyxAwaken": "library/anim/fx/nyx-awaken.png"
+    }
   }
 }

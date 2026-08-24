@@ -369,6 +369,46 @@ const abilityFxSheets = {
   shockwave: "../assets/library/anim/fx/fx-shockwave-burst.png",
   copycat: "../assets/library/anim/fx/fx-copycat-burst.png",
 };
+/* 별지기 «전용» 이펙트 시트 24장(2026-08-24 도트 반입). 위 abilityFxSheets는
+   능력의 «종류»별 한 장이라 여덟 명이 같은 그림을 썼다 — 각성 요구서 §4-3이
+   지적한 자리다. 이쪽은 로스터 여덟 × 세 박자(시전·타격·각성)다.
+
+   규격은 abilityFxSheets와 같다: 768×192, 가로 4프레임(192×192). 그래서
+   drawAbilityFx의 기존 준비 검사(naturalWidth === naturalHeight * 4)를 그대로
+   통과하고 새 재생 경로가 필요 없다.
+
+   색은 별지기 고유색 5단 + 외곽선이다. 예약색(살구 램프·안내별 금·CTA 금·
+   경고 적색)은 24장 어디에도 없다 — 반입 때 전수 확인했다.
+
+   알려진 한계: sera(#bca7ff, hue 254.3)와 nyx(#9f83ff, hue 253.5)가 0.8°
+   차이라 그 여섯 장은 사실상 구분되지 않는다. 시트가 아니라 로스터 팔레트의
+   충돌이므로 여기서 고치지 않았다(ASSET_BACKLOG 장부에 남겼다). */
+const heroFxSheets = {
+  gaonCast: "../assets/library/anim/fx/gaon-swordwave.png",
+  gaonHit: "../assets/library/anim/fx/gaon-impact.png",
+  gaonAwaken: "../assets/library/anim/fx/gaon-awaken.png",
+  biyeonCast: "../assets/library/anim/fx/biyeon-arrow.png",
+  biyeonHit: "../assets/library/anim/fx/biyeon-impact.png",
+  biyeonAwaken: "../assets/library/anim/fx/biyeon-awaken.png",
+  lumiCast: "../assets/library/anim/fx/lumi-split.png",
+  lumiHit: "../assets/library/anim/fx/lumi-impact.png",
+  lumiAwaken: "../assets/library/anim/fx/lumi-awaken.png",
+  haruCast: "../assets/library/anim/fx/haru-dash.png",
+  haruHit: "../assets/library/anim/fx/haru-impact.png",
+  haruAwaken: "../assets/library/anim/fx/haru-awaken.png",
+  riaCast: "../assets/library/anim/fx/ria-bladewheel.png",
+  riaHit: "../assets/library/anim/fx/ria-impact.png",
+  riaAwaken: "../assets/library/anim/fx/ria-awaken.png",
+  seraCast: "../assets/library/anim/fx/sera-orbit.png",
+  seraHit: "../assets/library/anim/fx/sera-impact.png",
+  seraAwaken: "../assets/library/anim/fx/sera-awaken.png",
+  taeoCast: "../assets/library/anim/fx/taeo-shockwave.png",
+  taeoHit: "../assets/library/anim/fx/taeo-impact.png",
+  taeoAwaken: "../assets/library/anim/fx/taeo-awaken.png",
+  nyxCast: "../assets/library/anim/fx/nyx-copy.png",
+  nyxHit: "../assets/library/anim/fx/nyx-impact.png",
+  nyxAwaken: "../assets/library/anim/fx/nyx-awaken.png",
+};
 // Combat deliberately uses smaller, toy-like token art.  The full sprites
 // remain available for the roster, while the table stays legible at a glance.
 const combatUnitSize = {
@@ -1926,6 +1966,7 @@ function primeCombatTextures(stage = null) {
     loadTexture(path);
   for (const path of Object.values(abilityFx)) loadTexture(path);
   for (const path of Object.values(abilityFxSheets)) loadTexture(path);
+  for (const path of Object.values(heroFxSheets)) loadTexture(path);
   // `tile` / `frame` / `props` stopped reaching the arena when the floor became
   // procedural, so priming them only slowed the first entry.  `emblem` stays,
   // because the hub cards still read it through `stageArtFor()`.

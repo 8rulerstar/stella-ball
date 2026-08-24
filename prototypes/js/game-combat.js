@@ -1510,8 +1510,29 @@ function emitAbilityFx(
   asset = (g.fx === "copycat" && g.copiedAsset) || abilityFx[g.id],
   kind = (g.fx === "copycat" && g.copiedFx) || g.fx,
 ) {
-  if (asset) {
-    abilityBursts.push({ asset, kind, x, y, size, d, angle, col: g.col, t: 0 });
+  /* 별지기 «전용» 시전 시트를 쓸 수 있는 버스트인지(2026-08-24). 복사명이
+     남의 능력을 흉내낼 때는 그믐 자신의 그림이 아니라 «복사한 능력»이
+     보여야 하므로, 그 경우에만 heroId 를 비워 per-kind 시트로 떨어뜨린다. */
+  const heroId = g.fx === "copycat" && g.copiedFx ? null : g.id;
+  /* 예전에는 `if (asset)` 하나였다 — abilityFx 에 항목이 있어야 버스트가
+     생겼고, 그 표에 윤슬(ria)이 없어서 회전 칼날은 버스트를 «한 번도» 만들지
+     않았다. 벡터 강조만 있던 시절에는 그릴 것이 없으니 맞는 가드였지만, 이제
+     별지기 전용 시트 하나로도 그릴 것이 있다. 각성 요구서 §4-4 의 「윤슬만
+     갚는 장면이 없다」가 이 가드에도 있었다. */
+  const heroSheet = heroId && heroFxSheets?.[heroId + "Cast"];
+  if (asset || heroSheet) {
+    abilityBursts.push({
+      asset,
+      kind,
+      heroId,
+      x,
+      y,
+      size,
+      d,
+      angle,
+      col: g.col,
+      t: 0,
+    });
     if (abilityBursts.length > 8)
       abilityBursts.splice(0, abilityBursts.length - 8);
   }
@@ -1631,7 +1652,14 @@ function drawAbilityAccent(b, p) {
 function drawAbilityFx() {
   for (const burst of abilityBursts) {
     const p = Math.max(0, 1 - burst.t / burst.d),
-      sheet = textures[abilityFxSheets?.[burst.kind]],
+      /* 별지기 전용 시트가 있으면 그것이 이긴다(2026-08-24 반입). 없으면
+         능력 종류별 시트로 떨어진다 — 복사명이 남의 능력을 쓸 때가 그 자리다.
+         규격이 같으므로(768×192) 아래 준비 검사와 그리기 코드는 하나다. */
+      sheet =
+        textures[
+          (burst.heroId && heroFxSheets?.[burst.heroId + "Cast"]) ||
+            abilityFxSheets?.[burst.kind]
+        ],
       sheetReady =
         // A failed load reports 0x0, and 0 === 0 * 4 would pass the sheet
         // check, so the width has to be positive before the ratio means
@@ -1961,6 +1989,10 @@ function armBladeWheel(g) {
     d: 0.5,
     col: g.col,
   });
+  /* 윤슬의 «시전». 다른 별지기는 정산 공격이 나갈 때 emitAbilityFx 를 타는데
+     윤슬은 정산 공격 자체가 없어 그 경로를 한 번도 지나지 않았다. 칼날이
+     켜지는 이 프레임이 윤슬에게 같은 자리다(2026-08-24 도트 반입). */
+  emitAbilityFx(g, g.x, g.y, 128, 0.44, 0);
   addPopup(g.x, g.y - 38, "질풍 칼날!", g.col, true);
   toast(g.s + " · 이동 속도로 회전 칼날 강화");
 }
