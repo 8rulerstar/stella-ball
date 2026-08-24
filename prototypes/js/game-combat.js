@@ -387,8 +387,18 @@ function billiardPointerDown(e) {
    발사와 화면이 같은 함수를 쓴다. 2026-08-24에 드래그 세기 표시를 붙이면서
    식을 한 곳으로 모았다 — 두 벌로 두면 게이지와 실제 발사가 조용히 갈라져
    화면이 거짓말을 하게 된다. */
+/* 220 -> 130 (2026-08-24, 오너 지적 「화면 밖까지 당겨야 100%가 된다」).
+
+   발사석은 LAUNCH_Y = H - 152 다. 즉 유성 «아래»로 남은 판이 152px 뿐인데
+   100%가 220px 이었으니, 아래로 곧게 당기는 손은 판 안에서 최대 69% 밖에
+   못 냈다 — 100%를 보려면 캔버스 밖으로 나가야 했다. 포인터 캡처 덕에
+   «되기는» 하는데, 되는 것과 «할 수 있다고 읽히는 것»은 다르다.
+
+   130이면 아래로 곧게 당겨도 판 안에서 100%에 닿고 22px 이 남는다. 하한
+   18px(발사 최소 거리)부터 130px 까지가 28~100% 이므로 눈금이 예전보다
+   가팔라지지만, 닿지 않는 눈금보다 가파른 눈금이 낫다. */
 function cueForce(raw) {
-  return clamp(Math.hypot(ball.x - raw.x, ball.y - raw.y) / 220, 0.28, 1);
+  return clamp(Math.hypot(ball.x - raw.x, ball.y - raw.y) / 130, 0.28, 1);
 }
 // The launch stone sits at the bottom of the board, so a literal drag would
 // leave no room to pull a strong upward shot.  Downward input is stretched

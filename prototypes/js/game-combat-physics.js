@@ -1105,46 +1105,20 @@ function drawAimGuide() {
 }
 registerRuntimeHook("afterDraw", function drawSteerPrompt() {
   if (!run || battle?.victory || !ball?.moving) return;
-  /* 수업 카드가 화면의 주인인 동안에는 물러난다. 세 수업이 각각 「아래로
-     끌기」·「셋 찍고 Space」·「Space 한 번」을 요구하는데, 그 위에 이 안내가
-     유성 둘레 27px 자리에 얹히면 지금 눌러야 할 것이 둘로 보인다.
-     마지막 실전은 캠페인과 같은 판이므로 그대로 낸다. */
-  if (
-    typeof isOnboardingLessonPhase === "function" &&
-    isOnboardingLessonPhase()
-  )
-    return;
   const flash = ball.steerFlash || 0;
+  /* 「좌클릭 ↶ · 우클릭 ↷ · 1회 전환」은 걷었다(2026-08-24, 오너 지시
+     「화면엔 빼고 UI로만 알려주게」). 왼쪽 조작 박스가 비행 중에 같은 말을
+     키 칩과 충전 점으로 하고 있어 문장이 두 벌이었고, 판 위는 «날아가는»
+     유성 둘레 27px 자리라 이 화면에서 가장 읽기 나쁜 자리다.
+     쓴 «뒤»의 확인만 남긴다 — 그것은 안내가 아니라 방금 일어난 일의
+     응답이라 사건이 난 자리에 있어야 한다. */
+  if (flash <= 0) return;
   x.save();
   x.textAlign = "center";
   x.font = "bold 10px ui-monospace";
-  if (!ball.steerUsed) {
-    x.globalAlpha = 0.82;
-    x.fillStyle = "#fff2c6";
-    /* ↶↷를 도트 글리프로(납품 §1-7). 가운데 정렬 문자열 하나였던 것을
-       «글·그림·글·그림·글» 다섯 토막으로 짜서 전체 폭 기준으로 중앙을
-       유지한다. 완료 상태(아래)는 글자뿐이라 글리프가 필요 없다. */
-    const segs = ["좌클릭 ", " · 우클릭 ", " · 1회 전환"],
-      widths = segs.map((s) => x.measureText(s).width),
-      total = widths[0] + 16 + widths[1] + 16 + widths[2];
-    let gx = ball.x - total / 2;
-    const gy = ball.y - 27;
-    x.textAlign = "left";
-    x.fillText(segs[0], gx, gy);
-    gx += widths[0];
-    if (!drawGlyphSprite("glyphRotCcw", gx, gy - 13)) x.fillText("↶", gx, gy);
-    gx += 16;
-    x.fillText(segs[1], gx, gy);
-    gx += widths[1];
-    if (!drawGlyphSprite("glyphRotCw", gx, gy - 13)) x.fillText("↷", gx, gy);
-    gx += 16;
-    x.fillText(segs[2], gx, gy);
-    x.textAlign = "center";
-  } else if (flash > 0) {
-    x.globalAlpha = Math.min(1, flash * 2.4);
-    x.fillStyle = "#e8f7df";
-    x.fillText("궤도 전환 완료", ball.x, ball.y - 27);
-  }
+  x.globalAlpha = Math.min(1, flash * 2.4);
+  x.fillStyle = "#e8f7df";
+  x.fillText("궤도 전환 완료", ball.x, ball.y - 27);
   x.restore();
 });
 /* 별빛 조준점(2026-08-18). 패링과 안내별이 남긴 점, 지금 고른 것, 그리고

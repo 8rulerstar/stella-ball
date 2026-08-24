@@ -64,22 +64,6 @@ function isOnboardingSteerBlocked() {
 function isOnboardingSessionActive() {
   return Boolean(onboarding);
 }
-/* 설명 카드가 화면의 주인인 동안인가. game-combat-physics.js의
-   drawSteerPrompt가 이걸 묻고 물러난다.
-
-   2026-08-21: 앞의 판정은 `isOnboardingSteerGuided` — 「조향 수업이 자기
-   안내를 그리는 중인가」였다. 그 전제가 이미 거짓이다. 1단계는 조향 수업이
-   아니라 노드 조준 수업이 됐고, 그 단계가 그리던 조향 안내는 지웠다. 그래서
-   저 함수는 «아무도 안내하지 않는 동안» 일반 안내까지 막고 있었다 — 온보딩
-   비행 내내 조향 안내가 어디에도 안 떴다.
-
-   그렇다고 그냥 지우면 반대로 샌다. 1단계는 「셋을 찍어 Space」, 2단계는
-   「Space 한 번」을 요구하는데 그 위에 「좌클릭 ↶ · 우클릭 ↷」이 얹히면
-   지금 눌러야 할 것이 둘로 보인다. 수업 세 단계에서만 접고, 마지막 실전
-   (ONBOARDING_FINAL_PHASE)에서는 판이 캠페인과 같아야 하므로 그대로 낸다. */
-function isOnboardingLessonPhase() {
-  return Boolean(onboarding && onboarding.phase !== ONBOARDING_FINAL_PHASE);
-}
 
 /* ── 수업용 정지 ───────────────────────────────────────────────────────
    조향과 패링은 「읽고 나서 누르는」 것이 아니라 「지금 눌러야 하는」 것이라,
@@ -190,18 +174,44 @@ function renderTeachingHold() {
   cue.innerHTML = "<span>" + hold.hint + "</span>";
   document.body.classList.add("teaching-hold");
 }
-/* 2026-08-21: 마지막 «비행 중 정지»를 걷었다. 지금 이 장치는 부르는 자리가
-   없다 — 세 수업이 요구하는 입력(끌기·찍기·Space 발사)이 전부 유성이 멈춘
-   뒤의 것이라 멈출 순간이 없기 때문이다. 기계 자체는 남긴다: 「지금 눌러야
-   하는」 입력을 가르치는 유일한 도구이고, 전투가 확정되면 수업을 다시 짜기로
-   되어 있다(CLAUDE.md). 다시 쓸 때는 beginTeachingHold(kind)를 부르고
-   TEACH_HOLD에 그 kind의 문구를 넣으면 된다.
+/* 궤도 전환 수업(2026-08-24, 오너 지적 「좌클릭 우클릭 온보딩도 빠졌어」).
 
-   걷어낸 것은 2단계의 접점 직전 정지였다. AUTO_PARRY가 켜지면서
-   requestTrainingParry가 첫 줄에서 false로 돌아가 «누를 것»이 사라졌는데,
-   정지만 남아 접점 0.18초 앞에서 판을 세우고 「지금이에요 — Space로 발사」를
-   띄우고 있었다. 이미 날아가는 중인 유성 앞에서 발사를 요구하는 화면이다.
-   핸드오프 §3-2가 지우라고 지목한 문자열이 정확히 이것이었다. */
+   조작 넷 중 이것 하나만 수업에 없었다. 이유가 있다 — 비행 «중»에 눌러야
+   하는 유일한 입력이라, 카드로 읽히는 순간 그 순간이 이미 지나가 있다.
+   그래서 카드를 더하지 않는다. 판을 세우는 기계가 정확히 이런 입력을 위해
+   남아 있었다(2026-08-21에 부르는 자리가 없어진 뒤에도 지우지 않은 이유).
+
+   2단계(별빛 조준) 실습에서 유성이 발사석에서 충분히 멀어지면 한 번 세우고,
+   좌·우클릭을 기다린다. 클릭이 오면 곧바로 풀려 꺾인 항로가 이어진다.
+   한 수업에 한 번뿐이고(holdDone), 오지 않아도 9초 뒤 조용히 풀린다. */
+registerRuntimeHook("afterFeedbackUpdate", () => {
+  if (!onboarding || onboarding.hold || onboarding.panelVisible !== false)
+    return;
+  if (onboarding.phase !== 1 || !run || !ball?.moving || ball.steerUsed) return;
+  if (typeof isCombatInputLocked === "function" && isCombatInputLocked())
+    return;
+  /* 발사석에서 130px. 너무 이르면 손이 아직 Space 에서 안 떠났고, 너무
+     늦으면 꺾은 뒤 보여 줄 항로가 남지 않는다. */
+  if (Math.hypot(ball.x - W / 2, ball.y - LAUNCH_Y) < 130) return;
+  beginTeachingHold(
+    "steer",
+    "지금 — <b>좌클릭</b>이나 <b>우클릭</b>으로 궤도를 한 번 꺾어요",
+  );
+});
+/* 요구한 입력이 오면 푼다. 입력 자체는 평소 핸들러(steerMeteor)가 처리하므로
+   여기서는 판을 다시 돌리기만 한다. 캡처 단계에서 먼저 받아 정지를 즉시
+   걷지 않으면, 정지 중에는 시뮬레이션이 서 있어 조향이 먹히지 않는다. */
+addEventListener(
+  "pointerdown",
+  (e) => {
+    if (teachingHold()?.kind === "steer" && (e.button === 0 || e.button === 2))
+      endTeachingHold();
+  },
+  true,
+);
+registerRuntimeHook("afterMeteorSteer", () => {
+  if (onboarding?.phase === 1) onboarding.steered = true;
+});
 // Lessons 1-3 teach against an immortal colossus. Lesson 4 is the real kill,
 // so the battle setup asks this before it decides the boss pool.
 const ONBOARDING_FINAL_PHASE = 3;
@@ -317,13 +327,17 @@ function setOnboardingPhase(phase) {
 
      같은 인원일 때만 잇는다. 1단계는 한 명(가온), 그 뒤로는 셋이라 인원이
      바뀌는 경계에서는 배치표를 그대로 쓴다 — 없던 두 명을 어디에 세울지는
-     이어 갈 자리가 없다. 마지막 실전(3단계)도 새 판으로 둔다: 그 판은
-     캠페인과 같아야 하고, 실습에서 굴러간 자리를 물려받으면 난이도가
-     실습 결과에 따라 달라진다. */
+     이어 갈 자리가 없다.
+
+     2026-08-24 정정: 마지막 실전도 잇는다. 처음에는 「그 판은 캠페인과
+     같아야 하니 새 판으로」라고 뒀는데, 오너 지적대로 그러면 수업의 마지막
+     한 걸음에서만 판이 리셋된다 — 방금 「굴러간 자리가 다음 조준이 된다」를
+     배운 사람 앞에서 그 규칙이 깨지는 자리가 하필 실전 직전이다. 캠페인
+     첫 판도 «이전 판의 자리»를 물려받지는 않지만, 수업은 하나의 이어지는
+     관측이므로 그쪽을 따른다. */
   const carried =
     onboarding &&
     phase > 0 &&
-    phase !== ONBOARDING_FINAL_PHASE &&
     Array.isArray(gates) &&
     gates.length === layout.party.length
       ? gates.map((g) => [g.x, g.y])
@@ -537,7 +551,10 @@ function renderOnboarding() {
           ? "조준해서 발사했어요!"
           : "아직 셋을 못 골랐어요.",
         body: onboarding.aimed
-          ? "고른 세 빛의 한가운데로 유성이 날아갔어요. 부딪힌 별지기는 각성해 고유 공격을 쓰고, 그 자리엔 작은 별빛이 남았죠. 이제 남긴 별빛으로 별자리를 만들어 볼게요."
+          ? (onboarding.steered
+              ? "궤도를 꺾었네요 — 비행 중 좌·우클릭은 한 발에 한 번뿐이라 어디서 쓸지가 곧 수예요. "
+              : "비행 중에는 좌클릭·우클릭으로 궤도를 한 번 꺾을 수 있어요. 한 발에 한 번뿐입니다. ") +
+            "고른 세 빛의 한가운데로 유성이 날아갔고, 부딪힌 별지기는 각성해 고유 공격을 썼어요. 그 자리엔 작은 별빛이 남았죠. 이제 남긴 별빛으로 별자리를 만들어 볼게요."
           : "별지기 위의 빛 세 곳을 차례로 누른 뒤 Space로 발사해 보세요.",
         button: onboarding.aimed ? "다음 · 별자리" : "다시 시도",
         action: onboarding.aimed ? "learn-figure" : "practice",

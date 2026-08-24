@@ -434,6 +434,35 @@ async function runOnboarding() {
   );
   await clickButton("조준해서 발사");
   await nodeShot(3);
+  /* 궤도 전환 수업(2026-08-24). 유성이 발사석에서 130px 멀어지면 판이 서고
+     좌·우클릭을 기다린다 — 비행 «중»에 눌러야 하는 유일한 입력이라 카드가
+     아니라 정지로 가르친다. 사람이 하는 그대로 판 위를 한 번 누른다.
+     9초 유예가 있어 안 눌러도 수업은 진행되지만, 그러면 이 검사가 정작
+     그 수업을 한 번도 지나지 않는다. */
+  const steerHeld = await waitUntil(
+    "steer teaching hold",
+    async () =>
+      (await evaluate(
+        "typeof onboarding === 'object' && onboarding?.hold?.kind === 'steer'",
+      )) === true,
+    12000,
+  ).catch(() => false);
+  if (steerHeld) {
+    const at = await evaluate(`(() => {
+      const c = document.querySelector("#game").getBoundingClientRect();
+      return { x: Math.round(c.left + c.width * 0.3), y: Math.round(c.top + c.height * 0.5) };
+    })()`);
+    await mouseClick(at, "left");
+    record("steer-taught", { held: true });
+    await waitUntil(
+      "steer applied",
+      async () =>
+        (await evaluate(
+          "typeof onboarding === 'object' && !!onboarding?.steered",
+        )) === true,
+      6000,
+    );
+  }
   const second = await waitForLessonResult(1, 20000, 3);
   assert(second.card === "6 / 13", `Expected card 6 / 13, got ${second.card}`);
   const aimed = await evaluate(
