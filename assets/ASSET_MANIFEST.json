@@ -660,7 +660,7 @@
     }
   },
   "heroFx": {
-    "note": "별지기 8명 × 세 박자(시전·타격·각성) 24장. abilityFxSheets 는 능력 «종류»별 한 장이라 여덟 명이 같은 그림을 썼다 — 각성 요구서 §4-3 이 지적한 자리다. 색은 각 별지기 고유색(heroes[].col) 5단 + 외곽선이고 예약색(살구 램프·안내별 금·CTA 금·경고 적색)은 24장 어디에도 없다(반입 시 전수 확인). 알려진 한계: sera(#bca7ff) 와 nyx(#9f83ff) 가 hue 0.8° 차이라 그 여섯 장은 사실상 구분되지 않는다 — 시트가 아니라 로스터 팔레트의 충돌이다.",
+    "note": "별지기 8명 × 세 박자(시전·타격·각성) 24장. abilityFxSheets 는 능력 «종류»별 한 장이라 여덟 명이 같은 그림을 썼다 — 각성 요구서 §4-3 이 지적한 자리다. 색은 각 별지기 고유색(heroes[].col) 5단 + 외곽선이고 예약색(살구 램프·안내별 금·CTA 금·경고 적색)은 24장 어디에도 없다(반입 시 전수 확인). 논리 해상도는 24x24(192px 프레임 · 8px 셀)다. sera(#bca7ff) 와 nyx(#9f83ff) 는 hue 가 1.2° 차이라 «색»으로는 갈리지 않는다 — 그래서 시전 시트를 실루엣으로 갈랐다(달무리는 궤도 링+핵, 그믐은 마름모 둘).",
     "batch": "hero-fx-dots-2026-08-24",
     "source": "자체 제작 (굽는 스크립트, 손그림 아님)",
     "license": "프로젝트 자체 제작 — 제약 없음",
@@ -674,7 +674,7 @@
       "loop": 6,
       "oneshot": 18
     },
-    "perf": "rAF p95 변화 0ms — 시트 OFF/ON 을 같은 판에서 비교(scripts/probe-hero-fx.mjs, headed 120Hz, 세 효과를 계속 터뜨리는 구간 431프레임)",
+    "perf": "rAF p95 변화 0ms — 시트 OFF/ON 을 같은 판에서 비교(scripts/probe-hero-fx.mjs, headed 120Hz, 세 효과를 계속 터뜨리는 구간 431프레임). 2차 반입 후 재측정도 0ms.",
     "files": {
       "gaonCast": "library/anim/fx/gaon-swordwave.png",
       "gaonHit": "library/anim/fx/gaon-impact.png",
@@ -700,6 +700,7 @@
       "nyxCast": "library/anim/fx/nyx-copy.png",
       "nyxHit": "library/anim/fx/nyx-impact.png",
       "nyxAwaken": "library/anim/fx/nyx-awaken.png"
-    }
+    },
+    "castRedelivery": "2026-08-24 2차. 1차 시전 시트 8장 중 7장이 기존 per-kind 시트와 «같은 모티프»여서 화면에서 바뀐 것이 읽히지 않았다(오너 지적: 「가온 이펙트가 똑같은 것 같다」). 2차는 능력을 실루엣으로 말한다 — 샛별 교차 베기 · 미리내 뻗는 화살 · 별하 쪼개짐 · 살별 꺾이는 추적 · 윤슬 톱니 링 · 달무리 궤도 링+핵 · 모루 동심원 · 그믐 마름모 복제. 실루엣 차이 14~32%(1차 대비). 윤슬·달무리·그믐은 대안(-B)이 함께 왔고 윤슬 B · 달무리 B · 그믐 A 를 골랐다 — 이름과 능력에 맞고, 같은 hue 인 달무리·그믐의 실루엣이 가장 크게 갈리는 조합이다."
   }
 }
