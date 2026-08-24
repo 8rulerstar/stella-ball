@@ -40,10 +40,6 @@ let cineParts = [],
   cineDark = 0,
   cineWallPulse = 0;
 registerRuntimeHook("afterBattleSetup", () => {
-  /* 북두칠성이 켜 둔 계기판 적심은 «시각»으로 꺼지므로, 그 시각 전에 판이
-     바뀌면 클래스가 남는다 — 허브·상점 위에서 계기판이 계속 반짝이게 된다.
-     화면이 서는 자리에서 함께 걷는다. */
-  document.body?.classList.remove("dipper-pour");
   cine = null;
   cineParts = [];
   cineRings = [];
@@ -308,23 +304,24 @@ function cineScriptFor(fx) {
        있는데 비는 화면 밖에서 왔고(국자가 한 일이 아니었다), 7점짜리
        최상위 티어가 전체 3.0초로 6점보다 짧았다.
 
-       이제 «국자가 은하수를 떠서 붓는다». 국자가 기울고, 주둥이에서 별빛
-       띠가 흘러나와 판을 가로질러 내려오고, 그 띠가 판을 넘어 전투 UI까지
-       적신다(body.dipper-pour — 판 밖은 DOM이라 CSS가 맡는다). 시간도
-       늘렸다: CAST-1.6 에서 시작해 CAST+2.4 에 끝난다(3.0 -> 4.6초).
+       이제 «국자가 은하수를 떠서 판에 붓는다». 국자가 기울고, 주둥이에서
+       별빛 띠가 흘러나와 판 바닥에 고이고, 수면이 «수영장처럼» 차오른다.
+       대격 뒤에는 다시 빠진다. 시간도 늘렸다: 3.0 -> 4.6초.
 
-       미완성으로 남긴 것: 은하수 띠의 모양은 2차 곡선 하나에 별을 흩은
-       것이고, UI 쪽은 판넬 위를 지나는 그러데이션 한 겹이다. 「국자에서
-       흘러나온 것이 계기판을 채운다」는 뜻은 서지만, 결이나 흐름의 질감은
-       디자인 세션 몫이다(ASSET_BACKLOG 항목). */
+       판 «안»에서 끝나는 것이 중요하다. 처음에는 판 밖 계기판까지 CSS로
+       적셨는데(body.dipper-pour), 오너 지적대로 그건 다른 이야기였다 —
+       캔버스와 DOM 사이에 이음매가 생기고, 무엇보다 「고인다」가 아니라
+       「번진다」로 읽혔다. 채우는 그릇은 전투 판 하나다.
+
+       미완성으로 남긴 것: 수면의 물결과 띠의 결. 지금은 사인 두 겹과 자리
+       인덱스로 만든 별 흩뿌림이라 «고인 별빛»으로 읽히기는 하지만, 흐름의
+       질감은 디자인 세션 몫이다(ASSET_BACKLOG 항목). */
     const st = { polaris: -1, aim: -1, pour: -1, tip: -1 };
     E.push({ at: CAST - 1.15, fn: () => (st.tip = 0) });
     E.push({
       at: CAST - 0.62,
       fn: () => {
         st.pour = 0;
-        // 판 밖 계기판이 젖기 시작한다. 켜는 자리는 여기 하나뿐이다.
-        document.body?.classList.add("dipper-pour");
       },
     });
     E.push({
@@ -363,11 +360,9 @@ function cineScriptFor(fx) {
     );
     E.push({ at: CAST + 0.9, fn: () => (st.polaris = 0) });
     E.push({ at: CAST + 1.25, fn: () => (st.aim = 0) });
-    // 계기판이 마르는 시각. 대격보다 한참 뒤라 «부은 것이 남아 있다»가 읽힌다.
-    E.push({
-      at: CAST + 1.85,
-      fn: () => document.body?.classList.remove("dipper-pour"),
-    });
+    // 못이 빠지기 시작하는 시각. 대격보다 한참 뒤라 «부은 것이 남아 있다»가
+    // 읽히고, 그 뒤 1초에 걸쳐 수면이 내려간다.
+    E.push({ at: CAST + 1.0, fn: () => (st.drain = 0) });
     return { end: CAST + 2.4, evts: E, dipper: st };
   }
   return null;
@@ -473,6 +468,7 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
     if (cine.dipper.aim >= 0) cine.dipper.aim += d;
     if (cine.dipper.tip >= 0) cine.dipper.tip += d;
     if (cine.dipper.pour >= 0) cine.dipper.pour += d;
+    if (cine.dipper.drain >= 0) cine.dipper.drain += d;
   }
   // orion meteor knock — 좌표만 굴린다. moving 을 켜면 샷 수명주기가 돌므로 금지.
   if (cineKnock && ball && !ball.moving) {
@@ -1126,16 +1122,72 @@ function drawCineOrion(s) {
 }
 /* 국자가 붓는 은하수. 주둥이에서 판 아래로 흐르는 별빛 띠 하나다.
 
-   판 «안»만 그린다. 판 밖 계기판은 DOM이라 CSS(body.dipper-pour)가 맡는다 —
-   캔버스는 판 경계에서 끝나므로, 띠가 UI로 이어지는 인상은 두 겹이 같은
-   시각에 같은 색으로 밝아지는 것으로 만든다.
+   판 «안»에서만 산다. 띠는 바닥에 닿고 그 아래로 고인다(drawDipperPool) —
+   채우는 그릇이 전투 판 하나라는 것이 이 연출의 전부다.
 
    난수를 쓰지 않는다. 별 하나하나의 흔들림을 자리 인덱스의 사인으로 정해,
    같은 별이 매 프레임 같은 자리에 있다 — 그래야 «흐르는 띠»로 보이고
    «지지직거리는 잡음»으로 안 보인다. */
-function drawDipperPour(lip, tip, age, fade) {
+/* 판에 고인 별빛. 수영장처럼 «수면»이 올라오고, 대격 뒤에 다시 빠진다.
+
+   판 «안»에서만 산다. 채우는 그릇이 전투 판이라는 것이 이 연출의 전부다 —
+   판 밖으로 번지면 「고인다」가 아니라 「번진다」가 된다.
+
+   반투명이라 그 아래의 별지기·유성·바닥 각인이 그대로 비친다. 판단색을
+   덮지 않는 것이 규칙이고(§1-4), 물이라면 원래 비쳐야 맞다. */
+function drawDipperPool(level, fade) {
+  if (level <= 0) return;
+  const top = H - H * 0.56 * level, // 최대 수위는 판의 56% — 위쪽 국자와 보스는 물 밖에 남는다
+    now = frameClock / 1000;
+  x.save();
+  /* 수면 아래. 위쪽이 밝고 아래로 갈수록 짙어진다 — 빛이 표면에서 들어와
+     깊이로 사라지는 인상이다. */
+  const g = x.createLinearGradient(0, top, 0, H);
+  g.addColorStop(0, "#9ec7ff3d");
+  g.addColorStop(0.35, "#6d93d62e");
+  g.addColorStop(1, "#1b2a5522");
+  x.fillStyle = g;
+  x.globalAlpha = fade;
+  x.fillRect(0, top, W, H - top);
+  /* 고인 별. 자리는 인덱스로만 정해 프레임마다 떨지 않고, 아주 느리게
+     위로 흔들려 «물속에서 떠오르는» 정도만 준다. */
+  const N = 90;
+  for (let i = 0; i < N; i++) {
+    const px = ((i * 97) % 71) / 71,
+      py = ((i * 53) % 37) / 37;
+    const sy = top + (H - top) * py + Math.sin(now * 0.9 + i) * 3;
+    if (sy < top) continue;
+    x.globalAlpha = (0.18 + 0.5 * (1 - py)) * fade;
+    x.fillStyle = i % 4 === 0 ? "#fff6e6" : "#cfe6ff";
+    x.fillRect(Math.round(px * W), Math.round(sy), 1 + (i % 2), 1 + (i % 2));
+  }
+  /* 수면. 사인 두 겹이라 마루가 같은 자리에 반복되지 않는다. */
+  x.globalAlpha = 0.85 * fade;
+  x.strokeStyle = "#cfe6ff";
+  x.shadowBlur = combatFxBlur(12);
+  x.shadowColor = "#9ec7ff";
+  x.lineWidth = 2;
+  x.beginPath();
+  for (let sx = 0; sx <= W; sx += 8) {
+    const wy =
+      top +
+      Math.sin(sx / 46 + now * 1.5) * 3 +
+      Math.sin(sx / 17 - now * 2.2) * 1.6;
+    if (sx === 0) x.moveTo(sx, wy);
+    else x.lineTo(sx, wy);
+  }
+  x.stroke();
+  x.restore();
+}
+function drawDipperPour(lip, tip, age, fade, st) {
   const RUN = 1.9; // 띠가 판 바닥까지 닿는 데 걸리는 시간
   const grow = Math.min(1, age / RUN);
+  /* 수위. 띠가 바닥에 «닿은 뒤»부터 차오른다 — 닿기도 전에 물이 고이면
+     어디서 온 물인지 읽히지 않는다. 대격 뒤에는 1초에 걸쳐 빠진다. */
+  const reach = 0.62, // 띠가 바닥에 닿는 진행률
+    rise = Math.max(0, Math.min(1, (grow - reach) / (1 - reach))),
+    drained = st?.drain >= 0 ? Math.min(1, st.drain / 1.0) : 0;
+  drawDipperPool(rise * (1 - drained), fade);
   if (grow <= 0) return;
   // 기운 국자의 주둥이. tip 만큼 돌린 자리에서 흘러나온다.
   const lx = lip.x + Math.cos(tip - 0.35) * 62,
@@ -1259,7 +1311,7 @@ function drawCineDipper(st, s) {
        모양은 2차 곡선 하나에 별을 흩은 것이다. 진행률에 따라 곡선의 앞쪽
        부터 «차오르고», 각 별의 좌우 흔들림은 자리 인덱스로만 정해 프레임
        마다 떨지 않게 했다. 결이나 흐름의 질감은 디자인 세션 몫이다. */
-    if (st.pour >= 0) drawDipperPour(skyC, tip, st.pour, fade);
+    if (st.pour >= 0) drawDipperPour(skyC, tip, st.pour, fade, st);
   }
   if (st.polaris >= 0) {
     const k = Math.min(1, st.polaris / 0.3),
