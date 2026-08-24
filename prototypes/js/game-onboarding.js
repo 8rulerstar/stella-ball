@@ -942,6 +942,19 @@ function showMeta() {
       ? "루나의 관측 수업"
       : stageGimmickLabels(stageData).join(" · ") ||
         "무기믹 전장 · 거상 HP " + (stageData.bossHp ?? RULES.coreHp);
+  /* 「다음에 갈 판」(2026-08-24, 오너 제보 「온보딩 깨고 나서도 1-1 이 다시
+     들어가고 싶게 생김」).
+
+     원인은 표식이 모자란 게 아니라 «반대»였다 — 클리어한 별이 금색 테두리와
+     글로를 받아 판에서 가장 밝았다. 성취의 표시로 만든 것인데, 지도에서
+     제일 밝은 것은 「여기로 가라」로 읽힌다. 끝낸 곳이 가장 눈에 띄니
+     되돌아가고 싶어지는 게 당연하다.
+
+     방향을 뒤집는다. 클리어는 물러나고(초상 탈색·테두리 죽임), 아직 안 깬
+     첫 판이 밝아진다. 잠기지 않고 클리어도 아닌 첫 칸이 그 자리다. */
+  const nextIndex = mapStages.findIndex(
+    (entry) => !entry.locked && !isStageCleared(entry),
+  );
   const nodes = mapStages
     .map((entry, index) => {
       const cleared = isStageCleared(entry);
@@ -949,6 +962,7 @@ function showMeta() {
         '<button class="constellation-node' +
         (entry.locked ? " locked" : "") +
         (cleared ? " cleared" : "") +
+        (index === nextIndex ? " next" : "") +
         (index === mapIndex ? " active" : "") +
         '" style="left:' +
         entry.x +
@@ -977,10 +991,12 @@ function showMeta() {
         (entry.locked
           ? "잠김"
           : cleared
-            ? "클리어"
-            : index === mapIndex
-              ? "선택됨"
-              : "선택") +
+            ? "완료"
+            : index === nextIndex
+              ? "다음 관측"
+              : index === mapIndex
+                ? "선택됨"
+                : "선택") +
         "</em>" +
         (cleared ? '<em class="stage-cleared-mark">★</em>' : "") +
         "</button>"

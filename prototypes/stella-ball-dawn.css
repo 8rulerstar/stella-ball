@@ -1526,3 +1526,76 @@ body.oo-intro .title-sequence::after {
   align-items: flex-start !important;
   padding-top: 18px !important;
 }
+
+/* ---------------------------------------------------------------------
+   지도에서 «끝낸 곳»과 «갈 곳» (2026-08-24)
+
+   클리어한 별이 금색 테두리·글로를 받아 지도에서 가장 밝았다. 성취의
+   표시로 만든 것이지만, 지도에서 제일 밝은 것은 「여기로 가라」로 읽힌다 —
+   끝낸 1-1 이 계속 손짓하고 있었다는 오너 제보가 그것이다.
+
+   방향을 뒤집는다. 클리어는 물러나고(초상 탈색, 테두리·글로 죽임, 맥동
+   정지), 아직 안 깬 첫 판만 밝아진다. 별은 사라지지 않는다 — ✓ 배지와
+   금색 테두리 한 겹은 남겨 「했다」가 읽히게 하되, 밝기 경쟁에서만 뺀다.
+   --------------------------------------------------------------------- */
+.hub-map .constellation-node.cleared .stage-star,
+.constellation-node.cleared .stage-star {
+  border-color: #6a5638 !important;
+  box-shadow: 0 0 0 3px #0e0616 !important;
+}
+.constellation-node.cleared .stage-star:after {
+  animation: none !important;
+  opacity: 0 !important;
+}
+.constellation-node.cleared .stage-star img {
+  filter: grayscale(0.82) brightness(0.62);
+}
+.constellation-node.cleared {
+  border-color: #3b2f27 !important;
+  opacity: 0.72;
+}
+.constellation-node.cleared .node-status {
+  color: #7e7263 !important;
+}
+/* 배지는 트로피가 아니라 «체크»다. 금색 알약은 그 자체로 상이라, 끝낸
+   칸에 붙으면 다시 그리로 눈이 간다. */
+.constellation-node.cleared .stage-cleared-mark {
+  background: #2b2118 !important;
+  color: #c9ab72 !important;
+  box-shadow: 0 0 0 1px #6a5638 !important;
+}
+
+/* 갈 곳. 지도에서 유일하게 맥동하는 것이 여기가 되도록. */
+.hub-map .constellation-node.next .stage-star,
+.constellation-node.next .stage-star {
+  border-color: #ffd98e !important;
+  color: #fff1cf !important;
+  box-shadow:
+    0 0 0 3px #0e0616,
+    0 0 20px #ffbe6faa,
+    0 0 40px #f2b35c55 !important;
+}
+.constellation-node.next {
+  border-color: #f2b35c !important;
+}
+.constellation-node.next .node-status {
+  color: #ffd98e !important;
+  font-weight: 700;
+}
+@keyframes hubNextPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+.constellation-node.next .stage-star {
+  animation: hubNextPulse 2.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .constellation-node.next .stage-star {
+    animation: none;
+  }
+}
