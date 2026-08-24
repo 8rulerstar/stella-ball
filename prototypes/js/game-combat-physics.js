@@ -206,6 +206,22 @@ function applyBossHit(amount) {
   // the red flinch in draw(). Blocked hits (dealt 0) keep the shield's own
   // flash instead.
   if (dealt > 0) boss.hitFlash = Math.max(boss.hitFlash || 0, 0.26);
+  /* 체력바도 여기서 맞춘다(2026-08-24).
+
+     앞서는 부르는 쪽이 각자 syncBossHealth()를 했고, 그래서 «부르지 않은»
+     경로의 피해는 막대에 영영 반영되지 않았다. 실측: 별자리가 42를 넣어
+     boss.hp 200 -> 158인데 HUD는 「체력 200 · scaleX(1)」 그대로였다.
+     5.6초짜리 최대 연출이 도는 동안 정작 플레이어가 보고 있는 막대가
+     움직이지 않았고, 승리 화면에까지 죽은 거상의 남은 체력이 찍혔다.
+
+     고칠 자리를 부르는 쪽이 아니라 여기로 잡은 이유는, 이 함수가
+     MAINTENANCE.md가 말하는 «유일한 피해 관문»이기 때문이다. 여기에 두면
+     앞으로 어떤 피해 경로를 새로 만들어도 막대가 따라온다 — 부르는 쪽에
+     한 줄씩 흩으면 다음에 또 하나가 빠진다.
+
+     비용은 없다. syncBossHealth는 hudState와 비교해 «값이 바뀐 때만» DOM에
+     쓴다. 체력이 바뀐 프레임은 정확히 써야 하는 프레임이다. */
+  if (dealt > 0 && typeof syncBossHealth === "function") syncBossHealth();
   return dealt;
 }
 // Phase rules fire once each time the colossus drops past a health ratio.
