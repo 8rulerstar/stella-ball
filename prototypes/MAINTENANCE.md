@@ -139,6 +139,33 @@ Each rule below cost real debugging time here. The evidence is in `DEVLOG.md` un
   the probe used `FIGURE_SHAPES` coordinates. Pentagram is the special case: its
   `points` are null because it is a pentagon walked two steps at a time.
 
+### Presentation (added 2026-08-24)
+
+- **"Not visible" is a coordinate-system bug before it is an alpha bug.** The Big
+  Dipper galaxy was invisible in real captures, so three attempts went into
+  raising alpha and star count. The actual cause: the disc it was projected onto
+  (`RX ≈ 1300`, squashed 0.42) put **72% of the stars outside the 720x900
+  board**. Re-projecting anisotropically made it readable at the _original_
+  alpha. Check where the geometry lands before touching brightness.
+- **A stray `}` in CSS passes every gate this repo has.** One extra closing brace
+  sat at the end of `stella-ball-dawn.css`; browsers silently skip it, so the
+  page rendered, the button worked, and `npm run smoke` passed. Only
+  `prettier --check` caught it — and only because it parses the file. Run the
+  repo-wide format check on stylesheets, not just the JS you edited.
+- **Dead CSS outlives the JS that used it.** `.onboarding-card.table-live` still
+  has rules in three stylesheets, but nothing in `prototypes/js/` or the HTML
+  adds that class any more — the mechanism was removed
+  (`game-onboarding.js`, the comment above `registerRuntimeHook("afterDraw", ...)`).
+  Before you reason about z-index or layout against a class you found in CSS,
+  grep the JS to confirm something still applies it. A comment justified by a
+  dead selector is worse than no comment.
+- **Sub-resolution costs need batching, not repetition.** `performance.now()`
+  resolves to 0.1ms. Timing one call made a 0-pick and a 5-pick aim screen both
+  read "0.1ms" — that was the ruler, not the result. Run N calls, divide, and
+  throw away the first warm-up batch. Also sample rAF gaps _before_ running the
+  blocking benchmark: a synchronous 2400-call loop makes the next frame read
+  hundreds of ms and look like a game stutter.
+
 ## Before handoff
 
 Run this quick handoff check from the repository root:

@@ -6,17 +6,33 @@ The onboarding is the highest-value first-session path and the only place that p
 
 ## Journey and assertions
 
-|  Card | Player action                                                        | Required evidence                                                                                |
-| ----: | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-|     1 | Read the firing rule, then drag and release the meteor               | The live damage hook records a boss hit                                                          |
-|     2 | Read the direct-hit result and the upcoming resonance preview        | The card is exactly `2 / 8` and cannot advance before settlement                                 |
-|     3 | Read how three starlight selections determine direction and strength | No gameplay starts before the player advances to the awakening explanation                       |
-|     4 | Read resonance, awakening-ready, settlement attack, and starlight    | The next browser input selects three points and launches only after this card                    |
-|     5 | Read the result of the selection and awakening practice              | The state records both a selected shot and the id of an awakened starkeeper                      |
-|     6 | Leave the seven seeded guide stars unselected and launch             | The real figure path resolves exactly seven points as `bigdipper`                                |
-|     7 | Read the Big Dipper result                                           | The resolved figure and its meteor-refund ability are explained before the final sequence        |
-|     8 | Read the complete select → launch → resonate → awaken → figure order | The final battle cannot start until the player confirms this card                                |
-| Final | Enter the starter-party battle and use real selection/Space input    | The normal win hook opens `첫 관측자의 증명`, unlocks slot 3, and grants exactly one free summon |
+Rewritten 2026-08-24. The card count went 17 -> 12 (2026-08-23 restructure) -> **13**
+(the closing goal card), and the slot-3 gate and its free summon were removed on
+2026-08-23 — this section still described the eight-card journey and asserted a
+reward that no longer exists. Card numbers below are the literal `n / 13` strings
+the runner waits on, so they will fail loudly if `ONBOARDING_CARD_COUNT` moves.
+
+| Card(s) | Player action                                                 | Required evidence                                                                                                     |
+| ------: | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+|       1 | Read the firing rule, then drag and release the meteor        | A starkeeper actually awakens (`awakenedHero`), and the card advances to `2 / 13`                                     |
+|     2-5 | Read the direct-hit result, aiming, resonance and awakening   | No gameplay starts before the player advances through each card                                                       |
+|       6 | Pick three starlight points and launch                        | The state records a node-aimed shot (`aimed`); card lands on `6 / 13`                                                 |
+|     7-9 | Read the aimed-shot result and the constellation rules        | Advancing is the only way forward                                                                                     |
+|      10 | Leave the seven **locked** guide stars alone and launch       | Exactly seven guide stars are seeded, and the real figure path resolves `bigdipper`                                   |
+|   11-12 | Read the Big Dipper result and its meteor-refund ability      | Explained before the final sequence                                                                                   |
+|      13 | Read the **goal** card — this one is not a drill              | The final battle cannot start until the player confirms `13 / 13`                                                     |
+|   Final | Enter the starter-party battle and use real selection/`Space` | The win hook opens `첫 관측을 마쳤어요`, the clear flag is stored, party slots are `3`, and the CTA reads `다음 관측` |
+
+Three things the table above is load-bearing about:
+
+- **Card 13 is the goal card, not a lesson.** It states the win condition once
+  ("거상을 눕히러 간다") and hands the table over. Its button text was renamed from
+  `관측 시작` precisely because that string also matches the title-screen CTA and
+  the text-matching runner picked the wrong one.
+- **The seven guide stars in card 10 are locked**, not merely "left unselected"
+  (`isLockedAimNode`). The lesson used to ask the player not to click them.
+- **There is no slot-3 unlock and no free summon.** Party slots are `3` from the
+  first frame; the runner asserts that, not a reward.
 
 The final battle starts with its production value of 120 HP and the expected `gaon`, `biyeon`, `ria` party. After asserting those values, the runner changes the isolated boss fixture to 1 HP so CI verifies progression and reward wiring without spending time measuring combat balance. The next real browser input must still reach the normal damage, victory, and onboarding completion paths.
 
