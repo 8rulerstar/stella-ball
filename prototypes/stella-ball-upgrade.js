@@ -197,12 +197,50 @@
       }
     }
 
+    /* 별무기 글리프 → 도트. 소환/무기고의 `.weapon-ico[data-weapon]` 을 찾아
+       StellaPixelUI.MAPS 의 wpn<Id> 맵을 도트 이미지로 얹는다(허브 탭과 같은
+       패턴). 상자 크기(28~62px)에 맞춰 정수 배율로 굽고, 상자 배경(등급 프레임)
+       은 그대로 두어 아트 둘레에 은/금 테가 남는다. 맵이 아직 안 붙었으면
+       (병합 전) 조용히 넘어가고 다음 패스에서 다시 시도한다. */
+    function weaponIcons() {
+      if (!kit || !kit.sprite || !kit.MAPS) return;
+      var els = document.querySelectorAll(".weapon-ico[data-weapon]");
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i],
+          wid = el.dataset.weapon,
+          name = "wpn" + wid.charAt(0).toUpperCase() + wid.slice(1);
+        if (!kit.MAPS[name]) continue;
+        if (el.dataset.pxWeapon === name) continue;
+        var box =
+          el.clientWidth || parseInt(getComputedStyle(el).width, 10) || 32;
+        // 16×16 원본. 큰 연출 카드만 3배(48px), 나머지는 2배(32px)로 굽는다.
+        var scale = box >= 52 ? 3 : 2;
+        var url = kit.sprite(name, scale);
+        if (!url) continue;
+        el.dataset.pxWeapon = name;
+        el.textContent = "";
+        var im =
+          el.querySelector("img.wpn-dot") || document.createElement("img");
+        im.className = "wpn-dot";
+        im.src = url;
+        im.alt = "";
+        im.style.cssText =
+          "image-rendering:pixelated;display:block;max-width:100%;max-height:100%;width:" +
+          16 * scale +
+          "px;height:" +
+          16 * scale +
+          "px";
+        if (!im.parentElement) el.appendChild(im);
+      }
+    }
+
     var timer;
     function pass() {
       tagMap();
       tagDisabled();
       skinRanges();
       tabIcons();
+      weaponIcons();
       kit.apply();
     }
     function schedule() {

@@ -54,6 +54,7 @@ const expectedScripts = [
   "./boss-art.js",
   "./stella-ball-dot-gimmicks.js",
   "./stella-ball-pixel-ui.js",
+  "./stella-ball-weapon-icons.js",
   "./stella-ball-dawn.js",
   "./stella-ball-upgrade.js",
   "./sky-ambience.js",

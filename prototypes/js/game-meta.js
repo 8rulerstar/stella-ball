@@ -1025,6 +1025,8 @@ function weaponRevealMarkup() {
     (ex ? "is-exclusive" : "is-common") +
     '" id="gachaReveal"><i class="weapon-ico grade-' +
     w.grade +
+    '" data-weapon="' +
+    w.id +
     '">' +
     w.icon +
     '</i><b class="weapon-reveal-name">' +
@@ -1058,6 +1060,8 @@ function showWeaponGacha() {
         (have ? " owned" : "") +
         '"><i class="weapon-ico grade-' +
         w.grade +
+        '" data-weapon="' +
+        id +
         '">' +
         w.icon +
         "</i><b>" +
@@ -1132,6 +1136,8 @@ function armoryHeroRow(heroId) {
       (matched ? " matched" : "") +
       '"><i class="weapon-ico grade-' +
       w.grade +
+      '" data-weapon="' +
+      w.id +
       '">' +
       w.icon +
       "</i><b>" +
@@ -1159,6 +1165,8 @@ function armoryHeroRow(heroId) {
                 id +
                 '"><i class="weapon-ico grade-' +
                 pw.grade +
+                '" data-weapon="' +
+                id +
                 '">' +
                 pw.icon +
                 "</i><b>" +

@@ -961,8 +961,8 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   background: #0f0619;
 }
 .armory-equipped .weapon-ico {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   font-size: 16px;
 }
 .armory-equipped b {
@@ -1013,9 +1013,14 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   cursor: pointer;
 }
 .armory-pick .weapon-ico {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   font-size: 15px;
+}
+/* 별무기 도트(upgrade.js weaponIcons가 얹는 img). 등급 프레임 상자 안에서
+   픽셀 그대로, 넘치지 않게. */
+.weapon-ico .wpn-dot {
+  image-rendering: pixelated;
 }
 .armory-pick b {
   color: #e6dff5;
