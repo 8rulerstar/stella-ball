@@ -11,14 +11,21 @@
    HTMLAudioElement로 틀고 loop를 준다 — 캔버스 물리·봇과 무관한 표현 레이어다. */
 (function () {
   const TRACKS = {
+    // ambient(title-ambient.mp3)는 이제 씬에 배정되지 않는다 — 아래 bgmToScene
+    // 의 마지막 보루(fallback)로만 남는다.
     ambient: "../assets/audio/bgm/title-ambient.mp3",
+    title: "../assets/audio/bgm/title.ogg",
+    hub: "../assets/audio/bgm/hub.ogg",
     battle: "../assets/audio/bgm/battle.ogg",
   };
-  // 씬 → 곡. 전투(game)만 전투곡, 나머지(타이틀·허브·메뉴)는 잔잔한 앰비언트.
+  // 씬 → 곡. 타이틀은 title 곡, 관측소(허브·소환·상점 등 메뉴)는 hub 곡,
+  // 전투(game)는 전투곡이다. meta·menu 를 같은 곡으로 두어 허브에서 소환·상점을
+  // 오갈 때 음악이 끊기지 않는다(둘은 서로 다른 씬이라 따로 두면 크로스페이드가
+  // 걸린다). — 2026-08-24, 오너 지시 «허브 브금 bgm_boss1, 타이틀 브금 bgm_wave7».
   const SCENE_TRACK = {
-    title: "ambient",
-    meta: "ambient",
-    menu: "ambient",
+    title: "title",
+    meta: "hub",
+    menu: "hub",
     game: "battle",
   };
   const FADE_MS = 900;

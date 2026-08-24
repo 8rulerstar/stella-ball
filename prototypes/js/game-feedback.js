@@ -280,27 +280,36 @@ const abilitySampleCue = {
   taeo: "ability-07",
   nyx: "ability-08",
 };
+/* WCF 손맛 효과음 8종을 어울리는 큐에 얹는다(2026-08-24, 오너 지시 «WCF
+   폴더 참고해 효과음 새로 매핑»). 이 값들은 sfx50 폴더의 파일명(확장자 없이)
+   이고, 아래 sampleSfxPool 이 그대로 «sfx50/<이 값>.wav» 를 튼다 — WCF 파일도
+   같은 폴더에 wcf-* 로 넣어 두어 경로 로직을 안 건드린다. 재생 볼륨은
+   playSampleSfx 가 0.24 로 상한을 걸어, WCF 원음이 커도 튀지 않는다.
+     발사→shoot · 패링→parry · 약점/정산 보스타격→hit_boss ·
+     별지기 접촉/범퍼→hit_player · 각성/별빛연계→pickup ·
+     승리→upgrade(2초 상승) · 해금/현현→levelup · 버튼→click.
+   나머지(벽·저격·조준·말풍선·기믹·별자리)는 sfx50 합성음 그대로 둔다. */
 const sampleSfxCue = {
   wall: "wall-03",
-  unit: "unit-03",
+  unit: "wcf-hit-player",
   hit: "unit-06",
-  weak: "weak-03",
+  weak: "wcf-hit-boss",
   riposte: "riposte-03",
-  awaken: "ability-05",
-  mult: "mult-03",
-  bumper: "mult-02",
-  launch: "launch-02",
+  awaken: "wcf-pickup",
+  mult: "wcf-pickup",
+  bumper: "wcf-hit-player",
+  launch: "wcf-shoot",
   settlement: "mult-04",
   finisherRelease: "riposte-02",
-  finisherHit: "weak-05",
-  victory: "victory-03",
+  finisherHit: "wcf-hit-boss",
+  victory: "wcf-upgrade",
   fail: "fail-01",
   // Parry, from `generate_sfx_parry.py`.  Success and the two failures are
   // deliberately opposite in direction, brightness and length: a timed input
   // whose outcomes sound alike cannot teach its own timing, and until these
   // existed success borrowed the generic unlock tone while both failures made
   // no sound at all.
-  parry: "parry-hit",
+  parry: "wcf-parry", // 쳐냄 — WCF parry (딱 맞는 손맛)
   parryMiss: "parry-miss",
   parryScatter: "parry-scatter",
   node: "node-01",
@@ -311,25 +320,25 @@ const sampleSfxCue = {
   figure5: "figure-05",
   figure6: "figure-06",
   figure7: "figure-07",
-  summonGather: "summon-01",
-  summonReveal: "summon-02",
+  summonGather: "wcf-pickup",
+  summonReveal: "wcf-levelup",
 
   /* ── 조용하던 자리들 (2026-08-16) ────────────────────────────────────
      50종 팩에서 `ui-01`~`ui-05` 다섯은 반입 이후 한 번도 울린 적이 없다.
      메타 UI가 `playSfx`의 합성 사각파 3종만 쓰고 샘플 경로를 아예 타지
      않았기 때문이다. 아래 이름들은 그 다섯과, 팩 안에서 놀고 있던 대체
      테이크들을 실제 사건에 배정한 것이다. 새 자산은 만들지 않았다. */
-  uiConfirm: "ui-01", // 확정 버튼
-  uiTap: "ui-02", // 일반 클릭·전환
+  uiConfirm: "wcf-click", // 확정 버튼 (WCF click)
+  uiTap: "wcf-click", // 일반 클릭·전환 (WCF click)
   uiCard: "ui-03", // 수업 대화창이 뜬다
-  uiUnlock: "ui-04", // 해금
+  uiUnlock: "wcf-levelup", // 해금 (WCF levelup)
   uiScreen: "ui-05", // 화면이 바뀐다
   uiFail: "fail-02", // 눌렀지만 안 되는 것 (playSfx("fail")이 여태 기본 비프였다)
   /* `combatSfx("unlock")`은 네 곳에서 불리는데 — 안내별이 얹힐 때, 오망성이
      전원을 깨울 때, 별자리가 현현할 때, 페이즈가 별지기를 다시 재울 때 —
      이 이름이 표에도 합성음 표에도 없었다. 넷 다 조용히 기본 비프
      [260,420,0.08]로 떨어지고 있었다. `playSfx("unlock")`과 같은 소리를 준다. */
-  unlock: "ui-04",
+  unlock: "wcf-levelup",
 
   steer: "launch-03", // 궤도 전환
   battleIntro: "launch-04", // 전투 입장
