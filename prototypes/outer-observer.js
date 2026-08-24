@@ -303,6 +303,25 @@
       "opacity:0}18%{opacity:.7}100%{transform:translate(-50%,-50%) ",
       "scale(.5);opacity:0}}",
       "@keyframes oo2Flash{0%{opacity:.92}100%{opacity:0}}",
+      /* 「저쪽이 먼저, 이쪽을 보았다」 전용(2026-08-24). 이 한 줄만 관측
+         기록의 목소리에서 벗어난다 — 크고, 붉고, 가만히 있지 못한다.
+         떨림은 1px 격자 위에서 steps(1)로만 움직인다. 부드럽게 흔들면
+         글자가 뭉개져 픽셀 화면에서 «흐린 글씨»로 읽힌다(§1-3). */
+      "@keyframes oo2Dread{0%{transform:translate(0,0)}",
+      "25%{transform:translate(-1px,1px)}",
+      "50%{transform:translate(1px,0)}",
+      "75%{transform:translate(0,-1px)}",
+      "100%{transform:translate(0,0)}}",
+      /* 신호가 안정되지 않는다는 신호. 밝기가 아니라 «붙었다 떨어졌다»로
+         읽히도록 두 단만 쓴다. */
+      "@keyframes oo2DreadPulse{0%,100%{opacity:1}88%{opacity:1}92%{opacity:.55}}",
+      ".oo2-dread{color:#ff4a3a!important;",
+      "font-size:34px!important;line-height:1.35!important;",
+      "text-shadow:0 0 2px #0b0207,0 2px 5px #0b0207,2px 0 0 #7a0f14,",
+      "0 0 28px #ff2a1acc,0 0 10px #ff9a8a55!important;",
+      "animation:oo2Dread .22s steps(1) infinite,oo2DreadPulse 2.6s steps(1) infinite}",
+      ".oo2-dread-kick{color:#ff4a3a!important;",
+      "text-shadow:0 0 14px #ff2a1a99,0 0 5px #ffffff33!important}",
       "@media (prefers-reduced-motion:reduce){",
       ".oo2-cine{transition:none!important;animation:none!important}}",
     ].join("");
@@ -855,31 +874,6 @@
     var veil = add(
       "inset:0;background:#070312;opacity:0;transition:opacity .4s ease-out",
     );
-    /* 아이컷의 붉은 한 줄(2026-08-24, 오너 요청 「눈 연출 때 너무 심심함」).
-
-       눈이 조여드는 6.9초에는 이미 흰 캡션이 있다. 비어 있는 것은 7.9초 —
-       「알아본 뒤 한 번 더 조인다」는 두 번째 조임이고, 화면에서 가장
-       무서워야 할 프레임인데 아무 말도 없었다.
-
-       색을 캡션과 다르게 쓴다. 화자가 다르기 때문이다 — 흰 글씨는 관측
-       기록의 목소리이고, 이 줄은 그 기록이 더는 이쪽 것이 아니라는 신호다.
-       팔레트 규칙상 마젠타는 바깥 관측자와 하늘 이상 현상의 색이라 여기
-       쓰면 「같은 화자」로 읽힌다. 붉은색은 이 한 줄에만 쓴다.
-
-       페이드가 아니라 steps(2) 하드컷이다 — §1-3의 「크로스페이드는 픽셀을
-       뭉갠다」가 그대로 적용된다. 위치는 눈(top 43%, 288px)과 캡션(bottom
-       12vh) 사이다. */
-    var dread = add(
-      "left:0;right:0;top:64%;display:grid;justify-items:center;opacity:0;" +
-        "transition:opacity .12s steps(2);z-index:8",
-    );
-    var dreadLine = el(
-      "div",
-      "max-width:620px;padding:0 20px;text-align:center;color:#ff5a4d;" +
-        "font:700 17px 'Galmuri11',monospace;letter-spacing:.06em;line-height:1.5;" +
-        "text-shadow:0 0 2px #0b0207,0 2px 4px #0b0207,0 0 20px #ff2f22aa,0 0 7px #ff8a7a66",
-      dread,
-    );
     var eye = add(
       "left:50%;top:43%;width:288px;height:288px;transform:translate(-50%,-50%);opacity:0",
     );
@@ -909,8 +903,6 @@
       kick: kick,
       line: line,
       veil: veil,
-      dread: dread,
-      dreadLine: dreadLine,
       eye: eye,
       frame: frame,
       ring1: ring1,
@@ -923,9 +915,16 @@
   }
   /* 킥커는 즉시, 본문은 한 글자씩 26ms(§1-2). 한 캡션이 끝나기 전에 다음이
      오면 앞의 타이머가 남아 두 문장이 섞이므로 매번 지우고 시작한다. */
-  function cineCaption(C, kicker, text) {
+  function cineCaption(C, kicker, text, dread) {
     if (live && live.typeIv) clearInterval(live.typeIv);
     C.cap.style.opacity = "1";
+    /* 마지막 한 줄만 다른 화자다(2026-08-24, 오너 지시). 앞의 셋은 관측
+       기록이 담담히 적는 문장이고, 「저쪽이 먼저, 이쪽을 보았다」는 그
+       기록이 무너지는 지점이다 — 그래서 크기·색·안정성 셋이 함께 바뀐다.
+       팔레트에서 마젠타는 바깥 관측자의 색이라 여기 쓰면 「그것이 말한다」로
+       읽힌다. 붉은색은 이 한 줄에만 쓰는 «경보»의 색이다. */
+    C.line.classList.toggle("oo2-dread", !!dread);
+    C.kick.classList.toggle("oo2-dread-kick", !!dread);
     C.kick.textContent = kicker;
     C.line.textContent = "";
     var i = 0;
@@ -934,13 +933,6 @@
       if (i >= text.length) clearInterval(iv);
     }, 26);
     if (live) live.typeIv = iv;
-  }
-  /* 붉은 줄은 «타자되지» 않는다. 흰 캡션은 한 글자씩 26ms로 찍혀 「기록되는
-     중」으로 읽히는데, 이 줄은 기록이 아니라 이미 그렇게 되어 있던 사실이다.
-     통째로 한 번에 나타난다. */
-  function cineDread(C, text) {
-    C.dreadLine.textContent = text;
-    C.dread.style.opacity = "1";
   }
   function cineFlash() {
     var f = el(
@@ -1270,7 +1262,7 @@
         "oo2Contract 1.2s cubic-bezier(.3,.1,.2,1) both";
       C.ring2.style.animation =
         "oo2Contract 1.2s cubic-bezier(.3,.1,.2,1) .16s both";
-      cineCaption(C, "CONTACT", "저쪽이 먼저, 이쪽을 보았다.");
+      cineCaption(C, "CONTACT", "저쪽이 먼저, 이쪽을 보았다.", true);
     });
     // 알아본 뒤 한 번 더 조인다 — 이 반복이 「보고 있다」를 확정한다.
     at(7900, function () {
@@ -1286,11 +1278,6 @@
       C.ring1.style.animation = "none";
       void C.ring1.offsetWidth;
       C.ring1.style.animation = "oo2Contract .8s cubic-bezier(.3,.1,.2,1) both";
-      /* 두 번째 조임에 붉은 한 줄. 흰 캡션이 「저쪽이 먼저, 이쪽을 보았다」로
-         «봄»을 말했으니, 이 줄은 그 앞에 무슨 일이 있었는지를 말한다 —
-         별이 하나씩 꺼진 것(프롤로그)과 간격이 틀린 것(비트 2)이 관측이
-         아니라 «세어짐»이었다는 쪽으로 뒤집는다. */
-      cineDread(C, "세는 쪽은 — 이쪽이 아니었다.");
     });
 
     // 비트 5 · 붙잡는다. 예비동작 → 스냅 → 그립 플렉스.
