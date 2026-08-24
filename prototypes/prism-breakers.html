@@ -47,6 +47,20 @@
                  노드 고르기 / 비행 중 꺾기) 여태 화면 아래 한 줄에만 적혀
                  있었다. 「남은 유성」과 같은 카드로 세워, 지금 이 손이
                  무엇을 하는지 늘 같은 자리에서 읽히게 한다. -->
+            <!-- 발사 세기. 판 위에 그리면 창 높이에 따라 판 배율(0.65~0.99)이
+                 그대로 걸려 노트북에서 8px 아래로 내려간다. 판 밖은 그 배율을
+                 안 탄다. 끌기와 노드 조준이 같은 게이지를 쓴다. -->
+            <section class="hud-card force-card" aria-label="발사 세기">
+              <div class="hud-label">
+                <span>발사 세기</span><b id="forceText">—</b>
+              </div>
+              <div class="force-meter" id="forceMeter">
+                <i id="forceFill"></i><em class="force-floor"></em>
+              </div>
+              <div class="force-note" id="forceNote">
+                유성을 끌거나 노드를 고르세요
+              </div>
+            </section>
             <section class="hud-card control-card" aria-label="조작">
               <div class="hud-label">
                 <span>조작</span><b id="controlMode">끌어서 발사</b>

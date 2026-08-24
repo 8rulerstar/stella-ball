@@ -1020,9 +1020,7 @@ function drawAimGuide() {
      선은 지금 고른 셋(또는 둘 + 마우스가 올라간 하나)이 정한 방향이다.
      아직 고른 게 모자라면 그릴 선이 없다 — 예전처럼 기본 아래 방향을 그리면
      고르지도 않은 항로가 화면에 미리 나와 있는 셈이 된다. */
-  let aimDx,
-    aimDy,
-    dragForce = 0;
+  let aimDx, aimDy;
   if (aimStarReady()) {
     const preview = aimStarPreview();
     if (!preview) return;
@@ -1034,15 +1032,15 @@ function drawAimGuide() {
        billiardPointerMove/Up 의 소유라, 거기에 값이 있으면 마우스를 조금만
        움직여도 손대지 않은 드래그가 진행되고 놓는 순간 의도 없는 발사가
        나간다. 그리는 쪽에서만 합친다. */
-    const rawPull =
-      drag || (typeof keyPullRaw === "function" ? keyPullRaw() : null);
-    const p = cuePull(rawPull || { x: ball.x, y: ball.y + 145 });
+    const p = cuePull(
+      drag ||
+        (typeof keyPullRaw === "function" ? keyPullRaw() : null) || {
+          x: ball.x,
+          y: ball.y + 145,
+        },
+    );
     aimDx = ball.x - p.x;
     aimDy = ball.y - p.y;
-    // 손이 실제로 끌고 있을 때만 세기를 낸다. 쉬는 자리의 기본점에도 값을
-    // 붙이면 아무것도 안 하는 화면에 게이지가 상주한다.
-    dragForce =
-      rawPull && typeof cueForce === "function" ? cueForce(rawPull) : 0;
   }
   const guide = billiardPredict(aimDx, aimDy);
   x.save();
@@ -1087,42 +1085,22 @@ function drawAimGuide() {
     x.fillText(path.target.s + " 굴림", path.to.x, path.to.y - 9);
   }
   x.setLineDash([]);
-  x.fillStyle = "#d8ece5";
-  x.font = "bold 10px ui-monospace";
-  x.textAlign = "center";
-  x.fillText(
-    drag
-      ? guide.unitPaths.length
-        ? "별지기 이동선까지 예측"
-        : "아래로 끌어 별지기를 굴리세요"
-      : "아래로 끌어 별지기를 굴리세요",
-    ball.x,
-    ball.y - 28,
-  );
-  /* 끄는 동안의 세기(2026-08-24, 오너 지시 「얼마의 세기인지 알 수 없다」).
-
-     노드 조준에는 「강함 72%」 라벨과 46x5 게이지가 이미 있는데, 끌기에는
-     아무 표시가 없어서 같은 판의 두 조준이 서로 다른 말을 하고 있었다 —
-     한쪽은 세기를 숫자로 주고 다른 쪽은 손끝 감으로만 알게 했다. 같은
-     어휘를 그대로 쓴다: 등급 낱말 + 백분율 + 28% 하한 눈금이 있는 막대.
-
-     자리는 유성 위다. 끌기는 아래로 하므로 위쪽이 늘 비어 있고, 값이
-     커지는 동안 손과 눈이 갈라지지 않는다. */
-  if (dragForce > 0) {
-    const grade =
-      dragForce >= 0.78 ? "강함" : dragForce >= 0.55 ? "보통" : "약함";
-    const gy = ball.y - 48;
-    x.fillStyle = "#ffe09a";
-    x.font = "700 12px Galmuri11, ui-monospace";
-    x.fillText(grade + " " + Math.round(dragForce * 100) + "%", ball.x, gy);
-    x.fillStyle = "#04080a";
-    x.fillRect(ball.x - 23, gy + 6, 46, 5);
-    x.fillStyle = "#ffe09a";
-    x.fillRect(ball.x - 23, gy + 6, 46 * dragForce, 5);
-    // 하한 눈금. 이보다 약하게는 나가지 않는다는 것을 길이로 말한다.
-    x.fillStyle = "#8ba39f";
-    x.fillRect(ball.x - 23 + 46 * 0.28, gy + 5, 1, 7);
+  /* 2026-08-24: 유성 위의 「아래로 끌어 별지기를 굴리세요」를 걷었다.
+     같은 말을 왼쪽 조작 박스가 상시로 하고 있어(좌클릭 = 끌어 조준·세기)
+     같은 문장이 판 위와 판 밖에 두 벌로 있었다. 판 위는 유성 둘레 28px
+     자리라 글자가 궤적 점선·세기 표시와 겹쳐 가장 읽기 나쁜 자리이기도
+     하다. 예측선이 별지기까지 닿는다는 것만 남긴다 — 이것은 조작 안내가
+     아니라 «지금 이 선이 무엇을 보여주는지»라 판 위가 맞다. */
+  if (drag && guide.unitPaths.length) {
+    x.fillStyle = "#d8ece5";
+    x.font = "bold 10px ui-monospace";
+    x.textAlign = "center";
+    x.fillText("별지기 이동선까지 예측", ball.x, ball.y - 28);
   }
+  /* 세기 표시는 판 밖 HUD로 옮겼다(2026-08-24, 오너 지시 「가독성 별로다」).
+     46x5 막대와 12px 글자를 유성 둘레에 그리면 판의 배율(창 높이에 따라
+     0.65~0.99배)이 그대로 걸려 노트북에서 8px 아래로 내려간다. 판 밖
+     게이지는 그 배율을 안 탄다 — game-core-render.js 의 updateForceHud. */
   x.restore();
 }
 registerRuntimeHook("afterDraw", function drawSteerPrompt() {
@@ -1899,15 +1877,8 @@ function drawAimStars() {
         labelX,
         labelY - 18,
       );
-      /* 1e-2: 위력 게이지 — 숫자를 읽기 전에 길이로 읽힌다. 28% 하한 눈금. */
-      if (ready) {
-        x.fillStyle = "#04080a";
-        x.fillRect(labelX - 23, labelY - 12, 46, 5);
-        x.fillStyle = "#ffe09a";
-        x.fillRect(labelX - 23, labelY - 12, 46 * preview.force, 5);
-        x.fillStyle = "#8ba39f";
-        x.fillRect(labelX - 23 + 46 * 0.28, labelY - 13, 1, 7);
-      }
+      /* 막대는 판 밖 HUD 게이지로 옮겼다(2026-08-24). 라벨은 남긴다 —
+         저것은 세기이자 «갈 곳»의 표시라 화살촉 옆에 있어야 뜻이 있다. */
     }
   }
 

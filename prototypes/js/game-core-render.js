@@ -445,10 +445,77 @@ function updateControlHints() {
   U.controlLeft.textContent = row.left;
   U.controlRight.textContent = row.right;
   U.controlSpace.textContent = row.space;
+  /* «지금 누를 수 있는가»를 색으로 가른다. 「—」만으로는 못 쓰는 줄과 아직
+     안 읽은 줄이 같아 보인다 — 오너가 물은 「가능한지 표시」가 이것이다. */
+  for (const [el, text] of [
+    [U.controlLeft, row.left],
+    [U.controlRight, row.right],
+    [U.controlSpace, row.space],
+  ])
+    el.parentElement.dataset.off = text === "—" ? "1" : "";
+}
+/* 발사 세기(2026-08-24). 끌기와 노드 조준이 같은 게이지를 쓴다 — 같은 판의
+   두 조준이 세기를 서로 다른 곳에서 말하면 그것부터 배워야 한다.
+
+   값의 출처도 하나다. 끌기는 cueForce(손이 실제로 움직인 거리), 노드는
+   aimStarPreview().force(벌어진 정도) — 둘 다 «발사가 실제로 쓰는» 값이라
+   게이지가 거짓말을 하지 않는다. */
+let lastForceKey = "";
+function updateForceHud() {
+  if (!U.forceText) return;
+  let force = 0,
+    note = "";
+  if (ball && !ball.moving && run && !battle?.victory) {
+    if (typeof aimStarReady === "function" && aimStarReady()) {
+      const preview =
+        typeof aimStarPreview === "function" ? aimStarPreview() : null;
+      const picks = typeof aimPick !== "undefined" ? aimPick.length : 0;
+      const minPick = typeof AIM_STAR !== "undefined" ? AIM_STAR.minPick : 3;
+      if (preview && picks >= minPick) {
+        force = preview.force;
+        note = preview.flipped
+          ? "반대편으로 · 넓게 벌릴수록 세게"
+          : "넓게 벌릴수록 세게";
+      } else note = "노드를 " + minPick + "개 이상 고르세요";
+    } else {
+      /* keyPullRaw() 는 «키보드가 놀고 있어도» 기본점(거리 150)을 돌려준다 —
+         그리기 쪽은 쉬는 자리의 예측선을 그려야 하므로 그게 맞다. 하지만
+         게이지는 «지금 손이 무엇을 하고 있는가»라, 그대로 쓰면 아무것도 안
+         하는 화면에 68%가 상주한다(실측). 키보드 조준이 실제로 켜졌을
+         때(aimKeyPull)만 그 점을 쓴다. */
+      const raw =
+        (typeof drag !== "undefined" && drag) ||
+        (typeof aimKeyPull !== "undefined" &&
+        aimKeyPull &&
+        typeof keyPullRaw === "function"
+          ? keyPullRaw()
+          : null);
+      if (raw && typeof cueForce === "function") {
+        force = cueForce(raw);
+        note = "놓으면 발사";
+      } else note = "유성을 아래로 끌어 보세요";
+    }
+  }
+  const pct = force > 0 ? Math.round(force * 100) : 0;
+  const key = pct + "|" + note;
+  if (key === lastForceKey) return;
+  lastForceKey = key;
+  U.forceText.textContent = force > 0 ? pct + "%" : "—";
+  U.forceFill.style.transform = "scaleX(" + force + ")";
+  U.forceNote.textContent = note;
+  U.forceMeter.dataset.grade =
+    force <= 0
+      ? "idle"
+      : force >= 0.78
+        ? "high"
+        : force >= 0.55
+          ? "mid"
+          : "low";
 }
 function updateSpecial(d) {
   if (ball?.runeBurst) ball.runeBurst = Math.max(0, ball.runeBurst - d);
   updateControlHints();
+  updateForceHud();
   if (ball?.steerFlash) ball.steerFlash = Math.max(0, ball.steerFlash - d);
   momentumHudCooldown -= d;
   if (U.momentum && ball) {

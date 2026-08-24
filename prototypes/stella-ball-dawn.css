@@ -1599,3 +1599,57 @@ body.oo-intro .title-sequence::after {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------
+   발사 세기 게이지 (2026-08-24)
+   판 위 46x5 막대를 판 밖으로 옮긴 것이다. 판은 창 높이에 따라 0.65~0.99배로
+   줄어들어 그 막대가 노트북에서 8px 아래로 내려갔다 — 여기서는 배율을 안
+   탄다. 채움은 transform:scaleX 라 매 프레임 레이아웃을 물지 않는다.
+   --------------------------------------------------------------------- */
+.force-card .force-meter {
+  position: relative;
+  height: 10px;
+  margin-top: 6px;
+  border: 1px solid #3b2a55;
+  border-radius: 2px;
+  background: #0a0413;
+  overflow: hidden;
+}
+.force-card .force-meter i {
+  display: block;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, #6fb7ab, #ffe09a);
+  transition: transform 0.08s linear;
+}
+/* 28% 하한 눈금. 이보다 약하게는 나가지 않는다는 것을 자리로 말한다. */
+.force-card .force-floor {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: 28%;
+  width: 1px;
+  background: #8ba39f;
+}
+.force-card[data-grade] .force-meter {
+  transition: border-color 0.16s ease;
+}
+.force-card .force-meter[data-grade="high"] {
+  border-color: #f2b35c;
+}
+.force-card .force-note {
+  margin-top: 5px;
+  color: #8d80a8;
+  font-size: 10px;
+  line-height: 1.35;
+}
+/* 지금 누를 수 없는 줄은 물러난다. 「—」만으로는 못 쓰는 줄과 아직 안 읽은
+   줄이 같아 보인다. */
+.control-card .control-line[data-off="1"] {
+  opacity: 0.38;
+}
+.control-card .control-line[data-off="1"] em {
+  border-color: #2a2038;
+  color: #6d6382;
+}
