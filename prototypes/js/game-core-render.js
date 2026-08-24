@@ -1287,12 +1287,11 @@ function draw() {
     x.stroke();
     x.restore();
   }
-  /* 8-1과 1-1 수업은 같은 몸이다. 프롤로그에서 창밖을 지나간 것이 첫 수업의
-     상대이고, 34스테이지 뒤 8-1에서 다시 만난다 — 그 연결이 성립하려면 두
-     화면이 같은 그림이어야 한다. 수업에는 페이즈가 없으므로 항상 P1이다. */
+  /* 절차적 «바깥 관측자» 몸은 이제 8-1에서만 그린다. 1-1 수업도 같은 몸을
+     썼는데, 최종 보스의 첫 대면을 수업에서 다 써 버리는 구성이라 2026-08-24에
+     연습 허수아비로 바꿨다 — 근거는 game-data.js의 stageBossArt 주석. */
   const stage = currentStage();
-  const outerBody =
-    stage?.world === "outside" || isTutorialOuterObserver(stage);
+  const outerBody = stage?.world === "outside";
   const outsidePhase = stage?.world === "outside" ? outsideBossPhase() : 1;
   const outsideBoss = outerBody
     ? outsideBossFrame(OUTSIDE_BOSS_SIZE, outsidePhase)

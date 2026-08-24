@@ -815,18 +815,27 @@ body.oo-intro .ig-wm {
    럽다」는 제보의 정체다. 같은 규칙에 넣어 감춘다. ig-copy 안의 「1분
    튜토리얼」 링크는 opacity:0이어도 히트 테스트를 받으므로 탈출구와
    온보딩 E2E의 클릭이 그대로 살아 있다(pointer-events 미변경). */
+/* 2026-08-24: 이 묶음에 pointer-events도 넣는다.
+
+   앞서는 opacity만 0으로 두고 클릭은 살려 두었다 — 「1분 튜토리얼」이
+   outer-observer.js가 명시한 탈출구이고 온보딩 E2E도 그것을 누른다는
+   이유였다. 그런데 그 버튼은 화면에서 «컷신 자막 바로 밑»에 있다. 실측:
+   자막 「ANOMALY」·「OBSERVATION LOG — 04:17」의 중심에서
+   elementFromPoint가 #titleHelp를 돌려준다. 자막 레이어는 전부
+   pointer-events:none이라, 자막을 누르면 그 밑의 보이지 않는 버튼이
+   눌린다 — 연출이 통째로 사라지고 곧장 수업이 시작된다. 오너 제보
+   「인트로 중에 anomaly 누르니까 바로 온보딩으로 감」이 이것이다.
+
+   보이지 않는 버튼이 위에 있는 것을 대신 받으면 탈출구가 아니라 함정이다.
+   같은 이유로 「인트로 다시 보기」는 이미 막혀 있었고, 「1분 튜토리얼」만
+   남아 있었다. 탈출구는 그대로 있다 — 「건너뛰기」가 1.0초부터 항상
+   눌리고(z-index 70) 누르면 즉시 타이틀로 간다. E2E도 2026-08-23에
+   「인트로가 풀린 뒤에 누른다」로 이미 고쳤다(ca5df2d). */
 body.oo-intro .ig-sub,
 body.oo-intro .ig-keyart,
 body.oo-intro .ig-copy {
   animation: none !important;
   opacity: 0 !important;
-}
-/* 「인트로 다시 보기」만 막는다. 컷신이 도는 동안 보이지도 않는 이 버튼이
-   클릭을 받고 있어서, 아무 데나 좌클릭하면 연출이 처음부터 다시 시작됐다 —
-   포인터 이벤트를 서브 링크 전체에 남긴 것이 원인이었다.
-   「1분 튜토리얼」은 남긴다. outer-observer.js가 그 버튼은 잠그지 않는다고
-   명시한 탈출구이고, 온보딩 E2E도 그것을 누른다. */
-body.oo-intro #titleReplayIntro {
   pointer-events: none;
 }
 

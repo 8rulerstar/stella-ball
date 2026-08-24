@@ -1469,26 +1469,34 @@ function bossDisplayName(stage = currentStage()) {
   if (!stage) return "공허 거상";
   if (stage.world === "outside") return stage.star.name;
   if (stage.training) return "불멸의 허수아비";
-  // 1-1 수업의 상대는 최종 보스와 같은 몸이라 이름도 그쪽을 따른다.
-  if (isTutorialOuterObserver(stage)) return outsideStarName();
+  // 1-1 수업의 상대는 연습 허수아비다(2026-08-24). 근거는 stageBossArt.
+  if (stage.tutorial) return "관측 연습 허수아비";
   return WORLD_BOSS[stage.world]?.name ?? "공허 거상";
 }
-// 8-1의 별 이름. 수업이 같은 상대를 부를 때 표기가 갈리지 않게 한 곳에서 읽는다.
-function outsideStarName() {
-  return (
-    campaignStages.find((entry) => entry.world === "outside")?.star.name ??
-    "관측되지 않은 점"
-  );
-}
-/* 1-1 수업의 상대를 최종 보스와 같은 개체로 둔다. 프롤로그에서 창밖을
-   지나간 것이 첫 수업의 상대이고, 34스테이지 뒤 8-1에서 다시 만난다.
-   수업 중에는 불멸이라 해칠 수 없고, 마지막 수업만 실제로 눕힌다 —
-   그 화면은 「무너뜨렸다」가 아니라 「관측 수업 완료」를 알린다. */
-function isTutorialOuterObserver(stage = currentStage()) {
-  return Boolean(
-    stage?.tutorial && StellaRuntime.modules.optional("onboarding")?.isActive(),
-  );
-}
+/* 2026-08-24: 수업의 상대를 최종 보스에서 연습 허수아비로 바꿨다.
+
+   앞서는 1-1 수업의 상대가 8-1과 «같은 몸»이었다. 프롤로그에서 창밖을
+   지나간 것이 첫 수업의 상대이고 34스테이지 뒤에 다시 만난다는 구성이라,
+   이야기로는 잘 맞았다. 문제는 값을 어디에 쓰느냐다 —
+
+     · 최종 보스의 «처음 보는 충격»은 한 번밖에 못 쓴다. 그것을 12장짜리
+       수업에서 3분 동안 들여다보게 하면, 34판 뒤의 8-1은 첫 대면이 아니라
+       재방문이 된다.
+     · 게다가 마지막 수업 카드가 그 몸을 «실제로 눕힌다»(tutorialCoreHp 120).
+       화면은 「관측 수업 완료」라고 말하지만 플레이어가 방금 한 일은 최종
+       보스를 쓰러뜨린 것이다. 마지막 벽이 3분째에 한 번 무너진 셈이다.
+     · 바깥 관측자는 끝까지 이름을 주지 않기로 한 개체다
+       (OUTER_OBSERVER_INTRO_SPEC). 연습 표적으로 쓰면 그 규칙이 화면에서
+       먼저 깨진다.
+
+   연결은 잃지 않는다 — 바깥 관측자는 인트로와 프롤로그에서 그대로 지나가고,
+   플레이어는 그것을 «보되 건드리지 못한 채» 수업에 들어간다. 되찾을 자리는
+   8-1 하나로 남는다.
+
+   허수아비는 새로 만들지 않았다. 무한 훈련장이 쓰는 training-effigy가
+   스프라이트·약점젬·애니메이션 4종을 이미 갖고 있다.
+   되돌리려면: 이 두 자리(stageBossArt·bossDisplayName)와
+   game-core-render.js의 outerBody를 stage.tutorial 기준으로 되돌린다. */
 function campaignIndexOf(stage) {
   return campaignStages.indexOf(stage);
 }
@@ -1662,7 +1670,7 @@ const WORLD_BOSS = Object.freeze({
 function stageBossArt(stage) {
   const target = stage ?? currentStage();
   if (!target) return bossArt;
-  if (target.training) return bossArtFor("training-effigy");
+  if (target.training || target.tutorial) return bossArtFor("training-effigy");
   const entry = WORLD_BOSS[target.world];
   return entry ? bossArtFor(entry.slug) : bossArt;
 }
