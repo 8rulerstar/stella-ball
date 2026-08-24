@@ -142,17 +142,15 @@ function drawTeachingHoldCue() {
   x.beginPath();
   x.arc(ball.x, ball.y, (ball.r + 30) * pulse, 0, Math.PI * 2);
   x.stroke();
-  x.globalAlpha = 1;
-  x.fillStyle = "#fff0bd";
-  x.shadowBlur = combatFxBlur(12);
-  x.shadowColor = "#ffd36f";
-  x.textAlign = "center";
-  x.font = "bold 13px Galmuri11, ui-monospace";
-  x.fillText(
-    "지금 Space",
-    ball.x,
-    ball.y - ball.r - 40 - Math.sin(t / 300) * 3,
-  );
+  /* 판 위의 「지금 Space」를 걷었다(2026-08-24, 오너 지적). 이 글자는 **항상
+     틀렸다** — 지금 존재하는 수업 정지는 `steer` 하나뿐이고 그것이 요구하는
+     입력은 좌클릭·우클릭이다. Space 가 발사가 된 뒤로도 이 문구만 옛 패링
+     수업의 어휘를 그대로 들고 있었다.
+
+     지운다고 안내가 사라지지 않는다. renderTeachingHold 가 hold.hint 를
+     독의 `.teach-hold`(role="status")에 띄우고, 그 문안은 실제 요구 입력을
+     말한다 — 「지금 — 좌클릭이나 우클릭으로 유성의 길을 한 번 꺾어요」.
+     판 위에 글씨를 얹지 않고 UI 로만 말하는 것이 이 저장소의 규칙이기도 하다. */
   x.restore();
 }
 function renderTeachingHold() {
@@ -1542,23 +1540,6 @@ function drawLessonFinger(tx, ty, lift, press, alpha = 1) {
   }
   x.restore();
 }
-function drawLessonSpaceCue(cx, cy) {
-  const pulse = 0.55 + 0.45 * Math.sin(frameClock / 210);
-  x.save();
-  x.globalAlpha = pulse;
-  x.fillStyle = "#0f0a1e";
-  x.strokeStyle = "#ffe09a";
-  x.lineWidth = 2;
-  x.fillRect(cx - 37, cy, 74, 24);
-  x.strokeRect(cx - 37, cy, 74, 24);
-  x.fillStyle = "#ffe09a";
-  x.font = "700 12px Galmuri11, ui-monospace";
-  x.textAlign = "center";
-  x.textBaseline = "middle";
-  x.fillText("SPACE", cx, cy + 13);
-  x.textBaseline = "alphabetic";
-  x.restore();
-}
 function onboardingLessonGuideActive() {
   return Boolean(
     onboarding &&
@@ -1644,13 +1625,12 @@ function drawOnboardingGuide() {
         const press = cycle > 0.4 && cycle < 0.7 ? (cycle - 0.4) / 0.3 : 0;
         drawLessonFinger(target.x, target.y, (1 - down) * 16, press);
       }
-    } else {
-      // 유성이 벽에 붙어 정지했을 때도 키 이름은 화면 안에서 읽혀야 한다.
-      drawLessonSpaceCue(
-        clamp(ball.x, 64, W - 64),
-        ball.y + 76 > H - 8 ? ball.y - 82 : ball.y + 52,
-      );
     }
+    /* 손가락을 놓을 자리가 없을 때 판에 SPACE 키 박스를 그리던 가지를 걷었다
+       (2026-08-24, 오너 지적). 이 단계가 가르치는 것은 «끌어서 쏘기»인데
+       카드는 끌라고 하고 판은 키를 누르라고 해서, 한 화면이 두 말을 했다.
+       조작은 좌측 조작 박스(.control-card)와 발사 버튼이 말한다 — 판 위에
+       글씨를 얹지 않는 것이 이 저장소의 규칙이다. */
   }
   x.restore();
 }
