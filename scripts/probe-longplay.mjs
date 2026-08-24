@@ -16,8 +16,10 @@
  */
 import { setTimeout as delay } from "node:timers/promises";
 import { writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { launchProbe } from "./lib/probe-harness.mjs";
+const SHOT_DIR = process.env.TEMP ?? tmpdir();
 const probe = await launchProbe({
   headless: true,
   windowSize: "1400,940",
@@ -28,7 +30,10 @@ try {
   const snap = async (n) => {
     const c = await send("Page.captureScreenshot", { format: "png" });
     writeFileSync(
-      join(process.env.TEMP, "lp-" + n + ".png"),
+      /* process.env.TEMP는 윈도우 전용이다. mac·리눅스에서는 undefined라
+         join이 첫 스냅샷에서 TypeError로 죽었다 — 이 프로브는 그동안
+         윈도우에서만 돌던 셈이다(CROSS_PLATFORM.md 위반). */
+      join(SHOT_DIR, "lp-" + n + ".png"),
       Buffer.from(c.data, "base64"),
     );
   };
