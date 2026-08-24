@@ -222,11 +222,17 @@ function isOnboardingFinalLesson() {
    그 드래그를 resolveBilliardAim이 그 별지기로 유도해 부딪혀 각성시킨다.
    가온이어야 한다: 정착 공격(slash)이 보이는 얼굴이라 「멈추면 고유 공격을
    써요」가 참이 된다. 2단계는 셋을 벌려 «넓게 찍으면 세다»를 손에 쥐여 준다. */
+/* 2026-08-24: 보스가 판 한가운데(360,450)로 내려오면서 네 배치가 전부
+   그 아래로 옮겼다. 기준은 셋이다 —
+     · 발사석은 (360,748)이다. 별지기는 그 사이에 서야 유성이 지나며 닿는다.
+     · 3단계 안내별은 보스 둘레 175px(대략 y 363~537)에 깔린다. 별지기가
+       그 띠에 서면 안내별과 겹쳐 어느 것을 찍는지 알 수 없다.
+     · 보스의 별지기 제외 반경은 g.r + 66 = 100 이다. */
 const onboardingLayouts = [
   {
     party: ["gaon"],
     slots: [
-      [360, 430],
+      [360, 620],
       [360, 340],
       [360, 480],
     ],
@@ -237,26 +243,29 @@ const onboardingLayouts = [
      첫 슬롯이 가운데라 STARTER 순서 그대로 가온이 선다. */
   {
     party: ["ria", "biyeon", "gaon"],
+    // 2단계는 좌우로 크게 벌린다 — 「넓게 찍을수록 세다」가 손에 잡히려면
+    // 고를 수 있는 폭 자체가 넓어야 한다.
     slots: [
-      [230, 400],
-      [490, 400],
-      [360, 545],
+      [360, 590],
+      [150, 660],
+      [570, 660],
     ],
   },
   {
     party: [...STARTER_HERO_IDS],
+    // 3단계는 안내별 일곱과 겹치지 않게 더 낮게 선다.
     slots: [
-      [360, 405],
-      [255, 500],
-      [465, 500],
+      [360, 640],
+      [170, 700],
+      [550, 700],
     ],
   },
   {
     party: ["ria", "biyeon", "gaon"],
     slots: [
-      [270, 392],
-      [450, 392],
-      [360, 520],
+      [250, 620],
+      [470, 620],
+      [360, 690],
     ],
   },
 ];
@@ -1184,13 +1193,36 @@ registerRuntimeHook("afterPartySettle", ({ figureActive, awakened = [] }) => {
   onboarding.transitioning = true;
   onboarding.panelVisible = false;
   renderOnboarding();
-  setTimeout(() => {
+  /* 각성 «공격»이 끝난 뒤에 카드를 올린다(2026-08-24, 오너 제보
+     「각성 연출이 루나 대사에 가려짐」).
+
+     정산 각성은 유성이 멈추고 0.52초 뒤에 시작해 별지기 한 명씩 1.62초
+     간격으로 줄을 선다. 그런데 결과 카드는 180ms 뒤에 떴다 — 각성이
+     «시작하기도 전»에 판을 덮고 있었다. 1단계가 가르치는 것이 바로 그
+     각성인데, 그 문장을 읽는 동안 정작 그 일이 카드 뒤에서 일어났다.
+
+     고정 지연을 늘리는 것은 답이 아니다. 깨어난 별지기 수에 따라 길이가
+     1.6초에서 5초까지 달라지므로, 넉넉히 잡으면 아무도 안 깨어난 샷에서
+     빈 판을 그만큼 보게 된다. 정산 큐가 실제로 빌 때까지 지켜본다.
+
+     시간을 멈추지는 않았다. 이 구간은 판이 «스스로 보여주는» 시간이라
+     플레이어가 누를 것이 없고, 멈추면 각성 공격의 움직임까지 함께 언다.
+     기다리는 것으로 충분하다. 상한을 둬서 어떤 이유로든 큐가 안 비어도
+     수업이 막히지 않는다. */
+  const settleDeadline = performance.now() + 6000;
+  const showResult = () => {
     if (!onboarding || onboarding.phase !== phase || battle?.id !== battleId)
       return;
+    const busy =
+      (typeof assistShots !== "undefined" && assistShots.length > 0) ||
+      (typeof finisherFocus !== "undefined" && Boolean(finisherFocus));
+    if (busy && performance.now() < settleDeadline)
+      return void setTimeout(showResult, 120);
     onboarding.transitioning = false;
     onboarding.panelVisible = true;
     renderOnboarding();
-  }, resultDelay);
+  };
+  setTimeout(showResult, resultDelay);
 });
 function drawConstellationReveal() {
   if (!constellationReveal) return;

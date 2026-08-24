@@ -1431,7 +1431,22 @@ function buildCampaignStages() {
           terrain,
           slots: layout.slots.map(([x, y]) => [x, y]),
           preview: stagePreview(layout.slots),
-          boss: { x: layout.boss[0], y: layout.boss[1] },
+          /* 1-1 수업만 상대를 판 한가운데에 세운다(2026-08-24, 오너 지시).
+
+             다른 판과 같은 y=190 은 화면 위쪽 끝이라, 수업에서 두 가지를
+             망쳤다 — 상대가 작게 붙어 첫 목표로 읽히지 않았고, 별자리
+             단계가 보스 둘레 175px 에 북두칠성 뼈대를 까는데 그 일곱 점이
+             위로 판을 벗어나 clamp 로 뭉쳤다(실측 y 112~269). 가운데로
+             오면 별자리가 상대를 온전히 감싼다. 무한 훈련장이 같은 이유로
+             이미 정중앙을 쓴다.
+
+             CAMPAIGN_LAYOUTS[0] 을 고치지 않은 이유: 그 표는 7개 주기로
+             34판이 돌려 쓰므로, 거기서 옮기면 수업뿐 아니라 여러 캠페인
+             판의 보스가 함께 움직인다. 수업만 예외로 둔다. */
+          boss:
+            worldIndex === 0 && stageIndex === 0
+              ? { x: W / 2, y: H / 2 }
+              : { x: layout.boss[0], y: layout.boss[1] },
           bossHp,
           guideStarCharges,
           labels: ["좌측 항로", "우측 항로", "중앙 항로"],
