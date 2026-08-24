@@ -35,17 +35,19 @@ let cineFrameDelta = 1 / 60;
 let cineParts = [],
   cineRings = [],
   cinePillars = [],
-  cineStreaks = [],
   cineFrags = [],
   cineKnock = null,
   cineDark = 0,
   cineWallPulse = 0;
 registerRuntimeHook("afterBattleSetup", () => {
+  /* 북두칠성이 켜 둔 계기판 적심은 «시각»으로 꺼지므로, 그 시각 전에 판이
+     바뀌면 클래스가 남는다 — 허브·상점 위에서 계기판이 계속 반짝이게 된다.
+     화면이 서는 자리에서 함께 걷는다. */
+  document.body?.classList.remove("dipper-pour");
   cine = null;
   cineParts = [];
   cineRings = [];
   cinePillars = [];
-  cineStreaks = [];
   cineFrags = [];
   cineKnock = null;
   cineDark = 0;
@@ -301,12 +303,33 @@ function cineScriptFor(fx) {
     return { end: CAST + 1.5, evts: E, orion: true };
   }
   if (id === "bigdipper") {
-    const st = { rainAcc: 0, polaris: -1, aim: -1, rate: 70, bias: 0.45 };
-    E.push({ at: CAST - 0.27, fn: () => (st.raining = true) });
+    /* 2026-08-24 오너 지시로 다시 짰다. 앞서는 «별빛비» — 화면 위에서 줄기가
+       쏟아지는 0.27초짜리 비였다. 두 가지가 아쉬웠다. 국자가 하늘에 떠
+       있는데 비는 화면 밖에서 왔고(국자가 한 일이 아니었다), 7점짜리
+       최상위 티어가 전체 3.0초로 6점보다 짧았다.
+
+       이제 «국자가 은하수를 떠서 붓는다». 국자가 기울고, 주둥이에서 별빛
+       띠가 흘러나와 판을 가로질러 내려오고, 그 띠가 판을 넘어 전투 UI까지
+       적신다(body.dipper-pour — 판 밖은 DOM이라 CSS가 맡는다). 시간도
+       늘렸다: CAST-1.6 에서 시작해 CAST+2.4 에 끝난다(3.0 -> 4.6초).
+
+       미완성으로 남긴 것: 은하수 띠의 모양은 2차 곡선 하나에 별을 흩은
+       것이고, UI 쪽은 판넬 위를 지나는 그러데이션 한 겹이다. 「국자에서
+       흘러나온 것이 계기판을 채운다」는 뜻은 서지만, 결이나 흐름의 질감은
+       디자인 세션 몫이다(ASSET_BACKLOG 항목). */
+    const st = { polaris: -1, aim: -1, pour: -1, tip: -1 };
+    E.push({ at: CAST - 1.15, fn: () => (st.tip = 0) });
+    E.push({
+      at: CAST - 0.62,
+      fn: () => {
+        st.pour = 0;
+        // 판 밖 계기판이 젖기 시작한다. 켜는 자리는 여기 하나뿐이다.
+        document.body?.classList.add("dipper-pour");
+      },
+    });
     E.push({
       at: CAST,
       fn: () => {
-        st.raining = false;
         cineTierHit();
         screenFlash = Math.max(screenFlash, 0.5);
         screenShake = Math.max(screenShake, 24);
@@ -338,9 +361,14 @@ function cineScriptFor(fx) {
         fn: () => cinePillar(g.x, g.y, g.col),
       }),
     );
-    E.push({ at: CAST + 0.6, fn: () => (st.polaris = 0) });
-    E.push({ at: CAST + 0.8, fn: () => (st.aim = 0) });
-    return { end: CAST + 1.9, evts: E, dipper: st };
+    E.push({ at: CAST + 0.9, fn: () => (st.polaris = 0) });
+    E.push({ at: CAST + 1.25, fn: () => (st.aim = 0) });
+    // 계기판이 마르는 시각. 대격보다 한참 뒤라 «부은 것이 남아 있다»가 읽힌다.
+    E.push({
+      at: CAST + 1.85,
+      fn: () => document.body?.classList.remove("dipper-pour"),
+    });
+    return { end: CAST + 2.4, evts: E, dipper: st };
   }
   return null;
 }
@@ -443,44 +471,8 @@ registerRuntimeHook("afterFeedbackUpdate", function advanceCine(d) {
   if (cine?.dipper) {
     if (cine.dipper.polaris >= 0) cine.dipper.polaris += d;
     if (cine.dipper.aim >= 0) cine.dipper.aim += d;
-  }
-  // starfall spawner + travel
-  if (cine?.dipper?.raining) {
-    cine.dipper.rainAcc += d * (cine.dipper.rate || 30);
-    while (cine.dipper.rainAcc >= 1) {
-      cine.dipper.rainAcc -= 1;
-      const toBoss = Math.random() < (cine.dipper.bias ?? 0.22),
-        bx = boss?.x ?? W / 2,
-        by = boss?.y ?? H / 3;
-      const tx = toBoss
-        ? bx + (Math.random() - 0.5) * 90
-        : 55 + Math.random() * (W - 110);
-      const ty = toBoss
-        ? by + (Math.random() - 0.5) * 60
-        : 90 + Math.random() * (H - 160);
-      cineStreaks.push({
-        x: tx + 60,
-        y: -30,
-        tx,
-        ty,
-        sp: 900 + Math.random() * 400,
-      });
-    }
-  }
-  for (let i = cineStreaks.length - 1; i >= 0; i--) {
-    const s = cineStreaks[i],
-      dx = s.tx - s.x,
-      dy = s.ty - s.y,
-      L = Math.hypot(dx, dy),
-      mv = s.sp * d;
-    if (L <= mv) {
-      cineStreaks.splice(i, 1);
-      cineRing(s.tx, s.ty, 3, 26 + Math.random() * 18, 0.35, "#ffd2a0", 2);
-      cineBurst(s.tx, s.ty, "#fff1bd", 4, 90, 0.4, 2);
-    } else {
-      s.x += (dx / L) * mv;
-      s.y += (dy / L) * mv;
-    }
+    if (cine.dipper.tip >= 0) cine.dipper.tip += d;
+    if (cine.dipper.pour >= 0) cine.dipper.pour += d;
   }
   // orion meteor knock — 좌표만 굴린다. moving 을 켜면 샷 수명주기가 돌므로 금지.
   if (cineKnock && ball && !ball.moving) {
@@ -558,24 +550,6 @@ registerRuntimeHook("afterDraw", function drawCine() {
     x.beginPath();
     x.arc(r.x, r.y, r.r0 + (r.r1 - r.r0) * k, 0, Math.PI * 2);
     x.stroke();
-    x.restore();
-  }
-  for (const s of cineStreaks) {
-    x.save();
-    x.strokeStyle = "#ffe6b0";
-    x.shadowBlur = combatFxBlur(8);
-    x.shadowColor = "#ffd2a0";
-    x.lineWidth = 2.5;
-    x.globalAlpha = 0.9;
-    const dx = s.tx - s.x,
-      dy = s.ty - s.y,
-      L = Math.hypot(dx, dy) || 1;
-    x.beginPath();
-    x.moveTo(s.x - (dx / L) * 46, s.y - (dy / L) * 46);
-    x.lineTo(s.x, s.y);
-    x.stroke();
-    x.fillStyle = "#fff6e6";
-    x.fillRect(s.x - 2, s.y - 2, 4, 4);
     x.restore();
   }
   for (const p of cineParts) {
@@ -1150,6 +1124,68 @@ function drawCineOrion(s) {
       size: 3,
     });
 }
+/* 국자가 붓는 은하수. 주둥이에서 판 아래로 흐르는 별빛 띠 하나다.
+
+   판 «안»만 그린다. 판 밖 계기판은 DOM이라 CSS(body.dipper-pour)가 맡는다 —
+   캔버스는 판 경계에서 끝나므로, 띠가 UI로 이어지는 인상은 두 겹이 같은
+   시각에 같은 색으로 밝아지는 것으로 만든다.
+
+   난수를 쓰지 않는다. 별 하나하나의 흔들림을 자리 인덱스의 사인으로 정해,
+   같은 별이 매 프레임 같은 자리에 있다 — 그래야 «흐르는 띠»로 보이고
+   «지지직거리는 잡음»으로 안 보인다. */
+function drawDipperPour(lip, tip, age, fade) {
+  const RUN = 1.9; // 띠가 판 바닥까지 닿는 데 걸리는 시간
+  const grow = Math.min(1, age / RUN);
+  if (grow <= 0) return;
+  // 기운 국자의 주둥이. tip 만큼 돌린 자리에서 흘러나온다.
+  const lx = lip.x + Math.cos(tip - 0.35) * 62,
+    ly = lip.y + Math.sin(tip - 0.35) * 62 + 26;
+  // 판 아래 중앙으로 휘어 내려간다. 제어점을 옆으로 밀어 «쏟아지는» 호를 만든다.
+  const ex = W * 0.5,
+    ey = H + 40,
+    cx = lx - (lx - ex) * 0.25 + 150,
+    cy = (ly + ey) * 0.42;
+  const at = (t) => ({
+    x: (1 - t) * (1 - t) * lx + 2 * (1 - t) * t * cx + t * t * ex,
+    y: (1 - t) * (1 - t) * ly + 2 * (1 - t) * t * cy + t * t * ey,
+  });
+  x.save();
+  x.globalAlpha = 0.5 * fade;
+  x.strokeStyle = "#cfe6ff";
+  x.shadowBlur = combatFxBlur(18);
+  x.shadowColor = "#9ec7ff";
+  x.lineWidth = 3;
+  x.beginPath();
+  x.moveTo(lx, ly);
+  x.quadraticCurveTo(
+    lx + (cx - lx) * grow,
+    ly + (cy - ly) * grow,
+    at(grow).x,
+    at(grow).y,
+  );
+  x.stroke();
+  /* 띠의 «몸». 곡선을 따라 별을 흩되 폭이 아래로 갈수록 넓어진다 — 국자에서
+     나온 한 줄기가 판 아래에서 은하수가 된다. */
+  const N = 132;
+  for (let i = 0; i < N; i++) {
+    const t = i / (N - 1);
+    if (t > grow) break;
+    const p = at(t),
+      spread = 8 + t * 96,
+      wob = Math.sin(i * 1.7) * 0.5 + Math.sin(i * 0.41) * 0.5,
+      off = wob * spread,
+      nx = Math.sin(i * 2.3) * spread * 0.35;
+    const px = p.x + off,
+      py = p.y + nx * 0.2;
+    // 앞머리가 가장 밝다 — 지금 «흘러 나오는» 자리가 눈에 걸리게.
+    const head = 1 - Math.min(1, (grow - t) / 0.22),
+      size = 1 + (i % 3) + head * 2;
+    x.globalAlpha = (0.22 + 0.5 * (1 - t) + head * 0.4) * fade;
+    x.fillStyle = i % 5 === 0 ? "#fff6e6" : i % 3 === 0 ? "#cfe6ff" : "#9ec7ff";
+    x.fillRect(Math.round(px), Math.round(py), size, size);
+  }
+  x.restore();
+}
 function drawCineDipper(st, s) {
   const shape = FIGURE_SHAPES[7][0],
     img = textures[shape.art],
@@ -1160,7 +1196,8 @@ function drawCineDipper(st, s) {
     x: skyC.x + p.x * 125,
     y: skyC.y + p.y * 78,
   }));
-  const fly = cineEase(s / 0.6);
+  // 승천 0.6 -> 0.9초. 7점짜리 최상위 티어가 6점보다 빨리 끝나고 있었다.
+  const fly = cineEase(s / 0.9);
   for (let i = 0; i < 7; i++) {
     const from = cineStar(fx, i),
       to = sky[i];
@@ -1189,7 +1226,9 @@ function drawCineDipper(st, s) {
       });
   }
   if (fly >= 1) {
-    const tip = cineEase((s - 0.7) / 0.5) * 0.5,
+    // 기우는 각도는 이제 자기 시계를 탄다(st.tip). 0.5 -> 0.62 rad 로 더
+    // 깊게 기울여 «붓는다»가 각도만으로 읽히게 한다.
+    const tip = cineEase(st.tip >= 0 ? st.tip / 0.75 : 0) * 0.62,
       fade =
         s > cine.end - 1.0 ? Math.max(0, 1 - (s - (cine.end - 1.0)) / 1.0) : 1;
     x.save();
@@ -1211,18 +1250,16 @@ function drawCineDipper(st, s) {
       x.globalAlpha = 0.55 * fade;
       x.drawImage(img, skyC.x - 175, skyC.y - 175, 350, 350);
     }
-    if (st.raining) {
-      x.globalAlpha = 0.9;
-      x.fillStyle = "#ffe6b0";
-      for (let i = 0; i < 3; i++)
-        x.fillRect(
-          skyC.x - 15 + Math.random() * 60,
-          skyC.y + 40 + Math.random() * 20,
-          3,
-          8,
-        );
-    }
     x.restore();
+    /* 국자 주둥이에서 흘러나오는 은하수(2026-08-24).
+
+       회전한 좌표계 «밖»에서 그린다 — 띠는 국자를 따라 기울지 않고 중력을
+       따라 떨어져야 한다. 시작점만 기운 국자의 주둥이에서 얻는다.
+
+       모양은 2차 곡선 하나에 별을 흩은 것이다. 진행률에 따라 곡선의 앞쪽
+       부터 «차오르고», 각 별의 좌우 흔들림은 자리 인덱스로만 정해 프레임
+       마다 떨지 않게 했다. 결이나 흐름의 질감은 디자인 세션 몫이다. */
+    if (st.pour >= 0) drawDipperPour(skyC, tip, st.pour, fade);
   }
   if (st.polaris >= 0) {
     const k = Math.min(1, st.polaris / 0.3),
