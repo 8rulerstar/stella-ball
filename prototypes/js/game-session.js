@@ -32,6 +32,10 @@ function setupBattle() {
     id: ++battleSerial,
     shotMax: RULES.shots + build.extraShots,
     shots: RULES.shots + build.extraShots,
+    /* 이 판에서 실제로 «쏜» 횟수. battle.shots 와 다르다 — 그쪽은 남은
+       수라 훈련장의 자동 보충이나 북두칠성의 유성 +1 로 되돌아간다.
+       첫발 자유조준(2026-08-24)이 「이 판의 첫 발인가」를 이 값으로 묻는다. */
+    launched: 0,
     startedAt: performance.now(),
     slow: 0,
     constel: 0,

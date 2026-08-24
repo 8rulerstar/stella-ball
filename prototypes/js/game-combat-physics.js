@@ -1020,7 +1020,9 @@ function drawAimGuide() {
      선은 지금 고른 셋(또는 둘 + 마우스가 올라간 하나)이 정한 방향이다.
      아직 고른 게 모자라면 그릴 선이 없다 — 예전처럼 기본 아래 방향을 그리면
      고르지도 않은 항로가 화면에 미리 나와 있는 셈이 된다. */
-  let aimDx, aimDy;
+  let aimDx,
+    aimDy,
+    dragForce = 0;
   if (aimStarReady()) {
     const preview = aimStarPreview();
     if (!preview) return;
@@ -1032,15 +1034,15 @@ function drawAimGuide() {
        billiardPointerMove/Up 의 소유라, 거기에 값이 있으면 마우스를 조금만
        움직여도 손대지 않은 드래그가 진행되고 놓는 순간 의도 없는 발사가
        나간다. 그리는 쪽에서만 합친다. */
-    const p = cuePull(
-      drag ||
-        (typeof keyPullRaw === "function" ? keyPullRaw() : null) || {
-          x: ball.x,
-          y: ball.y + 145,
-        },
-    );
+    const rawPull =
+      drag || (typeof keyPullRaw === "function" ? keyPullRaw() : null);
+    const p = cuePull(rawPull || { x: ball.x, y: ball.y + 145 });
     aimDx = ball.x - p.x;
     aimDy = ball.y - p.y;
+    // 손이 실제로 끌고 있을 때만 세기를 낸다. 쉬는 자리의 기본점에도 값을
+    // 붙이면 아무것도 안 하는 화면에 게이지가 상주한다.
+    dragForce =
+      rawPull && typeof cueForce === "function" ? cueForce(rawPull) : 0;
   }
   const guide = billiardPredict(aimDx, aimDy);
   x.save();
@@ -1097,6 +1099,30 @@ function drawAimGuide() {
     ball.x,
     ball.y - 28,
   );
+  /* 끄는 동안의 세기(2026-08-24, 오너 지시 「얼마의 세기인지 알 수 없다」).
+
+     노드 조준에는 「강함 72%」 라벨과 46x5 게이지가 이미 있는데, 끌기에는
+     아무 표시가 없어서 같은 판의 두 조준이 서로 다른 말을 하고 있었다 —
+     한쪽은 세기를 숫자로 주고 다른 쪽은 손끝 감으로만 알게 했다. 같은
+     어휘를 그대로 쓴다: 등급 낱말 + 백분율 + 28% 하한 눈금이 있는 막대.
+
+     자리는 유성 위다. 끌기는 아래로 하므로 위쪽이 늘 비어 있고, 값이
+     커지는 동안 손과 눈이 갈라지지 않는다. */
+  if (dragForce > 0) {
+    const grade =
+      dragForce >= 0.78 ? "강함" : dragForce >= 0.55 ? "보통" : "약함";
+    const gy = ball.y - 48;
+    x.fillStyle = "#ffe09a";
+    x.font = "700 12px Galmuri11, ui-monospace";
+    x.fillText(grade + " " + Math.round(dragForce * 100) + "%", ball.x, gy);
+    x.fillStyle = "#04080a";
+    x.fillRect(ball.x - 23, gy + 6, 46, 5);
+    x.fillStyle = "#ffe09a";
+    x.fillRect(ball.x - 23, gy + 6, 46 * dragForce, 5);
+    // 하한 눈금. 이보다 약하게는 나가지 않는다는 것을 길이로 말한다.
+    x.fillStyle = "#8ba39f";
+    x.fillRect(ball.x - 23 + 46 * 0.28, gy + 5, 1, 7);
+  }
   x.restore();
 }
 registerRuntimeHook("afterDraw", function drawSteerPrompt() {

@@ -381,6 +381,15 @@ function billiardPointerDown(e) {
   e.stopImmediatePropagation();
   steerMeteor(e.button === 0 ? -1 : 1);
 }
+/* 끈 «거리»가 곧 세기다. 방향은 cuePull 이 증폭한 벡터가 맡고, 세기는
+   손이 실제로 움직인 거리에서만 뽑는다(그 분리의 근거는 billiardPointerUp).
+
+   발사와 화면이 같은 함수를 쓴다. 2026-08-24에 드래그 세기 표시를 붙이면서
+   식을 한 곳으로 모았다 — 두 벌로 두면 게이지와 실제 발사가 조용히 갈라져
+   화면이 거짓말을 하게 된다. */
+function cueForce(raw) {
+  return clamp(Math.hypot(ball.x - raw.x, ball.y - raw.y) / 220, 0.28, 1);
+}
 // The launch stone sits at the bottom of the board, so a literal drag would
 // leave no room to pull a strong upward shot.  Downward input is stretched
 // into a virtual cue pull; the guide uses the exact same vector.
@@ -542,13 +551,13 @@ function billiardPointerUp(e) {
        20px일 때 dx 0 → 0.37, dx 100 → 0.53).
        방향은 증폭된 벡터가 그대로 맡고, 위력만 끈 거리로 분리한다. 당구에서
        세기는 겨냥과 별개로 고르는 것이고, 세게 치려면 그만큼 당겨야 한다. */
-    pullLength = Math.hypot(ball.x - raw.x, ball.y - raw.y);
+    force = cueForce(raw);
   drag = null;
   if (l < 18) {
     toast("유성을 더 멀리 끌어 당겨보세요.");
     return;
   }
-  fireMeteor(dx, dy, clamp(pullLength / 220, 0.28, 1));
+  fireMeteor(dx, dy, force);
 }
 /* 노드가 하나도 없는 판에서의 키보드 발사.
    그런 판은 오늘 1-1 수업 1단계 하나뿐이다. 그 단계는 파티를 일부러 비워
@@ -807,6 +816,20 @@ function emitAimChanged(reason) {
 }
 function aimStarReady() {
   if (typeof nodeEconomyOn === "function" && !nodeEconomyOn()) return false;
+  /* 판의 첫 발은 언제나 «끌어서» 나간다(2026-08-24, 오너 지시).
+
+     별지기 셋이 노드 바닥을 보장하는 바람에, 첫 발부터 조준 화면이 떴다.
+     그런데 그 시점의 판에는 별빛이 하나도 없어서 고를 것이 «내 파티 셋»
+     뿐이고, 무게중심은 곧 파티 배치의 한가운데 — 즉 첫 수가 사실상 하나로
+     정해져 있었다. 고르는 화면인데 고를 것이 없는 셈이다.
+
+     첫 발을 끌기로 두면 그 한 수가 플레이어의 것이 되고, 그 샷이 만든
+     별빛이 둘째 발의 조준 메뉴가 된다 — 「이번 샷이 다음 샷의 조준을
+     만든다」는 이 게임의 규칙이 첫 발부터 성립한다.
+
+     battle.shots 가 아니라 launched 를 보는 이유는 그쪽이 남은 수라
+     훈련장 자동 보충과 북두칠성의 유성 +1 로 되돌아가기 때문이다. */
+  if (battle && !battle.launched) return false;
   return aimNodes().length >= AIM_STAR.minPick;
 }
 /* 「지금 다음 하나로 가정할 노드」. 마우스 호버와 키보드 커서를 읽는
@@ -1304,6 +1327,7 @@ function fireMeteor(dx, dy, force, note = null) {
   combatSfx?.("launch", 0.72 + force * 0.42);
   ball.aimAssist = aim.assisted;
   battle.shots--;
+  battle.launched = (battle.launched || 0) + 1;
   chain = [];
   msg = "유성 발사! 별지기 충돌은 직접 보스 공격과 가속을 함께 만듭니다.";
   toast(

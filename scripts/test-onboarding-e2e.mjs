@@ -545,12 +545,17 @@ async function runOnboarding() {
       20000,
     );
     if (!ready.run) break;
-    /* 실전(phase 3)에는 별지기 셋이 서 있으므로 노드 조준이 켜져 있고
-       드래그는 도달 불가능하다 — 드래그는 노드가 없을 때의 경로다.
-       수업 1만 드래그이고 그 뒤로는 전부 찍기다. */
-    await nodeShot(3);
-    void offset;
-    await pressSpace();
+    /* 2026-08-24: 「판의 첫 발은 끌어서」 규칙이 들어오면서 이 자리가
+       갈렸다. 실전(phase 3)은 새 판이므로 첫 발은 노드 조준이 아니라
+       드래그다 — aimStarReady() 가 battle.launched 를 보고 거짓을 낸다.
+       둘째 발부터 별지기·별빛이 노드로 열린다. 사람이 하는 것과 같은
+       순서로 친다: 화면에 무엇이 열려 있는지 묻고 그쪽으로 쏜다. */
+    if (await evaluate("aimStarReady()")) {
+      await nodeShot(3);
+      await pressSpace();
+    } else {
+      await dragShot(offset);
+    }
     await waitUntil(
       "final shot resolution",
       async () => {
