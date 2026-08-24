@@ -2122,6 +2122,30 @@ function advanceTimed(items, delta) {
   items.length = write;
 }
 
-primeCombatTextures();
+/* 예열을 «첫 그림 뒤»로 미룬다(2026-08-24 실측). 여기서 바로 부르면 전투
+   이펙트가 타이틀보다 먼저 온다 — 실측으로 assets/library/fx 넷(1254×1254
+   PNG 세 장 + 512 한 장)이 1.67MB 이고, 첫 로드 4.73MB 의 35% 였다. 심사자가
+   보는 첫 화면은 타이틀이므로 그 앞을 비워야 한다.
+
+   지우지 않고 미루는 이유: 이 예열이 있는 까닭이 「첫 충돌 프레임에 디코드와
+   텍스처 업로드를 함께 물지 않게」이고 그건 지금도 맞다. 전투로 들어가는 길
+   다섯(지도 노드·훈련장 둘, 세션 진입)이 모두 primeCombatTextures 를 다시
+   부르지만, 그 시점은 이미 판이 서는 순간이라 거기서 처음 읽으면 늦다.
+   타이틀을 읽고 허브를 지나 스테이지를 누르기까지 몇 초가 있고, 예열은 그
+   사이에 끝난다.
+
+   신호는 `load` 다. 처음 쓴 것은 requestIdleCallback 하나였는데 **재현되지
+   않았다** — 유휴는 타이틀 마크업이 만들어지기 «전»에도 오므로, 같은 코드가
+   실행마다 타이틀 앞 4.19MB 와 2.10MB 를 번갈아 냈다. `load` 는 문서가 처음
+   찾아낸 하위 자원이 다 끝난 뒤에 뛰므로, 그 뒤에 시작한 요청은 정의상
+   첫 그림과 경합하지 않는다. 회귀 감시는 scripts/probe-first-paint.mjs 다. */
+function primeCombatTexturesDeferred() {
+  if (typeof requestIdleCallback === "function")
+    requestIdleCallback(() => primeCombatTextures(), { timeout: 1200 });
+  else setTimeout(() => primeCombatTextures(), 200);
+}
+if (document.readyState === "complete") primeCombatTexturesDeferred();
+else
+  window.addEventListener("load", primeCombatTexturesDeferred, { once: true });
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const currentStage = () => stages[stageIndex];

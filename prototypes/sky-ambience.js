@@ -67,8 +67,10 @@
         "transition:opacity .28s ease-out,transform .72s ease-out",
       "img",
     );
-    reactionArt.src =
-      "../assets/original/sky/constellation-reaction-overlay.png";
+    /* src 는 «처음 필요할 때» 넣는다(2026-08-24 실측). 이 오버레이는 316KB
+       이고 상시 opacity 0 인데, 여기서 바로 걸면 타이틀보다 먼저 내려온다 —
+       실제로 쓰이는 것은 5점 이상 별자리 현현이나 세션 첫 보스 처치 뒤이므로
+       전투를 한 번도 안 들어간 화면에서는 쓸 일이 없다. */
     reactionArt.alt = "";
 
     /* ── L0 먼 배경 ─────────────────────────────────
@@ -200,8 +202,16 @@
     if (ring) ring.style.left = Math.round(R.a + (R.b - R.a) / 2 - 85) + "px";
   }
 
+  var REACTION_SRC =
+    "../assets/original/sky/constellation-reaction-overlay.png";
+  // 첫 반응에서 한 번만 읽는다. 그 뒤로는 브라우저 캐시가 받는다.
+  function ensureReactionArt() {
+    if (reactionArt && !reactionArt.getAttribute("src"))
+      reactionArt.src = REACTION_SRC;
+  }
   function pulseReactionArt(kind) {
     if (!reactionArt) return;
+    ensureReactionArt();
     reactionArt.style.filter =
       kind === "boss" ? "sepia(.28) saturate(1.15)" : "none";
     reactionArt.style.opacity = kind === "boss" ? ".22" : ".34";
@@ -661,6 +671,7 @@
   }
 
   function staticFallback(kind) {
+    ensureReactionArt();
     if (reactionArt) reactionArt.style.opacity = ".34";
     var ring = document.getElementById("sky-gauge-ring");
     if (ring) ring.style.borderColor = "#9578ca99";
