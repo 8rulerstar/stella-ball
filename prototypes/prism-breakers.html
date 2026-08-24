@@ -165,17 +165,6 @@
           </section>
         </div>
         <aside class="luna-side" id="lunaSide" aria-label="관측 보조 루나">
-          <!-- 발사 세기 세로 게이지. 판 오른쪽에 세워 «당긴 만큼 찬다»가
-               손의 방향과 같은 축으로 읽힌다. 판 위에 그리면 창 높이에 따라
-               판 배율(0.65~0.99)이 그대로 걸려 노트북에서 눈금이 뭉갠다. -->
-          <section class="force-rail" aria-label="발사 세기">
-            <small>발사 세기</small>
-            <div class="force-column" id="forceMeter">
-              <i id="forceFill"></i><em class="force-floor"></em>
-            </div>
-            <b id="forceText">—</b>
-            <p class="force-note" id="forceNote">유성을 끌어 보세요</p>
-          </section>
           <div class="luna-side-card">
             <img
               class="luna-side-face"
@@ -190,6 +179,19 @@
           <div class="luna-speech" id="lunaSpeech" aria-live="polite">
             <p class="luna-speech-text"></p>
           </div>
+          <!-- 발사 세기 세로 게이지. 판 오른쪽에 세워 «당긴 만큼 찬다»가
+               손의 방향과 같은 축으로 읽힌다. 판 위에 그리면 창 높이에 따라
+               판 배율(0.65~0.99)이 그대로 걸려 노트북에서 눈금이 뭉갠다.
+               루나 «아래»에 둔다(2026-08-24, 오너 지시) — 화자가 먼저 서고
+               계기가 그 아래 붙는 순서다. -->
+          <section class="force-rail" aria-label="발사 세기">
+            <small>발사 세기</small>
+            <div class="force-column" id="forceMeter">
+              <i id="forceFill"></i><em class="force-floor"></em>
+            </div>
+            <b id="forceText">—</b>
+            <p class="force-note" id="forceNote">유성을 끌어 보세요</p>
+          </section>
         </aside>
       </div>
       <section class="runes" id="runeSummary"></section>

@@ -6,7 +6,7 @@ const STORY_CONSTELLATION_TOOLTIP =
 if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
 const ONBOARDING_STORAGE = "stella-ball.onboarding.v1";
 const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
-const ONBOARDING_CARD_COUNT = 12;
+const ONBOARDING_CARD_COUNT = 13;
 /* 실습 한 발이 끝나면 그 단계의 «결과 카드»로 돌아온다. 개념 비트를 카드
    사이에 끼워 넣으면 결과 카드의 dialogue 인덱스가 밀리므로, 어느 자리에
    서는지 한곳에 표로 둔다: [0단계, 1단계, 2단계, 마지막]. */
@@ -308,7 +308,33 @@ function setOnboardingPhase(phase) {
     transitioning: false,
     panelVisible: !finalLesson,
   };
+  /* 별지기가 굴러간 자리를 다음 실습으로 «이어 간다»(2026-08-24, 오너 지시).
+
+     여태 실습이 넘어갈 때마다 setupBattle 이 배치표의 좌표로 되돌려 놨다.
+     그런데 이 게임의 규칙은 「이번 샷이 다음 샷의 판을 만든다」이고, 수업이
+     가르치려는 것도 그것이다 — 별지기가 굴러간 자리가 다음 조준의 메뉴가
+     된다는 것. 실습마다 판이 초기화되면 수업만 그 규칙 밖에 있게 된다.
+
+     같은 인원일 때만 잇는다. 1단계는 한 명(가온), 그 뒤로는 셋이라 인원이
+     바뀌는 경계에서는 배치표를 그대로 쓴다 — 없던 두 명을 어디에 세울지는
+     이어 갈 자리가 없다. 마지막 실전(3단계)도 새 판으로 둔다: 그 판은
+     캠페인과 같아야 하고, 실습에서 굴러간 자리를 물려받으면 난이도가
+     실습 결과에 따라 달라진다. */
+  const carried =
+    onboarding &&
+    phase > 0 &&
+    phase !== ONBOARDING_FINAL_PHASE &&
+    Array.isArray(gates) &&
+    gates.length === layout.party.length
+      ? gates.map((g) => [g.x, g.y])
+      : null;
   setupBattle();
+  if (carried)
+    carried.forEach(([gx, gy], i) => {
+      if (!gates[i]) return;
+      gates[i].x = gx;
+      gates[i].y = gy;
+    });
   /* 첫발 자유조준(2026-08-24)과 수업의 관계.
 
      새 규칙은 「판의 첫 발은 끌어서 나간다」다. 그런데 수업은 한 실습이 곧
@@ -352,10 +378,39 @@ function setOnboardingPhase(phase) {
         "안내별",
       );
   }
+  /* 마지막 실전에는 오리온자리 여섯 점을 깐다(2026-08-24, 오너 지시
+     「북두칠성 말고 더 멋있는 별자리 하나 더」).
+
+     오리온은 6점 상위 티어라 이 게임에서 가장 화려하다 — 살구 궤적,
+     실루엣 α 0.42, 대격 프레임의 히트스톱 0.14초와 벽 살구 펄스, 30px
+     숫자, 그리고 체력이 낮을수록 커지는 삼연격 처형. 마지막 판이 「거상을
+     눕히는 것」을 가르치는 자리이므로, 그 처형이 여기 떨어지는 것이 목표와
+     같은 방향이다.
+
+     수업의 안내별과 달리 «잠그지 않는다». 이 판은 캠페인과 같은 규칙으로
+     돌아야 하고, 여섯을 조준에 써 버리는 것도 플레이어의 몫이다 — 남기면
+     오리온, 쓰면 센 한 발. 그것이 이 게임의 결정 자체다. 카드가 그 선택을
+     말해 주고, 어느 쪽을 골라도 판은 성립한다. */
+  if (
+    phase === ONBOARDING_FINAL_PHASE &&
+    typeof dropAimStar === "function" &&
+    boss
+  ) {
+    const template = StellaRuntime.modules
+      .require("figure")
+      .templatePoints("orion");
+    for (const point of template)
+      dropAimStar(
+        clamp(boss.x + point.x * 190, 30, W - 30),
+        clamp(boss.y + point.y * 190, 30, H - 30),
+        "#ffd2a0",
+        "오리온 자리별",
+      );
+  }
   msg = [
     "도우미 루나 · 유성을 끌어 앞의 별지기에게 부딪혀 보세요.",
     "도우미 루나 · 별지기 위의 빛 세 곳을 골라 조준해 발사하세요.",
-    "도우미 루나 · 보스 주위의 안내별 일곱은 누르지 말고 남겨 두세요.",
+    "도우미 루나 · 보스 주위의 안내별 일곱은 잠겨 있습니다. 별지기 위의 빛만 고르세요.",
     "실전 · 별지기와 부딪혀 별빛을 만들고, 남긴 별빛으로 별자리를 완성하세요.",
   ][phase];
   sync();
@@ -493,9 +548,10 @@ function renderOnboarding() {
         n: 7,
         spot: "figure-guide",
         title: "보스 주위에 안내별 일곱을 놓았어요.",
-        /* 별자리 안내: 판을 암전하고 손가락 없이 안내별을 조명만 해
-           «이건 남기는 것»을 보여 준다(「누르지 마세요」와 안 어긋나게). */
-        body: "이번 수업에서는 북두칠성을 바로 볼 수 있도록 보스 주위에 안내별 일곱을 놓았어요. 안내별은 누르지 마세요.",
+        /* 별자리 안내: 판을 암전하고 안내별을 조명만 해 «이건 남기는 것»을
+           보여 준다. 「누르지 마세요」는 뺐다 — 수업 동안 이 별들은 집기
+           판정에서 아예 빠져 눌러도 잡히지 않는다(isLockedAimNode). */
+        body: "이번 수업에서는 북두칠성을 바로 볼 수 있도록 보스 주위에 안내별 일곱을 놓았어요. 이 별들은 수업 동안 잠겨 있어 고를 수 없습니다 — 그대로 남습니다.",
         button: "다음 · 별지기 빛",
         action: "next-beat",
       },
@@ -503,7 +559,7 @@ function renderOnboarding() {
         n: 8,
         spot: "figure-pick",
         title: "별지기 위의 빛 세 곳만 고르세요.",
-        body: "조준에는 별지기 위의 빛 세 곳만 씁니다. 안내별은 건드리지 말고 그대로 남겨 두세요.",
+        body: "조준에는 별지기 위의 빛 세 곳만 씁니다. 안내별은 잠겨 있으니 마음 놓고 골라 보세요.",
         button: "다음 · 완성",
         action: "next-beat",
       },
@@ -545,7 +601,20 @@ function renderOnboarding() {
         n: 12,
         title: "실전 순서 ③④ 각성 공격 → 별자리",
         body: "③ 모두 멈추면 각성한 별지기가 고유 공격을 씁니다. ④ 다음 발사에 작은 별빛을 세 개 이상 남기면, 유성이 출발하기 전에 별자리가 완성되어 먼저 공격해요.",
-        button: "순서 확인하고 실전 시작",
+        button: "다음 · 목표",
+        action: "next-beat",
+      },
+      /* 목표 카드(2026-08-24, 오너 지시 「목표는 보스 처치인데 온보딩이
+         부족하다」). 수업이 조작을 넷이나 가르치면서 «왜 하는가»를 한 번도
+         말하지 않고 있었다 — 마지막 카드가 곧장 「실전 시작」이었다.
+         이기는 조건과 «무엇이 아픈가»를 여기서 한 번에 말한다. */
+      {
+        n: 13,
+        title: "목표는 하나 — 거상을 눕히는 것.",
+        body: "화면 위의 체력이 0이 되면 관측이 끝나요. 유성으로 직접 때리는 것보다 각성 공격과 별자리가 훨씬 아프고, 거상 둘레의 밝은 핵을 맞히면 피해가 크게 오릅니다. 실전에서는 유성이 다섯 발뿐이라 한 발마다 별빛을 어디에 쓸지가 곧 승부예요. 이번 판은 유성 제한이 없으니 마음 놓고 해 보세요.",
+        // 「관측 시작」은 타이틀 CTA와 같은 문구라 문자로 버튼을 찾는
+        // E2E가 엉뚱한 것을 눌렀다. 이 카드의 말로 따로 짓는다.
+        button: "거상을 눕히러 간다",
         action: "final-battle",
       },
     ],

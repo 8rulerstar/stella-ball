@@ -401,13 +401,13 @@ async function runOnboarding() {
 
   await waitUntil(
     "lesson card 1",
-    async () => (await gameState()).card === "1 / 12",
+    async () => (await gameState()).card === "1 / 13",
   );
   await clickButton("유성 굴리기");
   await dragShot();
   const first = await waitForLessonResult(0);
   assert(first.awakenedHero, "Lesson 1 (free-aim) did not awaken a starkeeper");
-  assert(first.card === "2 / 12", `Expected card 2 / 12, got ${first.card}`);
+  assert(first.card === "2 / 13", `Expected card 2 / 13, got ${first.card}`);
   record("lesson-pass", {
     lesson: 1,
     assertion: "awakenedHero",
@@ -420,22 +420,22 @@ async function runOnboarding() {
   await clickButton("다음 · 별빛으로 조준");
   await waitUntil(
     "lesson card 3",
-    async () => (await gameState()).card === "3 / 12",
+    async () => (await gameState()).card === "3 / 13",
   );
   await clickButton("다음 · 유성 항로");
   await waitUntil(
     "lesson card 4",
-    async () => (await gameState()).card === "4 / 12",
+    async () => (await gameState()).card === "4 / 13",
   );
   await clickButton("다음 · 벌림");
   await waitUntil(
     "lesson card 5",
-    async () => (await gameState()).card === "5 / 12",
+    async () => (await gameState()).card === "5 / 13",
   );
   await clickButton("조준해서 발사");
   await nodeShot(3);
   const second = await waitForLessonResult(1, 20000, 3);
-  assert(second.card === "6 / 12", `Expected card 6 / 12, got ${second.card}`);
+  assert(second.card === "6 / 13", `Expected card 6 / 13, got ${second.card}`);
   const aimed = await evaluate(
     "typeof onboarding === 'object' && onboarding ? !!onboarding.aimed : null",
   );
@@ -454,17 +454,17 @@ async function runOnboarding() {
   await clickButton("다음 · 별자리");
   await waitUntil(
     "lesson card 7",
-    async () => (await gameState()).card === "7 / 12",
+    async () => (await gameState()).card === "7 / 13",
   );
   await clickButton("다음 · 별지기 빛");
   await waitUntil(
     "lesson card 8",
-    async () => (await gameState()).card === "8 / 12",
+    async () => (await gameState()).card === "8 / 13",
   );
   await clickButton("다음 · 완성");
   await waitUntil(
     "lesson card 9",
-    async () => (await gameState()).card === "9 / 12",
+    async () => (await gameState()).card === "9 / 13",
   );
   await clickButton("안내별을 남기고 발사");
   /* 별지기 셋만 찍으면 안내별 일곱은 하나도 조준에 쓰이지 않고 전부 별자리
@@ -490,7 +490,7 @@ async function runOnboarding() {
     `Expected Big Dipper, got ${resonance.figure}`,
   );
   const third = await waitForLessonResult(2, 25000, 3);
-  assert(third.card === "10 / 12", `Expected card 10 / 12, got ${third.card}`);
+  assert(third.card === "10 / 13", `Expected card 10 / 13, got ${third.card}`);
   record("lesson-pass", {
     lesson: 3,
     assertion: "figure",
@@ -501,14 +501,21 @@ async function runOnboarding() {
   // 실전 순서 요약을 두 장으로 합쳤다(①② / ③④).
   await waitUntil(
     "lesson card 11",
-    async () => (await gameState()).card === "11 / 12",
+    async () => (await gameState()).card === "11 / 13",
   );
   await clickButton("다음 · ③④");
   await waitUntil(
     "lesson card 12",
-    async () => (await gameState()).card === "12 / 12",
+    async () => (await gameState()).card === "12 / 13",
   );
-  await clickButton("순서 확인하고 실전 시작");
+  // 13장째는 «목표» 카드다(2026-08-24) — 이기는 조건을 한 번 말하고 실전으로
+  // 넘어간다. 조작을 넷이나 가르치면서 왜 하는지를 말하지 않고 있었다.
+  await clickButton("다음 · 목표");
+  await waitUntil(
+    "lesson card 13",
+    async () => (await gameState()).card === "13 / 13",
+  );
+  await clickButton("거상을 눕히러 간다");
   const finalStart = await waitUntil("final battle", async () => {
     const state = await gameState();
     return state.phase === 3 && state.run && state.panelVisible === false
@@ -739,18 +746,19 @@ try {
         browser: basename(executable),
         durationMs: Date.now() - startedAt,
         cards: [
-          "1 / 12",
-          "2 / 12",
-          "3 / 12",
-          "4 / 12",
-          "5 / 12",
-          "6 / 12",
-          "7 / 12",
-          "8 / 12",
-          "9 / 12",
-          "10 / 12",
-          "11 / 12",
-          "12 / 12",
+          "1 / 13",
+          "2 / 13",
+          "3 / 13",
+          "4 / 13",
+          "5 / 13",
+          "6 / 13",
+          "7 / 13",
+          "8 / 13",
+          "9 / 13",
+          "10 / 13",
+          "11 / 13",
+          "12 / 13",
+          "13 / 13",
         ],
         figure: "bigdipper",
         ...journey,

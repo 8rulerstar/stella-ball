@@ -921,10 +921,19 @@ function announceAim(extra) {
    순서가 손에는 더 낫지만 이 저장소에 선례가 없고 동률 규칙을 따로
    정해야 한다 — 필요해지면 그때 바꾼다. */
 function moveAimCursor(step) {
-  const n = aimNodes().length;
+  const nodes = aimNodes(),
+    n = nodes.length;
   if (!n) return false;
   const from = aimFocus();
-  aimCursor = from < 0 ? (step > 0 ? 0 : n - 1) : (from + step + n) % n;
+  /* 잠긴 안내별은 «건너뛴다». 마우스는 집기 판정에서 빠져 눌러도 아무 일이
+     없는데, 키보드가 그 위에 설 수 있으면 Enter 를 눌러도 반응이 없는 칸이
+     생긴다 — 마우스보다 키보드가 더 막막해진다. 한 바퀴를 다 돌아도 갈 곳이
+     없으면(전부 잠김) 제자리에 둔다. */
+  let next = from < 0 ? (step > 0 ? 0 : n - 1) : (from + step + n) % n;
+  for (let guard = 0; guard < n && isLockedAimNode(nodes[next]); guard += 1)
+    next = (next + step + n) % n;
+  if (isLockedAimNode(nodes[next])) return false;
+  aimCursor = next;
   combatSfx?.("node", 0.32);
   announceAim();
   return true;
@@ -1002,13 +1011,31 @@ function aimKeyCommand(cmd) {
   }
   return false;
 }
+/* 수업이 깔아 둔 안내별은 «집히지 않는다»(2026-08-24, 오너 지시).
+
+   앞서는 카드가 「안내별은 누르지 마세요」라고 두 번 말했다. 규칙을 글로
+   금지하는 것은 이 게임이 다른 데서 하지 않는 방식이고 — 판이 스스로
+   말하게 두는 것이 원칙이다 — 무엇보다 실수 한 번이면 수업이 어긋난다.
+   집기 판정에서 빼면 눌러도 아무 일이 없고, 문장이 필요 없어진다.
+
+   수업 밖에서는 이 표식이 붙은 별빛 자체가 없다. dropAimStar 의 label 이
+   「안내별」인 것은 수업의 보정이 유일하다. */
+function isLockedAimNode(node) {
+  return Boolean(
+    node &&
+      !node.unit &&
+      node.label === "안내별" &&
+      StellaRuntime.modules.optional("onboarding")?.isActive(),
+  );
+}
 function aimStarAt(px, py) {
   const nodes = aimNodes();
   let best = -1,
     bestDistance = Infinity;
   for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i],
-      // 별지기는 토큰이 크니 잡는 반경도 그만큼 넓힌다.
+    const node = nodes[i];
+    if (isLockedAimNode(node)) continue;
+    const // 별지기는 토큰이 크니 잡는 반경도 그만큼 넓힌다.
       reach = node.unit
         ? Math.max(AIM_STAR.pickRadius, node.unit.r + 8)
         : AIM_STAR.pickRadius,

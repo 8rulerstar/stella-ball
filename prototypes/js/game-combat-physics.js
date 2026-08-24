@@ -1935,11 +1935,18 @@ function drawAimStars() {
       chipY = uy - ur - 14;
     } else {
       const star = node;
+      /* 수업이 잠근 안내별. 집기 판정에서 이미 빠져 있으므로(isLockedAimNode)
+         화면도 그렇게 말해야 한다 — 같은 모양인데 하나만 반응이 없으면
+         「고장」으로 읽힌다. 맥동을 멈추고 한 겹 낮춘 뒤, 고른 것에만
+         붙는 흰 고리도 그리지 않는다. */
+      const locked =
+        typeof isLockedAimNode === "function" && isLockedAimNode(star);
+      if (locked) x.globalAlpha = 0.62;
       if (star.born > 0) star.born = Math.max(0, star.born - fxDt);
       const grow = star.born > 0 ? 1 + star.born * 1.8 : 1,
         // 고르지 않은 것이 맥동한다. 이미 고른 것은 흔들리면 오히려 읽기
         // 어렵다.
-        breathe = picked ? 1 : 1 + pulse * 0.3,
+        breathe = picked || locked ? 1 : 1 + pulse * 0.3,
         r = (picked ? 12 : 10) * grow * breathe;
       /* 바깥 무리 + 뾰족한 별. 어두워진 판 위에서 이것이 「여기 있다」를
          만든다. 2026-08-24에 한 겹 더 올렸다 — 숨 쉬는 바깥 고리를 더해
@@ -1954,10 +1961,11 @@ function drawAimStars() {
       // 그때만 금색 무리를 둘러 「이것들이 별자리가 된다」를 보여준다.
       if (!picked && restCount >= 3)
         stepRing(star.x, star.y, r + 8, "#ffd27f55", 3, 2);
-      if (picked || hovered)
+      if (!locked && (picked || hovered))
         stepRing(star.x, star.y, r + 6, picked ? "#ffffff" : "#ffffff88", 3, 3);
       drawPickFlash(star, star.x, star.y, r + 8, fxDt);
       chipY = star.y - r - 16;
+      x.globalAlpha = 1;
     }
     if (!picked && hovered) {
       /* 1e-4: 호버 한 줄 — 두 종류가 «무엇이 다른지»를 말한다. */

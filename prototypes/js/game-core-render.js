@@ -434,10 +434,15 @@ function updateControlHints() {
       }
     : nodeAim
       ? {
-          mode: "노드 조준 " + picks + " / " + minPick,
-          left: "노드 고르기 · 빈 곳은 반대편",
+          /* 화면에서는 «별빛»으로만 말한다(2026-08-24, 오너 지시). 「노드」는
+             코드가 별지기와 별빛을 한 목록으로 다룰 때 쓰는 내부 이름인데,
+             그것이 조작 안내로 새어 나가 플레이어에게 배울 낱말을 하나 더
+             주고 있었다. 별지기가 «들고 있는 별빛»으로 그려지는 지금은
+             화면의 모든 고를 것이 별빛이므로 낱말도 하나면 된다. */
+          mode: "별빛 조준 " + picks + " / " + minPick,
+          left: "별빛 고르기 · 빈 곳은 반대편",
           right: "전부 무르기",
-          space: picks >= minPick ? "발사" : "노드 " + minPick + "개부터",
+          space: picks >= minPick ? "발사" : "별빛 " + minPick + "개부터",
         }
       : {
           mode: "끌어서 발사",
@@ -491,7 +496,7 @@ function updateForceHud() {
         note = preview.flipped
           ? "반대편으로 · 넓게 벌릴수록 세게"
           : "넓게 벌릴수록 세게";
-      } else note = "노드를 " + minPick + "개 이상 고르세요";
+      } else note = "별빛을 " + minPick + "개 이상 고르세요";
     } else {
       /* keyPullRaw() 는 «키보드가 놀고 있어도» 기본점(거리 150)을 돌려준다 —
          그리기 쪽은 쉬는 자리의 예측선을 그려야 하므로 그게 맞다. 하지만
