@@ -47,24 +47,13 @@
                  노드 고르기 / 비행 중 꺾기) 여태 화면 아래 한 줄에만 적혀
                  있었다. 「남은 유성」과 같은 카드로 세워, 지금 이 손이
                  무엇을 하는지 늘 같은 자리에서 읽히게 한다. -->
-            <!-- 발사 세기. 판 위에 그리면 창 높이에 따라 판 배율(0.65~0.99)이
-                 그대로 걸려 노트북에서 8px 아래로 내려간다. 판 밖은 그 배율을
-                 안 탄다. 끌기와 노드 조준이 같은 게이지를 쓴다. -->
-            <section class="hud-card force-card" aria-label="발사 세기">
-              <div class="hud-label">
-                <span>발사 세기</span><b id="forceText">—</b>
-              </div>
-              <div class="force-meter" id="forceMeter">
-                <i id="forceFill"></i><em class="force-floor"></em>
-              </div>
-              <div class="force-note" id="forceNote">
-                유성을 끌거나 노드를 고르세요
-              </div>
-            </section>
             <section class="hud-card control-card" aria-label="조작">
               <div class="hud-label">
                 <span>조작</span><b id="controlMode">끌어서 발사</b>
               </div>
+              <!-- 궤도 전환은 «남은 유성»과 같은 점으로 센다. 한 발에 한 번뿐인
+                   충전이라 「사용함/1회」라는 글자보다 켜진 점 하나가 빠르다. -->
+              <div class="shot-dots control-charge" id="controlCharge"></div>
               <div class="control-line">
                 <em>좌클릭</em><span id="controlLeft">끌어 조준·세기</span>
               </div>
@@ -176,6 +165,17 @@
           </section>
         </div>
         <aside class="luna-side" id="lunaSide" aria-label="관측 보조 루나">
+          <!-- 발사 세기 세로 게이지. 판 오른쪽에 세워 «당긴 만큼 찬다»가
+               손의 방향과 같은 축으로 읽힌다. 판 위에 그리면 창 높이에 따라
+               판 배율(0.65~0.99)이 그대로 걸려 노트북에서 눈금이 뭉갠다. -->
+          <section class="force-rail" aria-label="발사 세기">
+            <small>발사 세기</small>
+            <div class="force-column" id="forceMeter">
+              <i id="forceFill"></i><em class="force-floor"></em>
+            </div>
+            <b id="forceText">—</b>
+            <p class="force-note" id="forceNote">유성을 끌어 보세요</p>
+          </section>
           <div class="luna-side-card">
             <img
               class="luna-side-face"

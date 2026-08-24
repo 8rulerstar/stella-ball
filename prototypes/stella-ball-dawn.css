@@ -1601,48 +1601,76 @@ body.oo-intro .title-sequence::after {
 }
 
 /* ---------------------------------------------------------------------
-   발사 세기 게이지 (2026-08-24)
-   판 위 46x5 막대를 판 밖으로 옮긴 것이다. 판은 창 높이에 따라 0.65~0.99배로
-   줄어들어 그 막대가 노트북에서 8px 아래로 내려갔다 — 여기서는 배율을 안
-   탄다. 채움은 transform:scaleX 라 매 프레임 레이아웃을 물지 않는다.
+   발사 세기 — 판 오른쪽 세로 게이지 (2026-08-24)
+
+   처음엔 유성 둘레에 46x5 막대로 그렸다. 판은 창 높이에 따라 0.65~0.99배로
+   줄어들어 노트북에서 눈금이 뭉갰다. 왼쪽 HUD 카드로 옮겼다가, 다시 판
+   오른쪽 세로로 세운다 — 끌기는 «아래로 당기는» 손이라 세로축이 손의
+   방향과 같고, 차오르는 방향(아래에서 위)이 곧 세기다.
+   채움은 transform:scaleY 라 매 프레임 레이아웃을 물지 않는다.
    --------------------------------------------------------------------- */
-.force-card .force-meter {
+.force-rail {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 8px 12px;
+  border: 1px solid #2c1f45;
+  border-radius: 10px;
+  background: #10061bcc;
+}
+.force-rail > small {
+  color: #8d80a8;
+  font:
+    700 8px ui-monospace,
+    monospace;
+  letter-spacing: 0.12em;
+}
+.force-rail .force-column {
   position: relative;
-  height: 10px;
-  margin-top: 6px;
+  width: 16px;
+  height: 168px;
   border: 1px solid #3b2a55;
-  border-radius: 2px;
+  border-radius: 3px;
   background: #0a0413;
   overflow: hidden;
 }
-.force-card .force-meter i {
-  display: block;
-  height: 100%;
-  transform: scaleX(0);
-  transform-origin: left center;
-  background: linear-gradient(90deg, #6fb7ab, #ffe09a);
+.force-rail .force-column i {
+  position: absolute;
+  inset: 0;
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  background: linear-gradient(0deg, #6fb7ab, #ffe09a);
   transition: transform 0.08s linear;
 }
 /* 28% 하한 눈금. 이보다 약하게는 나가지 않는다는 것을 자리로 말한다. */
-.force-card .force-floor {
+.force-rail .force-floor {
   position: absolute;
-  top: -1px;
-  bottom: -1px;
-  left: 28%;
-  width: 1px;
+  left: -1px;
+  right: -1px;
+  bottom: 28%;
+  height: 1px;
   background: #8ba39f;
 }
-.force-card[data-grade] .force-meter {
-  transition: border-color 0.16s ease;
-}
-.force-card .force-meter[data-grade="high"] {
+.force-rail .force-column[data-grade="high"] {
   border-color: #f2b35c;
 }
-.force-card .force-note {
-  margin-top: 5px;
+.force-rail > b {
+  color: #f2cb79;
+  font:
+    700 13px ui-monospace,
+    monospace;
+}
+.force-rail .force-note {
+  margin: 0;
+  max-width: 116px;
   color: #8d80a8;
-  font-size: 10px;
-  line-height: 1.35;
+  font-size: 9px;
+  line-height: 1.4;
+  text-align: center;
+}
+/* 궤도 전환 충전. 「남은 유성」 점과 같은 자리·같은 크기로 둔다. */
+.control-card .control-charge:empty {
+  display: none;
 }
 /* 지금 누를 수 없는 줄은 물러난다. 「—」만으로는 못 쓰는 줄과 아직 안 읽은
    줄이 같아 보인다. */

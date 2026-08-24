@@ -71,6 +71,7 @@ const U = {
   forceNote: document.querySelector("#forceNote"),
   forceMeter: document.querySelector("#forceMeter"),
   controlMode: document.querySelector("#controlMode"),
+  controlCharge: document.querySelector("#controlCharge"),
   controlLeft: document.querySelector("#controlLeft"),
   controlRight: document.querySelector("#controlRight"),
   controlSpace: document.querySelector("#controlSpace"),

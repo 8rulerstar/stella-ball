@@ -423,7 +423,11 @@ function updateControlHints() {
   lastControlKey = key;
   const row = flying
     ? {
-        mode: steerLeft ? "비행 중 · 궤도 전환 1회" : "비행 중 · 전환 사용함",
+        /* 「1회 / 사용함」은 점 하나로 옮겼다(2026-08-24, 오너 지시
+           「아이콘 형태로, 유성처럼」). 한 발에 한 번뿐인 충전이라
+           켜진 점 하나가 글자보다 빠르고, 「남은 유성」이 이미 같은
+           문법을 쓰고 있어 배울 것이 없다. */
+        mode: "비행 중 · 궤도 전환",
         left: steerLeft ? "진행 방향 왼쪽으로" : "—",
         right: steerLeft ? "진행 방향 오른쪽으로" : "—",
         space: "—",
@@ -453,6 +457,17 @@ function updateControlHints() {
     [U.controlSpace, row.space],
   ])
     el.parentElement.dataset.off = text === "—" ? "1" : "";
+  /* 궤도 전환 충전. 「남은 유성」과 같은 점·같은 이미지다 — 새 자산을 만들지
+     않았고, 플레이어가 이미 아는 문법을 그대로 쓴다. 비행 중이 아니면 비운다:
+     쓸 수 없는 때에 꺼진 점이 남아 있으면 «잃었다»로 읽힌다. */
+  if (U.controlCharge)
+    U.controlCharge.innerHTML = flying
+      ? '<img class="shot-icon" src="../assets/library/ui/shot-dot-' +
+        (steerLeft ? "on" : "off") +
+        '.png" alt="' +
+        (steerLeft ? "궤도 전환 가능" : "궤도 전환 사용함") +
+        '">'
+      : "";
 }
 /* 발사 세기(2026-08-24). 끌기와 노드 조준이 같은 게이지를 쓴다 — 같은 판의
    두 조준이 세기를 서로 다른 곳에서 말하면 그것부터 배워야 한다.
@@ -501,7 +516,8 @@ function updateForceHud() {
   if (key === lastForceKey) return;
   lastForceKey = key;
   U.forceText.textContent = force > 0 ? pct + "%" : "—";
-  U.forceFill.style.transform = "scaleX(" + force + ")";
+  // 세로 게이지라 아래에서 위로 찬다(transform-origin: bottom).
+  U.forceFill.style.transform = "scaleY(" + force + ")";
   U.forceNote.textContent = note;
   U.forceMeter.dataset.grade =
     force <= 0
