@@ -76,6 +76,10 @@ const DEFAULT_SETTINGS = Object.freeze({
   master: 0.7,
   bgm: 0.28,
   sfx: 0.65,
+  /* 음소거는 «전체 음량 0»과 다르다(2026-08-24). 0으로 끌어 두면 다시 켤 때
+     얼마였는지가 사라진다. 별도 스위치로 두면 눌러 끄고 눌러 켰을 때 원래
+     균형이 그대로 돌아온다. */
+  muted: false,
 });
 let settings = appStorage.readRecord(SETTINGS_STORAGE, DEFAULT_SETTINGS);
 settings.language = META_COPY[settings.language]
@@ -172,6 +176,47 @@ function saveSettings() {
    여기서 부르는 이유 — 이 함수는 실제 플레이 중에만 도므로 toast()가 이미
    서 있다(game-platform.js 는 체인 첫 파일이라 그 안에서는 못 부른다). */
 let storageWarned = false;
+/* 음소거 한 버튼(2026-08-24, 오너 지시).
+
+   여태 소리를 끄는 길은 설정 화면의 전체 음량 슬라이더뿐이었다 — 전투
+   중에는 일시정지를 거쳐야 하고, 슬라이더를 0으로 끌면 다시 켤 때 원래
+   값이 사라진다. 한 번 눌러 끄고 한 번 눌러 켠다.
+
+   일시정지 버튼과 같은 이유로 JS가 만든다: HTML을 건드리면 스모크의 문서
+   계약이 흔들린다. 다만 그 버튼(game-session.js)과 «같은 파일»에는 두지
+   못한다 — session 은 로드 순서 98이고 settings 를 만드는 이 파일은 101이라
+   거기서는 첫 refresh() 가 settings 를 못 본다(실제로 스모크가 그렇게
+   죽었다). 끄고 켜는 상태의 주인이 여기이므로 자리도 여기가 맞다.
+
+   body 에 붙이고 «타이틀과 전투»에서만 보인다 — 허브·상점·프로필에는 설정
+   탭이 바로 옆에 있어 이 버튼이 겹쳐 설 이유가 없다. */
+(() => {
+  if (!document.body) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.id = "muteButton";
+  button.className = "mute-button";
+  button.innerHTML = '<span aria-hidden="true">\u266a</span>';
+  const refresh = () => {
+    const off = Boolean(settings.muted);
+    button.dataset.muted = off ? "1" : "";
+    button.setAttribute("aria-pressed", off ? "true" : "false");
+    button.setAttribute("aria-label", off ? "소리 켜기" : "소리 끄기");
+    button.title = off ? "소리 켜기" : "소리 끄기";
+  };
+  button.onclick = () => {
+    settings.muted = !settings.muted;
+    saveSettings();
+    refresh();
+    /* 켤 때만 소리를 낸다. 끄는 순간에 소리를 내면 그 소리가 마지막으로
+       들리는 것이 되어 «꺼졌다»가 아니라 «눌렸다»로 읽힌다. */
+    if (!settings.muted) playSfx?.("confirm");
+  };
+  refresh();
+  document.body.append(button);
+  // 설정 화면의 전체 음량 슬라이더가 음소거를 풀 때 표시를 맞춘다.
+  window.StellaMute = { refresh };
+})();
 function saveProgress() {
   const ok = appStorage.writeRecord(PROGRESS_STORAGE, progress);
   if (ok === false && !storageWarned) {
@@ -591,7 +636,9 @@ function startObservatoryScore(engine) {
 }
 function syncAudio() {
   if (!audioEngine) return;
-  audioEngine.master.gain.value = settings.master;
+  // 음소거는 마스터 게인 하나에서 끝난다 — 곡·효과음·앰비언트가 전부 이
+  // 노드를 지나므로 끄는 자리가 하나면 새 소리가 생겨도 새지 않는다.
+  audioEngine.master.gain.value = settings.muted ? 0 : settings.master;
   /* 실제 곡(game-bgm.js)이 흐르는 동안은 합성 앰비언트를 눌러 곡과 겹치지
      않게 한다. 곡이 없으면 1이라 앰비언트가 그대로 돌아온다. 곡 볼륨도 같은
      슬라이더를 따라오게 여기서 함께 갱신한다. */

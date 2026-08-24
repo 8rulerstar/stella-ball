@@ -68,6 +68,12 @@ function showSettings(onBack) {
     input.oninput = () => {
       settings[key] = Number(input.value);
       output.textContent = Math.round(settings[key] * 100) + "%";
+      /* 음량을 만졌다는 것은 «듣고 싶다»는 뜻이다. 음소거인 채로 슬라이더가
+         움직이면 아무 일도 안 일어나 고장으로 읽힌다. */
+      if (settings.muted && key === "master") {
+        settings.muted = false;
+        window.StellaMute?.refresh?.();
+      }
       ensureAudio();
     };
     input.onchange = () => saveSettings();
@@ -88,8 +94,13 @@ function showSettings(onBack) {
     });
   };
   document.querySelector("#settingsReset").onclick = () => {
-    settings = { language: "ko", master: 0.7, bgm: 0.28, sfx: 0.65 };
+    /* 기본값은 DEFAULT_SETTINGS 한 곳에서만 나온다(2026-08-24). 여기 있던
+       { language, master, bgm, sfx } 리터럴은 그것을 두 번째로 적어 둔
+       벌이었고, 실제로 벌어졌다 — 음소거 스위치를 더한 날 이 줄만 그대로
+       남아 「기본값으로」가 muted 를 지우지 않고 undefined 로 두었다. */
+    settings = { ...DEFAULT_SETTINGS };
     saveSettings();
+    window.StellaMute?.refresh?.();
     playSfx("unlock");
     showSettings(back);
   };
