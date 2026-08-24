@@ -899,7 +899,44 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
   }
   play(script, endAt, !reduced);
 }
-function showGacha() {
+// 소환 화면은 세 갈래다: 별지기 소환(hero)·무기 소환(weapon)·무기고(armory).
+// 허브 탭을 늘리지 않으려고 한 화면 위 세그먼트로 묶었다. 기본은 hero 라
+// 기존 진입과 프로브(#gachaDraw)가 그대로 열린다.
+let armoryPick = null; // 무기고에서 지금 무기를 고르는 별지기 id(없으면 null)
+let pendingWeaponReveal = null; // 방금 뽑은 무기 연출(1회 소비)
+function gachaModeNav(mode) {
+  return (
+    '<nav class="gacha-modes" aria-label="소환 갈래">' +
+    [
+      ["hero", "별지기"],
+      ["weapon", "무기"],
+      ["armory", "무기고"],
+    ]
+      .map(
+        ([key, label]) =>
+          '<button type="button" data-gmode="' +
+          key +
+          '" class="' +
+          (mode === key ? "on" : "") +
+          '">' +
+          label +
+          "</button>",
+      )
+      .join("") +
+    "</nav>"
+  );
+}
+function wireGachaModes(current) {
+  for (const button of document.querySelectorAll("[data-gmode]"))
+    button.onclick = () => {
+      if (button.dataset.gmode === current) return;
+      playSfx();
+      showGacha(button.dataset.gmode);
+    };
+}
+function showGacha(mode = "hero") {
+  if (mode === "weapon") return showWeaponGacha();
+  if (mode === "armory") return showArmory();
   run = false;
   drag = null;
   setScene("menu");
@@ -925,7 +962,9 @@ function showGacha() {
   U.over.innerHTML =
     '<section class="gacha-shell"><div class="gacha-header"><button id="gachaBack">뒤로</button><span><small>별빛 보관함</small><b>' +
     (hasFreeSummon() ? "무료 소환권 1장" : "보유 골드 " + goldBalance()) +
-    '</b></span></div><div class="gacha-ritual"><div class="gacha-orbit" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div><div class="gacha-reveal" id="gachaReveal"><span>✦</span><small>아직 만나지 못한 별지기를<br>관측하세요</small></div></div><div class="gacha-copy"><small>STARKEEPER CALL</small><h2>별빛 소환</h2><p>100 골드로 아직 만나지 못한 별지기 한 명을 확정으로 맞이합니다.</p></div><section class="gacha-pool"><div class="gacha-pool-heading"><span>소환 후보</span><b>' +
+    "</b></span></div>" +
+    gachaModeNav("hero") +
+    '<div class="gacha-ritual"><div class="gacha-orbit" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div><div class="gacha-reveal" id="gachaReveal"><span>✦</span><small>아직 만나지 못한 별지기를<br>관측하세요</small></div></div><div class="gacha-copy"><small>STARKEEPER CALL</small><h2>별빛 소환</h2><p>100 골드로 아직 만나지 못한 별지기 한 명을 확정으로 맞이합니다.</p></div><section class="gacha-pool"><div class="gacha-pool-heading"><span>소환 후보</span><b>' +
     pool.length +
     " / " +
     GACHA_HERO_IDS.length +
@@ -948,6 +987,7 @@ function showGacha() {
     // 같은 어긋남. .gacha-pool-unit .portrait 의 상자는 34px 이다.
     setPortrait(portrait, heroes[portrait.dataset.gachaHero], 34);
   });
+  wireGachaModes("hero");
   document.querySelector("#gachaBack").onclick = () => {
     playSfx();
     showMeta();
@@ -967,6 +1007,254 @@ function showGacha() {
     drawButton.disabled = true;
     runSummonSequence(ritual, reveal, drawButton, result);
   };
+}
+/* 무기 소환. 별지기 소환과 같은 껍데기(gacha-shell)를 쓰되, 확정 한 명이
+   아니라 «등급을 굴려» 한 자루를 준다. 전용 무기는 낮은 확률이라 뽑히면
+   금빛으로 크게 알린다. 중복은 값 절반을 돌려준다(보관함이 종류 기반). */
+function weaponGradeLabel(grade) {
+  return grade === "exclusive" ? "전용" : "일반";
+}
+function weaponRevealMarkup() {
+  const reveal = pendingWeaponReveal;
+  if (!reveal)
+    return '<div class="gacha-reveal weapon-reveal" id="gachaReveal"><span>✦</span><small>별의 대장간에서<br>무기를 벼려 냅니다</small></div>';
+  const w = WEAPONS[reveal.id],
+    ex = w.grade === "exclusive";
+  return (
+    '<div class="gacha-reveal weapon-reveal shown ' +
+    (ex ? "is-exclusive" : "is-common") +
+    '" id="gachaReveal"><i class="weapon-ico grade-' +
+    w.grade +
+    '">' +
+    w.icon +
+    '</i><b class="weapon-reveal-name">' +
+    w.n +
+    '</b><em class="weapon-grade grade-' +
+    w.grade +
+    '">' +
+    weaponGradeLabel(w.grade) +
+    " 무기</em><small>" +
+    (reveal.dup
+      ? "이미 보유한 무기 · " + reveal.refund + " 골드 환급"
+      : ex
+        ? heroes[w.exclusiveTo].s + " 전용 · " + w.tag
+        : w.tag) +
+    "</small></div>"
+  );
+}
+function showWeaponGacha() {
+  run = false;
+  drag = null;
+  setScene("menu");
+  const gold = goldBalance(),
+    canAfford = gold >= ECONOMY.weaponCost,
+    ownedCount = ownedWeaponIds().length,
+    poolCards = WEAPON_IDS.map((id) => {
+      const w = WEAPONS[id],
+        have = ownsWeapon(id);
+      return (
+        '<article class="weapon-pool-unit grade-' +
+        w.grade +
+        (have ? " owned" : "") +
+        '"><i class="weapon-ico grade-' +
+        w.grade +
+        '">' +
+        w.icon +
+        "</i><b>" +
+        w.n +
+        "</b><em>" +
+        weaponGradeLabel(w.grade) +
+        "</em><small>" +
+        (have ? "보유 중" : w.tag) +
+        "</small></article>"
+      );
+    }).join("");
+  U.over.className = "overlay gacha-scene gacha-weapon";
+  U.over.innerHTML =
+    '<section class="gacha-shell"><div class="gacha-header"><button id="gachaBack">뒤로</button><span><small>별의 대장간</small><b>보유 골드 ' +
+    gold +
+    "</b></span></div>" +
+    gachaModeNav("weapon") +
+    '<div class="gacha-ritual">' +
+    weaponRevealMarkup() +
+    '</div><div class="gacha-copy"><small>STARFORGE CALL</small><h2>무기 소환</h2><p>' +
+    ECONOMY.weaponCost +
+    " 골드로 별무기 한 자루를 벼립니다. 전용 무기는 낮은 확률(약 " +
+    Math.round(WEAPON_EXCLUSIVE_RATE * 100) +
+    '%)로 섞여 나옵니다.</p></div><section class="gacha-pool weapon-pool"><div class="gacha-pool-heading"><span>보유 무기</span><b>' +
+    ownedCount +
+    " / " +
+    WEAPON_IDS.length +
+    '</b></div><div class="gacha-pool-grid weapon-pool-grid">' +
+    poolCards +
+    '</div></section><button class="gacha-draw ' +
+    (!canAfford ? "insufficient" : "") +
+    '" id="weaponDraw">' +
+    (canAfford
+      ? "무기 소환 · " + ECONOMY.weaponCost + " 골드"
+      : "골드 부족 · " + ECONOMY.weaponCost + " 골드 필요") +
+    "</button></section>";
+  pendingWeaponReveal = null; // 연출은 한 번만 보인다
+  wireGachaModes("weapon");
+  document.querySelector("#gachaBack").onclick = () => {
+    playSfx();
+    showMeta();
+  };
+  document.querySelector("#weaponDraw").onclick = () => {
+    const result = pullGachaWeapon();
+    if (result.reason === "gold") {
+      playSfx("fail");
+      toast("골드가 부족합니다. 스테이지를 클리어해 보세요.");
+      return;
+    }
+    playSfx(result.dup ? "card" : "unlock");
+    toast(
+      result.dup
+        ? "이미 보유한 무기 · " + result.refund + " 골드를 돌려받았어요"
+        : WEAPONS[result.id].n +
+            (result.grade === "exclusive" ? " · 전용 무기 획득!" : " 획득!"),
+    );
+    pendingWeaponReveal = result;
+    showWeaponGacha();
+  };
+}
+/* 무기고. 보유 별지기마다 지금 낀 무기를 보여 주고, 눌러 펼치면 보유 무기를
+   골라 끼운다. 전용 무기가 임자에게 얹히면 «전용 발동»으로 크게 표시한다. */
+function armoryHeroRow(heroId) {
+  const equipId = equippedWeaponId(heroId),
+    w = equipId ? WEAPONS[equipId] : null,
+    matched = w && w.grade === "exclusive" && w.exclusiveTo === heroId,
+    open = armoryPick === heroId,
+    owned = ownedWeaponIds();
+  const equippedChip = w
+    ? '<span class="armory-equipped grade-' +
+      w.grade +
+      (matched ? " matched" : "") +
+      '"><i class="weapon-ico grade-' +
+      w.grade +
+      '">' +
+      w.icon +
+      "</i><b>" +
+      w.n +
+      "</b><em>" +
+      (matched ? "전용 발동 · " + w.tag.replace("+15%", "+70%") : w.tag) +
+      "</em></span>"
+    : '<span class="armory-equipped empty"><i class="weapon-ico">✧</i><b>무기 없음</b><em>탭해서 장착</em></span>';
+  const picker = open
+    ? '<div class="armory-picker">' +
+      (owned.length
+        ? owned
+            .map((id) => {
+              const pw = WEAPONS[id],
+                isEx = pw.grade === "exclusive" && pw.exclusiveTo === heroId,
+                isOn = id === equipId;
+              return (
+                '<button type="button" class="armory-pick grade-' +
+                pw.grade +
+                (isOn ? " on" : "") +
+                (isEx ? " exclusive-here" : "") +
+                '" data-equip="' +
+                heroId +
+                ":" +
+                id +
+                '"><i class="weapon-ico grade-' +
+                pw.grade +
+                '">' +
+                pw.icon +
+                "</i><b>" +
+                pw.n +
+                (isEx ? " ★" : "") +
+                "</b><em>" +
+                (isEx ? "이 별지기 전용 · +70%" : pw.tag) +
+                "</em></button>"
+              );
+            })
+            .join("")
+        : '<p class="armory-empty">아직 무기가 없어요. «무기» 탭에서 별무기를 뽑아 보세요.</p>') +
+      (w
+        ? '<button type="button" class="armory-unequip" data-unequip="' +
+          heroId +
+          '">무기 해제</button>'
+        : "") +
+      "</div>"
+    : "";
+  return (
+    '<section class="armory-hero' +
+    (open ? " open" : "") +
+    '"><button type="button" class="armory-hero-head" data-armory-hero="' +
+    heroId +
+    '"><span class="armory-portrait" data-armory-portrait="' +
+    heroId +
+    '"></span><span class="armory-hero-copy"><b>' +
+    heroes[heroId].s +
+    "</b><small>" +
+    heroes[heroId].e +
+    "</small></span>" +
+    equippedChip +
+    '<span class="armory-caret">' +
+    (open ? "▲" : "▼") +
+    "</span></button>" +
+    picker +
+    "</section>"
+  );
+}
+function showArmory() {
+  run = false;
+  drag = null;
+  setScene("menu");
+  const owned = ownedHeroIds(),
+    ownedW = ownedWeaponIds();
+  U.over.className = "overlay gacha-scene gacha-armory";
+  U.over.innerHTML =
+    '<section class="gacha-shell armory-shell"><div class="gacha-header"><button id="gachaBack">뒤로</button><span><small>무기고</small><b>보유 무기 ' +
+    ownedW.length +
+    " / " +
+    WEAPON_IDS.length +
+    "</b></span></div>" +
+    gachaModeNav("armory") +
+    '<div class="gacha-copy armory-intro"><small>ARMORY</small><h2>별지기 무장</h2><p>별지기마다 무기를 끼워 정산 공격을 강화합니다. 전용 무기를 임자에게 끼우면 위력이 크게 오릅니다.</p></div><div class="armory-list">' +
+    owned.map((id) => armoryHeroRow(id)).join("") +
+    "</div></section>";
+  wireGachaModes("armory");
+  for (const el of document.querySelectorAll("[data-armory-portrait]"))
+    setPortrait(el, heroes[el.dataset.armoryPortrait], 44);
+  document.querySelector("#gachaBack").onclick = () => {
+    playSfx();
+    armoryPick = null;
+    showMeta();
+  };
+  for (const button of document.querySelectorAll("[data-armory-hero]"))
+    button.onclick = () => {
+      const heroId = button.dataset.armoryHero;
+      armoryPick = armoryPick === heroId ? null : heroId;
+      playSfx("card");
+      showArmory();
+    };
+  for (const button of document.querySelectorAll("[data-equip]"))
+    button.onclick = () => {
+      const [heroId, weaponId] = button.dataset.equip.split(":");
+      if (equippedWeaponId(heroId) === weaponId) {
+        unequipWeapon(heroId);
+        playSfx("card");
+      } else {
+        equipWeapon(heroId, weaponId);
+        const w = WEAPONS[weaponId],
+          matched = w.grade === "exclusive" && w.exclusiveTo === heroId;
+        playSfx(matched ? "unlock" : "confirm");
+        toast(
+          heroes[heroId].s + " · " + w.n + (matched ? " 전용 발동!" : " 장착"),
+        );
+      }
+      armoryPick = null;
+      showArmory();
+    };
+  for (const button of document.querySelectorAll("[data-unequip]"))
+    button.onclick = () => {
+      unequipWeapon(button.dataset.unequip);
+      playSfx("card");
+      armoryPick = null;
+      showArmory();
+    };
 }
 registerRuntimeHook("afterBossHitRegistered", () => {
   if (hitCombo > progress.bestCombo) {

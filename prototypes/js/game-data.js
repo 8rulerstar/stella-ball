@@ -111,6 +111,9 @@ const ECONOMY = {
   gachaCost: 100,
   skinCost: 500,
   heroSkinCost: 320,
+  // 무기 소환. 별지기(100)보다 싸게 둔다 — 무기는 여러 번 뽑아 조합하는 것이
+  // 재미이고, 별지기는 «확정 한 명»이라 값이 다르다.
+  weaponCost: 80,
 };
 // Meteor skins are cosmetic only: they repaint the existing prism orb with a
 // hue rotation and swap the trail/glow palette, so no new art is shipped and
@@ -409,6 +412,156 @@ const heroFxSheets = {
   nyxHit: "../assets/library/anim/fx/nyx-impact.png",
   nyxAwaken: "../assets/library/anim/fx/nyx-awaken.png",
 };
+/* 별무기(2026-08-24, 오너 지시 «무기 시스템 + 뽑기»).
+
+   한 자루가 별지기의 «정산 공격 피해»를 배로 올린다. 두 등급:
+   - common(일반): 아무 별지기나 끼운다. 얌전한 +12~18%.
+   - exclusive(전용): 특정 별지기에게만 큰 값이 붙는다. 아무나 끼우면 +15%
+     뿐이지만, 「임자」에게 끼우면 exclusiveTo 가 맞아 bonusMult 까지 더해져
+     +70%가 된다. 그래서 일반 최고(+18%)가 남의 전용무기(+15%)보다 세다 —
+     «내 무기를 내 별지기에게»라는 선택에 값이 생긴다.
+
+   피해에만 관여한다(스킨이 물리에 손대지 못하는 것과 대칭이다). 배율은
+   weaponStatsFor()가 한곳에서 계산해 게이트에 싣고, 전투는 queueUnitAssist
+   와 회전칼날 한 줄에서만 곱한다. 아이콘은 도트 반입 전까지 글리프다. */
+const WEAPONS = {
+  // --- 일반 무기 -----------------------------------------------------------
+  stardustBlade: {
+    id: "stardustBlade",
+    n: "별가루 검",
+    grade: "common",
+    icon: "⚔",
+    mult: 0.16,
+    tag: "정산 피해 +16%",
+    desc: "별의 가루를 벼려 만든 보급형 검. 어느 별지기가 들어도 정산 공격이 조금 더 매섭습니다.",
+  },
+  moonlitBow: {
+    id: "moonlitBow",
+    n: "달빛 장궁",
+    grade: "common",
+    icon: "🏹",
+    mult: 0.15,
+    tag: "정산 피해 +15%",
+    desc: "달빛을 시위에 먹인 장궁. 멀고 가까움을 가리지 않고 정산 피해를 올립니다.",
+  },
+  cometLance: {
+    id: "cometLance",
+    n: "혜성 장창",
+    grade: "common",
+    icon: "🔱",
+    mult: 0.18,
+    tag: "정산 피해 +18%",
+    desc: "혜성의 궤적을 벼려 만든 장창. 일반 무기 중 가장 무겁게 내려칩니다.",
+  },
+  astralOrb: {
+    id: "astralOrb",
+    n: "성령 구슬",
+    grade: "common",
+    icon: "🔮",
+    mult: 0.12,
+    tag: "정산 피해 +12%",
+    desc: "작은 별을 가둔 구슬. 값은 얌전하지만 누구의 손에나 익숙합니다.",
+  },
+  // --- 전용 무기 (별지기 1인당 1자루) --------------------------------------
+  dawnEdge: {
+    id: "dawnEdge",
+    n: "여명파검",
+    grade: "exclusive",
+    icon: "🗡",
+    exclusiveTo: "gaon",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "정산 피해 +15%",
+    desc: "새벽을 가르는 검. 샛별이 들면 검기가 여명처럼 번져 정산 피해 +70%.",
+  },
+  galaxyString: {
+    id: "galaxyString",
+    n: "은하 시위",
+    grade: "exclusive",
+    icon: "🌌",
+    exclusiveTo: "biyeon",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "정산 피해 +15%",
+    desc: "은하수를 당겨 만든 시위. 미리내가 들면 화살이 강을 건너 정산 피해 +70%.",
+  },
+  twinPrism: {
+    id: "twinPrism",
+    n: "쌍성 프리즘",
+    grade: "exclusive",
+    icon: "✨",
+    exclusiveTo: "lumi",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "정산 피해 +15%",
+    desc: "빛을 둘로 가르는 프리즘. 별하가 들면 분열체까지 벼려 정산 피해 +70%.",
+  },
+  cometTail: {
+    id: "cometTail",
+    n: "혜성 꼬리",
+    grade: "exclusive",
+    icon: "☄",
+    exclusiveTo: "haru",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "정산 피해 +15%",
+    desc: "길게 늘어진 혜성의 꼬리. 살별이 들면 중계가 벼락처럼 꽂혀 정산 피해 +70%.",
+  },
+  glimmerFan: {
+    id: "glimmerFan",
+    n: "윤슬 부채",
+    grade: "exclusive",
+    icon: "🌀",
+    exclusiveTo: "ria",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "회전 칼날 +15%",
+    desc: "물비늘을 접었다 펴는 부채. 윤슬이 들면 회전 칼날이 부서진 별빛처럼 흩날려 +70%.",
+  },
+  haloRing: {
+    id: "haloRing",
+    n: "달무리 고리",
+    grade: "exclusive",
+    icon: "⭕",
+    exclusiveTo: "sera",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "정산 피해 +15%",
+    desc: "달을 두른 빛의 고리. 달무리가 들면 공명이 궤도째 울려 정산 피해 +70%.",
+  },
+  starforgeHammer: {
+    id: "starforgeHammer",
+    n: "별불 망치",
+    grade: "exclusive",
+    icon: "🔨",
+    exclusiveTo: "taeo",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "정산 피해 +15%",
+    desc: "떨어진 별을 두드리는 망치. 모루가 들면 충격파가 대장간처럼 터져 정산 피해 +70%.",
+  },
+  eclipseMirror: {
+    id: "eclipseMirror",
+    n: "그믐 거울",
+    grade: "exclusive",
+    icon: "🌑",
+    exclusiveTo: "nyx",
+    mult: 0.15,
+    bonusMult: 0.55,
+    tag: "정산 피해 +15%",
+    desc: "빛을 삼켜 되비추는 검은 거울. 그믐이 들면 모사한 능력까지 짙어져 정산 피해 +70%.",
+  },
+};
+const WEAPON_IDS = Object.freeze(Object.keys(WEAPONS));
+const COMMON_WEAPON_IDS = Object.freeze(
+  WEAPON_IDS.filter((id) => WEAPONS[id].grade === "common"),
+);
+const EXCLUSIVE_WEAPON_IDS = Object.freeze(
+  WEAPON_IDS.filter((id) => WEAPONS[id].grade === "exclusive"),
+);
+// 전용 무기가 뽑힐 확률. «낮은 확률로»(오너)라 12%로 둔다 — 열 번 뽑으면 한
+// 자루쯤 전용이 섞이는 감각이다. 나머지는 일반에서 고르게 나온다.
+const WEAPON_EXCLUSIVE_RATE = 0.12;
 // Combat deliberately uses smaller, toy-like token art.  The full sprites
 // remain available for the roster, while the table stays legible at a glance.
 const combatUnitSize = {

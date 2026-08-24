@@ -318,17 +318,27 @@ function startShot(restingPoint = null) {
     bounces: 0,
     launchPower: 0.35,
   };
-  gates = deployed.map((id, i) => ({
-    id,
-    ...heroes[id],
-    x: s.slots[i][0],
-    y: s.slots[i][1],
-    r: 31,
-    on: 0,
-    zone: slotRole(i, s).id,
-    slot: slotRole(i, s).name,
-    hint: slotRole(i, s).hint,
-  }));
+  gates = deployed.map((id, i) => {
+    // 장착 무기의 정산 피해 배율을 게이트에 실어 둔다. 전투 코드는 이
+    // weaponMult 만 읽고(queueUnitAssist·회전칼날), 무기 규칙 자체는 모른다.
+    // 함수가 없거나(구버전 봇 컨텍스트) 무기가 없으면 배율 1 — 무변화다.
+    const ws = typeof weaponStatsFor === "function" ? weaponStatsFor(id) : null;
+    return {
+      id,
+      ...heroes[id],
+      x: s.slots[i][0],
+      y: s.slots[i][1],
+      r: 31,
+      on: 0,
+      zone: slotRole(i, s).id,
+      slot: slotRole(i, s).name,
+      hint: slotRole(i, s).hint,
+      weaponMult: ws?.mult || 1,
+      weaponId: ws?.id || null,
+      weaponName: ws?.weapon?.n || null,
+      weaponMatched: Boolean(ws?.matched),
+    };
+  });
   for (const bumper of bumpers) bumper.on = 0;
   chain = [];
   drag = null;

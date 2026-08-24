@@ -98,6 +98,12 @@ let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   ownedHeroes: [...STARTER_HERO_IDS],
   ownedSkins: [DEFAULT_METEOR_SKIN],
   skin: DEFAULT_METEOR_SKIN,
+  // 별무기 보관함과 장착표(2026-08-24). ownedWeapons 는 보유한 무기 «종류»의
+  // 목록(중복 없음), equippedWeapons 는 별지기 id → 무기 id 다. 한 종류를 여러
+  // 별지기가 함께 낄 수 있게 두었다 — 전용 무기는 어차피 임자에게만 큰 값이라
+  // 공유가 이득을 깨지 않고, 인스턴스 장부를 지우면 저장이 단순해진다.
+  ownedWeapons: [],
+  equippedWeapons: {},
   freeSummons: 0,
   claimedAchievements: [],
   announcedAchievementIds: null,
@@ -156,8 +162,32 @@ for (const [key, fallback] of [
   ["claimedAchievements", []],
   ["pendingRewards", []],
   ["aimHints", []],
+  ["ownedWeapons", []],
 ]) {
   if (!Array.isArray(progress[key])) progress[key] = fallback;
+}
+/* 보유 무기 목록에서 로스터(WEAPONS)에 없는 id 를 걸러낸다 — 저장을 손으로
+   고쳤거나 무기를 뺐을 때 undefined 를 읽지 않도록. 목록 필드와 같은 이유다. */
+progress.ownedWeapons = [
+  ...new Set(progress.ownedWeapons.filter((id) => WEAPONS[id])),
+];
+/* 장착표는 배열이 아니라 평범한 객체여야 한다(별지기 id → 무기 id). 배열이나
+   null 이 들어오면 빈 객체로 되돌리고, 값이 살아 있어도 «보유하지 않은 무기»나
+   «로스터에 없는 별지기»를 가리키는 항목은 버린다. */
+if (
+  typeof progress.equippedWeapons !== "object" ||
+  progress.equippedWeapons === null ||
+  Array.isArray(progress.equippedWeapons)
+)
+  progress.equippedWeapons = {};
+for (const heroId of Object.keys(progress.equippedWeapons)) {
+  const weaponId = progress.equippedWeapons[heroId];
+  if (
+    !heroes[heroId] ||
+    !WEAPONS[weaponId] ||
+    !progress.ownedWeapons.includes(weaponId)
+  )
+    delete progress.equippedWeapons[heroId];
 }
 /* 보유 목록에 로스터에 없는 id가 섞이면 편성·소환이 그 자리에서 undefined를
    읽는다. 저장을 손으로 고쳤거나 로스터에서 별지기를 뺐을 때 생긴다. */
@@ -496,6 +526,87 @@ function pullGachaHero() {
   progress.ownedHeroes = [...ownedHeroIds(), id];
   saveProgress();
   return { id, cost: free ? 0 : ECONOMY.gachaCost, free };
+}
+/* --- 별무기: 보관·장착·소환 ---------------------------------------------- */
+function ownedWeaponIds() {
+  const stored = Array.isArray(progress.ownedWeapons)
+    ? progress.ownedWeapons
+    : [];
+  return [...new Set(stored)].filter((id) => Boolean(WEAPONS[id]));
+}
+function ownsWeapon(id) {
+  return ownedWeaponIds().includes(id);
+}
+// 한 별지기가 «지금» 낀 무기 id. 저장이 손상돼 보유하지 않은 무기를 가리키면
+// 낀 것이 없는 것으로 읽는다(전투 배율이 조용히 1이 되도록).
+function equippedWeaponId(heroId) {
+  const map =
+    progress.equippedWeapons && typeof progress.equippedWeapons === "object"
+      ? progress.equippedWeapons
+      : {};
+  const id = map[heroId];
+  return WEAPONS[id] && ownsWeapon(id) ? id : null;
+}
+function equipWeapon(heroId, weaponId) {
+  if (!heroes[heroId] || !WEAPONS[weaponId] || !ownsWeapon(weaponId))
+    return false;
+  if (
+    typeof progress.equippedWeapons !== "object" ||
+    progress.equippedWeapons === null ||
+    Array.isArray(progress.equippedWeapons)
+  )
+    progress.equippedWeapons = {};
+  progress.equippedWeapons[heroId] = weaponId;
+  saveProgress();
+  return true;
+}
+function unequipWeapon(heroId) {
+  if (progress.equippedWeapons && heroId in progress.equippedWeapons) {
+    delete progress.equippedWeapons[heroId];
+    saveProgress();
+    return true;
+  }
+  return false;
+}
+/* 한 별지기의 정산 피해 배율. 전투(게이트 생성·queueUnitAssist·회전칼날)가
+   읽는 단 하나의 값이다. 무기가 없으면 mult 1(무변화)이라, 무기를 한 번도
+   안 뽑은 저장·봇 시뮬레이션은 예전과 똑같이 돈다. 전용 무기를 임자에게
+   끼웠을 때만 matched 가 참이 되어 bonusMult 가 더해진다. */
+function weaponStatsFor(heroId) {
+  const id = equippedWeaponId(heroId),
+    weapon = id ? WEAPONS[id] : null;
+  if (!weapon) return { id: null, weapon: null, mult: 1, matched: false };
+  const matched = weapon.grade === "exclusive" && weapon.exclusiveTo === heroId;
+  const mult = 1 + (weapon.mult || 0) + (matched ? weapon.bonusMult || 0 : 0);
+  return { id, weapon, mult, matched };
+}
+/* 무기 소환. 먼저 등급을 굴리고(전용은 낮은 확률), 그 등급 안에서 고르게
+   한 자루를 뽑는다. 이미 가진 무기가 나오면 «중복»으로 값의 절반을 돌려준다
+   — 종류 기반 보관함이라 두 자루째는 쓸모가 없기 때문이다. 골드가 모자라면
+   아무 것도 하지 않는다. */
+function pullGachaWeapon() {
+  if (goldBalance() < ECONOMY.weaponCost) return { reason: "gold" };
+  const exclusive = Math.random() < WEAPON_EXCLUSIVE_RATE,
+    pool = exclusive ? EXCLUSIVE_WEAPON_IDS : COMMON_WEAPON_IDS,
+    id = pool[Math.floor(Math.random() * pool.length)],
+    dup = ownsWeapon(id);
+  progress.gold = goldBalance() - ECONOMY.weaponCost;
+  let refund = 0;
+  if (dup) {
+    refund = Math.round(ECONOMY.weaponCost * 0.5);
+    progress.gold = goldBalance() + refund;
+  } else {
+    progress.ownedWeapons = [...ownedWeaponIds(), id];
+  }
+  saveProgress();
+  return {
+    id,
+    weapon: WEAPONS[id],
+    grade: WEAPONS[id].grade,
+    cost: ECONOMY.weaponCost,
+    dup,
+    refund,
+  };
 }
 let audioEngine = null;
 function ensureAudio() {

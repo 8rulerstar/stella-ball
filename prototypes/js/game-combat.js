@@ -1793,6 +1793,10 @@ function drawVictoryFx() {
 }
 function queueUnitAssist(g, amount, name, options = {}) {
   const visual = g.fx === "copycat" ? g.copiedFx || "copycat" : g.fx;
+  // 별무기 배율. 모든 정산 공격(검기·저격·충격파·일반 각성 어시스트)이 이
+  // 한 문(門)을 지나므로, 무기 피해 증폭은 여기서 «한 번만» 곱한다. 무기가
+  // 없으면 weaponMult 는 1이라 값이 그대로 흐른다.
+  amount = Math.round(amount * (g.weaponMult || 1));
   assistShots.push({
     x: g.x,
     y: g.y,
@@ -2046,7 +2050,11 @@ function updateBladeWheel(g, speed, step) {
   if (speed < 105 || g.bladeTick > 0 || battleComplete) return;
   g.bladeTick = 0.14;
   const radius = 58 + Math.min(38, speed * 0.038),
-    amount = 3 + Math.min(13, Math.floor(speed / 105));
+    // 윤슬은 정산 공격이 없어 queueUnitAssist 를 지나지 않는다. 그의 정산은
+    // 이 회전 칼날이므로 무기 배율도 여기서 곱한다(전용 «윤슬 부채»의 자리).
+    amount = Math.round(
+      (3 + Math.min(13, Math.floor(speed / 105))) * (g.weaponMult || 1),
+    );
   let hit = false;
   if (boss?.hp > 0 && Math.hypot(g.x - boss.x, g.y - boss.y) <= radius + 58) {
     const dealt = applyBossHit(amount);

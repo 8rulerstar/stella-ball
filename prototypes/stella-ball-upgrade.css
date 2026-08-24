@@ -710,3 +710,348 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   min-height: 16px;
   line-height: 1;
 }
+
+/* ============================================================= *
+ * §6 별무기 · 소환/무기고(2026-08-24)                            *
+ * 일반=차가운 은빛(#8fb7d6), 전용=금빛(#ffcf7a). 소환 껍데기      *
+ * (gacha-shell) 팔레트를 그대로 물려받아 세 갈래가 한 화면으로     *
+ * 읽힌다.                                                         *
+ * ============================================================= */
+.gacha-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin: 10px 0 2px;
+  padding: 4px;
+  border: 1px solid #3f2e53;
+  background: #0c0516;
+}
+.gacha-modes button {
+  padding: 7px 4px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #b9afce !important;
+  font:
+    700 10px ui-monospace,
+    monospace !important;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.gacha-modes button.on {
+  border-color: #6b5488 !important;
+  background: linear-gradient(150deg, #2a1740, #170a26) !important;
+  color: #ffd7a1 !important;
+  box-shadow: inset 0 0 0 1px #f2b98826;
+}
+.gacha-modes button:not(.on):hover {
+  color: #ede9f5 !important;
+}
+
+/* 무기 아이콘 글리프(도트 반입 전까지) */
+.weapon-ico {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  font-style: normal;
+  line-height: 1;
+  border: 1px solid #4a5a6d;
+  background: radial-gradient(circle at 50% 38%, #24313f, #0d141c);
+  box-shadow: inset 0 0 0 1px #ffffff10;
+}
+.weapon-ico.grade-common {
+  border-color: #4a5a6d;
+  color: #d6ecff;
+}
+.weapon-ico.grade-exclusive {
+  border-color: #a5772f;
+  color: #ffe3ac;
+  background: radial-gradient(circle at 50% 34%, #4a3413, #1c1206);
+  box-shadow:
+    inset 0 0 0 1px #ffd98e2e,
+    0 0 12px #ffcf7a33;
+}
+
+/* --- 무기 소환 연출/후보 --- */
+.weapon-reveal {
+  display: grid !important;
+  place-items: center;
+  gap: 7px;
+  text-align: center;
+  padding: 10px;
+}
+.weapon-reveal .weapon-ico {
+  width: 62px;
+  height: 62px;
+  font-size: 34px;
+}
+.weapon-reveal.shown {
+  animation: weaponPop 0.42s ease-out;
+}
+.weapon-reveal.is-exclusive {
+  animation: weaponPopGold 0.55s ease-out;
+}
+.weapon-reveal-name {
+  color: #f6efff;
+  font-size: 13px;
+}
+.weapon-grade {
+  font:
+    700 8px ui-monospace,
+    monospace;
+  letter-spacing: 0.16em;
+  padding: 2px 7px;
+  border: 1px solid #4a5a6d;
+  color: #cfe6fb;
+}
+.weapon-grade.grade-exclusive {
+  border-color: #c79238;
+  color: #ffe3ac;
+  background: #3a280d;
+  box-shadow: 0 0 10px #ffcf7a44;
+}
+.weapon-reveal small {
+  color: #b7aecb;
+  font-size: 10px;
+  max-width: 240px;
+}
+@keyframes weaponPop {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes weaponPopGold {
+  0% {
+    transform: scale(0.6) rotate(-6deg);
+    opacity: 0;
+    filter: brightness(2);
+  }
+  55% {
+    transform: scale(1.14) rotate(2deg);
+    filter: brightness(1.5) drop-shadow(0 0 16px #ffcf7a);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: none;
+  }
+}
+.weapon-pool-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 6px !important;
+}
+.weapon-pool-unit {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  text-align: center;
+  border: 1px solid #34273f;
+  background: #140a20;
+}
+.weapon-pool-unit .weapon-ico {
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+}
+.weapon-pool-unit b {
+  color: #e9e2f6;
+  font-size: 9px;
+  line-height: 1.15;
+}
+.weapon-pool-unit em {
+  font:
+    700 7px ui-monospace,
+    monospace;
+  letter-spacing: 0.12em;
+  color: #9f96b6;
+  font-style: normal;
+}
+.weapon-pool-unit small {
+  color: #857c9a;
+  font-size: 8px;
+  line-height: 1.2;
+}
+.weapon-pool-unit.grade-exclusive {
+  border-color: #6a4a1c;
+  background: linear-gradient(160deg, #241706, #140a20);
+}
+.weapon-pool-unit.grade-exclusive em {
+  color: #ffcf7a;
+}
+.weapon-pool-unit.owned {
+  border-color: #5a6f57;
+}
+.weapon-pool-unit.owned small {
+  color: #9fd08a;
+}
+
+/* --- 무기고(장착) --- */
+.armory-shell {
+  width: min(560px, 100%);
+}
+.armory-intro {
+  margin-top: 10px;
+}
+.armory-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.armory-hero {
+  border: 1px solid #3a2c4c;
+  background: #150b22;
+}
+.armory-hero.open {
+  border-color: #6b5488;
+  box-shadow: inset 0 0 0 1px #f2b98818;
+}
+.armory-hero-head {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 11px !important;
+  background: transparent !important;
+  border: 0 !important;
+  cursor: pointer;
+  text-align: left;
+}
+.armory-portrait {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #4d3d61;
+  background: #0d0618;
+  image-rendering: pixelated;
+}
+.armory-hero-copy {
+  flex: 0 0 auto;
+  width: 70px;
+}
+.armory-hero-copy b {
+  display: block;
+  color: #f2ecff;
+  font-size: 12px;
+}
+.armory-hero-copy small {
+  color: #9a90b0;
+  font-size: 9px;
+}
+.armory-equipped {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid #34273f;
+  background: #0f0619;
+}
+.armory-equipped .weapon-ico {
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+}
+.armory-equipped b {
+  color: #e9e2f6;
+  font-size: 10px;
+}
+.armory-equipped em {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 8px;
+  color: #928aa6;
+}
+.armory-equipped.empty {
+  color: #7d7594;
+  border-style: dashed;
+}
+.armory-equipped.grade-exclusive {
+  border-color: #6a4a1c;
+}
+.armory-equipped.matched {
+  border-color: #d1a24a;
+  background: linear-gradient(150deg, #2c1d08, #140a1c);
+  box-shadow: 0 0 12px #ffcf7a2e;
+}
+.armory-equipped.matched em {
+  color: #ffcf7a;
+}
+.armory-caret {
+  flex: 0 0 auto;
+  color: #9a90b0;
+  font-size: 9px;
+}
+.armory-picker {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  padding: 4px 11px 11px;
+}
+.armory-pick {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px !important;
+  text-align: left;
+  border: 1px solid #34273f !important;
+  background: #0f0619 !important;
+  cursor: pointer;
+}
+.armory-pick .weapon-ico {
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
+}
+.armory-pick b {
+  color: #e6dff5;
+  font-size: 10px;
+}
+.armory-pick em {
+  display: block;
+  margin-top: 1px;
+  font-style: normal;
+  font-size: 8px;
+  color: #8f86a4;
+}
+.armory-pick.on {
+  border-color: #7f6aa0 !important;
+  box-shadow: inset 0 0 0 1px #f2b98826;
+}
+.armory-pick.exclusive-here {
+  border-color: #b98836 !important;
+  background: linear-gradient(150deg, #241706, #0f0619) !important;
+}
+.armory-pick.exclusive-here em {
+  color: #ffcf7a;
+}
+.armory-unequip {
+  grid-column: 1 / -1;
+  padding: 6px !important;
+  border: 1px solid #4a3a3a !important;
+  background: #180d13 !important;
+  color: #d9a9a9 !important;
+  font-size: 9px !important;
+  cursor: pointer;
+}
+.armory-empty {
+  grid-column: 1 / -1;
+  color: #9a90b0;
+  font-size: 10px;
+  text-align: center;
+  padding: 10px;
+}
