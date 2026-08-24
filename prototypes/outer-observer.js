@@ -825,8 +825,16 @@
         "left:0;right:0;bottom:0;height:6.5vh;background:#03020c;transform:translateY(100%);transition:transform .5s cubic-bezier(.3,.1,.2,1)",
       ),
     ];
+    /* z-index 를 베일(6) 위로 올린다(2026-08-24).
+
+       .oo2-cine 은 전부 z-index:6 이라 «DOM 순서»가 겹침을 정한다. 캡션이
+       베일보다 먼저 붙으므로, 아이컷에서 veil 을 0.985 로 올린 순간 캡션이
+       그 밑에 깔렸다 — 「저쪽이 먼저, 이쪽을 보았다」는 이 연출의 결정적
+       문장인데 98.5% 덮인 채로 재생되고 있었다. 실측 캡처에서 어두운 자주색
+       얼룩으로만 보인다. 베일을 낮추면 타이틀 UI가 비쳐 하드컷이 깨지므로
+       (그래서 0.985다), 낮출 것은 베일이 아니라 캡션의 층이다. */
     var cap = add(
-      "left:0;right:0;bottom:12vh;display:grid;justify-items:center;opacity:0;transition:opacity .3s",
+      "left:0;right:0;bottom:12vh;display:grid;justify-items:center;opacity:0;transition:opacity .3s;z-index:8",
     );
     var kick = el(
       "small",
@@ -846,6 +854,31 @@
     );
     var veil = add(
       "inset:0;background:#070312;opacity:0;transition:opacity .4s ease-out",
+    );
+    /* 아이컷의 붉은 한 줄(2026-08-24, 오너 요청 「눈 연출 때 너무 심심함」).
+
+       눈이 조여드는 6.9초에는 이미 흰 캡션이 있다. 비어 있는 것은 7.9초 —
+       「알아본 뒤 한 번 더 조인다」는 두 번째 조임이고, 화면에서 가장
+       무서워야 할 프레임인데 아무 말도 없었다.
+
+       색을 캡션과 다르게 쓴다. 화자가 다르기 때문이다 — 흰 글씨는 관측
+       기록의 목소리이고, 이 줄은 그 기록이 더는 이쪽 것이 아니라는 신호다.
+       팔레트 규칙상 마젠타는 바깥 관측자와 하늘 이상 현상의 색이라 여기
+       쓰면 「같은 화자」로 읽힌다. 붉은색은 이 한 줄에만 쓴다.
+
+       페이드가 아니라 steps(2) 하드컷이다 — §1-3의 「크로스페이드는 픽셀을
+       뭉갠다」가 그대로 적용된다. 위치는 눈(top 43%, 288px)과 캡션(bottom
+       12vh) 사이다. */
+    var dread = add(
+      "left:0;right:0;top:64%;display:grid;justify-items:center;opacity:0;" +
+        "transition:opacity .12s steps(2);z-index:8",
+    );
+    var dreadLine = el(
+      "div",
+      "max-width:620px;padding:0 20px;text-align:center;color:#ff5a4d;" +
+        "font:700 17px 'Galmuri11',monospace;letter-spacing:.06em;line-height:1.5;" +
+        "text-shadow:0 0 2px #0b0207,0 2px 4px #0b0207,0 0 20px #ff2f22aa,0 0 7px #ff8a7a66",
+      dread,
     );
     var eye = add(
       "left:50%;top:43%;width:288px;height:288px;transform:translate(-50%,-50%);opacity:0",
@@ -876,6 +909,8 @@
       kick: kick,
       line: line,
       veil: veil,
+      dread: dread,
+      dreadLine: dreadLine,
       eye: eye,
       frame: frame,
       ring1: ring1,
@@ -899,6 +934,13 @@
       if (i >= text.length) clearInterval(iv);
     }, 26);
     if (live) live.typeIv = iv;
+  }
+  /* 붉은 줄은 «타자되지» 않는다. 흰 캡션은 한 글자씩 26ms로 찍혀 「기록되는
+     중」으로 읽히는데, 이 줄은 기록이 아니라 이미 그렇게 되어 있던 사실이다.
+     통째로 한 번에 나타난다. */
+  function cineDread(C, text) {
+    C.dreadLine.textContent = text;
+    C.dread.style.opacity = "1";
   }
   function cineFlash() {
     var f = el(
@@ -1244,6 +1286,11 @@
       C.ring1.style.animation = "none";
       void C.ring1.offsetWidth;
       C.ring1.style.animation = "oo2Contract .8s cubic-bezier(.3,.1,.2,1) both";
+      /* 두 번째 조임에 붉은 한 줄. 흰 캡션이 「저쪽이 먼저, 이쪽을 보았다」로
+         «봄»을 말했으니, 이 줄은 그 앞에 무슨 일이 있었는지를 말한다 —
+         별이 하나씩 꺼진 것(프롤로그)과 간격이 틀린 것(비트 2)이 관측이
+         아니라 «세어짐»이었다는 쪽으로 뒤집는다. */
+      cineDread(C, "세는 쪽은 — 이쪽이 아니었다.");
     });
 
     // 비트 5 · 붙잡는다. 예비동작 → 스냅 → 그립 플렉스.
