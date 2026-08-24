@@ -36,7 +36,7 @@
 
   /* 어휘 선택. 데모(정산 명중 이펙트 데모.dc.html)의 A~D 와 같다.
      "burst"(파열) | "pierce"(관통) | "crater"(함몰) | "flash"(섬광+잔해) */
-  const HIT_FX_VOCAB = "burst";
+  const HIT_FX_VOCAB = "pierce";
 
   /* 결정론 흩뿌리기 — 난수 없이 재현 가능(EVIDENCE_PROTOCOL 의 결정론 원칙). */
   function hitFxHash01(n) {
@@ -316,7 +316,19 @@
       x.fillRect(boss.x - core, boss.y - core, core * 2, core * 2);
       x.restore();
       vocab(impact, p);
-      drawFinisherImpactMotif(impact, p, radius);
+      /* 겹 ④(drawFinisherImpactMotif)를 걷었다 — §4-2 결정, 2026-08-24.
+         겹 ①(별지기 전용 래스터 시트)과 같은 말을 두 번 하고 있었고, 실캡처로
+         비교하면 둘이 겹칠 때 금색 막대가 여럿 얹혀 «무슨 모양인지» 사라진다.
+         걷으면 창 하나가 몸을 꿰는 그림이 그대로 읽힌다.
+
+         ①을 남긴 이유: 여덟 명 전부 있다. ④는 여섯 개뿐이라
+         (slash·longshot·split·seek·turn·shockwave) 윤슬(bladewheel)과
+         그믐(copycat)은 그 겹이 애초에 비어 있었다 — 로스터의 4분의 1이
+         «누가 때렸는가»를 말할 그림이 없었다는 뜻이다.
+
+         되돌리려면 이 아래 한 줄의 주석을 풀면 된다. game-feedback.js 의
+         drawFinisherImpactMotif 는 그대로 남아 있다. */
+      // drawFinisherImpactMotif(impact, p, radius);
     }
   };
 })();
