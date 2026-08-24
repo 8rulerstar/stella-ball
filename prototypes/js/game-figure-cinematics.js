@@ -316,7 +316,17 @@ function cineScriptFor(fx) {
        미완성으로 남긴 것: 수면의 물결과 띠의 결. 지금은 사인 두 겹과 자리
        인덱스로 만든 별 흩뿌림이라 «고인 별빛»으로 읽히기는 하지만, 흐름의
        질감은 디자인 세션 몫이다(ASSET_BACKLOG 항목). */
-    const st = { polaris: -1, aim: -1, pour: -1, tip: -1 };
+    /* §5-1(2026-08-24 디자인 세션): 캐스트마다 세 변형 중 하나를 뽑는다.
+       별 «자리»는 변형별 인덱스 캐시(galaxyFieldFor)라 난수 규칙과 무관하고,
+       이 뽑기는 연출 선택일 뿐 숫자를 만들지 않는다(이 파일의 기존 Math.random
+       사용 범위 안). 하나로 고정하려면 배열을 한 항목으로 줄이면 된다. */
+    const st = {
+      polaris: -1,
+      aim: -1,
+      pour: -1,
+      tip: -1,
+      variant: ["two", "bold", "dense"][(Math.random() * 3) | 0],
+    };
     E.push({ at: CAST - 1.15, fn: () => (st.tip = 0) });
     E.push({
       at: CAST - 0.62,
@@ -1145,55 +1155,296 @@ function drawCineOrion(s) {
    것이 액체가 아니라 별빛이 담긴 은하수로 읽혀야 한다.
 
    별 자리는 인덱스로만 정해 프레임마다 떨지 않고, 회전만 시간을 탄다. */
-function drawDipperGalaxy(cx, cy, spread, fade) {
-  if (spread <= 0) return;
-  /* 판 «전체»를 덮는 반지름(2026-08-24, 오너 지시 「화면 네모 전체를
-     채워야지」). 떨어지는 자리가 W*0.5·H*0.44 이고 세로가 0.42배로 눌리므로,
-     네 모서리까지 닿으려면 가로는 판 폭의 절반이면 되지만 «세로»가 모자란다 —
-     아래 모서리까지의 깊이 0.56H 를 0.42 로 나눈 값이 실제로 필요한 반지름이다.
-     여유 8%를 더해 가장자리가 판 밖에서 끝나게 한다. */
-  const RX = Math.max(W * 0.5, (H * 0.56) / 0.42) * 1.08,
-    SQUASH = 0.42, // 탑다운 원근: 깊이 방향은 짧게 보인다
-    rx = RX * spread,
-    ry = rx * SQUASH,
+/* ── 은하수 별밭 (2026-08-24 디자인 세션 반입) ────────────────────────────
+   §5-1: 변형 셋 — 캐스트마다 하나(cineScriptFor의 st.variant).
+     two   «두 층»   밝은 별 소수 + 흐린 다수, 물듦 얕게
+     bold  «굵은 별» 개수를 줄이고 알갱이를 키움, 물듦 원래대로
+     dense «촘촘»    밀도로 덮고 바닥 물듦은 거의 걷음
+   §5-2: 나선 팔 둘(폭 있는 면) · 어두운 골(|lane| 0.32~0.44) · 성단 6 ·
+         성운 허즈 11점. §5-4: 걷힘은 알파 페이드가 아니라 별 하나하나가
+         닿은 자리부터 판에 가라앉고 잔광 한 점을 남긴다.
+   자리는 전부 인덱스 해시 — 프레임마다 떨지 않는다. 시간을 타는 것은
+   회전(spin)과 반짝임 위상뿐이다(난수 금지 규칙 유지).
+   ⚠ dim/beacons를 바꾸면 §7대로 정산 프레임 p95를 다시 재고 커밋에 붙일 것. */
+const GALAXY_VARIANTS = {
+  two: {
+    dim: 1600,
+    dimA: [0.3, 0.55],
+    dimS: [2, 3],
+    beacons: 90,
+    tint: 1.0,
+    haze: 1,
+  },
+  bold: {
+    dim: 620,
+    dimA: [0.55, 0.9],
+    dimS: [3, 5],
+    beacons: 34,
+    tint: 1.6,
+    haze: 1,
+  },
+  dense: {
+    dim: 2200,
+    dimA: [0.45, 0.7],
+    dimS: [1, 2],
+    beacons: 44,
+    tint: 0.5,
+    haze: 0.7,
+  },
+};
+const galaxyHash = (i) => {
+  const s = Math.sin(i * 127.1 + 311.7) * 43758.5453;
+  return s - Math.floor(s);
+};
+const galaxyFields = {};
+function galaxyFieldFor(key) {
+  if (galaxyFields[key]) return galaxyFields[key];
+  const cfg = GALAXY_VARIANTS[key] ?? GALAXY_VARIANTS.two,
+    stars = [],
+    beacons = [],
+    clusters = [];
+  for (let k = 0; k < 6; k++) {
+    const r = 0.28 + 0.11 * k + (galaxyHash(k * 5 + 2) - 0.5) * 0.06;
+    clusters.push({
+      r,
+      a: (k % 2) * Math.PI + r * 2.9 + (galaxyHash(k * 9 + 4) - 0.5) * 0.2,
+    });
+  }
+  for (let i = 0; i < cfg.dim; i++) {
+    const h1 = galaxyHash(i * 3 + 1),
+      h2 = galaxyHash(i * 3 + 2),
+      h3 = galaxyHash(i * 3 + 3);
+    let r = Math.pow(h1, 1.3),
+      a0,
+      aMul = 1;
+    if (h2 < 0.52) {
+      // 나선 팔 — 띠가 아니라 폭 있는 면으로 읽히게 lane을 넓게 편다
+      const arm = (i % 2) * Math.PI,
+        lane = h3 - 0.5,
+        L = Math.abs(lane);
+      a0 = arm + r * 2.9 + lane * (0.95 - 0.35 * r);
+      aMul = L > 0.32 && L < 0.44 ? 0.35 : L <= 0.16 ? 1.2 : 0.8; // 어두운 골
+    } else if (h2 < 0.86) {
+      a0 = h3 * Math.PI * 2; // 팔 사이 들판
+      aMul = 0.7;
+    } else {
+      const c = clusters[i % 6]; // 성단 뭉침
+      r = Math.max(0.05, c.r + (h1 - 0.5) * 0.13);
+      a0 = c.a + ((h3 - 0.5) * 0.2) / Math.max(r, 0.2);
+      aMul = 1.35;
+    }
+    stars.push({
+      r,
+      a0,
+      col: i % 7 === 0 ? "#fff6e6" : i % 3 === 0 ? "#cfe6ff" : "#9ec7ff",
+      size: cfg.dimS[0] + (i % (cfg.dimS[1] - cfg.dimS[0] + 1)),
+      al:
+        (cfg.dimA[0] + (cfg.dimA[1] - cfg.dimA[0]) * galaxyHash(i * 7 + 5)) *
+        aMul,
+      soak: 0.12 * galaxyHash(i * 11 + 6),
+      twp: galaxyHash(i * 23 + 9) * 6.28,
+      tws: 1.6 + 3.4 * galaxyHash(i * 29 + 2),
+    });
+  }
+  for (let j = 0; j < cfg.beacons; j++) {
+    const h1 = galaxyHash(j * 13 + 21),
+      h3 = galaxyHash(j * 17 + 8),
+      r = Math.pow(0.08 + 0.9 * h1, 1.15);
+    beacons.push({
+      r,
+      a0: (j % 2) * Math.PI + r * 2.9 + (h3 - 0.5) * 0.18,
+      col: j % 3 === 0 ? "#cfe6ff" : "#fff6e6",
+      size: 4 + (j % 2),
+      al: 0.92,
+      soak: 0.12 * galaxyHash(j * 19 + 3),
+      twp: galaxyHash(j * 31 + 7) * 6.28,
+      tws: 2 + 3 * galaxyHash(j * 37 + 5),
+    });
+  }
+  return (galaxyFields[key] = { cfg, stars, beacons });
+}
+let galaxyGlowBake = null; // 구운 글로우 — 밝은 별마다 shadowBlur를 걸지 않는다
+function galaxyGlow() {
+  if (galaxyGlowBake) return galaxyGlowBake;
+  const c = document.createElement("canvas");
+  c.width = c.height = 32;
+  const g = c.getContext("2d"),
+    rg = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  rg.addColorStop(0, "#cfe6ffcc");
+  rg.addColorStop(0.4, "#cfe6ff55");
+  rg.addColorStop(1, "#cfe6ff00");
+  g.fillStyle = rg;
+  g.fillRect(0, 0, 32, 32);
+  return (galaxyGlowBake = c);
+}
+function drawDipperGalaxy(cx, cy, spread, fade, st) {
+  if (spread <= 0 || fade <= 0) return;
+  /* 좌표계(2026-08-24 실측): 이전 RX≈1300·세로 0.42 디스크는 별의 72%를 판
+     밖에 두었다 — «실캡처에서 안 읽힘»의 절반은 알파가 아니라 좌표계 문제.
+     별밭은 판(720×900)에 맞춰 비등방(RA×RB)으로 재사영한다. 나선·골·성단
+     구조는 각도·반지름에 있으므로 그대로다. 바닥 물듦만 이전 반지름을
+     유지해 네 모서리까지 물든다. */
+  const { cfg, stars, beacons } = galaxyFieldFor(st?.variant ?? "two"),
+    RA = W * 0.583,
+    RB = H * 0.639,
+    RXT = Math.max(W * 0.5, (H * 0.56) / 0.42) * 1.08 * spread,
     now = frameClock / 1000,
-    spin = now * 0.16;
+    spin = now * 0.16,
+    drainT = st?.drain >= 0 ? st.drain : -1,
+    soakK = drainT >= 0 ? Math.min(1, drainT / 1.0) : 0,
+    glow = galaxyGlow();
   x.save();
   x.translate(cx, cy);
-  /* 아주 옅은 바닥 물듦. «얕게»가 이 연출의 조건이라 판을 덮지 않는다 —
-     아래의 바닥 각인과 별지기가 그대로 읽혀야 한다. */
-  const g = x.createRadialGradient(0, 0, 0, 0, 0, rx || 1);
+  /* 아주 옅은 바닥 물듦 — «얕게»는 두께의 이야기(§5-1). 스밀 때는 알파
+     페이드가 아니라 (1-k)^1.6 로 바닥부터 마른다(§5-4). */
+  const g = x.createRadialGradient(0, 0, 0, 0, 0, RXT || 1);
   g.addColorStop(0, "#9ec7ff4a");
   g.addColorStop(0.55, "#7fa8e02b");
   g.addColorStop(1, "#7fa8e000");
-  x.globalAlpha = fade;
+  x.globalAlpha = fade * cfg.tint * Math.pow(1 - soakK, 1.6);
   x.save();
-  x.scale(1, SQUASH);
+  x.scale(1, 0.42);
   x.fillStyle = g;
   x.beginPath();
-  x.arc(0, 0, rx, 0, Math.PI * 2);
+  x.arc(0, 0, RXT, 0, Math.PI * 2);
   x.fill();
   x.restore();
-  /* 별. 중심이 촘촘하고 가장자리로 갈수록 성기다 — sqrt 분포를 뒤집어
-     r = u^1.6 으로 안쪽에 몰아 둔다. */
-  const N = 340;
-  for (let i = 0; i < N; i++) {
-    const u = ((i * 61) % 197) / 197,
-      a = (((i * 37) % 211) / 211) * Math.PI * 2,
-      /* 나선 팔 둘. 반지름이 커질수록 각을 비틀어 팔이 생긴다. */
-      arm = (i % 2) * Math.PI,
-      r = Math.pow(u, 1.6),
-      ang = a * 0.25 + arm + r * 2.6 + spin;
-    if (r > spread) continue;
-    const px = Math.cos(ang) * r * RX,
-      py = Math.sin(ang) * r * RX * SQUASH;
-    // 가장자리는 옅고, 갓 닿은 테두리는 잠깐 밝다.
-    const edge = 1 - Math.min(1, Math.abs(spread - r) / 0.12);
-    x.globalAlpha = (0.3 + 0.55 * (1 - r) + edge * 0.5) * fade;
-    x.fillStyle = i % 7 === 0 ? "#fff6e6" : i % 3 === 0 ? "#cfe6ff" : "#9ec7ff";
-    const sz = 1 + (i % 3 === 0 ? 1 : 0) + (edge > 0.6 ? 1 : 0);
+  // 성운 허즈 — 팔을 따라 앉는 옅은 무리(§5-2). 프레임당 그러데이션 11번.
+  const hazeA = (cfg.haze ?? 1) * Math.pow(1 - soakK, 1.6) * fade;
+  if (hazeA > 0.01)
+    for (let k = 0; k < 11; k++) {
+      const hr = 0.1 + 0.085 * k;
+      if (hr > spread) continue;
+      const ang =
+          (k % 2) * Math.PI +
+          hr * 2.9 +
+          spin +
+          (galaxyHash(k * 23 + 7) - 0.5) * 0.3,
+        px = Math.cos(ang) * hr * RA,
+        py = Math.sin(ang) * hr * RB,
+        R = 70 + 110 * galaxyHash(k * 29 + 3),
+        g2 = x.createRadialGradient(px, py, 0, px, py, R);
+      g2.addColorStop(0, k % 3 === 0 ? "#cfe6ff" : "#9ec7ff");
+      g2.addColorStop(1, "#9ec7ff00");
+      x.globalAlpha = (k % 3 === 0 ? 0.085 : 0.06) * hazeA;
+      x.fillStyle = g2;
+      x.beginPath();
+      x.arc(px, py, R, 0, Math.PI * 2);
+      x.fill();
+    }
+  const drawStar = (s, bright) => {
+    if (s.r > spread) return;
+    const ang = s.a0 + spin;
+    /* §5-4 스밈: 닿은 자리부터 바깥으로 판이 마셔 간다. p 0→1 동안 잠깐
+       밝아지며 가라앉고, 다 스민 별은 잔광 한 점을 0.45s 남긴다. */
+    const p =
+      drainT < 0
+        ? 0
+        : Math.max(
+            0,
+            Math.min(1, (drainT / 1.0 - (s.r * 0.62 + s.soak)) / 0.2),
+          );
+    if (p >= 1) {
+      const gl = Math.max(
+        0,
+        Math.min(1, (drainT / 1.0 - (s.r * 0.62 + s.soak) - 0.2) / 0.45),
+      );
+      if (gl < 1) {
+        x.globalAlpha = (1 - gl) * 0.5;
+        x.fillStyle = "#cfe6ff";
+        x.fillRect(
+          Math.round(Math.cos(ang) * s.r * RA),
+          Math.round(Math.sin(ang) * s.r * RB + 2),
+          1,
+          1,
+        );
+      }
+      return;
+    }
+    const edge = 1 - Math.min(1, Math.abs(spread - s.r) / 0.12),
+      tw = 0.72 + 0.28 * Math.sin(now * s.tws + s.twp);
+    let a = (s.al + edge * 0.45) * tw * fade,
+      sz = s.size + (edge > 0.6 ? 1 : 0);
+    if (p > 0) {
+      a *= p < 0.3 ? 1.35 : 1 - (p - 0.3) / 0.7;
+      sz = Math.max(1, sz - Math.floor(p * sz));
+    }
+    const px = Math.cos(ang) * s.r * RA,
+      py = Math.sin(ang) * s.r * RB + p * 3;
+    if (bright) {
+      x.globalAlpha = Math.min(1, a * 0.7);
+      x.drawImage(glow, Math.round(px) - 13, Math.round(py) - 9, 26, 18);
+    }
+    x.globalAlpha = Math.min(1, a);
+    x.fillStyle = p > 0 && p < 0.3 ? "#fff6e6" : s.col;
     x.fillRect(Math.round(px), Math.round(py), sz, sz);
+    if (bright) {
+      // 긴 십자 광채 + 흐름 방향 꼬리(§5-2 결)
+      x.globalAlpha = Math.min(1, a * 0.55);
+      const tx = -Math.sin(ang),
+        ty = Math.cos(ang) * 0.42;
+      x.fillRect(Math.round(px + tx * 4), Math.round(py + ty * 4), 1, 1);
+      x.fillRect(Math.round(px - tx * 4), Math.round(py - ty * 4), 1, 1);
+      x.globalAlpha = Math.min(1, a * 0.45);
+      x.fillRect(Math.round(px) - sz - 2, Math.round(py), sz * 3 + 4, 1);
+      x.fillRect(Math.round(px), Math.round(py) - sz - 2, 1, sz * 3 + 4);
+    }
+  };
+  for (const s of stars) drawStar(s, false);
+  for (const s of beacons) drawStar(s, true);
+  x.restore();
+}
+/* §5-3 닿는 순간 — 튀김·파문·밝은 심. 줄기와 은하수를 «한 사건»으로 잇는다.
+   splashT는 닿은 뒤 경과. 방울 자리는 인덱스, 파문은 0.42 눌린 타원(탑다운). */
+function drawDipperSplash(cx, cy, splashT, pouring, fade) {
+  if (splashT < 0 || fade <= 0) return;
+  x.save();
+  x.translate(cx, cy);
+  if (pouring) {
+    // 밝은 심 — 줄기가 먹이는 동안 살아 있다
+    const th = 0.62 + 0.22 * Math.sin(splashT * 9),
+      g = x.createRadialGradient(0, 0, 0, 0, 0, 30);
+    g.addColorStop(0, "#fff6e6");
+    g.addColorStop(0.45, "#cfe6ff88");
+    g.addColorStop(1, "#9ec7ff00");
+    x.globalAlpha = th * fade;
+    x.save();
+    x.scale(1, 0.42);
+    x.fillStyle = g;
+    x.beginPath();
+    x.arc(0, 0, 30, 0, Math.PI * 2);
+    x.fill();
+    x.restore();
+    x.globalAlpha = fade;
+    x.fillStyle = "#fff6e6";
+    x.fillRect(-2, -1, 4, 2);
   }
+  for (let k = 0; k < 3; k++) {
+    const tt = (splashT - k * 0.09) / 0.5;
+    if (tt <= 0 || tt >= 1) continue;
+    x.globalAlpha = (1 - tt) * 0.55 * fade;
+    x.strokeStyle = k === 0 ? "#fff6e6" : "#cfe6ff";
+    x.lineWidth = 2 - k * 0.5;
+    x.beginPath();
+    x.ellipse(0, 0, 10 + tt * 96, (10 + tt * 96) * 0.42, 0, 0, Math.PI * 2);
+    x.stroke();
+  }
+  if (splashT < 0.42)
+    for (let j = 0; j < 16; j++) {
+      const a = galaxyHash(j * 11 + 5) * Math.PI * 2,
+        sp = 60 + 110 * galaxyHash(j * 7 + 2),
+        tt = Math.min(1, splashT / (0.26 + 0.16 * galaxyHash(j * 5 + 9)));
+      if (tt >= 1) continue;
+      x.globalAlpha = (1 - tt) * 0.95 * fade;
+      x.fillStyle = j % 3 === 0 ? "#fff6e6" : "#cfe6ff";
+      const s = j % 2 === 0 ? 3 : 2;
+      x.fillRect(
+        Math.round(Math.cos(a) * sp * tt),
+        Math.round(Math.sin(a) * sp * tt * 0.42 - 26 * Math.sin(tt * Math.PI)),
+        s,
+        s,
+      );
+    }
   x.restore();
 }
 /* 떨어지는 자리. 판의 «가운데 조금 위»다 — 여기서 은하수가 사방으로
@@ -1203,63 +1454,90 @@ function drawDipperPour(lip, tip, age, fade, st) {
   const RUN = 0.9; // 띠가 바닥에 닿는 데 걸리는 시간
   const grow = Math.min(1, age / RUN);
   const lz = { x: W * DIPPER_LAND.x, y: H * DIPPER_LAND.y };
-  /* 퍼짐. 띠가 «닿은 뒤»부터 번진다 — 닿기도 전에 고이면 어디서 온 것인지
-     읽히지 않는다. 대격 뒤에는 1초에 걸쳐 옅어지며 걷힌다. */
+  /* 퍼짐. 띠가 «닿은 뒤»부터 번진다. 걷힘(§5-4)은 은하수 쪽이 별 단위로
+     스미므로 여기서는 알파를 접지 않고 st만 넘긴다. */
   const spread = Math.max(0, Math.min(1, (age - RUN) / 0.75)),
-    drained = st?.drain >= 0 ? Math.min(1, st.drain / 1.0) : 0;
-  drawDipperGalaxy(lz.x, lz.y, spread, fade * (1 - drained));
+    drainT = st?.drain >= 0 ? st.drain : -1,
+    dryK = drainT >= 0 ? Math.min(1, drainT / 0.55) : 0;
+  drawDipperGalaxy(lz.x, lz.y, spread, fade, st);
+  drawDipperSplash(
+    lz.x,
+    lz.y,
+    age - RUN,
+    dryK < 1,
+    fade * (1 - Math.min(1, drainT >= 0 ? drainT / 0.7 : 0)),
+  );
   if (grow <= 0) return;
-  // 기운 국자의 주둥이. tip 만큼 돌린 자리에서 흘러나온다.
-  const lx = lip.x + Math.cos(tip - 0.35) * 62,
-    ly = lip.y + Math.sin(tip - 0.35) * 62 + 26;
-  /* 떨어지는 자리까지 짧게 휜다. 예전에는 판 바닥(H+40)까지 길게 흘렀는데,
-     퍼지는 자리가 판 가운데인 지금은 거기서 «끊겨야» 「부어서 고였다」가
-     된다 — 계속 흐르면 관통해 지나간 것으로 읽힌다. */
+  /* 주둥이(2026-08-24 디자인 세션): 기준은 스켈레톤이 아니라 «아트»다.
+     bigdipper.png는 350px로 그려져 스켈레톤(125×78)보다 크므로, 스켈레톤
+     좌표로 내면 그림 속 국자 몸통에서 새는 것으로 읽힌다. REL은 아트 프레임
+     (중심 기준 350px)의 잔 앞림 바깥 모서리를 tip만큼 돌린 자리다. */
+  const REL = { x: 118, y: -52 },
+    ca = Math.cos(tip),
+    sa = Math.sin(tip),
+    lx = lip.x + REL.x * ca - REL.y * sa,
+    ly = lip.y + REL.x * sa + REL.y * ca + 6;
   const ex = lz.x,
     ey = lz.y,
-    cx = lx + (ex - lx) * 0.35 + 80,
-    cy = ly + (ey - ly) * 0.62;
+    cx = lx + (ex - lx) * 0.2,
+    cy = ly + (ey - ly) * 0.65;
   const at = (t) => ({
     x: (1 - t) * (1 - t) * lx + 2 * (1 - t) * t * cx + t * t * ex,
     y: (1 - t) * (1 - t) * ly + 2 * (1 - t) * t * cy + t * t * ey,
   });
   x.save();
-  x.globalAlpha = 0.5 * fade;
-  x.strokeStyle = "#cfe6ff";
-  x.shadowBlur = combatFxBlur(18);
-  x.shadowColor = "#9ec7ff";
-  x.lineWidth = 3;
-  x.beginPath();
-  x.moveTo(lx, ly);
-  x.quadraticCurveTo(
-    lx + (cx - lx) * grow,
-    ly + (cy - ly) * grow,
-    at(grow).x,
-    at(grow).y,
-  );
-  x.stroke();
-  /* 띠의 «몸». 곡선을 따라 별을 흩되 폭이 아래로 갈수록 넓어진다 — 국자에서
-     나온 한 줄기가 판 아래에서 은하수가 된다. */
-  const N = 132;
+  const t0 = dryK; // 걷히면 주둥이부터 말라 내려간다 — 남은 별빛이 판으로 미끄러진다(§5-4)
+  if (t0 < 0.05)
+    for (let j = 0; j < 12; j++) {
+      // 림 넘침 — 입술 선을 따라 반짝이는 흔적, 줄기와 국자를 이어 붙인다
+      const s = (j / 11 - 0.5) * 30;
+      x.globalAlpha = (0.5 + 0.5 * Math.sin(age * 11 + j * 2.3)) * 0.7 * fade;
+      x.fillStyle = j % 3 === 0 ? "#fff6e6" : "#cfe6ff";
+      x.fillRect(Math.round(lx + ca * s), Math.round(ly + sa * s - 3), 2, 2);
+    }
+  if (t0 < grow)
+    for (let k = -1; k <= 1; k++) {
+      // 심줄 세 가닥 — 한 줄이 아니라 «콸콸». 가운데가 굵고 양옆이 출렁인다.
+      x.globalAlpha = (k === 0 ? 0.55 : 0.3) * fade;
+      x.strokeStyle = k === 0 ? "#cfe6ff" : "#9ec7ff";
+      x.shadowBlur = combatFxBlur(18);
+      x.shadowColor = "#9ec7ff";
+      x.lineWidth = k === 0 ? 7 : 3;
+      x.beginPath();
+      let first = true;
+      for (let t = t0; t <= grow + 0.001; t += 0.04) {
+        const p = at(t),
+          band = 30 - t * 10,
+          px = p.x + k * band * 0.42 + Math.sin(t * 9 + k * 2.1 + age * 3) * 3;
+        if (first) {
+          x.moveTo(px, p.y);
+          first = false;
+        } else x.lineTo(px, p.y);
+      }
+      x.stroke();
+    }
+  x.shadowBlur = 0;
+  /* 띠의 «몸». 폭 있는 방울 띠 + 아래로 흘러내리는 밀도 맥동(surge) —
+     자리는 인덱스, 위상만 시간을 탄다. 가끔 밖으로 튀는 방울(splat)이
+     물성을 준다. */
+  const N = 320;
   for (let i = 0; i < N; i++) {
     const t = i / (N - 1);
     if (t > grow) break;
+    if (t < t0) continue;
     const p = at(t),
-      /* 띠는 아래로 갈수록 «좁아진다». 예전에는 넓어졌는데, 그때는 띠가 곧
-         은하수였다. 지금 은하수는 닿은 자리에서 따로 퍼지므로, 띠는 부어
-         내리는 줄기로 남아야 두 그림이 같은 일을 두 번 하지 않는다. */
-      band = 26 - t * 18,
+      band = 52 - t * 20,
       wob = Math.sin(i * 1.7) * 0.5 + Math.sin(i * 0.41) * 0.5,
-      off = wob * band,
-      nx = Math.sin(i * 2.3) * band * 0.35;
-    const px = p.x + off,
-      py = p.y + nx * 0.2;
-    // 앞머리가 가장 밝다 — 지금 «흘러 나오는» 자리가 눈에 걸리게.
-    const head = 1 - Math.min(1, (grow - t) / 0.22),
-      size = 1 + (i % 3) + head * 2;
-    x.globalAlpha = (0.22 + 0.5 * (1 - t) + head * 0.4) * fade;
+      splat = galaxyHash(i * 13 + 4) < 0.2 ? 2.1 : 1,
+      off = wob * band * splat,
+      nx = Math.sin(i * 2.3) * band * 0.35,
+      surge = 0.55 + 0.45 * Math.sin(i * 0.23 - age * 16),
+      head = 1 - Math.min(1, (grow - t) / 0.22),
+      size = 1 + (i % 2) + head * 2 + (surge > 0.85 ? 1 : 0);
+    x.globalAlpha =
+      (0.22 + 0.5 * (1 - t) + head * 0.4) * (0.55 + 0.45 * surge) * fade;
     x.fillStyle = i % 5 === 0 ? "#fff6e6" : i % 3 === 0 ? "#cfe6ff" : "#9ec7ff";
-    x.fillRect(Math.round(px), Math.round(py), size, size);
+    x.fillRect(Math.round(p.x + off), Math.round(p.y + nx * 0.2), size, size);
   }
   x.restore();
 }
@@ -1306,7 +1584,9 @@ function drawCineDipper(st, s) {
     /* 국자를 «앞으로» 깊게 기울인다(0.62 -> 0.95 rad). 탑다운 판에서
        앞으로 기운다는 것은 화면 아래쪽으로 주둥이가 돌아간다는 뜻이고,
        그래야 쏟아진 것이 판 위에 떨어지는 것으로 읽힌다. */
-    const tip = cineEase(st.tip >= 0 ? st.tip / 0.75 : 0) * 0.95,
+    // 0.95 → 1.22 rad(2026-08-24 디자인 세션): 입이 수평을 넘어 아래로
+    // 돌아가야 «붓는다»로 읽힌다 — 0.95에서는 바닥 모서리로 새는 그림이었다.
+    const tip = cineEase(st.tip >= 0 ? st.tip / 0.75 : 0) * 1.22,
       fade =
         s > cine.end - 1.0 ? Math.max(0, 1 - (s - (cine.end - 1.0)) / 1.0) : 1;
     x.save();
