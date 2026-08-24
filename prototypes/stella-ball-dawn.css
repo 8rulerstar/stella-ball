@@ -1476,3 +1476,36 @@ body.oo-intro .title-sequence::after {
   background: #1b0a2b;
   color: #f3ede2;
 }
+
+/* ---------------------------------------------------------------------
+   조작 박스 (2026-08-24)
+   「남은 유성」과 같은 카드다. 다른 것은 값이 아니라 «지금 이 손이 무엇을
+   하는가»를 적는다는 점뿐이라, 키 이름만 단색 칩으로 떼어 놓고 뜻은
+   본문 색으로 둔다 — 읽는 순서가 키 -> 뜻이 되게.
+   --------------------------------------------------------------------- */
+.control-card .control-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 5px;
+}
+.control-card .control-line em {
+  flex: 0 0 auto;
+  min-width: 44px;
+  padding: 2px 4px;
+  border: 1px solid #3b2a55;
+  border-radius: 3px;
+  background: #12041f;
+  color: #cbbde6;
+  font:
+    700 8px ui-monospace,
+    monospace;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.control-card .control-line span {
+  color: #b2a6cb;
+  font-size: 10px;
+  line-height: 1.35;
+}

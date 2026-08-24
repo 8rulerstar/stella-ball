@@ -398,8 +398,57 @@ function pixelGem(cx, cy, r, ramp) {
     }
   }
 }
+/* 조작 박스(2026-08-24). 좌·우클릭이 판의 상태마다 다른 일을 한다 —
+   끌기, 노드 고르기, 비행 중 꺾기. 화면 아래 한 줄로만 말하고 있어서
+   「지금 좌클릭이 뭐냐」가 늘 한 박자 늦게 읽혔다.
+
+   상태를 문자열 하나로 접어 두고 «바뀔 때만» 쓴다. 매 프레임 같은 글자를
+   덮어쓰면 body 를 보는 MutationObserver 둘이 그때마다 깨어난다 — 바로
+   위 운동량 표시가 같은 이유로 값 비교를 하고 있다. */
+let lastControlKey = "";
+function updateControlHints() {
+  if (!U.controlMode) return;
+  const flying = Boolean(ball?.moving);
+  const nodeAim =
+    !flying && typeof aimStarReady === "function" && aimStarReady();
+  const picks = typeof aimPick !== "undefined" ? aimPick.length : 0;
+  const minPick = typeof AIM_STAR !== "undefined" ? AIM_STAR.minPick : 3;
+  const steerLeft = ball && !ball.steerUsed;
+  const key = flying
+    ? "fly" + (steerLeft ? "1" : "0")
+    : nodeAim
+      ? "node" + Math.min(picks, minPick)
+      : "drag";
+  if (key === lastControlKey) return;
+  lastControlKey = key;
+  const row = flying
+    ? {
+        mode: steerLeft ? "비행 중 · 궤도 전환 1회" : "비행 중 · 전환 사용함",
+        left: steerLeft ? "진행 방향 왼쪽으로" : "—",
+        right: steerLeft ? "진행 방향 오른쪽으로" : "—",
+        space: "—",
+      }
+    : nodeAim
+      ? {
+          mode: "노드 조준 " + picks + " / " + minPick,
+          left: "노드 고르기 · 빈 곳은 반대편",
+          right: "전부 무르기",
+          space: picks >= minPick ? "발사" : "노드 " + minPick + "개부터",
+        }
+      : {
+          mode: "끌어서 발사",
+          left: "끌어 조준·세기 · 놓으면 발사",
+          right: "—",
+          space: "—",
+        };
+  U.controlMode.textContent = row.mode;
+  U.controlLeft.textContent = row.left;
+  U.controlRight.textContent = row.right;
+  U.controlSpace.textContent = row.space;
+}
 function updateSpecial(d) {
   if (ball?.runeBurst) ball.runeBurst = Math.max(0, ball.runeBurst - d);
+  updateControlHints();
   if (ball?.steerFlash) ball.steerFlash = Math.max(0, ball.steerFlash - d);
   momentumHudCooldown -= d;
   if (U.momentum && ball) {

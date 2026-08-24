@@ -43,6 +43,24 @@
               </div>
               <div class="shot-dots" id="shotDots">● ● ● ● ●</div>
             </section>
+            <!-- 조작 박스. 좌·우클릭의 뜻이 판의 상태마다 달라지는데(끌기 /
+                 노드 고르기 / 비행 중 꺾기) 여태 화면 아래 한 줄에만 적혀
+                 있었다. 「남은 유성」과 같은 카드로 세워, 지금 이 손이
+                 무엇을 하는지 늘 같은 자리에서 읽히게 한다. -->
+            <section class="hud-card control-card" aria-label="조작">
+              <div class="hud-label">
+                <span>조작</span><b id="controlMode">끌어서 발사</b>
+              </div>
+              <div class="control-line">
+                <em>좌클릭</em><span id="controlLeft">끌어 조준·세기</span>
+              </div>
+              <div class="control-line">
+                <em>우클릭</em><span id="controlRight">—</span>
+              </div>
+              <div class="control-line">
+                <em>Space</em><span id="controlSpace">—</span>
+              </div>
+            </section>
             <section class="hud-card">
               <div class="hud-label">
                 <span

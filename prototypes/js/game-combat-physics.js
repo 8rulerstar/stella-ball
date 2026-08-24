@@ -1598,8 +1598,12 @@ function drawAimStars() {
      별지기 노드만 있을 때는 덮지 않는다 — 별지기는 스프라이트가 커서 묻힐
      일이 없고, 노드 조준이 이제 샷 사이 상시라 늘 덮으면 판의 평시 얼굴이
      어두운 판으로 바뀌어 버린다. */
+  /* 2026-08-24: 0.34 -> 0.46. 「별빛이 잘 안 띈다」는 제보에 노드를 더
+     밝게 만드는 대신 주위를 더 낮췄다 — 판 위에서 경쟁하는 것은 바닥
+     각인·기믹·별지기 스프라이트라 밝기 싸움으로는 판이 시끄러워지기만
+     한다. 판단색은 그대로 둔다(§1-4). */
   if (aimStars.length) {
-    x.globalAlpha = 0.34;
+    x.globalAlpha = 0.46;
     x.fillStyle = "#0b0718";
     x.fillRect(0, 0, W, H);
     x.globalAlpha = 1;
@@ -1928,21 +1932,51 @@ function drawAimStars() {
         picked || hovered ? 3 : 2,
       );
       // 1e-4(결정 4): 별지기는 «궤도» 이중 고리 — 별빛과 같은 물건이 아니다.
-      stepRing(node.x, node.y, rr + 6, node.col + "22", 3, 2);
+      stepRing(
+        node.x,
+        node.y,
+        rr + 6,
+        node.col + (hovered ? "66" : "44"),
+        3,
+        2,
+      );
+      /* 별지기 «위»의 별빛(2026-08-24, 오너 지시).
+
+         여태 별지기 노드의 표식은 고리뿐이었다 — 「스프라이트가 이미 여기
+         있다를 만드니 고리만」이라는 판단이었는데, 그 결과 판에 두 종류가
+         서면 하나는 반짝이는 보석이고 하나는 흐린 테두리라 «같이 고를 수
+         있는 것»으로 안 읽혔다. 호버 문구가 「별지기 위 별빛」이라고
+         말하고 있는데 화면에는 그 별빛이 없었던 셈이다.
+
+         이제 실제로 하나 얹는다. 자유 별빛보다 작고(보석 4~5px) 스프라이트
+         머리 위에 앉아, 「이 별지기가 들고 있는 별빛」으로 읽힌다 — 판에
+         굴러다니는 별빛과 같은 물건이되 같은 자리는 아니다. */
+      const ux = node.x,
+        uy = node.y - g.r - 4,
+        ur = (picked ? 6 : 5) * (picked ? 1 : 1 + pulse * 0.18);
+      stepRing(ux, uy, ur + 6 + pulse * 2, node.col + "3d", 3, 2);
+      pixelSparkle(ux, uy, ur + 6, node.col + "cc", 2);
+      pixelSparkle(ux, uy, ur + 3, "#fff6e2", 2);
+      pixelGem(ux, uy, Math.max(3, ur - 2), [node.col, "#fff6e2"]);
+      if (picked || hovered)
+        stepRing(ux, uy, ur + 4, picked ? "#ffffff" : "#ffffff88", 3, 2);
       drawPickFlash(g, node.x, node.y, g.r + 8, fxDt);
-      chipY = node.y - g.r - 20;
+      chipY = uy - ur - 14;
     } else {
       const star = node;
       if (star.born > 0) star.born = Math.max(0, star.born - fxDt);
       const grow = star.born > 0 ? 1 + star.born * 1.8 : 1,
         // 고르지 않은 것이 맥동한다. 이미 고른 것은 흔들리면 오히려 읽기
         // 어렵다.
-        breathe = picked ? 1 : 1 + pulse * 0.22,
-        r = (picked ? 11 : 9) * grow * breathe;
-      // 바깥 무리 + 뾰족한 별. 어두워진 판 위에서 이것이 「여기 있다」를
-      // 만든다.
-      stepRing(star.x, star.y, r + 10 + pulse * 3, star.col + "33", 3, 2);
-      pixelSparkle(star.x, star.y, r + 10, star.col + "aa", 2);
+        breathe = picked ? 1 : 1 + pulse * 0.3,
+        r = (picked ? 12 : 10) * grow * breathe;
+      /* 바깥 무리 + 뾰족한 별. 어두워진 판 위에서 이것이 「여기 있다」를
+         만든다. 2026-08-24에 한 겹 더 올렸다 — 숨 쉬는 바깥 고리를 더해
+         «맥동하는 것»이 정지 화면에서도 눈에 걸리게 한다. 무리 알파도
+         33 -> 4d. */
+      stepRing(star.x, star.y, r + 16 + pulse * 6, star.col + "26", 3, 2);
+      stepRing(star.x, star.y, r + 10 + pulse * 3, star.col + "4d", 3, 2);
+      pixelSparkle(star.x, star.y, r + 11, star.col + "cc", 2);
       pixelSparkle(star.x, star.y, r + 5, "#fff6e2", 3);
       pixelGem(star.x, star.y, Math.max(3, r - 3), [star.col, "#fff6e2"]);
       // 고르지 않은 것은 별자리가 될 후보다. 셋 이상 남아야 실제로 그려지므로
