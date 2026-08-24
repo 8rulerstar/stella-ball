@@ -372,7 +372,11 @@ function billiardPointerDown(e) {
     }
     if (e.button !== 0) return;
     e.stopImmediatePropagation();
-    drag = { x: p.x, y: p.y };
+    /* fromX/fromY 는 «누른» 지점이다. x/y 는 billiardPointerMove 가 매
+       프레임 현재 포인터로 덮으므로(미리보기가 그 값을 쓴다) 누른 자리를
+       따로 들고 있어야 한다 — 손이 실제로 움직였는지는 billiardPointerUp 의
+       탭 검사가 이 둘로 판단한다. */
+    drag = { x: p.x, y: p.y, fromX: p.x, fromY: p.y };
     c.setPointerCapture(e.pointerId);
     return;
   }
@@ -531,12 +535,12 @@ function billiardPointerMove(e) {
   const p = pointer(e);
   drag.x = p.x;
   drag.y = p.y;
-  // 미리보기도 발사와 같은 식이어야 한다 — 다르면 표시된 위력이 거짓말이 된다.
-  ball.launchPower = clamp(
-    Math.hypot(ball.x - p.x, ball.y - p.y) / 220,
-    0.28,
-    1,
-  );
+  /* 미리보기도 발사와 같은 식이어야 한다 — 다르면 표시된 위력이 거짓말이
+     된다. 그런데 실제로 어긋나 있었다: 여기가 220 으로 나누는 동안 발사는
+     cueForce 의 130 을 썼다(2026-08-24 에 「판 안에서 100% 가 되게」 나눗수를
+     낮추면서 이쪽을 같이 고치지 않았다). 게이지가 68% 를 보여 주고 100% 가
+     나가고 있었다. 식을 두 벌 두지 않고 cueForce 하나를 부른다. */
+  ball.launchPower = cueForce(p);
 }
 function billiardPointerUp(e) {
   if (!drag || ball?.moving || battleComplete) return;
@@ -561,8 +565,28 @@ function billiardPointerUp(e) {
        20px일 때 dx 0 → 0.37, dx 100 → 0.53).
        방향은 증폭된 벡터가 그대로 맡고, 위력만 끈 거리로 분리한다. 당구에서
        세기는 겨냥과 별개로 고르는 것이고, 세게 치려면 그만큼 당겨야 한다. */
-    force = cueForce(raw);
+    force = cueForce(raw),
+    /* 손이 «실제로 움직였는가». 여기서는 유성에서 뗌 지점까지의 거리(l)만
+       보고 있었는데, 그 값은 손이 한 발짝도 안 움직여도 커진다 — 유성에서
+       먼 곳을 한 번 톡 치면 그대로 발사였다. 그것이
+       LESSON_DOUBLE_TAP_2026_08_23.md 결함의 뿌리다: 수업 카드가 사라진
+       자리에 떨어진 둘째 타가 «드래그»로 읽혔다.
+
+       이 저장소는 같은 문제를 조준 쪽에서 이미 겪고 답을 냈다 — 훑는 방식을
+       버리고 찍기로 간 이유가 위 billiardPointerDown 주석의 「탭과 획의
+       경계가 계속 문제였고(탭이 곧 발사가 됐다)」다. 드래그 경로에만 그
+       경계가 남아 있었다.
+
+       12px 은 손떨림(0~2px) 위, 가장 짧은 의도적 끌기 아래다. 방향과 세기는
+       그대로 뗌 지점이 정한다 — 바뀌는 것은 «탭은 발사가 아니다» 하나다. */
+    travel = drag
+      ? Math.hypot(raw.x - (drag.fromX ?? raw.x), raw.y - (drag.fromY ?? raw.y))
+      : 0;
   drag = null;
+  if (travel < 12) {
+    toast("유성을 끌어서 놓아 주세요 — 누르기만으로는 나가지 않아요.");
+    return;
+  }
   if (l < 18) {
     toast("유성을 더 멀리 끌어 당겨보세요.");
     return;

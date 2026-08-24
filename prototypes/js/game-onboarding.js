@@ -430,6 +430,60 @@ function setOnboardingPhase(phase) {
   sync();
   renderOnboarding();
 }
+/* ── 수업 카드가 걷힌 자리의 스치는 둘째 타 ───────────────────────────────
+   LESSON_DOUBLE_TAP_2026_08_23.md 의 결함은 «발사» 쪽이었고, 그 뿌리는 여기가
+   아니라 game-combat.js 의 billiardPointerUp 에서 고쳤다 — 손이 움직이지 않은
+   탭은 이제 발사가 아니다. 실측으로 20·45·100·220·300·450·900ms 전부에서
+   유성이 나가지 않는다(scripts/probe-lesson-double-tap.mjs).
+
+   이 방패는 «남은 절반»을 맡는다. 카드가 걷힌 뒤 판이 조준 화면일 때는 둘째
+   타가 발사가 아니라 **조준**을 건드린다 — 노드를 찍거나(aimStarAt) 겨누는
+   방향을 뒤집는다(applyAimFlip). 뿌리 수정은 발사만 막으므로 그쪽은 별개다.
+
+   실측으로 그 자리는 수업 두 곳이다:
+     phase 0  별지기 1 · 노드 1 · aimStarReady false  → 드래그 경로(뿌리에서 막힘)
+     phase 1  별지기 3 · 노드 3 · aimStarReady true   → 조준이 바뀐다
+     phase 2  별지기 3 · 노드 10 · aimStarReady true  → 조준이 바뀐다
+     phase 3  별지기 3 · 노드 9 · aimStarReady false  → 첫 발 자유조준
+
+   그래서 버튼이 있던 자리에 투명한 방패를 240ms 남긴다. 판 쪽에서 막으려던
+   두 시도가 실패한 이유가 여기 있다 — 시간만 보면 정상 드래그의 첫 누름까지
+   먹고(E2E 가 떨어졌다), 자리까지 봐도 하필 그 근처의 정상 노드 픽이 먹혔다.
+   덮개 쪽에서 늦게 걷으면 둘 다 피한다.
+
+   정상 조작을 먹지 않는 근거(1280×900, phase 0 실측): 버튼 448~852 · 284~331,
+   유성 화면 좌표 (650, 681) — 카드 아래변에서 338px 아래다. 드래그는 유성
+   위에서 시작하므로 방패 밖이다. 다음 카드의 버튼도 안전하다: revealDelay 가
+   최소 620ms 라 그 버튼은 방패가 걷힌 뒤에 비로소 눌린다. */
+const LESSON_SHIELD_MS = 240;
+function shieldLessonTap(rect) {
+  if (!rect || !rect.width || typeof document === "undefined") return;
+  const pad = 10,
+    shield = document.createElement("div");
+  shield.className = "lesson-tap-shield";
+  shield.setAttribute("aria-hidden", "true");
+  shield.style.cssText =
+    "position:fixed;z-index:200;background:transparent;" +
+    `left:${Math.round(rect.left - pad)}px;top:${Math.round(rect.top - pad)}px;` +
+    `width:${Math.round(rect.width + pad * 2)}px;` +
+    `height:${Math.round(rect.height + pad * 2)}px`;
+  // 누름과 뗌을 모두 먹어야 한다 — 판의 발사는 그 «둘»로 성립한다.
+  const eat = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  for (const type of [
+    "pointerdown",
+    "pointerup",
+    "mousedown",
+    "mouseup",
+    "click",
+    "touchstart",
+  ])
+    shield.addEventListener(type, eat);
+  document.body.append(shield);
+  setTimeout(() => shield.remove(), LESSON_SHIELD_MS);
+}
 function beginOnboardingPractice() {
   if (!onboarding) return;
   /* 정지는 「한 샷에 한 번」이지 「한 수업에 한 번」이 아니다. 걸쇠를 시도마다
@@ -690,7 +744,16 @@ function renderOnboarding() {
   playSfx("card");
   if (copy.button) {
     const continueButton = document.querySelector("#onboardingContinue");
-    continueButton.onclick = () => continueOnboarding(copy.action);
+    continueButton.onclick = (event) => {
+      /* 방패를 세울 자리를 «누르기 전에» 읽는다. continueOnboarding 안에서
+         카드가 사라지므로 그 뒤에는 사각형이 없다. */
+      const rect = event.currentTarget?.getBoundingClientRect();
+      continueOnboarding(copy.action);
+      /* 판이 드러난 클릭만 방패를 남긴다(LESSON_DOUBLE_TAP_2026_08_23.md).
+         다음 카드가 뜨는 클릭은 그 카드가 스스로 덮으므로 필요 없다. */
+      if (onboarding && onboarding.panelVisible === false)
+        shieldLessonTap(rect);
+    };
     setTimeout(() => {
       const revealedButton = document.querySelector("#onboardingContinue");
       if (revealedButton?.dataset.revealId !== revealId) return;

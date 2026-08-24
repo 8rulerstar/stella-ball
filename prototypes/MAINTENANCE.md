@@ -166,6 +166,30 @@ Each rule below cost real debugging time here. The evidence is in `DEVLOG.md` un
   blocking benchmark: a synchronous 2400-call loop makes the next frame read
   hundreds of ms and look like a game stutter.
 
+### Input (added 2026-08-24)
+
+- **A distance is not a gesture.** The drag-to-fire path decided "this was a
+  drag" from the distance between the _meteor_ and the _release point_ — a value
+  that is large even when the hand never moved. So a single tap far from the
+  meteor fired it, which is how a double-tap on a lesson card could make the
+  game shoot for the player. Record the press point and require actual travel.
+  Note that `drag` is **not** the press point: `billiardPointerMove` overwrites
+  `drag.x/y` with the live pointer every frame because the power preview reads
+  it. Measuring travel against `drag.x/y` yields 0 always — that mistake broke
+  the onboarding E2E in exactly the same place two earlier attempts did.
+- **Pointer events carry no click count.** `event.detail` measured 0 for both
+  single and double taps, so the second tap of a double cannot be identified
+  that way. Block it on the cover side (a transparent shield where the button
+  was) rather than on the board side — board-side filters cannot tell a stray
+  second tap from a legitimate click at the same place.
+- **A preview and the action it previews must call one function, not two copies
+  of a formula.** The drag power preview divided by 220 while the shot divided by
+  130 after a same-day tuning change, so the gauge read up to **41% low** while a
+  stronger shot went out. The comment directly above the preview already said
+  "the preview must use the same formula or the number is a lie" — the comment
+  was right and the code had drifted from it anyway. Two copies of a formula
+  drift; one function cannot.
+
 ## Before handoff
 
 Run this quick handoff check from the repository root:
