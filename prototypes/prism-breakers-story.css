@@ -155,54 +155,6 @@
     opacity: 0.25;
   }
 }
-@keyframes titleRift {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) scale(0.24) rotate(-34deg);
-    filter: brightness(2);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) scale(1) rotate(0);
-  }
-}
-@keyframes titleRiftSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes titleBoss {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -26px) scale(1.35);
-    filter: brightness(2.6);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
-  }
-}
-@keyframes titleFloat {
-  50% {
-    margin-top: -9px;
-    filter: hue-rotate(147deg) saturate(0.78) brightness(1.18)
-      drop-shadow(0 0 28px #9267debb);
-  }
-}
-@keyframes titleImpact {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.3);
-  }
-  40% {
-    opacity: 0.9;
-    transform: translate(-50%, -50%) scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(1.55);
-  }
-}
 @keyframes titleOrb {
   from {
     opacity: 0;

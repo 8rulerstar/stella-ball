@@ -147,10 +147,15 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   padding-top: 6px;
   padding-bottom: 6px;
 }
-.game-mode main {
-  /* 커진 판 + 왼쪽 계기판 + 오른쪽 루나 세 열이 들어가게 넓힌다. */
-  width: min(1080px, calc(100vw - 32px));
-  width: min(1080px, calc(100dvw - 32px));
+/* min-width 로 가둔다: 이 전역 규칙(마지막 시트라 캐스케이드 승자)이 모바일
+   구간까지 이겨, combat.css @media(max-width:760)의 12px 여백을 32px 로
+   덮어 버렸다. 데스크톱 폭 확장은 761px 이상에서만 건다. */
+@media (min-width: 761px) {
+  .game-mode main {
+    /* 커진 판 + 왼쪽 계기판 + 오른쪽 루나 세 열이 들어가게 넓힌다. */
+    width: min(1080px, calc(100vw - 32px));
+    width: min(1080px, calc(100dvw - 32px));
+  }
 }
 
 /* 위 안내 띠(대사 패널)는 시각적으로 걷는다 — 판을 넓히려는 오너 지시.
