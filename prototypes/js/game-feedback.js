@@ -1689,13 +1689,18 @@ function loop(t) {
   else {
     // A continuous time scale reads as smooth slow motion.  Hit-stop remains
     // reserved for the exact impact frame instead of skipping every third frame.
+    /* 스냅 조정(2026-08-24, 오너 「전투 중 렉걸려」). 정산 초점의 감속이
+       0.46→0.62→0.82 로 «절반 속도 이하»까지 기어, 각성이 잦은 전투에서
+       렉으로 읽혔다(perfwatch가 경고한 «측정을 통과하는 렉» — rAF는 계속
+       돌지만 시뮬레이션 시간이 느려 판이 굼뜬다). 초점 연출은 남기되
+       크롤을 걷어 스냅하게: 0.70→0.80→0.92. 이전 값은 0.46/0.62/0.82. */
     const finisherScale = !finisherFocus
       ? 1
       : finisherFocus.delay > 0
-        ? 0.46
+        ? 0.7
         : finisherFocus.t / finisherFocus.dur < 0.72
-          ? 0.62
-          : 0.82;
+          ? 0.8
+          : 0.92;
     const simulationStep = d * finisherScale;
     update(simulationStep);
     updateSpecial(simulationStep);
