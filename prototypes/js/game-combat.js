@@ -1994,7 +1994,6 @@ function redirectToNearestUnit(g) {
   toast(g.s + " · " + target.s + "에게 강제 중계");
   msg = g.s + " · 가장 가까운 " + target.s + "에게 유성을 재발사합니다.";
 }
-function reportBladeWheelHit() {}
 function isBladeWheelPhasing(g) {
   const fx = g.fx === "copycat" ? g.copiedFx : g.fx;
   // The phase is the payoff for the awakening that armed the wheel, on every
@@ -2059,7 +2058,6 @@ function updateBladeWheel(g, speed, step) {
   if (boss?.hp > 0 && Math.hypot(g.x - boss.x, g.y - boss.y) <= radius + 58) {
     const dealt = applyBossHit(amount);
     g.bladeDamageBank = (g.bladeDamageBank || 0) + dealt;
-    reportBladeWheelHit(g, boss, dealt);
     hit = true;
     if (boss.hp <= 0) scheduleWin();
   }
@@ -2071,7 +2069,6 @@ function updateBladeWheel(g, speed, step) {
     )
       continue;
     damageAdd(add, amount, g.s + " 회전 칼날", g.col);
-    reportBladeWheelHit(g, add, amount);
     hit = true;
   }
   if (hit && g.bladePopupCooldown <= 0) {

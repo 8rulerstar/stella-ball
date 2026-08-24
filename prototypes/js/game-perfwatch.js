@@ -475,6 +475,14 @@
     cancelAnimationFrame(raf);
     if (dock) dock.remove();
     dock = null;
+    /* pinReact 의 8ms 인터벌을 걷는다. 안 그러면 F6/F5 로 화면반응을 끈 뒤
+       F9 로 계기를 꺼도 인터벌이 남아 screenGhost/shake/tilt 를 영영 0으로
+       눌러, 새로고침 전까지 잔상·흔들림이 돌아오지 않는다. */
+    if (pinReact.timer) {
+      clearInterval(pinReact.timer);
+      pinReact.timer = 0;
+    }
+    off.react = off.ghost = false;
   }
   function dump() {
     var s = gaps.slice().sort(function (a, b) {

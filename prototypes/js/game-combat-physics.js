@@ -638,12 +638,6 @@ function endShot() {
   finalizeBilliardShot();
   runRuntimeHooks("afterShotEnd", { battle, ball });
 }
-function hitGate(g) {
-  wakeUnit(g);
-  g.collisions = (g.collisions || 0) + 1;
-  msg = g.s + "이(가) 굴러가기 시작했습니다. 멈추면 고유 공격을 시행합니다.";
-  sync();
-}
 // Zone labels belonged to the former static-board version, where hitting a
 // labelled tile fired the hero standing on it.  A hero now wakes only by real
 // movement, so the whole `triggerZone` concept and its call sites are gone.

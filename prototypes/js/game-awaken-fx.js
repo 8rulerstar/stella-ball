@@ -504,7 +504,6 @@
     const shots = [];
     if (typeof assistShots !== "undefined" && assistShots)
       for (const s of assistShots) if (s.finisher) shots.push(s);
-    if (!shots.length && settleFade <= 0.001) return;
 
     const fade = settleFade;
     x.save();
@@ -535,24 +534,28 @@
       drawSettleBeam(gate, shot, settleWeight(gate));
     }
 
-    // 결정 6 · 인원수. 판 위쪽 한 줄, DOM 을 늘리지 않는다(§8).
-    x.save();
-    x.globalAlpha = fade;
-    x.textAlign = "left";
-    x.font = "700 10px Galmuri11, ui-monospace";
-    x.fillStyle = "#7d9a97";
-    x.fillText("STELLAR SETTLEMENT", 34, BAND + 28);
-    x.font = "900 22px Galmuri11, ui-monospace";
-    x.fillStyle = "#ffd2a0";
-    x.fillText(waiting + firing + "인 일제 사격", 34, BAND + 54);
-    for (let i = 0; i < waiting + firing; i++) {
-      const shot = shots[i],
-        gate = shot && gates.find((unit) => unit.id === shot.sourceId);
-      x.fillStyle =
-        shot && shot.delay <= 0 ? (gate ? gate.col : "#ffd2a0") : "#243438";
-      x.fillRect(34 + i * 15, BAND + 64, 11, 5);
+    // 결정 6 · 인원수. 판 위쪽 한 줄, DOM 을 늘리지 않는다(§8). 정산 커버가
+    // 페이드아웃하는 꼬리(마지막 피니셔가 정리된 뒤)에는 인원이 0이라 헤더를
+    // 그리지 않는다 — 안 그러면 「0인 일제 사격」이 매 각성마다 잠깐 뜬다.
+    if (waiting + firing > 0) {
+      x.save();
+      x.globalAlpha = fade;
+      x.textAlign = "left";
+      x.font = "700 10px Galmuri11, ui-monospace";
+      x.fillStyle = "#7d9a97";
+      x.fillText("STELLAR SETTLEMENT", 34, BAND + 28);
+      x.font = "900 22px Galmuri11, ui-monospace";
+      x.fillStyle = "#ffd2a0";
+      x.fillText(waiting + firing + "인 일제 사격", 34, BAND + 54);
+      for (let i = 0; i < waiting + firing; i++) {
+        const shot = shots[i],
+          gate = shot && gates.find((unit) => unit.id === shot.sourceId);
+        x.fillStyle =
+          shot && shot.delay <= 0 ? (gate ? gate.col : "#ffd2a0") : "#243438";
+        x.fillRect(34 + i * 15, BAND + 64, 11, 5);
+      }
+      x.restore();
     }
-    x.restore();
 
     // 초점이 잡힌 한 발만 능력 모티프를 얹는다. 겹쳐 그리면 판이 읽히지 않는다.
     if (finisherFocus) {

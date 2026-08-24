@@ -540,8 +540,8 @@ function renderOnboarding() {
   dock?.setAttribute("aria-hidden", "false");
   const step = onboarding.phase,
     dialogue = onboarding.dialogue ?? 0;
-  // Eight cards, and every one of them waits for the player's button. Gameplay
-  // events only record what happened; they never swap the card being read.
+  // Every card waits for the player's button. Gameplay events only record what
+  // happened; they never swap the card being read.
   const retried = (onboarding.attempts ?? 0) >= 2;
   const lessons = [
     [

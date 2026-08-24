@@ -10,7 +10,7 @@
 // override into an implicit global.
 //
 // Live: `tableWall`, `updateExpanded`.
-// Replaced downstream: `hitGate` (game-combat.js), `hitBumper` (game-meta.js),
+// Replaced downstream: `hitBumper` (game-meta.js),
 // `simulatePhysics` (game-combat.js), `update` (game-core-render.js).
 
 // Counts a cushion contact.  `game-combat.js` and `game-feedback.js` both wrap

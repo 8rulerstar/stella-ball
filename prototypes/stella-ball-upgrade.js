@@ -40,7 +40,7 @@
         "cta",
       ],
       [
-        ".oc-ghost, .world-step, .constellation-training, .language-choice button, #tutorialBack, #tutorialPrev, #tutorialNext",
+        ".oc-ghost, .world-step, .constellation-training, .language-choice button",
         "sub",
       ],
       [".archive-tab", "tab"],
@@ -60,16 +60,35 @@
         }
       }
     }
-    /* 잠긴 컨트롤은 살구 CTA 프레임을 잃는다 (§6-3 소환 행) */
+    /* 잠긴 컨트롤은 살구 CTA 프레임을 잃는다 (§6-3 소환 행). 원래 종류를
+       pbtnBase 에 적어 두었다가, 같은 자리에서 다시 활성화되면 되돌린다 —
+       안 그러면 소환 완료 뒤 「소환 목록으로」 CTA 가 냉색 disabled 실루엣으로
+       굳고 hover/press 를 잃는다(dawn.js 의 tag() 는 pbtn 이 있으면 재태그를
+       거부하므로 여기서 되돌려야 한다). */
     function tagDisabled() {
-      var els = document.querySelectorAll(
+      var off = document.querySelectorAll(
         ".gacha-draw.insufficient, .gacha-draw[disabled], button[disabled][data-pbtn]",
       );
-      for (var i = 0; i < els.length; i++) {
-        if (els[i].dataset.pbtn !== "disabled") {
-          els[i].dataset.pbtn = "disabled";
-          delete els[i].dataset.psz;
+      for (var i = 0; i < off.length; i++) {
+        var el = off[i];
+        if (el.dataset.pbtn !== "disabled") {
+          if (!el.dataset.pbtnBase)
+            el.dataset.pbtnBase =
+              el.dataset.pbtn ||
+              (el.classList.contains("gacha-draw") ? "cta" : "");
+          el.dataset.pbtn = "disabled";
+          delete el.dataset.psz;
         }
+      }
+      var on = document.querySelectorAll(
+        '.gacha-draw:not(.insufficient):not([disabled])[data-pbtn="disabled"], button:not([disabled])[data-pbtn="disabled"]',
+      );
+      for (var k = 0; k < on.length; k++) {
+        var e = on[k];
+        if (e.dataset.pbtnBase) e.dataset.pbtn = e.dataset.pbtnBase;
+        else e.removeAttribute("data-pbtn");
+        delete e.dataset.psz;
+        delete e.dataset.pbtnBase;
       }
     }
 

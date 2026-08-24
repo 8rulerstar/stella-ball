@@ -5,7 +5,6 @@ const META_COPY = {
   ko: {
     start: "게임 시작",
     party: "별지기 편성",
-    guide: "조작법",
     achievements: "업적",
     settings: "설정",
     back: "뒤로",
@@ -38,7 +37,6 @@ const META_COPY = {
   en: {
     start: "START",
     party: "STARKEEPERS",
-    guide: "GUIDE",
     achievements: "ACHIEVEMENTS",
     settings: "SETTINGS",
     back: "BACK",
@@ -299,9 +297,6 @@ function rewardToast(kicker, title, detail = "", { onClick = null } = {}) {
 // Gold is earned but not auto-credited: clears accrue into a pending pool and
 // achievements hold one-time rewards.  Both are collected in the 업적 tab, so
 // the player always performs the claim.
-function pendingGold() {
-  return pendingRewardEntries().reduce((sum, entry) => sum + entry.gold, 0);
-}
 function pendingRewardEntries() {
   const entries = Array.isArray(progress.pendingRewards)
     ? progress.pendingRewards
