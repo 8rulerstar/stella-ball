@@ -56,7 +56,6 @@ const FIRST_RUN_KEYS = Object.freeze([
   "prism-breakers.settings.v1",
   "prism-breakers.progress.v1",
   "prism-breakers.story-intro.v1",
-  "stella-ball.onboarding.v1",
   "stella-ball.onboarding-clear.v1",
   "stella-ball.party-slots.v1",
   "stella-ball.mailbox.v1",

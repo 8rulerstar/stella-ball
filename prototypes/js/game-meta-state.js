@@ -102,7 +102,6 @@ let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   // 공유가 이득을 깨지 않고, 인스턴스 장부를 지우면 저장이 단순해진다.
   ownedWeapons: [],
   equippedWeapons: {},
-  freeSummons: 0,
   claimedAchievements: [],
   announcedAchievementIds: null,
   pendingGold: 0,
@@ -129,7 +128,6 @@ let progress = appStorage.readRecord(PROGRESS_STORAGE, {
 for (const [key, fallback, min] of [
   ["clears", 0, 0],
   ["gold", 0, 0],
-  ["freeSummons", 0, 0],
   ["pendingGold", 0, 0],
   ["pendingRewardSerial", 0, 0],
   ["bestTime", 0, 0],
@@ -490,15 +488,13 @@ function equipSkin(id) {
   saveProgress();
   return true;
 }
-// The tutorial hands out one free summon instead of gold, so the "1-1 pays no
-// gold" economy rule stays intact.
-function hasFreeSummon() {
-  return Number(progress.freeSummons || 0) > 0;
-}
-function grantFreeSummon(count = 1) {
-  progress.freeSummons = Number(progress.freeSummons || 0) + count;
-  saveProgress();
-}
+/* 무료 소환권을 걷었다(2026-08-24 전수조사). 이 값을 «늘리는» 곳이 하나도
+   없었다 — 유일한 발급처였던 세 번째 파티 자리 관문과 그 보상이 2026-08-23
+   (`2ba916f`)에 사라졌는데 grantFreeSummon 과 hasFreeSummon 은 남았다.
+   그래서 progress.freeSummons 는 언제나 0 이었고, 그것을 읽던 소환 화면의
+   분기 넷은 전부 도달 불가였다. 프로브 둘이 값을 직접 세워 그 죽은 분기를
+   계속 «녹색»으로 검증하고 있던 것이 더 나빴다 — 없어진 기능에 대한 거짓
+   안심이다. 되살릴 거면 발급처부터 만든다. */
 function ownedHeroIds() {
   const stored = Array.isArray(progress.ownedHeroes)
     ? progress.ownedHeroes
@@ -513,14 +509,12 @@ function ownsHero(id) {
 function pullGachaHero() {
   const pool = GACHA_HERO_IDS.filter((id) => !ownsHero(id));
   if (!pool.length) return { reason: "complete" };
-  const free = hasFreeSummon();
-  if (!free && goldBalance() < ECONOMY.gachaCost) return { reason: "gold" };
+  if (goldBalance() < ECONOMY.gachaCost) return { reason: "gold" };
   const id = pool[Math.floor(Math.random() * pool.length)];
-  if (free) progress.freeSummons = Number(progress.freeSummons || 0) - 1;
-  else progress.gold = goldBalance() - ECONOMY.gachaCost;
+  progress.gold = goldBalance() - ECONOMY.gachaCost;
   progress.ownedHeroes = [...ownedHeroIds(), id];
   saveProgress();
-  return { id, cost: free ? 0 : ECONOMY.gachaCost, free };
+  return { id, cost: ECONOMY.gachaCost };
 }
 /* --- 별무기: 보관·장착·소환 ---------------------------------------------- */
 function ownedWeaponIds() {

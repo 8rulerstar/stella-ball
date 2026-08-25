@@ -39,7 +39,6 @@ try {
   };
   await waitFor("typeof setupBattle === 'function'", 20000, "runtime");
   await evaluate(`localStorage.setItem("prism-breakers.story-intro.v1","1");
-    localStorage.setItem("stella-ball.onboarding.v1","1");
     localStorage.setItem("stella-ball.onboarding-clear.v1","1");
     localStorage.setItem("stella-ball.party-slots.v1","3");
     localStorage.setItem("prism-breakers.progress.v1", JSON.stringify({ clears: 3, gold: 400 }));

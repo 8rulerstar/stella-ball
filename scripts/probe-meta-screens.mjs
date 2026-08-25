@@ -219,7 +219,6 @@ for (const size of SIZES) {
       progress.bestTime = 41200;
       progress.bestShots = 3;
       progress.bestCombo = 7;
-      progress.freeSummons = 1;
       /* 「시작 데이터로만 본 화면은 안 본 것이다」(MAINTENANCE). 보유 셋이면
          트레이·상점·도감이 절반만 그려지고, 트레이는 일곱부터 초상을 32px
          로 줄이는 가지가 아예 안 돌아 본다. 전원 보유로 돌린다. */

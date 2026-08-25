@@ -831,10 +831,7 @@ function runSummonSequence(ritual, reveal, drawButton, result) {
        연출이 «끝나는» 이 자리에서만 고친다 — 도중에 고치면 아직 누가
        나올지 모르는 화면에서 잔고가 먼저 움직여 결과를 흘린다. */
     const headline = document.querySelector(".gacha-header b");
-    if (headline)
-      headline.textContent = hasFreeSummon()
-        ? "무료 소환권 1장"
-        : "보유 골드 " + goldBalance();
+    if (headline) headline.textContent = "보유 골드 " + goldBalance();
   };
   let skipArmed = null;
   function onSkip(e) {
@@ -942,7 +939,7 @@ function showGacha(mode = "hero") {
   setScene("menu");
   const owned = ownedHeroIds(),
     pool = GACHA_HERO_IDS.filter((id) => !owned.includes(id)),
-    canAfford = hasFreeSummon() || goldBalance() >= ECONOMY.gachaCost,
+    canAfford = goldBalance() >= ECONOMY.gachaCost,
     poolCards = GACHA_HERO_IDS.map((id) => {
       const h = heroes[id],
         unlocked = owned.includes(id);
@@ -961,7 +958,7 @@ function showGacha(mode = "hero") {
   U.over.className = "overlay gacha-scene";
   U.over.innerHTML =
     '<section class="gacha-shell"><div class="gacha-header"><button id="gachaBack">뒤로</button><span><small>별빛 보관함</small><b>' +
-    (hasFreeSummon() ? "무료 소환권 1장" : "보유 골드 " + goldBalance()) +
+    ("보유 골드 " + goldBalance()) +
     "</b></span></div>" +
     gachaModeNav("hero") +
     '<div class="gacha-ritual"><div class="gacha-orbit" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div><div class="gacha-reveal" id="gachaReveal"><span>✦</span><small>아직 만나지 못한 별지기를<br>관측하세요</small></div></div><div class="gacha-copy"><small>STARKEEPER CALL</small><h2>별빛 소환</h2><p>100 골드로 아직 만나지 못한 별지기 한 명을 확정으로 맞이합니다.</p></div><section class="gacha-pool"><div class="gacha-pool-heading"><span>소환 후보</span><b>' +
@@ -978,9 +975,7 @@ function showGacha(mode = "hero") {
     (!pool.length
       ? "모든 별지기를 만났어요"
       : canAfford
-        ? hasFreeSummon()
-          ? "무료로 소환하기"
-          : "별빛 소환 · " + ECONOMY.gachaCost + " 골드"
+        ? "별빛 소환 · " + ECONOMY.gachaCost + " 골드"
         : "골드 부족 · " + ECONOMY.gachaCost + " 골드 필요") +
     "</button></section>";
   document.querySelectorAll("[data-gacha-hero]").forEach((portrait) => {
@@ -1073,7 +1068,7 @@ function showWeaponGacha() {
         "</small></article>"
       );
     }).join("");
-  U.over.className = "overlay gacha-scene gacha-weapon";
+  U.over.className = "overlay gacha-scene";
   U.over.innerHTML =
     '<section class="gacha-shell"><div class="gacha-header"><button id="gachaBack">뒤로</button><span><small>별의 대장간</small><b>보유 골드 ' +
     gold +
@@ -1212,7 +1207,7 @@ function showArmory() {
   setScene("menu");
   const owned = ownedHeroIds(),
     ownedW = ownedWeaponIds();
-  U.over.className = "overlay gacha-scene gacha-armory";
+  U.over.className = "overlay gacha-scene";
   U.over.innerHTML =
     '<section class="gacha-shell armory-shell"><div class="gacha-header"><button id="gachaBack">뒤로</button><span><small>무기고</small><b>보유 무기 ' +
     ownedW.length +

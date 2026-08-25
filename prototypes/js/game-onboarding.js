@@ -4,7 +4,11 @@ const STORY_INTRO_STORAGE = "prism-breakers.story-intro.v1";
 const STORY_CONSTELLATION_TOOLTIP =
   "유성이 별지기와 부딪히면 그 자리에 별빛이 남습니다. 조준에 고르지 않고 남겨 둔 별빛이 세 개 이상이면 별자리가 완성됩니다.";
 if (U.blazeCard) U.blazeCard.title = STORY_CONSTELLATION_TOOLTIP;
-const ONBOARDING_STORAGE = "stella-ball.onboarding.v1";
+/* 「봤다」 표식(stella-ball.onboarding.v1)을 걷었다(2026-08-24 전수조사).
+   markOnboardingSeen 이 쓰기만 하고 hasSeenOnboarding 을 부르는 곳이 하나도
+   없었다 — 저장소에 쓰고 아무도 읽지 않는 키였다. 부팅이 실제로 보는 관문은
+   ONBOARDING_CLEAR_STORAGE 하나다(showTitle 의 hasOnboardingClear). 세 번째
+   자리 관문을 걷은 2026-08-23 부터 「봤다」와 「깼다」를 가를 이유가 없어졌다. */
 const ONBOARDING_CLEAR_STORAGE = "stella-ball.onboarding-clear.v1";
 const ONBOARDING_CARD_COUNT = 13;
 /* 실습 한 발이 끝나면 그 단계의 «결과 카드»로 돌아온다. 개념 비트를 카드
@@ -18,12 +22,6 @@ function markStoryIntroSeen() {
 }
 function hasSeenStoryIntro() {
   return appStorage.readText(STORY_INTRO_STORAGE) === "1";
-}
-function markOnboardingSeen() {
-  appStorage.writeText(ONBOARDING_STORAGE, "1");
-}
-function hasSeenOnboarding() {
-  return appStorage.readText(ONBOARDING_STORAGE) === "1";
 }
 function hasOnboardingClear() {
   return appStorage.readText(ONBOARDING_CLEAR_STORAGE) === "1";
@@ -815,7 +813,6 @@ function cancelOnboarding() {
 }
 function completeOnboarding() {
   const firstClear = !hasOnboardingClear();
-  markOnboardingSeen();
   if (firstClear) {
     appStorage.writeText(ONBOARDING_CLEAR_STORAGE, "1");
     progress.clears++;

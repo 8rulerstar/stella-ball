@@ -75,7 +75,6 @@ try {
   /* 함정 2·3 — 후보와 지불 수단을 확보한다. */
   await evaluate(`(() => {
     progress.gold = 4000;
-    progress.freeSummons = 0;
     progress.ownedHeroes = [...STARTER_HERO_IDS];
     saveProgress();
     showGacha();
