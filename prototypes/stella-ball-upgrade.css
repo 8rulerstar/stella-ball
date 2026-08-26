@@ -1065,3 +1065,20 @@ body.game-mode:has(.overlay:not(.hide) .outcome-cut) .luna-speech {
   text-align: center;
   padding: 10px;
 }
+
+/* ============================================================= *
+ * §7 프롤로그(story-intro) 클릭 블로커 수정 (2026-08-26)          *
+ * 시크릿창 첫 실행 제보: 인트로 뒤 프롤로그가 «가운데 클릭»에만   *
+ * 넘어감. 원인 — 프롤로그는 #overlay 를 쓰는데 #overlay 는       *
+ * .stage(가운데 판 컬럼) 안에 갇혀 가로가 판 폭(≈916/1280px)뿐.  *
+ * 진행 핸들러가 U.over.onclick 이라 좌우 여백(각 ~180px) 클릭이  *
+ * overlay 에 닿지 않았다. title/meta 씬처럼 이 씬도 뷰포트 전체로*
+ * 펴, 화면 아무 데나 눌러도 다음 줄로 넘어가게 한다.             *
+ * ============================================================= */
+.overlay.story-intro-scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+}
