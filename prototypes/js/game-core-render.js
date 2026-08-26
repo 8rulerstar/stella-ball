@@ -1907,11 +1907,11 @@ function drawCombo() {
   x.textAlign = "center";
   setCombatFont(x, (riposte ? "bold 22px" : "bold 15px") + " ui-monospace");
   x.fillStyle = "#071117";
-  x.fillText(riposte ? "연타!" : "COMBO x" + hitCombo, 2, 2);
+  x.fillText(riposte ? t("연타!") : "COMBO x" + hitCombo, 2, 2);
   x.fillStyle = riposte ? "#fff08f" : "#d1efe2";
   x.shadowBlur = combatFxBlur(riposte ? 18 : 8);
   x.shadowColor = x.fillStyle;
-  x.fillText(riposte ? "연타!" : "COMBO x" + hitCombo, 0, 0);
+  x.fillText(riposte ? t("연타!") : "COMBO x" + hitCombo, 0, 0);
   x.restore();
 }
 function update(d) {

@@ -84,6 +84,19 @@ function i18nApplyFragments(s) {
   return out;
 }
 
+/* 캔버스(ctx.fillText)로 그리는 텍스트용. DOM 관찰자가 못 닿으므로 소스에서
+   이 함수로 한국어 문자열을 감싼다. en 모드가 아니면 원문 그대로. 앞뒤 공백은
+   보존한다(«이름 + t(" · 각성")» 같은 연결을 위해). */
+function t(s) {
+  if (typeof s !== "string" || !i18nActive() || !/[가-힣]/.test(s)) return s;
+  const key = s.trim();
+  const en = I18N_EN[key];
+  if (en != null && en !== key) return s.replace(key, en);
+  const frag = i18nApplyFragments(key);
+  return frag !== key ? s.replace(key, frag) : s;
+}
+if (typeof window !== "undefined") window.t = t;
+
 /* 텍스트 노드 지역화. 전체 정확 일치 우선, 남은 한글은 조각 치환. 앞뒤 공백
    보존. aria-label/placeholder/title도 같은 규칙. */
 function i18nLocalize(root) {

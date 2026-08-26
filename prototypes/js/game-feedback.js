@@ -1293,11 +1293,11 @@ function drawFinisherFocus() {
   );
   x.fillStyle = "#070a1e";
   setCombatFont(x, "bold 30px Galmuri11, ui-monospace");
-  x.fillText(gate.s + " · 각성", W * 0.5 + 3, H * 0.47 + 3);
+  x.fillText(gate.s + t(" · 각성"), W * 0.5 + 3, H * 0.47 + 3);
   x.fillStyle = "#fff4c9";
   x.shadowBlur = combatFxBlur(20);
   x.shadowColor = gate.col;
-  x.fillText(gate.s + " · 각성", W * 0.5, H * 0.47);
+  x.fillText(gate.s + t(" · 각성"), W * 0.5, H * 0.47);
   setCombatFont(x, "bold 14px Galmuri11, ui-monospace");
   x.fillStyle = "#f0ecff";
   x.fillText(label, W * 0.5, H * 0.535);

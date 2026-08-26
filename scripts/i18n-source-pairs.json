@@ -4783,5 +4783,35 @@
     "ko": "아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.",
     "en": "Drag the Starkeepers below into their seats. Upper seats begin near the Colossus; lower seats, far.",
     "bucket": "combat-fixup"
+  },
+  {
+    "ko": "굴림",
+    "en": "Roll",
+    "bucket": "canvas-fixup"
+  },
+  {
+    "ko": "· 각성",
+    "en": "· Awaken",
+    "bucket": "canvas-fixup"
+  },
+  {
+    "ko": "각성",
+    "en": "Awaken",
+    "bucket": "canvas-fixup"
+  },
+  {
+    "ko": "남은 ✦",
+    "en": "Left ✦",
+    "bucket": "canvas-fixup"
+  },
+  {
+    "ko": "→ 별자리",
+    "en": "→ constellation",
+    "bucket": "canvas-fixup"
+  },
+  {
+    "ko": "빈 곳 클릭 = 반대편",
+    "en": "Click empty space = opposite side",
+    "bucket": "canvas-fixup"
   }
 ]

@@ -1180,6 +1180,12 @@ const I18N_EN = {
   "별지기 3명을 자리에 세우세요": "Place 3 Starkeepers in their seats",
   "아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.":
     "Drag the Starkeepers below into their seats. Upper seats begin near the Colossus; lower seats, far.",
+  굴림: "Roll",
+  "· 각성": "· Awaken",
+  각성: "Awaken",
+  "남은 ✦": "Left ✦",
+  "→ 별자리": "→ constellation",
+  "빈 곳 클릭 = 반대편": "Click empty space = opposite side",
 };
 
 /* 값-혼합·조각 노드용 부분 치환(순서대로, 긴 것 먼저). */
@@ -1226,6 +1232,19 @@ function i18nApplyFragments(s) {
   }
   return out;
 }
+
+/* 캔버스(ctx.fillText)로 그리는 텍스트용. DOM 관찰자가 못 닿으므로 소스에서
+   이 함수로 한국어 문자열을 감싼다. en 모드가 아니면 원문 그대로. 앞뒤 공백은
+   보존한다(«이름 + t(" · 각성")» 같은 연결을 위해). */
+function t(s) {
+  if (typeof s !== "string" || !i18nActive() || !/[가-힣]/.test(s)) return s;
+  const key = s.trim();
+  const en = I18N_EN[key];
+  if (en != null && en !== key) return s.replace(key, en);
+  const frag = i18nApplyFragments(key);
+  return frag !== key ? s.replace(key, frag) : s;
+}
+if (typeof window !== "undefined") window.t = t;
 
 /* 텍스트 노드 지역화. 전체 정확 일치 우선, 남은 한글은 조각 치환. 앞뒤 공백
    보존. aria-label/placeholder/title도 같은 규칙. */

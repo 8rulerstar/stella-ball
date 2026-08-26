@@ -1788,7 +1788,7 @@ function drawVictoryFx() {
   x.font = "bold 13px ui-monospace";
   x.shadowBlur = combatFxBlur(0);
   x.fillStyle = "#f3f5ff";
-  x.fillText("별이 하늘로 돌아갑니다", 0, 28);
+  x.fillText(t("별이 하늘로 돌아갑니다"), 0, 28);
   x.restore();
 }
 function queueUnitAssist(g, amount, name, options = {}) {
