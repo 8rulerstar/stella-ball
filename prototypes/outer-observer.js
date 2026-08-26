@@ -1002,6 +1002,12 @@
   function play(mode) {
     var sky = document.getElementById("dawn-sky");
     if (!sky || !window.StellaBossArt) return;
+    /* 이 세션에서 스킵을 눌렀으면 인트로를 아예 틀지 않는다(위 스킵 핸들러가
+       리로드하며 남긴 표식). 멈추던 v2 스킵 경로를 통째로 건너뛴다 — 타이틀만
+       바로 선다. */
+    try {
+      if (sessionStorage.getItem(SKIP_KEY) === "1") return;
+    } catch (e) {}
     stop();
     var P = build(sky);
     live = { parts: P, timers: [], raf: 0, sky: sky };
@@ -1539,6 +1545,9 @@
      sessionStorage는 탭을 새로 열 때마다 비므로, 이 연출은 첫 실행 한정이
      아니라 «탭마다 한 번»이었다. 두 번째부터는 지금처럼 약식(short)이 돈다. */
   var SESSION_KEY = "stella-ball.outer-observer.played";
+  /* 이 세션에서 스킵을 눌렀다는 표식. 세션 저장소라 탭 단위 — 새 탭/창은
+     비어 인트로가 정상 재생된다. play()가 이 값을 보면 인트로를 안 튼다. */
+  var SKIP_KEY = "stella-ball.outer-observer.skip";
   function played() {
     try {
       return (
@@ -1580,9 +1589,23 @@
     skipNode.className = "oo2-skip";
     skipNode.type = "button";
     skipNode.textContent = "건너뛰기";
-    skipNode.addEventListener("click", function () {
-      stop();
+    skipNode.addEventListener("click", function (e) {
+      /* 스킵 클릭이 첫 실행 v2 인트로에서 화면을 멈추던 제보(2026-08-26,
+         시크릿창). stop() 은 직접 부르면 0ms로 안전한데 클릭 이벤트 컨텍스트
+         에서만 멈춘다 — 이벤트 처리 중 in-place 정리가 렌더러를 굳힌다.
+         가장 확실한 우회: «이 세션은 인트로 생략» 플래그를 세우고 리로드한다.
+         리로드된 페이지는 play()가 플래그를 보고 인트로를 아예 안 틀어,
+         멈출 코드 경로 자체를 지난다. 새 탭/창은 세션 저장소가 비어 인트로가
+         다시 정상 재생된다(첫 실행 경험 보존). */
+      if (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
       markPlayed();
+      try {
+        sessionStorage.setItem(SKIP_KEY, "1");
+      } catch (err) {}
+      location.reload();
     });
     document.body.appendChild(skipNode);
   }
