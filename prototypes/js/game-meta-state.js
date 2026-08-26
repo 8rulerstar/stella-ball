@@ -89,6 +89,10 @@ for (const key of ["master", "bgm", "sfx"]) {
     ? clamp(value, 0, 1)
     : DEFAULT_SETTINGS[key];
 }
+// 음소거도 숫자 설정처럼 실제 boolean 으로 못박는다 — 손으로 고친/깨진 저장의
+// "false" 같은 truthy 문자열이 Boolean(settings.muted) 를 참으로 만들어 소리가
+// 꺼진 채 부팅되지 않도록.
+settings.muted = settings.muted === true;
 if (document.documentElement) document.documentElement.lang = settings.language;
 /* 저장된 언어에 맞춰 데이터 표시 필드(별지기·자리 등)를 세운다. game-data.js
    가 먼저 로드돼 applyDataLanguage/heroes/SLOT_BANDS가 이미 서 있다. 언어
