@@ -1232,6 +1232,11 @@ function t(s) {
 }
 if (typeof window !== "undefined") window.t = t;
 
+/* 관찰자가 «한국어→영어»로 바꾼 텍스트 노드의 원본을 기억한다. 언어를 다시
+   한국어로 돌릴 때(전투 «중» 토글처럼 재렌더가 안 되는 자리) 이 원본으로
+   되돌린다. 재렌더로 사라진 옛 노드는 WeakMap 에서 자연히 GC 된다. */
+const _i18nOrig = new WeakMap();
+
 /* 텍스트 노드 지역화. 전체 정확 일치 우선, 남은 한글은 조각 치환. 앞뒤 공백
    보존. aria-label/placeholder/title도 같은 규칙. */
 function i18nLocalize(root) {
@@ -1246,11 +1251,15 @@ function i18nLocalize(root) {
     if (!key || !/[가-힣]/.test(key)) continue;
     const en = I18N_EN[key];
     if (en != null && en !== key) {
+      if (!_i18nOrig.has(t)) _i18nOrig.set(t, rawv);
       t.nodeValue = rawv.replace(key, en);
       continue;
     }
     const frag = i18nApplyFragments(key);
-    if (frag !== key) t.nodeValue = rawv.replace(key, frag);
+    if (frag !== key) {
+      if (!_i18nOrig.has(t)) _i18nOrig.set(t, rawv);
+      t.nodeValue = rawv.replace(key, frag);
+    }
   }
   if (root.querySelectorAll) {
     for (const el of root.querySelectorAll(
@@ -1274,13 +1283,27 @@ function i18nLocalize(root) {
    운동량)는 characterData 로 초당 여러 번 갱신되는데, 그건 지역화할 필요가
    없고 감시하면 부하만 준다. 라벨의 최초 렌더는 innerHTML(=childList)이라
    이걸로 다 잡힌다. 자기 치환이 옵저버를 다시 안 깨우게 치환 동안 끊는다. */
+/* 지역화된 노드를 원본 한국어로 되돌린다(EN→KO 토글). 새로 렌더된 노드는
+   애초에 한국어라 WeakMap 에 없어 건드리지 않는다. */
+function i18nRestore(root) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  let n;
+  while ((n = walker.nextNode())) {
+    const orig = _i18nOrig.get(n);
+    if (orig != null && n.nodeValue !== orig) n.nodeValue = orig;
+  }
+}
+
 const I18N_OBS_OPTS = { childList: true, subtree: true };
 let _i18nObserver = null;
 function i18nRun(root) {
-  // 한국어면 감시를 «끊는다». 예전엔 그냥 return 이라, EN 을 한 번 켰다가 KO 로
-  // 돌아오면 <main> 관찰자가 계속 붙어 모든 childList 변경마다 헛돌았다.
+  // 한국어면 감시를 «끊고», 지역화했던 노드를 원본으로 되돌린다. 예전엔 그냥
+  // return 이라 (1) EN→KO 후 <main> 관찰자가 계속 붙어 헛돌았고 (2) 전투 «중»
+  // 토글 시 정적 HUD 라벨이 영어로 남았다.
   if (!i18nActive()) {
     if (_i18nObserver) _i18nObserver.disconnect();
+    i18nRestore(root);
     return;
   }
   if (_i18nObserver) _i18nObserver.disconnect();
