@@ -55,6 +55,10 @@ function showSettings(onBack) {
     button.onclick = () => {
       settings.language = button.dataset.lang;
       saveSettings();
+      /* 데이터 표시 필드(별지기·자리 등)를 새 언어로 세운 뒤 다시 그린다.
+         접근 지점은 그대로 두고 값만 바뀌므로, 재렌더만으로 화면이 따라온다. */
+      if (typeof applyDataLanguage === "function")
+        applyDataLanguage(settings.language);
       playSfx("confirm");
       showSettings(back);
     };

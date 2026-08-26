@@ -90,6 +90,11 @@ for (const key of ["master", "bgm", "sfx"]) {
     : DEFAULT_SETTINGS[key];
 }
 if (document.documentElement) document.documentElement.lang = settings.language;
+/* 저장된 언어에 맞춰 데이터 표시 필드(별지기·자리 등)를 세운다. game-data.js
+   가 먼저 로드돼 applyDataLanguage/heroes/SLOT_BANDS가 이미 서 있다. 언어
+   토글은 game-meta.js 에서 이 함수를 다시 부른다. */
+if (typeof applyDataLanguage === "function")
+  applyDataLanguage(settings.language);
 let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   clears: 0,
   gold: 0,
