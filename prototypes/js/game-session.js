@@ -478,6 +478,13 @@ function renderTitlePresentation() {
   if (replayIntro)
     replayIntro.onclick = () => {
       playSfx?.("confirm");
+      /* 이 세션에서 인트로를 「건너뛰기」로 넘겼다면 스킵 표식(sessionStorage)
+         때문에 play()가 곧장 돌아가 버려 「인트로 다시 보기」가 죽는 버튼이
+         된다(채점 전날 실측). 다시 보겠다는 명시적 요청이니 표식을 지우고
+         정상 재생한다. */
+      try {
+        sessionStorage.removeItem("stella-ball.outer-observer.skip");
+      } catch (e) {}
       window.StellaIntroObserver?.play("v2");
     };
   document.querySelector("#titleHelp").onclick = () => {
