@@ -593,6 +593,14 @@ function equipWeapon(heroId, weaponId) {
     Array.isArray(progress.equippedWeapons)
   )
     progress.equippedWeapons = {};
+  /* 한 자루는 한 별지기에게만. 무기고 picker 는 보유 무기를 «전부» 보여 주므로,
+     이미 다른 별지기가 낀 무기를 그대로 끼우면 한 자루가 여럿에게 걸려 정산
+     피해가 복제됐다(보유 1인데 파티 전원 버프). 끼울 때 다른 별지기에게서
+     먼저 뺀다 — «이동» 의미. */
+  for (const h in progress.equippedWeapons) {
+    if (h !== heroId && progress.equippedWeapons[h] === weaponId)
+      delete progress.equippedWeapons[h];
+  }
   progress.equippedWeapons[heroId] = weaponId;
   saveProgress();
   return true;
