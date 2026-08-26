@@ -90,6 +90,11 @@ for (const key of ["master", "bgm", "sfx"]) {
     : DEFAULT_SETTINGS[key];
 }
 if (document.documentElement) document.documentElement.lang = settings.language;
+/* 저장된 언어에 맞춰 데이터 표시 필드(별지기·자리 등)를 세운다. game-data.js
+   가 먼저 로드돼 applyDataLanguage/heroes/SLOT_BANDS가 이미 서 있다. 언어
+   토글은 game-meta.js 에서 이 함수를 다시 부른다. */
+if (typeof applyDataLanguage === "function")
+  applyDataLanguage(settings.language);
 let progress = appStorage.readRecord(PROGRESS_STORAGE, {
   clears: 0,
   gold: 0,
@@ -242,6 +247,49 @@ let storageWarned = false;
   document.body.append(button);
   // 설정 화면의 전체 음량 슬라이더가 음소거를 풀 때 표시를 맞춘다.
   window.StellaMute = { refresh };
+})();
+/* 언어 토글 한 버튼(음소거 버튼 왼쪽, 오너 지시 2026-08-26). 심사위원이 설정에
+   안 들어가도 타이틀·전투에서 바로 한↔영을 바꾼다. 음소거와 같은 이유로 JS가
+   만들고(HTML 을 건드리면 스모크 문서 계약이 흔들린다) 설정을 소유한 이 파일에
+   둔다. 표시는 음소거와 같은 규칙(타이틀·전투). 라벨은 현재 언어를 보인다. */
+(() => {
+  if (!document.body) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.id = "langButton";
+  button.className = "lang-button";
+  const refresh = () => {
+    const en = settings.language === "en";
+    // 이 버튼은 <body> 직계라 <main> 관찰자가 안 건드린다 — 라벨을 손으로 맞춘다.
+    button.textContent = en ? "EN" : "한";
+    const label = en
+      ? "Language: English · tap for 한국어"
+      : "언어: 한국어 · 눌러서 English";
+    button.setAttribute("aria-label", label);
+    button.title = label;
+  };
+  button.onclick = () => {
+    settings.language = settings.language === "en" ? "ko" : "en";
+    saveSettings();
+    if (typeof applyDataLanguage === "function")
+      applyDataLanguage(settings.language);
+    refresh();
+    window.StellaMute?.refresh?.();
+    /* 지금 화면을 새 언어로 다시 세운다. 타이틀은 통째로 다시 그리고(양방향
+       확실), 그 밖은 관찰자에게 다시 지역화를 맡긴다 — 캔버스 전투 텍스트는
+       매 프레임 t() 로 스스로 바뀌고, 메뉴가 열려 있으면 관찰자가 잡는다. */
+    if (
+      document.body.classList.contains("title-mode") &&
+      typeof showTitle === "function"
+    )
+      showTitle();
+    // 재렌더 뒤 곧바로(동기) 지역화해 한국어가 한 프레임도 안 비치게 한다.
+    if (typeof window.__i18nApply === "function") window.__i18nApply();
+    playSfx?.("confirm");
+  };
+  refresh();
+  document.body.append(button);
+  window.StellaLang = { refresh };
 })();
 function saveProgress() {
   const ok = appStorage.writeRecord(PROGRESS_STORAGE, progress);

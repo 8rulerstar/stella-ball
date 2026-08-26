@@ -27,6 +27,7 @@ const expectedScripts = [
   "./js/game-platform.js",
   "./js/game-runtime.js",
   "./js/game-data.js",
+  "./js/game-i18n.js",
   "./js/game-ui.js",
   "./js/game-session.js",
   "./js/game-core-physics.js",

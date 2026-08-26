@@ -1076,7 +1076,7 @@ function drawAimGuide() {
     x.fillStyle = path.target.col;
     x.font = "bold 10px ui-monospace";
     x.textAlign = "center";
-    x.fillText(path.target.s + " 굴림", path.to.x, path.to.y - 9);
+    x.fillText(path.target.s + t(" 굴림"), path.to.x, path.to.y - 9);
   }
   x.setLineDash([]);
   /* 2026-08-24: 유성 위의 「아래로 끌어 별지기를 굴리세요」를 걷었다.
@@ -1089,7 +1089,7 @@ function drawAimGuide() {
     x.fillStyle = "#d8ece5";
     x.font = "bold 10px ui-monospace";
     x.textAlign = "center";
-    x.fillText("별지기 이동선까지 예측", ball.x, ball.y - 28);
+    x.fillText(t("별지기 이동선까지 예측"), ball.x, ball.y - 28);
   }
   /* 세기 표시는 판 밖 HUD로 옮겼다(2026-08-24, 오너 지시 「가독성 별로다」).
      46x5 막대와 12px 글자를 유성 둘레에 그리면 판의 배율(창 높이에 따라
@@ -1112,7 +1112,7 @@ registerRuntimeHook("afterDraw", function drawSteerPrompt() {
   x.font = "bold 10px ui-monospace";
   x.globalAlpha = Math.min(1, flash * 2.4);
   x.fillStyle = "#e8f7df";
-  x.fillText("궤도 전환 완료", ball.x, ball.y - 27);
+  x.fillText(t("궤도 전환 완료"), ball.x, ball.y - 27);
   x.restore();
 });
 /* 별빛 조준점(2026-08-18). 패링과 안내별이 남긴 점, 지금 고른 것, 그리고
@@ -1608,7 +1608,7 @@ function drawAimStars() {
         x.fillStyle = "#ffd27f";
         x.font = "700 11px Galmuri11, ui-monospace";
         x.textAlign = "center";
-        x.fillText("남은 ✦ " + rest.length + " → 별자리", rcx, rcy - 6);
+        x.fillText(t("남은 ✦ ") + rest.length + t(" → 별자리"), rcx, rcy - 6);
       }
       x.restore();
     }
@@ -1770,13 +1770,13 @@ function drawAimStars() {
               Math.min(W - 90, oEx + (ball.x - oEx) * 0.12),
             ),
             fy = Math.max(60, Math.min(H - 60, oEy + (ball.y - oEy) * 0.12)),
-            flipText = " 빈 곳 클릭 = 반대편",
+            flipText = t(" 빈 곳 클릭 = 반대편"),
             flipW = x.measureText(flipText).width;
           if (drawGlyphSprite("glyphAimFlip", fx - (16 + flipW) / 2, fy - 13)) {
             x.textAlign = "left";
             x.fillText(flipText, fx - (16 + flipW) / 2 + 16, fy);
             x.textAlign = "center";
-          } else x.fillText("↷ 빈 곳 클릭 = 반대편", fx, fy);
+          } else x.fillText(t("↷ 빈 곳 클릭 = 반대편"), fx, fy);
           x.restore();
         }
       }
@@ -2016,10 +2016,10 @@ function drawAimStars() {
     x.fillStyle = "#cfdad7";
     x.font = "11px Galmuri11, ui-monospace";
     x.textAlign = "left";
-    x.fillText("별지기 위 빛 — 조준에만 사용", 68, 84);
+    x.fillText(t("별지기 위 빛 — 조준에만 사용"), 68, 84);
     pixelSparkle(52, 100, 7, "#ffe09acc", 2);
     x.fillStyle = "#cfdad7";
-    x.fillText("작은 별빛 — 남기면 별자리", 68, 104);
+    x.fillText(t("작은 별빛 — 남기면 별자리"), 68, 104);
     x.restore();
   }
   /* 기믹 범례는 노드 범례와 «다른 조건»으로 산다. 노드 규칙은 세 샷이면

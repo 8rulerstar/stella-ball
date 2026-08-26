@@ -1790,3 +1790,38 @@ body.game-mode #muteButton {
   background: #ff5a4d;
   transform: translate(-50%, -50%) rotate(-45deg);
 }
+/* 언어 토글 버튼. 음소거 버튼(right:14px, 34px) 왼쪽에 8px 띄워 같은 원형으로
+   선다. 표시·z-index 는 음소거와 동일하게 맞춰 «타이틀·전투»에서만 보인다. */
+#langButton {
+  position: fixed;
+  right: 56px;
+  top: 14px;
+  z-index: 71;
+  display: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #3b2a55;
+  border-radius: 50%;
+  background: #12041fd9;
+  color: #cbbde6;
+  cursor: pointer;
+  font:
+    700 12px/1 Galmuri11,
+    ui-monospace,
+    monospace;
+  letter-spacing: 0.01em;
+  transition:
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+body.title-mode #langButton,
+body.game-mode #langButton {
+  display: grid;
+}
+#langButton:hover,
+#langButton:focus-visible {
+  border-color: #f2b35c;
+  color: #f3ede2;
+}

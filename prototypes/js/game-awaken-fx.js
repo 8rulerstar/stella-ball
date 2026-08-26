@@ -486,9 +486,9 @@
     x.textAlign = "center";
     x.font = "900 15px Galmuri11, ui-monospace";
     x.fillStyle = "#07100f";
-    x.fillText(gate.s + " 각성", gate.x + 2, gate.y + gate.r + 43);
+    x.fillText(gate.s + t(" 각성"), gate.x + 2, gate.y + gate.r + 43);
     x.fillStyle = gate.col;
-    x.fillText(gate.s + " 각성", gate.x, gate.y + gate.r + 41);
+    x.fillText(gate.s + t(" 각성"), gate.x, gate.y + gate.r + 41);
     x.font = "700 9px Galmuri11, ui-monospace";
     x.fillStyle = "#8ba39f";
     x.fillText(
@@ -546,7 +546,7 @@
       x.fillText("STELLAR SETTLEMENT", 34, BAND + 28);
       x.font = "900 22px Galmuri11, ui-monospace";
       x.fillStyle = "#ffd2a0";
-      x.fillText(waiting + firing + "인 일제 사격", 34, BAND + 54);
+      x.fillText(waiting + firing + t("인 일제 사격"), 34, BAND + 54);
       for (let i = 0; i < waiting + firing; i++) {
         const shot = shots[i],
           gate = shot && gates.find((unit) => unit.id === shot.sourceId);

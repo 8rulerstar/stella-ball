@@ -2302,3 +2302,167 @@ else
   window.addEventListener("load", primeCombatTexturesDeferred, { once: true });
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const currentStage = () => stages[stageIndex];
+
+/* ──────────────────────────────────────────────────────────────────────────
+   i18n: 데이터 객체의 영어 오버레이 (feature/full-english-i18n).
+   한국어가 원본이다. 영어 값은 아래 표(DATA_EN)에 두고, applyDataLanguage(lang)
+   가 표시 필드를 «제자리»에서 바꾼다 — heroes[id].n 같은 «접근 지점»은 하나도
+   안 고친다. 렌더는 그대로 읽고, 값만 활성 언어로 서 있다. 한국어 원본은
+   WeakMap 스냅샷으로 보존해 'ko'로 돌아오면 복원한다. id·fx·sprite·col 같은
+   «식별·자원» 필드는 절대 안 건드리고 n/s/e/d/lore/name/hint 등 «표시» 필드만
+   바꾼다. 뒤 증분에서 weapons/skins/worlds/stages를 같은 표에 채워 넣는다.
+   ────────────────────────────────────────────────────────────────────────── */
+const DATA_EN = {
+  heroes: {
+    gaon: {
+      n: "Dawn Blade Saetbyeol",
+      s: "Saetbyeol",
+      e: "Close Cut",
+      d: "On awakening, sends a blade-wave to the colossus from where it settles. The closer it is, the harder it hits.",
+      lore: "The first star to rise at the end of night and open the dawn.",
+    },
+    biyeon: {
+      n: "Milky Way Archer Mirinae",
+      s: "Mirinae",
+      e: "Long Shot",
+      d: "On awakening, looses an arrow at the colossus from where it settles. The farther away, the greater the damage.",
+      lore: "The Milky Way's star, crossing the river of forgotten stars alone to gather up arrows.",
+    },
+    lumi: {
+      n: "Twin-Star Mage Byeolha",
+      s: "Byeolha",
+      e: "Twin Split",
+      d: "On touching the meteor, copies the ball into two — once during this shot.",
+      lore: "A twin star that split itself in two, unwilling to be alone.",
+    },
+    haru: {
+      n: "Comet Herald Salbyeol",
+      s: "Salbyeol",
+      e: "Forced Relay",
+      d: "On touching the meteor, instantly re-launches it toward the nearest other starkeeper.",
+      lore: "The comet's star, racing the night sky with a message strung from its long tail.",
+    },
+    ria: {
+      n: "Glimmer Dancer Yunseul",
+      s: "Yunseul",
+      e: "Gale Blade",
+      d: "Has no settle attack. On awakening it pierces the colossus and starkeepers, cutting with a spinning blade in proportion to its speed.",
+      lore: "Like starlight shattered on water — the glimmer star that vanishes the moment it stops.",
+    },
+    sera: {
+      n: "Orbit Priest Dalmuri",
+      s: "Dalmuri",
+      e: "Base Resonance",
+      d: "On touching the meteor, accelerates along with it in base resonance. It has no ability of its own.",
+      lore: "The ring star, becoming the halo that guards the moon and rules its orbit.",
+    },
+    taeo: {
+      n: "Starfire Smith Moru",
+      s: "Moru",
+      e: "Impact Shockwave",
+      d: "On awakening, raises a shockwave from where it settles, scaled to this shot's collision count.",
+      lore: "The forge's star, hammering fallen stars to forge them back up into the sky.",
+    },
+    nyx: {
+      n: "Watcher of Night Geumeum",
+      s: "Geumeum",
+      e: "Last Mimicry",
+      d: "Copies the ability of the last ally it struck onto this shot exactly.",
+      lore: "The dark moon that gave up shining to record the light of other stars.",
+    },
+  },
+  slotBands: {
+    near: {
+      name: "Close Seat",
+      hint: "Starts close to the colossus · strong at short range",
+    },
+    mid: { name: "Mid Seat", hint: "Starts at mid distance from the colossus" },
+    far: {
+      name: "Far Seat",
+      hint: "Starts far from the colossus · strong for sniping",
+    },
+  },
+};
+const _dataKoSnapshot = new WeakMap();
+function localizeDataEntry(obj, enFields, lang) {
+  if (!obj || !enFields) return;
+  let ko = _dataKoSnapshot.get(obj);
+  if (!ko) {
+    ko = {};
+    for (const f in enFields) ko[f] = obj[f];
+    _dataKoSnapshot.set(obj, ko);
+  }
+  for (const f in enFields)
+    obj[f] = lang === "en" && enFields[f] != null ? enFields[f] : ko[f];
+}
+/* 맵(game-i18n.js의 I18N_EN) 구동 지역화. 필드의 «한국어 원본 값»을 맵에서
+   찾아 영어로 바꾼다. 무기·도색·월드처럼 값 전체가 한 문자열인 데이터에 쓴다.
+   워크플로 번역이 I18N_EN에 이미 있으므로 여기서 번역을 중복 보관하지 않는다. */
+function localizeByMap(obj, fields, lang) {
+  if (!obj) return;
+  const M = typeof I18N_EN !== "undefined" ? I18N_EN : {};
+  let ko = _dataKoSnapshot.get(obj);
+  if (!ko) {
+    ko = {};
+    for (const f of fields) ko[f] = obj[f];
+    _dataKoSnapshot.set(obj, ko);
+  }
+  for (const f of fields) {
+    const v = ko[f];
+    obj[f] =
+      lang === "en" && typeof v === "string" && M[v.trim()] != null
+        ? M[v.trim()]
+        : v;
+  }
+}
+/* 스테이지는 name 이 «별이름 · 부제»로 이어 붙어 통짜로는 맵에 없다. 조각으로
+   나눠 각각 맵에서 찾아 다시 잇고, terrain(설명)·star.name·labels 도 바꾼다. */
+function localizeStage(st, lang) {
+  if (!st) return;
+  const M = typeof I18N_EN !== "undefined" ? I18N_EN : {};
+  const tr = (s) =>
+    lang === "en" && typeof s === "string" && M[s.trim()] != null
+      ? M[s.trim()]
+      : s;
+  let ko = _dataKoSnapshot.get(st);
+  if (!ko) {
+    ko = {
+      name: st.name,
+      terrain: st.terrain,
+      starName: st.star && st.star.name,
+      labels: Array.isArray(st.labels) ? st.labels.slice() : null,
+    };
+    _dataKoSnapshot.set(st, ko);
+  }
+  if (typeof ko.name === "string")
+    st.name = ko.name
+      .split(" · ")
+      .map((p) => tr(p))
+      .join(" · ");
+  if (typeof ko.terrain === "string") st.terrain = tr(ko.terrain);
+  if (st.star && typeof ko.starName === "string")
+    st.star.name = tr(ko.starName);
+  if (ko.labels) st.labels = ko.labels.map((l) => tr(l));
+}
+/* 활성 언어에 맞춰 데이터 표시 필드를 세운다. 로드 시(게임 설정이 준비된 뒤,
+   game-meta-state.js)와 언어 토글 시(game-meta.js) 부른다. 'ko'면 원본 복원.
+   별지기·자리는 전용 표(DATA_EN)로, 나머지는 맵(I18N_EN)으로 바꾼다. */
+function applyDataLanguage(lang) {
+  for (const id in DATA_EN.heroes)
+    if (heroes[id]) localizeDataEntry(heroes[id], DATA_EN.heroes[id], lang);
+  for (const band of SLOT_BANDS) {
+    const en = DATA_EN.slotBands[band.id];
+    if (en) localizeDataEntry(band, en, lang);
+  }
+  if (typeof WEAPONS !== "undefined")
+    for (const id in WEAPONS)
+      localizeByMap(WEAPONS[id], ["n", "tag", "desc"], lang);
+  if (typeof METEOR_SKINS !== "undefined")
+    for (const s of METEOR_SKINS) localizeByMap(s, ["name", "note"], lang);
+  if (typeof HERO_SKINS !== "undefined")
+    for (const s of HERO_SKINS) localizeByMap(s, ["name", "note"], lang);
+  if (typeof WORLDS !== "undefined")
+    for (const w of WORLDS) localizeByMap(w, ["name", "lore"], lang);
+  if (typeof stages !== "undefined")
+    for (const st of stages) localizeStage(st, lang);
+}
