@@ -1016,16 +1016,17 @@ function showTitle() {
   setScene("title");
   const enter = renderTitlePresentation();
   enter.onclick = () => {
-    if (!hasSeenStoryIntro()) showStoryIntro();
-    else if (!hasOnboardingClear()) {
-      // 예전엔 «미시청 || 3번째 자리 미해금»으로 튜토를 다시 열었다. 3번째
-      // 자리 관문을 걷었으므로, 이제 «수업 미완료»만으로 가른다(2026-08-23).
-      playSfx?.("confirm");
-      showOnboardingTutorial();
-    } else {
-      playSfx?.("confirm");
-      showMeta();
-    }
+    /* 프롤로그(showStoryIntro)는 오프닝 인트로와 성격이 겹치는 «두 번째
+       컷신»이었다 — 관측 시작을 누르면 또 한 번 글 카드가 떠, 인트로를
+       건너뛴 사람에게는 「건너뛴 인트로가 다시 나온다」로 읽혔고, 그 화면
+       전환(오버레이 교체 → 타이틀 옵저버 반응)에서 먹통 제보까지 나왔다
+       (시크릿창, 채점 전날). 프롤로그를 흐름에서 뺀다 — 관측 시작은 곧장
+       수업(첫 실행) 또는 허브로 간다. 이야기 맥락은 인트로가 이미 전하고,
+       showOnboardingTutorial 이 스토리인트로 표식·옵저버 정지를 모두
+       처리하므로 재진입도 안전하다(「1분 튜토리얼」 버튼과 같은 길). */
+    playSfx?.("confirm");
+    if (!hasOnboardingClear()) showOnboardingTutorial();
+    else showMeta();
   };
 }
 function storySkyStars(count) {
