@@ -1730,7 +1730,17 @@ registerRuntimeHook("beforeBattleWin", (context) => {
         : 0;
   if (shouldRecord) {
     battle.storyRecorded = true;
-    progress.clears++;
+    /* clears 는 «진행 프론티어»다 — 스테이지는 clears < campaignIndex 면 잠기고
+       clears > campaignIndex 면 클리어로 뜬다(game-meta.js isStageCleared/locked).
+       예전엔 승리마다 무조건 ++ 라, 이미 «깬» 앞 스테이지를 다시 이겨도 프론티어가
+       올라가 아직 «안 깬» 다음 스테이지가 클리어로 뜨고 그 다음이 열렸다(재플레이
+       갈이로 스테이지 건너뛰기). 프론티어는 «단조»여야 한다 — 이번에 이긴 스테이지
+       기준으로만 올리고, 그보다 앞이면 그대로 둔다. */
+    const wonIndex = campaignIndexOf(currentStage());
+    progress.clears = Math.max(
+      progress.clears || 0,
+      wonIndex >= 0 ? wonIndex + 1 : progress.clears || 0,
+    );
     // Guard the write as well as the load: shotsUsed comes from
     // `battle.shotMax - battle.shots`, and Math.min with anything non-numeric
     // yields NaN, which JSON stores as null and readRecord will not repair

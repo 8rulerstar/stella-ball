@@ -1796,11 +1796,19 @@ function claimAttendance() {
   const streak = attendanceStreak(),
     gold = attendanceReward(streak),
     state = attendanceState();
-  appStorage.writeRecord(ATTENDANCE_STORAGE, {
-    last: dayKey(),
-    prev: state.last,
-    streak,
-  });
+  /* 「오늘 받음」 표식이 «안 남으면» 골드도 주면 안 된다 — 저장이 막힌
+     브라우저(시크릿·용량 초과)에서 표식 쓰기는 실패했는데 골드만 올리면
+     attendanceReady() 가 계속 true 라 같은 날 무한 재수령된다(골드 수도꼭지).
+     표식이 실제로 남은 것을 확인한 뒤에만 골드를 준다 — saveProgress 가
+     progress 키에 이미 쓰는 방어와 같은 논리. */
+  if (
+    appStorage.writeRecord(ATTENDANCE_STORAGE, {
+      last: dayKey(),
+      prev: state.last,
+      streak,
+    }) === false
+  )
+    return 0;
   progress.gold = goldBalance() + gold;
   saveProgress();
   return gold;

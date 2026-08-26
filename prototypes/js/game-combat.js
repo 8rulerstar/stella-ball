@@ -1310,8 +1310,16 @@ function launchAimStarShot() {
        소모하면 경제가 적자다(한 샷이 남기는 별빛이 중앙 2개인데 여섯을
        먹는다). 그래도 「조준에 빼두면 별자리에 못 쓴다」는 대가는 그대로다. */
     aimStars = aimStars.filter((s) => picked.has(s));
+    /* figure 인식기(FIGURE_SHAPES)는 3~7점만 안다. 조준별을 8~9개(AIM_STAR.max=9)
+       남긴 채 발동하면 classifyFigure 가 null 을 내, 별자리가 고유 능력 없이
+       밋밋한 encloseDamage 로 터지고 점 두 개만 이은 깨진 그림이 그려졌다.
+       최대 7점(북두칠성 tier)으로 잘라 온전한 별자리를 만든다 — 남는 별빛은
+       어차피 이 샷에서 타 없어진다. */
+    const MAX_FIGURE_NODES = 7;
     resolveFigure?.(
-      rest.map((s) => ({ x: s.x, y: s.y, col: s.col, label: s.label })),
+      rest
+        .slice(0, MAX_FIGURE_NODES)
+        .map((s) => ({ x: s.x, y: s.y, col: s.col, label: s.label })),
     );
     sync();
     if (deferFigureResolution?.(fire)) return true;
