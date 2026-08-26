@@ -1,11 +1,14 @@
 /* eslint-disable */
 /* ──────────────────────────────────────────────────────────────────────────
    English localization map + overlay observer (feature/full-english-i18n).
-   자동 생성: scripts/gen-i18n.mjs (워크플로 번역 결과에서). 손으로 고치지 말 것.
-   한국어가 원본이다. settings.language === "en" 일 때, #overlay 안의 텍스트
-   노드 중 «전체가 정확히» 아래 키와 일치하는 것을 영어로 치환한다. 부분/연결
-   문자열(값이 끼인 것)은 여기서 안 잡히므로 소스에서 따로 감싼다. 데이터
-   객체(별지기·자리)는 game-data.js의 applyDataLanguage가 이미 스왑한다.
+   자동 생성: scripts/gen-i18n.mjs — 원천은 scripts/i18n-source-pairs.json.
+   손으로 고치지 말 것(재생성 시 덮어씀). 문구를 고치려면 원천 JSON을 고치고
+   node scripts/gen-i18n.mjs scripts/i18n-source-pairs.json prototypes/js/game-i18n.js.
+
+   한국어가 원본이다. settings.language === "en" 일 때 #overlay 안 텍스트 노드를
+   지역화한다: ① 노드 전체가 정확히 I18N_EN 키와 같으면 통째로 치환, ② 남은
+   한글 노드는 I18N_FRAG(엄선된 안전 조각)로 부분 치환한다. 데이터 객체(별지기·
+   자리·무기·도색·월드·스테이지)는 game-data.js의 applyDataLanguage가 스왑한다.
    ────────────────────────────────────────────────────────────────────────── */
 const I18N_EN = {
   "프리즘 원석": "Prism Stone",
@@ -1149,7 +1152,66 @@ const I18N_EN = {
   "[F10 기록]  F7 하늘  F8 흐림  F6 화면반응":
     "[F10 log]  F7 Sky  F8 Blur  F6 Screen react",
   돌아가기: "Go back",
+  "아직 만나지 못한 별지기를": "Observe the Starkeepers you",
+  관측하세요: "have yet to meet",
+  "별의 대장간에서": "At the Starforge, weapons",
+  "무기를 벼려 냅니다": "are forged",
+  "80 골드로 별무기 한 자루를 벼립니다. 전용 무기는 낮은 확률(약 12%)로 섞여 나옵니다.":
+    "Forge one starweapon for 80 gold. Signature weapons are mixed in at a low chance (about 12%).",
+  "처음인가요?": "First time?",
+  "1분 튜토리얼": "1-Minute Tutorial",
+  "전략 당구 × 파티 조합 / 수직 슬라이스":
+    "Strategic Billiards × Party Comp / Vertical Slice",
+  메인: "Main",
+  조작: "Controls",
+  좌클릭: "Left-click",
+  "끌어 조준·세기": "Drag: aim & power",
+  우클릭: "Right-click",
+  "약점 위력": "Weak-point Power",
+  "별빛 연계": "Starlight Chain",
+  운동량: "Momentum",
+  "별빛 선택": "Select Starlight",
+  공명: "Resonance",
+  "각성 공격": "Awaken Attack",
+  "밤의 관측자": "Night Observer",
+  루나: "Luna",
+  "발사 세기": "Fire Power",
+  "유성을 끌어 보세요": "Try dragging the meteor",
+  "별지기 3명을 자리에 세우세요": "Place 3 Starkeepers in their seats",
+  "아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.":
+    "Drag the Starkeepers below into their seats. Upper seats begin near the Colossus; lower seats, far.",
 };
+
+/* 값-혼합·조각 노드용 부분 치환(순서대로, 긴 것 먼저). */
+const I18N_FRAG = [
+  [
+    "유성을 굴려 별빛을 만들고, 빛나는 곳을 세 군데 골라 조준하세요.",
+    "Roll the meteor to make starlight, then aim at three glowing spots.",
+  ],
+  [
+    "고르지 않고 남겨 둔 별빛이 별자리가 됩니다.",
+    "Starlight left unpicked becomes a constellation.",
+  ],
+  ["루나의 관측 수업", "Luna's Observation Lesson"],
+  ["불멸의 허수아비", "Immortal Scarecrow"],
+  ["훈련 시작", "Start Training"],
+  ["관측 항로", "Observation Route"],
+  ["보유 골드", "Gold Held"],
+  ["보유 무기", "Weapons Owned"],
+  ["골드 부족", "Not enough gold"],
+  ["관측 잔광", "Guide Star"],
+  ["반사 벽", "Bounce Wall"],
+  ["훈련장", "Training Ground"],
+  ["1번 자리", "Seat 1"],
+  ["2번 자리", "Seat 2"],
+  ["3번 자리", "Seat 3"],
+  ["3명", "3"],
+  ["골드 필요", "gold needed"],
+  ["보상", "Reward"],
+  ["무한", "Endless"],
+  ["훈련", "Training"],
+  ["골드", "Gold"],
+];
 
 function i18nActive() {
   return (
@@ -1157,9 +1219,16 @@ function i18nActive() {
   );
 }
 
-/* 텍스트 노드를 «전체 정확 일치»로만 바꾼다. 앞뒤 공백은 보존한다. 값이 낀
-   노드(숫자·이름 연결)는 트림해도 키와 안 맞으므로 그대로 둔다 — 잘못된 부분
-   치환으로 UI를 깨뜨리지 않는다. aria-label/placeholder/title도 같은 규칙. */
+function i18nApplyFragments(s) {
+  let out = s;
+  for (const [ko, en] of I18N_FRAG) {
+    if (out.indexOf(ko) !== -1) out = out.split(ko).join(en);
+  }
+  return out;
+}
+
+/* 텍스트 노드 지역화. 전체 정확 일치 우선, 남은 한글은 조각 치환. 앞뒤 공백
+   보존. aria-label/placeholder/title도 같은 규칙. */
 function i18nLocalize(root) {
   if (!root) return;
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
@@ -1169,9 +1238,14 @@ function i18nLocalize(root) {
   for (const t of nodes) {
     const rawv = t.nodeValue;
     const key = rawv.trim();
-    if (!key) continue;
+    if (!key || !/[가-힣]/.test(key)) continue;
     const en = I18N_EN[key];
-    if (en != null && en !== key) t.nodeValue = rawv.replace(key, en);
+    if (en != null && en !== key) {
+      t.nodeValue = rawv.replace(key, en);
+      continue;
+    }
+    const frag = i18nApplyFragments(key);
+    if (frag !== key) t.nodeValue = rawv.replace(key, frag);
   }
   if (root.querySelectorAll) {
     for (const el of root.querySelectorAll(
@@ -1179,47 +1253,40 @@ function i18nLocalize(root) {
     )) {
       for (const attr of ["aria-label", "placeholder", "title"]) {
         const v = el.getAttribute(attr);
-        if (!v) continue;
-        const en = I18N_EN[v.trim()];
-        if (en != null && en !== v.trim())
-          el.setAttribute(attr, v.replace(v.trim(), en));
+        if (!v || !/[가-힣]/.test(v)) continue;
+        const key = v.trim();
+        const en =
+          I18N_EN[key] != null ? I18N_EN[key] : i18nApplyFragments(key);
+        if (en !== key) el.setAttribute(attr, v.replace(key, en));
       }
     }
   }
 }
 
-/* #overlay를 감시한다. 화면이 바뀔 때마다(그리고 로드 시) 영어면 다시 지역화
-   한다. 자기 자신의 치환이 옵저버를 다시 깨우지 않도록 치환 동안 감시를 끊는다
-   — 영어 텍스트는 어떤 키와도 안 맞으므로 재귀도 없지만, 확실히 한다. */
+/* <main>을 감시한다 — 메뉴(#overlay)와 전투 HUD(발사·남은 유성·조작 안내·
+   별자리 배율 등)가 모두 그 안에 있다. 화면이 바뀔 때마다(그리고 로드 시)
+   영어면 다시 지역화한다. childList+subtree 만 본다: 전투 중 숫자(체력·콤보·
+   운동량)는 characterData 로 초당 여러 번 갱신되는데, 그건 지역화할 필요가
+   없고 감시하면 부하만 준다. 라벨의 최초 렌더는 innerHTML(=childList)이라
+   이걸로 다 잡힌다. 자기 치환이 옵저버를 다시 안 깨우게 치환 동안 끊는다. */
+const I18N_OBS_OPTS = { childList: true, subtree: true };
 let _i18nObserver = null;
-function i18nRun(overlay) {
+function i18nRun(root) {
   if (!i18nActive()) return;
   if (_i18nObserver) _i18nObserver.disconnect();
-  i18nLocalize(overlay);
-  if (_i18nObserver)
-    _i18nObserver.observe(overlay, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
+  i18nLocalize(root);
+  if (_i18nObserver) _i18nObserver.observe(root, I18N_OBS_OPTS);
 }
 function startI18n() {
-  const overlay = document.getElementById("overlay");
-  if (!overlay) {
+  const root = document.querySelector("main") || document.body;
+  if (!root) {
     setTimeout(startI18n, 100);
     return;
   }
-  _i18nObserver = new MutationObserver(() => i18nRun(overlay));
-  i18nRun(overlay);
-  if (i18nActive())
-    _i18nObserver.observe(overlay, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
-  /* 언어 토글 시 game-meta.js가 재렌더하므로 옵저버가 잡는다. 하지만 토글로
-     «영어로» 처음 켤 때 옵저버가 아직 안 붙어 있을 수 있으니, 전역 훅을 둔다. */
-  window.__i18nApply = () => i18nRun(overlay);
+  _i18nObserver = new MutationObserver(() => i18nRun(root));
+  i18nRun(root);
+  if (i18nActive()) _i18nObserver.observe(root, I18N_OBS_OPTS);
+  window.__i18nApply = () => i18nRun(root);
 }
 if (document.readyState === "loading")
   document.addEventListener("DOMContentLoaded", startI18n);

@@ -4658,5 +4658,130 @@
     "ko": "돌아가기",
     "en": "Go back",
     "bucket": "render-misc"
+  },
+  {
+    "ko": "아직 만나지 못한 별지기를",
+    "en": "Observe the Starkeepers you",
+    "bucket": "manual-fixup"
+  },
+  {
+    "ko": "관측하세요",
+    "en": "have yet to meet",
+    "bucket": "manual-fixup"
+  },
+  {
+    "ko": "별의 대장간에서",
+    "en": "At the Starforge, weapons",
+    "bucket": "manual-fixup"
+  },
+  {
+    "ko": "무기를 벼려 냅니다",
+    "en": "are forged",
+    "bucket": "manual-fixup"
+  },
+  {
+    "ko": "80 골드로 별무기 한 자루를 벼립니다. 전용 무기는 낮은 확률(약 12%)로 섞여 나옵니다.",
+    "en": "Forge one starweapon for 80 gold. Signature weapons are mixed in at a low chance (about 12%).",
+    "bucket": "manual-fixup"
+  },
+  {
+    "ko": "처음인가요?",
+    "en": "First time?",
+    "bucket": "manual-fixup"
+  },
+  {
+    "ko": "1분 튜토리얼",
+    "en": "1-Minute Tutorial",
+    "bucket": "manual-fixup"
+  },
+  {
+    "ko": "전략 당구 × 파티 조합 / 수직 슬라이스",
+    "en": "Strategic Billiards × Party Comp / Vertical Slice",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "메인",
+    "en": "Main",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "조작",
+    "en": "Controls",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "좌클릭",
+    "en": "Left-click",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "끌어 조준·세기",
+    "en": "Drag: aim & power",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "우클릭",
+    "en": "Right-click",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "약점 위력",
+    "en": "Weak-point Power",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "별빛 연계",
+    "en": "Starlight Chain",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "운동량",
+    "en": "Momentum",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "별빛 선택",
+    "en": "Select Starlight",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "공명",
+    "en": "Resonance",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "각성 공격",
+    "en": "Awaken Attack",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "밤의 관측자",
+    "en": "Night Observer",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "루나",
+    "en": "Luna",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "발사 세기",
+    "en": "Fire Power",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "유성을 끌어 보세요",
+    "en": "Try dragging the meteor",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "별지기 3명을 자리에 세우세요",
+    "en": "Place 3 Starkeepers in their seats",
+    "bucket": "combat-fixup"
+  },
+  {
+    "ko": "아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.",
+    "en": "Drag the Starkeepers below into their seats. Upper seats begin near the Colossus; lower seats, far.",
+    "bucket": "combat-fixup"
   }
 ]
