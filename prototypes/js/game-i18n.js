@@ -1186,6 +1186,7 @@ const I18N_EN = {
   "남은 ✦": "Left ✦",
   "→ 별자리": "→ constellation",
   "빈 곳 클릭 = 반대편": "Click empty space = opposite side",
+  "관측 연습 허수아비": "Practice Scarecrow",
 };
 
 /* 값-혼합·조각 노드용 부분 치환(순서대로, 긴 것 먼저). */

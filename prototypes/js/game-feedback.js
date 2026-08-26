@@ -696,12 +696,12 @@ function drawFeedbackBeats() {
       x.textAlign = "center";
       x.fillStyle = "#080a1d";
       x.shadowBlur = combatFxBlur(0);
-      x.fillText(beat.label, 2, -size * 0.55 + 2);
+      x.fillText(t(beat.label), 2, -size * 0.55 + 2);
       x.fillStyle =
         beat.kind === "weak" || beat.kind === "riposte" ? "#fff3bd" : "#f0f4ff";
       x.shadowBlur = combatFxBlur(12);
       x.shadowColor = beat.col;
-      x.fillText(beat.label, 0, -size * 0.55);
+      x.fillText(t(beat.label), 0, -size * 0.55);
     }
     x.restore();
   }
@@ -1300,7 +1300,7 @@ function drawFinisherFocus() {
   x.fillText(gate.s + t(" · 각성"), W * 0.5, H * 0.47);
   setCombatFont(x, "bold 14px Galmuri11, ui-monospace");
   x.fillStyle = "#f0ecff";
-  x.fillText(label, W * 0.5, H * 0.535);
+  x.fillText(t(label), W * 0.5, H * 0.535);
   x.fillStyle = gate.col;
   x.fillRect(W * 0.5, H * 0.575, (132 + release * 72) * p, 4);
   x.fillStyle = "#d8dcff";
@@ -1337,14 +1337,14 @@ function drawSettlementBeat() {
   x.textAlign = "center";
   setCombatFont(x, "bold 10px Galmuri11, ui-monospace");
   x.fillStyle = settlementBeat.col;
-  x.fillText(settlementBeat.kicker, W / 2, H * 0.46);
+  x.fillText(t(settlementBeat.kicker), W / 2, H * 0.46);
   setCombatFont(x, "bold 22px Galmuri11, ui-monospace");
   x.fillStyle = "#050718";
-  x.fillText(settlementBeat.label, W / 2 + 2, H * 0.52 + 2);
+  x.fillText(t(settlementBeat.label), W / 2 + 2, H * 0.52 + 2);
   x.fillStyle = "#fff4c9";
   x.shadowBlur = combatFxBlur(16);
   x.shadowColor = settlementBeat.col;
-  x.fillText(settlementBeat.label, W / 2, H * 0.52);
+  x.fillText(t(settlementBeat.label), W / 2, H * 0.52);
   x.restore();
 }
 function drawFinisherImpactMotif(impact, p, radius) {

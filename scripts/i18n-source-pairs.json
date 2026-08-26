@@ -4813,5 +4813,10 @@
     "ko": "빈 곳 클릭 = 반대편",
     "en": "Click empty space = opposite side",
     "bucket": "canvas-fixup"
+  },
+  {
+    "ko": "관측 연습 허수아비",
+    "en": "Practice Scarecrow",
+    "bucket": "canvas-fixup"
   }
 ]

@@ -1652,7 +1652,7 @@ function draw() {
   x.fillStyle = "#cfdad7";
   setCombatFont(x, "700 12px Galmuri11, ui-monospace");
   x.textAlign = "center";
-  x.fillText(bossDisplayName(), boss.x, boss.y + 105);
+  x.fillText(t(bossDisplayName()), boss.x, boss.y + 105);
   if (drag && !ball.moving) {
     x.setLineDash([5, 4]);
     x.strokeStyle = "#ecf4e9";

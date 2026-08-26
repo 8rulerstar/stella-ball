@@ -1356,13 +1356,14 @@ function drawGimmickLegend() {
     x.fillStyle = "#cfdad7";
     /* «이름 ×N»의 ×만 도트 글리프로. 개수 전용이다 — 배율 «×1.0» 네 자리와
        합치지 않는다(지시서 §4-5: 그쪽은 소수점이 있어 다른 조판이다). */
+    const gname = t(name);
     if (count > 1) {
-      x.fillText(name, 68, cy + 4);
-      const w = x.measureText(name).width;
+      x.fillText(gname, 68, cy + 4);
+      const w = x.measureText(gname).width;
       if (drawGlyphSprite("glyphCountX", 68 + w + 3, cy - 8))
         x.fillText(String(count), 68 + w + 21, cy + 4);
       else x.fillText(" ×" + count, 68 + w, cy + 4);
-    } else x.fillText(name, 68, cy + 4);
+    } else x.fillText(gname, 68, cy + 4);
   });
   x.restore();
 }
@@ -1937,9 +1938,11 @@ function drawAimStars() {
     }
     if (!picked && hovered) {
       /* 1e-4: 호버 한 줄 — 두 종류가 «무엇이 다른지»를 말한다. */
-      const label = node.unit
-        ? "별지기 위 별빛 · 조준 전용"
-        : "작은 별빛 · 남기면 별자리 완성";
+      const label = t(
+        node.unit
+          ? "별지기 위 별빛 · 조준 전용"
+          : "작은 별빛 · 남기면 별자리 완성",
+      );
       x.save();
       x.font = "700 11px Galmuri11, ui-monospace";
       const tw = x.measureText(label).width + 16,
