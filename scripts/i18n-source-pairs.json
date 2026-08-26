@@ -1,0 +1,4662 @@
+[
+  {
+    "ko": "프리즘 원석",
+    "en": "Prism Stone",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "관측소 지급 기본 유성",
+    "en": "Standard meteor issued by the Observatory",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "잔불의 유성",
+    "en": "Ember Meteor",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "꺼지지 않은 별의 마지막 온기",
+    "en": "The last warmth of a star that never went out",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "심연의 유성",
+    "en": "Abyss Meteor",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "공허를 삼키고 돌아온 빛",
+    "en": "Light that swallowed the Void and returned",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "이끼별 유성",
+    "en": "Mossfall Meteor",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "오래 잠든 자리에 돋아난 색",
+    "en": "A color that sprouted where it lay long asleep",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "본래 색",
+    "en": "True Color",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "관측소 지급",
+    "en": "Issued by the Observatory",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "청군",
+    "en": "Deep Azure",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "새벽 전 가장 짙은 파랑",
+    "en": "The deepest blue before dawn",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "홍옥",
+    "en": "Ruby",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "식지 않은 화로의 색",
+    "en": "The color of a hearth still glowing",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "자수정",
+    "en": "Amethyst",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "공허를 오래 본 자의 색",
+    "en": "The color of one who long gazed into the Void",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "청동",
+    "en": "Verdigris",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "오래 걸린 관측기의 녹",
+    "en": "The patina of a long-hung observation glass",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "별가루 검",
+    "en": "Stardust Blade",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "정산 피해 +16%",
+    "en": "Settle Damage +16%",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "별의 가루를 벼려 만든 보급형 검. 어느 별지기가 들어도 정산 공격이 조금 더 매섭습니다.",
+    "en": "A standard-issue blade forged from stardust. In any Starkeeper's hands, its settle attack bites a little sharper.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "달빛 장궁",
+    "en": "Moonlight Longbow",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "정산 피해 +15%",
+    "en": "Settle Damage +15%",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "달빛을 시위에 먹인 장궁. 멀고 가까움을 가리지 않고 정산 피해를 올립니다.",
+    "en": "A longbow whose string is steeped in moonlight. Near or far, it raises settle damage all the same.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "혜성 장창",
+    "en": "Comet Lance",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "정산 피해 +18%",
+    "en": "Settle Damage +18%",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "혜성의 궤적을 벼려 만든 장창. 일반 무기 중 가장 무겁게 내려칩니다.",
+    "en": "A lance forged from a comet's trail. It strikes down the heaviest of any common weapon.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "성령 구슬",
+    "en": "Astral Orb",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "정산 피해 +12%",
+    "en": "Settle Damage +12%",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "작은 별을 가둔 구슬. 값은 얌전하지만 누구의 손에나 익숙합니다.",
+    "en": "An orb that cages a tiny star. Modest in power, but it sits easy in any hand.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "여명파검",
+    "en": "Dawnbreak Blade",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "새벽을 가르는 검. 샛별이 들면 검기가 여명처럼 번져 정산 피해 +70%.",
+    "en": "A blade that cleaves the dawn. In Saetbyeol's hands its edge spreads like first light — Settle Damage +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "은하 시위",
+    "en": "Galaxy String",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "은하수를 당겨 만든 시위. 미리내가 들면 화살이 강을 건너 정산 피해 +70%.",
+    "en": "A bowstring drawn from the Milky Way. In Mirinae's hands the arrow crosses the river — Settle Damage +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "쌍성 프리즘",
+    "en": "Twin Star Prism",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "빛을 둘로 가르는 프리즘. 별하가 들면 분열체까지 벼려 정산 피해 +70%.",
+    "en": "A prism that splits light in two. In Byeolha's hands even the split forms are honed — Settle Damage +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "혜성 꼬리",
+    "en": "Comet Tail",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "길게 늘어진 혜성의 꼬리. 살별이 들면 중계가 벼락처럼 꽂혀 정산 피해 +70%.",
+    "en": "The long-trailing tail of a comet. In Salbyeol's hands the relay strikes like lightning — Settle Damage +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "윤슬 부채",
+    "en": "Shimmer Fan",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "회전 칼날 +15%",
+    "en": "Spinning Blade +15%",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "물비늘을 접었다 펴는 부채. 윤슬이 들면 회전 칼날이 부서진 별빛처럼 흩날려 +70%.",
+    "en": "A fan that folds and unfolds ripples of light. In Yunseul's hands the spinning blades scatter like shattered starlight — +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "달무리 고리",
+    "en": "Halo Ring",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "달을 두른 빛의 고리. 달무리가 들면 공명이 궤도째 울려 정산 피해 +70%.",
+    "en": "A ring of light wreathing the moon. In Dalmuri's hands the Resonance rings along its whole orbit — Settle Damage +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "별불 망치",
+    "en": "Starfire Hammer",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "떨어진 별을 두드리는 망치. 모루가 들면 충격파가 대장간처럼 터져 정산 피해 +70%.",
+    "en": "A hammer that beats fallen stars. In Moru's hands the shockwave bursts like a forge — Settle Damage +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "그믐 거울",
+    "en": "Dark Moon Mirror",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "빛을 삼켜 되비추는 검은 거울. 그믐이 들면 모사한 능력까지 짙어져 정산 피해 +70%.",
+    "en": "A black mirror that swallows light and reflects it back. In Geumeum's hands even mimicked powers deepen — Settle Damage +70%.",
+    "bucket": "data-items"
+  },
+  {
+    "ko": "양자리",
+    "en": "Aries",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "세 별빛을 잇는 첫 관측 항로. 별빛 조준과 첫 별자리를 배운다.",
+    "en": "The first observation route, joining three starlights. Learn starlight aiming and your first constellation.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "화살자리",
+    "en": "Sagitta",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "네 점의 화살이 향하는 곳. 발사 뒤 궤도 전환을 익힌다.",
+    "en": "Where the four-point arrow is aimed. Master the mid-flight turn after launch.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "까마귀자리",
+    "en": "Corvus",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "네 점의 굽은 날개. 충돌 순서와 다음 샷의 자리를 읽는다.",
+    "en": "Four points of a bent wing. Read the order of impacts and where the next shot begins.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "카시오페이아",
+    "en": "Cassiopeia",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "다섯 별의 W. 어느 별지기를 먼저 공명할지 고른다.",
+    "en": "A W of five stars. Choose which Starkeeper to resonate first.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "백조자리",
+    "en": "Cygnus",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "다섯 점의 긴 날개. 한 샷 안에서 접점을 이어 간다.",
+    "en": "Five points of a long wing. Chain the contact points within a single shot.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "오리온자리",
+    "en": "Orion",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "여섯 별의 사냥꾼. 조향 한 번과 공명 접점을 함께 회수한다.",
+    "en": "The six-star hunter. Recover one steer and a resonance contact together.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "북두칠성",
+    "en": "Big Dipper",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "일곱 별의 국자. 모든 경로 판단을 묻는 마지막 관측.",
+    "en": "The ladle of seven stars. The final observation, testing every path you can read.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "관측되지 않은 점",
+    "en": "The Unobserved Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "성도 밖의 좌표. 이름이 없고, 이미 이쪽을 보고 있다.",
+    "en": "A coordinate beyond the star chart. It has no name, and it is already watching you.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두베 · 첫 관측",
+    "en": "Dubhe · First Observation",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "루나의 안내를 따라 직격, 근접 각성, 별자리 배율을 차례로 관측하세요.",
+    "en": "Follow Luna's guidance and observe direct hits, close-range awakening, and constellation multipliers in turn.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "왼쪽 별지기",
+    "en": "Left Starkeeper",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "오른쪽 별지기",
+    "en": "Right Starkeeper",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "첫 관측점",
+    "en": "First Observation Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "메라크 · 공명의 문",
+    "en": "Merak · Gate of Resonance",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두 공명 범퍼를 오가며 속도를 만들고, 범퍼 충돌 연계를 익히세요.",
+    "en": "Build speed by bouncing between two resonance bumpers, and learn to chain bumper impacts.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 중계점",
+    "en": "Left Relay",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 중계점",
+    "en": "Right Relay",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 귀환점",
+    "en": "Center Return",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "페크다 · 반사의 계단",
+    "en": "Phecda · Stair of Reflection",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "반사 벽 두 개로 각을 만들어 거상의 약점까지 길을 그리세요.",
+    "en": "Use two reflecting walls to set your angle and trace a path to the Colossus's weak point.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 계단",
+    "en": "Left Stair",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 계단",
+    "en": "Right Stair",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "하단 귀환점",
+    "en": "Lower Return",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "메그레즈 · 잔재의 길목",
+    "en": "Megrez · Path of Remnants",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "길을 막고 선 공허 잔재 두 기를 먼저 걷어내야 약점이 열립니다.",
+    "en": "Two Void remnants block the way — clear them first, and the weak point opens.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 길목",
+    "en": "Left Passage",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 길목",
+    "en": "Right Passage",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "하단 대기점",
+    "en": "Lower Standby",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알리오트 · 굳은 껍질",
+    "en": "Alioth · Hardened Shell",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "거상이 껍질을 세 겹 둘렀습니다. 약한 타격 세 번은 통째로 튕겨 나갑니다.",
+    "en": "The Colossus wears three layers of shell. Three weak strikes bounce off entirely.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 파쇄점",
+    "en": "Left Break Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 파쇄점",
+    "en": "Right Break Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 파쇄점",
+    "en": "Center Break Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "미자르 · 흐려지는 자리",
+    "en": "Mizar · Fading Ground",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "흐린 발판을 밟고 지나가면 쌓아 둔 별자리 배율이 깎여 나갑니다.",
+    "en": "Cross a murky pad and it shaves away the constellation multiplier you've built up.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 흐린 자리",
+    "en": "Left Murky Ground",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 흐린 자리",
+    "en": "Right Murky Ground",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 관측점",
+    "en": "Center Observation Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알카이드 · 도는 방벽",
+    "en": "Alkaid · Circling Barrier",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "체력을 가진 방벽 두 개가 거상 주위를 돕니다. 틈을 노리세요.",
+    "en": "Two barriers with their own health circle the Colossus. Aim for the gap.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 틈",
+    "en": "Left Gap",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 틈",
+    "en": "Right Gap",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "카프 · 밀려나는 밤",
+    "en": "Caph · The Night That Pushes Back",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "거상의 체력이 꺾일 때마다 별지기 셋과 유성이 네 모서리로 밀려납니다.",
+    "en": "Each time the Colossus's health breaks, the three Starkeepers and the Meteor are pushed to the four corners.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 고정점",
+    "en": "Left Anchor",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 고정점",
+    "en": "Right Anchor",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 고정점",
+    "en": "Center Anchor",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "셰다르 · 다시 잠드는 별",
+    "en": "Schedar · The Star That Sleeps Again",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "거상의 체력이 꺾일 때마다 별지기가 다시 잠듭니다. 두 번 부딪혀야 깨어납니다.",
+    "en": "Each time the Colossus's health breaks, a Starkeeper falls back asleep. It takes two impacts to wake.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 잠자리",
+    "en": "Left Slumber",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 잠자리",
+    "en": "Right Slumber",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "하단 잠자리",
+    "en": "Lower Slumber",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "감마 카스 · 가속의 등뼈",
+    "en": "Gamma Cas · Spine of Acceleration",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 가속 발판이 유성의 운동량을 밀어 올립니다.",
+    "en": "The central boost pad drives the Meteor's momentum higher.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 등뼈",
+    "en": "Left Spine",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 등뼈",
+    "en": "Right Spine",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 등뼈",
+    "en": "Center Spine",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "루크바 · 겹친 궤도",
+    "en": "Ruchbah · Overlapping Orbits",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "도는 방벽 하나와 반사 벽 두 개가 함께 길을 좁힙니다.",
+    "en": "One circling barrier and two reflecting walls narrow the path together.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 궤도",
+    "en": "Left Orbit",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 궤도",
+    "en": "Right Orbit",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "하단 궤도",
+    "en": "Lower Orbit",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "세긴 · 마지막 꼭짓점",
+    "en": "Segin · The Final Vertex",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "껍질 두 겹과 공명 범퍼 둘. 배율을 쌓아 한 번에 뚫으세요.",
+    "en": "Two shell layers and two resonance bumpers. Stack your multiplier and break through in one blow.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 꼭짓점",
+    "en": "Left Vertex",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 꼭짓점",
+    "en": "Right Vertex",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 꼭짓점",
+    "en": "Center Vertex",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "무한 훈련장",
+    "en": "Endless Training Ground",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "불멸의 거상과 자동 보충 유성으로 충돌·분열·배율을 제한 없이 시험합니다.",
+    "en": "With an immortal Colossus and auto-replenishing Meteors, test impacts, splits, and multipliers without limit.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌상 훈련 별지기",
+    "en": "Upper-Left Training Starkeeper",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우상 훈련 별지기",
+    "en": "Upper-Right Training Starkeeper",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌하 훈련 별지기",
+    "en": "Lower-Left Training Starkeeper",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우하 훈련 별지기",
+    "en": "Lower-Right Training Starkeeper",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "하말",
+    "en": "Hamal",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "첫 관측",
+    "en": "First Observation",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "루나와 함께 별빛 조준과 첫 별자리를 관측하세요.",
+    "en": "Alongside Luna, observe starlight aiming and your first constellation.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "셰라탄",
+    "en": "Sheratan",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "갈라진 뿔",
+    "en": "The Split Horns",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "첫 공명이 안내별 둘을 밝혀 첫 별자리를 돕습니다.",
+    "en": "Your first resonance lights two guide stars to help form the first constellation.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "메사르팀",
+    "en": "Mesarthim",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "세 점의 고리",
+    "en": "Ring of Three Points",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "첫 공명이 안내별 둘을 밝혀 별자리 루프를 돕습니다.",
+    "en": "Your first resonance lights two guide stars to help close the constellation loop.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "샴",
+    "en": "Sham",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "첫 화살",
+    "en": "The First Arrow",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "별지기를 먼저 맞힌 뒤 보스에게 향하는 한 줄을 만드세요.",
+    "en": "Strike a Starkeeper first, then draw a single line toward the boss.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "화살의 허리",
+    "en": "Arrow's Waist",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "갈림 궤도",
+    "en": "The Forking Orbit",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "발사당 한 번의 궤도 전환을 안전하게 써 보세요.",
+    "en": "Practice using your one orbit turn per launch safely.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "화살촉",
+    "en": "Arrowhead",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "먼저 꺾기",
+    "en": "Turn First",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "보스보다 별지기를 먼저 맞히는 각을 찾으세요.",
+    "en": "Find the angle that hits a Starkeeper before the boss.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "되돌림",
+    "en": "Recurve",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "끝의 방향",
+    "en": "Direction at the End",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "공명 이후 남은 방향으로 다음 접점을 이어 가세요.",
+    "en": "Carry the leftover direction after resonance into the next contact point.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알키바",
+    "en": "Alchiba",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "검은 첫 점",
+    "en": "The First Black Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "첫 충돌 순서를 바꿔 보스 진입을 설계하세요.",
+    "en": "Reorder the first impacts to plan your approach to the boss.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "크라즈",
+    "en": "Kraz",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "굽은 날개",
+    "en": "The Bent Wing",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "멈춘 자리가 다음 샷의 출발점이 되는 것을 활용하세요.",
+    "en": "Use the fact that where you come to rest becomes the next shot's start.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "기에나",
+    "en": "Gienah",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중계 깃",
+    "en": "Relay Feather",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두 별지기를 연달아 깨우는 경로를 만드세요.",
+    "en": "Draw a path that wakes two Starkeepers back to back.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알고라브",
+    "en": "Algorab",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "돌아오는 그림자",
+    "en": "The Returning Shadow",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "직격 대신 되돌아오는 공명 경로를 선택하세요.",
+    "en": "Choose a returning resonance path instead of a direct hit.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "카프",
+    "en": "Caph",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "W의 첫 점",
+    "en": "The First Point of the W",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "분산된 시작 배치에서 첫 목표를 정하세요.",
+    "en": "From a scattered starting layout, pick your first target.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "셰다르",
+    "en": "Schedar",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "갈라진 왕관",
+    "en": "The Split Crown",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "서로 먼 별지기를 한 발 안에서 연결하세요.",
+    "en": "Connect far-apart Starkeepers within a single shot.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "감마 카스",
+    "en": "Gamma Cas",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙의 틈",
+    "en": "The Central Gap",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "가운데를 비워 둔 되돌아오는 경로를 확인하세요.",
+    "en": "Trace a returning path that leaves the center open.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "루크바",
+    "en": "Ruchbah",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "뒤집힌 W",
+    "en": "The Inverted W",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌·우 전환 중 무엇을 남길지 판단하세요.",
+    "en": "Decide which of the left and right turns to save.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "세긴",
+    "en": "Segin",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "다섯 번째 점",
+    "en": "The Fifth Point",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "다섯 발의 경로를 끊김 없이 완주하세요.",
+    "en": "Complete a five-shot path without a break.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "데네브",
+    "en": "Deneb",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "긴 날개",
+    "en": "The Long Wing",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "먼 별지기까지 닿는 첫 경로를 만드세요.",
+    "en": "Draw your first path that reaches a distant Starkeeper.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "사드르",
+    "en": "Sadr",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "교차점",
+    "en": "The Crossing",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두 공명 접점을 한 샷에 이어 보세요.",
+    "en": "Chain two resonance contacts in a single shot.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 깃",
+    "en": "Central Feather",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "흐르는 선",
+    "en": "The Flowing Line",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "멈추지 않는 유성에서 다음 충돌을 예측하세요.",
+    "en": "Predict the next impact from a Meteor that never stops.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "남쪽 날개",
+    "en": "Southern Wing",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "백조의 턴",
+    "en": "The Swan's Turn",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "조향 한 번으로 안전한 귀환선을 만드세요.",
+    "en": "Use a single steer to draw a safe return line.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알비레오",
+    "en": "Albireo",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두 빛의 끝",
+    "en": "The End of Two Lights",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "별자리 후보를 남긴 채 보스 진입을 결정하세요.",
+    "en": "Decide your approach to the boss while leaving a constellation candidate open.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "베텔게우스",
+    "en": "Betelgeuse",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "어깨의 불꽃",
+    "en": "The Shoulder's Flame",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "첫 샷에서 다음 샷의 자리를 확보하세요.",
+    "en": "Secure the next shot's position with your first shot.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "벨라트릭스",
+    "en": "Bellatrix",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "반대 어깨",
+    "en": "The Opposite Shoulder",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두 방향의 공명 중 더 긴 경로를 선택하세요.",
+    "en": "Between two resonance directions, choose the longer path.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알니타크",
+    "en": "Alnitak",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "허리의 시작",
+    "en": "Start of the Belt",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "공명 접점과 조향의 순서를 맞추세요.",
+    "en": "Line up the order of your resonance contact and your steer.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알니람",
+    "en": "Alnilam",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "허리의 중심",
+    "en": "Center of the Belt",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "별빛 셋을 남겨 별자리 발동을 노리세요.",
+    "en": "Leave three starlights to trigger a constellation.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "민타카",
+    "en": "Mintaka",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "허리의 끝",
+    "en": "End of the Belt",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "보스 앞에서 유성의 운동량을 보존하세요.",
+    "en": "Preserve the Meteor's momentum right before the boss.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "리겔",
+    "en": "Rigel",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "사냥의 발",
+    "en": "The Hunter's Foot",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "다섯 발 전체를 쓰는 안정적인 경로를 완성하세요.",
+    "en": "Complete a steady path that uses all five shots.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두베",
+    "en": "Dubhe",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "국자의 시작",
+    "en": "Start of the Ladle",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "마지막 월드의 첫 충돌 경로를 세우세요.",
+    "en": "Set the first impact path of the final world.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "메라크",
+    "en": "Merak",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "깊은 물",
+    "en": "Deep Water",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "공명 뒤의 유성 방향을 끝까지 읽으세요.",
+    "en": "Read the Meteor's direction after resonance all the way through.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "페크다",
+    "en": "Phecda",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "굽은 손잡이",
+    "en": "The Bent Handle",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "별지기 둘을 거쳐 보스에 닿으세요.",
+    "en": "Reach the boss by way of two Starkeepers.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "메그레즈",
+    "en": "Megrez",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "국자의 목",
+    "en": "Neck of the Ladle",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "남길 별빛과 직접 피해의 우선순위를 고르세요.",
+    "en": "Choose between saving starlight and dealing direct damage.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알리오트",
+    "en": "Alioth",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "기울어진 빛",
+    "en": "The Tilted Light",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "조향 1회를 가장 가치 있는 접점에 쓰세요.",
+    "en": "Spend your one steer on the most valuable contact point.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "미자르",
+    "en": "Mizar",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "두 별의 선",
+    "en": "The Line of Two Stars",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "짧은 접점 간격을 놓치지 않고 연쇄하세요.",
+    "en": "Chain the short-spaced contacts without missing one.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "알카이드",
+    "en": "Alkaid",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "마지막 꼭짓점",
+    "en": "The Final Vertex",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "모은 모든 경로 판단으로 거상을 끝내세요.",
+    "en": "End the Colossus with every path-reading skill you've gathered.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "성도 밖",
+    "en": "Beyond the Star Chart",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "이름 없는 좌표가 관측을 기다립니다. 이미 이쪽을 보고 있습니다.",
+    "en": "A nameless coordinate awaits observation. It is already watching you.",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "좌측 항로",
+    "en": "Left Route",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "우측 항로",
+    "en": "Right Route",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "중앙 항로",
+    "en": "Center Route",
+    "bucket": "data-worlds-stages"
+  },
+  {
+    "ko": "수령",
+    "en": "Claim",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보상",
+    "en": "Reward",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드",
+    "en": "Gold",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "수령하기",
+    "en": "Claim",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "수령 완료",
+    "en": "Claimed",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "조건 미달",
+    "en": "Not yet met",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "관측 보상함",
+    "en": "Observation Rewards",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "수령 대기 ",
+    "en": "Awaiting ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "건",
+    "en": " pending",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "쌓인 보상 없음",
+    "en": "No rewards waiting",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보상은 항목마다 직접 수령합니다.",
+    "en": "Claim each reward individually.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "스테이지를 클리어하면 보상이 여기에 쌓입니다.",
+    "en": "Clear a stage and rewards gather here.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "직접 수령할 보상",
+    "en": "Reward to claim",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "도서관",
+    "en": "Library",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "업적",
+    "en": "Achievements",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보유 ",
+    "en": "Held ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "업적 보상 · ",
+    "en": "Achievement Reward · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별",
+    "en": "Star",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "달",
+    "en": "Moon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "해",
+    "en": "Sun",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "하트",
+    "en": "Heart",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "달토끼",
+    "en": "Moon Rabbit",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "우주비행사",
+    "en": "Astronaut",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "망원경",
+    "en": "Telescope",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "나침반",
+    "en": "Compass",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "도색장 오르",
+    "en": "Orr the Painter",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "프로필 아이콘 선택",
+    "en": "Choose Profile Icon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "아이콘 선택",
+    "en": "Choose Icon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "닫기",
+    "en": "Close",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "수령 · ",
+    "en": "Claim · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "확인",
+    "en": "OK",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "받은 우편이 없습니다.",
+    "en": "No mail received.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "뒤로",
+    "en": "Back",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "프로필 아이콘 바꾸기",
+    "en": "Change profile icon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "오늘의 관측 출석",
+    "en": "Today's Observation Check-in",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "일째 · ",
+    "en": "day streak · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "일째 · 오늘은 받았습니다",
+    "en": "day streak · Claimed for today",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "하루 한 번 받을 수 있습니다. 하루를 건너뛰면 연속이 처음부터 시작합니다.",
+    "en": "Claimable once a day. Miss a day and the streak restarts.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "내일 다시 오면 연속 ",
+    "en": "Come back tomorrow for your day-",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "일째 보상을 받습니다.",
+    "en": " streak reward.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "출석 보상 받기",
+    "en": "Claim Check-in Reward",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "관측자 기록",
+    "en": "Observer Record",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "되찾은 별",
+    "en": "Stars Reclaimed",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "최단 시간",
+    "en": "Best Time",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "최소 발사",
+    "en": "Fewest Shots",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "발",
+    "en": " shots",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보유 골드",
+    "en": "Gold Held",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별지기",
+    "en": "Starkeepers",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "도색",
+    "en": "Skins",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "오늘의 밤하늘 순위",
+    "en": "Tonight's Sky Rankings",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "관측자",
+    "en": "Observer",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "최단",
+    "en": "Best",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "최소",
+    "en": "Fewest",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "현재는 이 브라우저에 저장된 <b>로컬 기록</b>입니다. Hive 리더보드 연동은 준비 중이며, 연동되면 같은 표에 다른 관측자의 기록이 함께 표시됩니다.",
+    "en": "These are <b>local records</b> saved in this browser for now. Hive leaderboard sync is in the works; once connected, other observers' records will appear in the same table.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "우편함",
+    "en": "Mailbox",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "출석 보상",
+    "en": "Check-in Reward",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "우편 수령",
+    "en": "Mail Claimed",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드가 모자라네. 별 하나 더 되찾아 오면 그때 얘기하지.",
+    "en": "Short on gold. Reclaim one more star, then we'll talk.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "빈손으로는 색을 못 내. 보상함부터 비우고 오게.",
+    "en": "No color comes from empty hands. Empty your reward box first.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "유성은 결국 자네 손에서 끝나. 색 정도는 마음에 들어야지.",
+    "en": "A meteor ends in your hands, after all. Its color ought to please you.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "밤하늘에 그을 선인데, 아무 색이나 쓸 텐가?",
+    "en": "It's a line drawn across the night sky. Would you use just any color?",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "제법 모았군. 남은 건 자네가 어떤 밤을 좋아하느냐뿐이야.",
+    "en": "Quite a collection. All that's left is which kind of night you favor.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "이 정도면 관측소에서 제일 화려한 유성일세.",
+    "en": "This is the most dazzling meteor in the whole observatory.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "장착 중",
+    "en": "Equipped",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "장착하기",
+    "en": "Equip",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "구매하기",
+    "en": "Buy",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드 부족",
+    "en": "Not enough gold",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "기본 지급",
+    "en": "Granted by default",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "구매 완료 · ",
+    "en": "Purchased · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "관측소 상점",
+    "en": "Observatory Shop",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보유 골드 ",
+    "en": "Gold Held ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "도색장 · 오르",
+    "en": "Painter · Orr",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "유성 도색",
+    "en": "Meteor Skins",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "겉모습만 바뀝니다. 피해·속도·물리에는 영향이 없습니다.",
+    "en": "Appearance only. No effect on damage, speed, or physics.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별지기 도색",
+    "en": "Starkeeper Skins",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보유한 별지기의 색만 바뀝니다. 전장 판정색과 이름표는 그대로입니다.",
+    "en": "Only the color of owned starkeepers changes. Battlefield tint and name tags stay the same.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드가 부족합니다. 스테이지를 클리어해 보세요.",
+    "en": "Not enough gold. Try clearing a stage.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "유성 도색 획득",
+    "en": "Meteor Skin Acquired",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "부름",
+    "en": "Call",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "관측",
+    "en": "Observation",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "응답",
+    "en": "Answer",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "현현",
+    "en": "Manifest",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "새 별지기 해금",
+    "en": "New Starkeeper Unlocked",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "소환 목록으로 돌아가기",
+    "en": "Back to Summon List",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "아무 키나 눌러 건너뛰기",
+    "en": "Press any key to skip",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "소환 갈래",
+    "en": "Summon Branches",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "무기",
+    "en": "Weapon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "무기고",
+    "en": "Armory",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "해금 완료",
+    "en": "Unlocked",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별빛 속에서 대기",
+    "en": "Waiting in starlight",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별빛 보관함",
+    "en": "Starlight Vault",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "아직 만나지 못한 별지기를<br>관측하세요",
+    "en": "Observe a starkeeper<br>you haven't met yet",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별빛 소환",
+    "en": "Starlight Summon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "100 골드로 아직 만나지 못한 별지기 한 명을 확정으로 맞이합니다.",
+    "en": "For 100 gold, welcome one starkeeper you haven't met yet, guaranteed.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "소환 후보",
+    "en": "Summon Pool",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "모든 별지기를 만났어요",
+    "en": "You've met every starkeeper",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별빛 소환 · ",
+    "en": "Starlight Summon · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드 부족 · ",
+    "en": "Not enough gold · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드 필요",
+    "en": " gold needed",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "전용",
+    "en": "Signature",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "일반",
+    "en": "Common",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별의 대장간에서<br>무기를 벼려 냅니다",
+    "en": "Forge a weapon<br>at the Starforge",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "이미 보유한 무기 · ",
+    "en": "Already owned · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드 환급",
+    "en": " gold refunded",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": " 전용 · ",
+    "en": " signature · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별의 대장간",
+    "en": "Starforge",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "무기 소환",
+    "en": "Weapon Summon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": " 골드로 별무기 한 자루를 벼립니다. 전용 무기는 낮은 확률(약 ",
+    "en": " gold forges one star-weapon. Signature weapons are mixed in at a low chance (about ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "%)로 섞여 나옵니다.",
+    "en": "%).",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보유 무기",
+    "en": "Weapons Owned",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "보유 중",
+    "en": "Owned",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "무기 소환 · ",
+    "en": "Weapon Summon · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "골드를 돌려받았어요",
+    "en": " gold refunded",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": " · 전용 무기 획득!",
+    "en": " · Signature Weapon acquired!",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": " 획득!",
+    "en": " acquired!",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "전용 발동 · ",
+    "en": "Signature active · ",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "무기 없음",
+    "en": "No weapon",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "탭해서 장착",
+    "en": "Tap to equip",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "이 별지기 전용 · +70%",
+    "en": "Signature for this starkeeper · +70%",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "아직 무기가 없어요. «무기» 탭에서 별무기를 뽑아 보세요.",
+    "en": "No weapons yet. Summon star-weapons from the «Weapon» tab.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "무기 해제",
+    "en": "Unequip",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별지기 무장",
+    "en": "Starkeeper Loadout",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별지기마다 무기를 끼워 정산 공격을 강화합니다. 전용 무기를 임자에게 끼우면 위력이 크게 오릅니다.",
+    "en": "Equip each starkeeper with a weapon to strengthen its settle attack. A signature weapon on its rightful owner boosts power sharply.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": " 전용 발동!",
+    "en": " signature active!",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": " 장착",
+    "en": " equipped",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "첫 관측자",
+    "en": "First Observer",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "공허 거상",
+    "en": "Void Colossus",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "앞선 관측을 마치면 열립니다.",
+    "en": "Opens once you finish the earlier observation.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "현재 출격 →",
+    "en": "Current Sortie →",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "출격 →",
+    "en": "Sortie →",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "스테이지 별자리 지도",
+    "en": "Stage Constellation Map",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "튜토리얼 다시보기",
+    "en": "Replay Tutorial",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "유성이 보스를 직격",
+    "en": "Meteor strikes the boss directly",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "유성이 벽·쿠션에 튕김 (최대 2회)",
+    "en": "Meteor bounces off walls or cushions (up to 2x)",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "파티 전원이 공명",
+    "en": "Entire party resonates",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "흐린 발판을 지나감",
+    "en": "Passes over a dim platform",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "미보유",
+    "en": "Not owned",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "관측 도서관",
+    "en": "Observation Library",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "관측소가 확보한 별지기와, 별자리 배율이 움직이는 조건입니다.",
+    "en": "The starkeepers the observatory holds, and the conditions that move the constellation multiplier.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "별자리 배율 조건",
+    "en": "Constellation Multiplier Conditions",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "조건",
+    "en": "Condition",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "배율",
+    "en": "Multiplier",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "배율은 한 발사 안에서만 쌓이고, 최대 ×9.9까지 오릅니다. 1.0 아래로는 내려가지 않습니다.",
+    "en": "The multiplier builds only within a single launch and rises up to ×9.9. It never drops below 1.0.",
+    "bucket": "meta-screens"
+  },
+  {
+    "ko": "게임 시작",
+    "en": "START",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "별지기 편성",
+    "en": "STARKEEPERS",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "설정",
+    "en": "SETTINGS",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "오늘의 밤하늘",
+    "en": "TODAY'S NIGHT SKY",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "위기의 별자리에 도전하세요.",
+    "en": "Challenge the constellation in danger.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "현재 별지기",
+    "en": "CURRENT STARKEEPERS",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "시스템",
+    "en": "SYSTEM",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "언어",
+    "en": "LANGUAGE",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "메뉴와 시스템 안내 언어를 바꿉니다.",
+    "en": "Changes the language of menus and system guidance.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "오디오",
+    "en": "AUDIO",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "전체 음량",
+    "en": "MASTER VOLUME",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "배경음",
+    "en": "BGM",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "효과음",
+    "en": "SFX",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "기본값으로",
+    "en": "RESET DEFAULTS",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "첫 실행 상태로",
+    "en": "RESET TO FIRST RUN",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "처음 켠 상태로 되돌릴까요?",
+    "en": "Reset to a fresh install?",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "이 브라우저에 저장된 진행도·골드·해금·업적·출석이 모두 지워지고, 인트로와 온보딩 수업이 처음부터 다시 재생됩니다. 되돌릴 수 없습니다.",
+    "en": "Progress, gold, unlocks, achievements and attendance saved in this browser will all be erased, and the intro and onboarding lessons will play again from the start. This cannot be undone.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "지우고 다시 시작",
+    "en": "ERASE AND RESTART",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "변경 사항은 이 브라우저에 자동 저장됩니다.",
+    "en": "Changes are saved automatically in this browser.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "관측 기록",
+    "en": "OBSERVATION RECORD",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "최고 콤보",
+    "en": "BEST COMBO",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "업적 도감",
+    "en": "ACHIEVEMENTS",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "플레이 기록으로 해금되는 전투 이정표입니다.",
+    "en": "Combat milestones unlocked by your play record.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "미해금",
+    "en": "LOCKED",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "소리 켜기",
+    "en": "Sound on",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "소리 끄기",
+    "en": "Sound off",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "이 브라우저가 저장을 막고 있습니다 · 진행이 남지 않습니다",
+    "en": "This browser is blocking saves · progress will not be kept",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "관측 보상",
+    "en": "Observation Reward",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "이전 관측 보상",
+    "en": "Earlier Observation Reward",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "스테이지 클리어",
+    "en": "Stage Clear",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "업적 달성",
+    "en": "ACHIEVEMENT UNLOCKED",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "업적 개 달성",
+    "en": "achievements unlocked",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "보상 골드 · 업적 탭에서 수령",
+    "en": "reward gold · claim in the Achievements tab",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "각 보상은 업적 탭에서 직접 수령",
+    "en": "Claim each reward yourself in the Achievements tab",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "첫 별",
+    "en": "FIRST STAR",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "보스를 한 번 처치하세요.",
+    "en": "Defeat a boss once.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "3연타",
+    "en": "TRIPLE HIT",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "한 전투에서 3 HIT 콤보를 달성하세요.",
+    "en": "Reach a 3 HIT combo in one battle.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "한 발의 해답",
+    "en": "ONE SHOT",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "유성 한 개만 사용해 클리어하세요.",
+    "en": "Clear using a single meteor.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "밤하늘의 단골",
+    "en": "NIGHT SKY REGULAR",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "세 번의 전투를 클리어하세요.",
+    "en": "Clear three battles.",
+    "bucket": "meta-copy-state"
+  },
+  {
+    "ko": "유성이 별지기와 부딪히면 그 자리에 별빛이 남습니다. 조준에 고르지 않고 남겨 둔 별빛이 세 개 이상이면 별자리가 완성됩니다.",
+    "en": "When a meteor strikes a Starkeeper, starlight is left at that spot. Leave three or more starlights unpicked in your aim and a constellation is completed.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "지금 — <b>좌클릭</b>이나 <b>우클릭</b>으로 유성의 길을 한 번 꺾어요",
+    "en": "Now — <b>left-click</b> or <b>right-click</b> to bend the meteor's path once.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "안내별",
+    "en": "Guide Star",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "오리온 자리별",
+    "en": "Orion Star",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "도우미 루나 · 유성을 끌어 앞의 별지기에게 부딪혀 보세요.",
+    "en": "Luna, your helper · Drag the meteor and strike the Starkeeper ahead.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "도우미 루나 · 별지기 위의 빛 세 곳을 골라 조준해 발사하세요.",
+    "en": "Luna, your helper · Pick three lights above the Starkeepers to aim, then fire.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "도우미 루나 · 거상 둘레의 별빛 일곱은 잠겨 있어요. 별지기 머리 위의 빛만 고르세요.",
+    "en": "Luna, your helper · The seven starlights around the Colossus are locked. Pick only the lights above the Starkeepers' heads.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "실전 · 별지기와 부딪혀 별빛을 만들고, 남긴 별빛으로 별자리를 완성하세요.",
+    "en": "Real battle · Strike Starkeepers to make starlight, and complete a constellation with what you leave behind.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "안녕하세요, 관측자님. 루나예요.",
+    "en": "Hello, Observer. I'm Luna.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "아래의 작은 빛이 유성이에요. 잡고 아래로 당겼다 놓으면 위로 날아가요. 이번엔 제가 앞의 별지기 쪽으로 겨눠 둘게요. 한번 부딪혀 볼까요?",
+    "en": "That little light below is a meteor. Grab it, pull down, and release — it flies upward. This time I'll aim it toward the Starkeeper ahead for you. Shall we give it a strike?",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "유성 굴리기",
+    "en": "Roll the Meteor",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별지기가 깨어났어요!",
+    "en": "The Starkeeper awakened!",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다시 해볼까요?",
+    "en": "Shall we try again?",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "유성이 부딪히자 별지기가 깨어났어요. 모두 멈추면 깨어난 별지기가 자기 공격을 한 번 씁니다. 그리고 부딪힌 자리에 작은 별빛이 남았죠 — 이게 다음에 쓸 재료예요.",
+    "en": "The meteor struck and the Starkeeper awakened. Once everything settles, the awakened Starkeeper makes one attack of its own. And a small starlight was left where it hit — that's your material for next time.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "괜찮아요. 아래로 길게 끌었다 놓으면 유성이 별지기에게 날아가 부딪혀요. 한 번 더 해볼까요?",
+    "en": "It's alright. Pull down far and release, and the meteor flies into the Starkeeper. Shall we try once more?",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 별빛으로 조준",
+    "en": "Next · Aim with Starlight",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "괜찮아요, 다음으로",
+    "en": "It's fine, move on",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다시 시도",
+    "en": "Try Again",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별지기의 빛 세 곳을 눌러요.",
+    "en": "Tap three of the Starkeepers' lights.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별지기마다 머리 위에 빛이 하나씩 켜져 있어요. 셋을 차례로 누르면 1·2·3 번호가 붙고 금빛 선이 생깁니다.",
+    "en": "Each Starkeeper has one light glowing above its head. Tap three in turn and they're numbered 1·2·3 with golden lines drawn between them.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 유성 항로",
+    "en": "Next · Meteor's Path",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "유성은 고른 셋의 한가운데로 가요.",
+    "en": "The meteor heads for the center of your three.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "유성은 고른 세 빛의 한가운데로 날아가요. 어디를 고르느냐가 곧 어디로 갈지예요.",
+    "en": "The meteor flies to the center of the three lights you pick. Where you pick is where it goes.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 벌림",
+    "en": "Next · Spread",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "멀리 벌릴수록 강해요.",
+    "en": "The wider you spread, the stronger.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "서로 멀리 떨어진 빛을 고를수록 세게 날아가요. 잘못 눌렀으면 같은 곳을 다시 누르면 됩니다. 셋을 고르고 Space나 오른쪽 «발사» 버튼을 눌러 보세요.",
+    "en": "The farther apart the lights you pick, the harder it flies. Picked wrong? Just tap the same spot again. Pick three and press Space or the «Fire» button on the right.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "조준해서 발사",
+    "en": "Aim and Fire",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "조준해서 발사했어요!",
+    "en": "You aimed and fired!",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "아직 셋을 못 골랐어요.",
+    "en": "You haven't picked three yet.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "길을 꺾었네요 — 날아가는 중에 좌·우클릭은 한 발에 한 번뿐이라, 어디서 쓸지가 곧 실력이에요. ",
+    "en": "You bent its path — in flight, a left- or right-click comes only once per shot, so where you use it is the whole skill. ",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "날아가는 중에 좌클릭·우클릭으로 유성의 길을 한 번 꺾을 수 있어요. 한 발에 한 번뿐입니다. ",
+    "en": "While it flies, a left- or right-click can bend the meteor's path once. Only once per shot. ",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "유성은 고른 세 빛의 한가운데로 날아갔고, 부딪힌 별지기는 깨어나 자기 공격을 썼어요. 그 자리엔 작은 별빛이 남았죠. 이제 남긴 별빛으로 별자리를 만들어 볼게요.",
+    "en": "The meteor flew to the center of the three lights, and the Starkeeper it hit awakened and used its own attack. A small starlight was left there. Now let's make a constellation from what you left behind.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별지기 위의 빛 세 곳을 차례로 누른 뒤 Space로 발사해 보세요.",
+    "en": "Tap three lights above the Starkeepers in turn, then press Space to fire.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 별자리",
+    "en": "Next · Constellation",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "거상 둘레에 별빛 일곱을 놓아 뒀어요.",
+    "en": "I've placed seven starlights around the Colossus.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "이번엔 별자리를 바로 볼 수 있게, 거상 둘레에 별빛 일곱 개를 미리 놓아 뒀어요. 이 일곱은 지금 잠겨 있어서 눌러도 안 골라집니다 — 그냥 두면 돼요.",
+    "en": "So you can see a constellation right away, I've placed seven starlights around the Colossus in advance. These seven are locked for now — tapping won't pick them, so just leave them be.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 별지기 빛",
+    "en": "Next · Starkeeper Lights",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별지기 머리 위 빛 셋만 고르세요.",
+    "en": "Pick only the three lights above the Starkeepers' heads.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "조준에는 별지기 머리 위의 빛 셋만 쓰세요. 놓아 둔 일곱은 잠겨 있으니 편하게 눌러 보셔도 됩니다.",
+    "en": "For aiming, use only the three lights above the Starkeepers' heads. The seven I placed are locked, so feel free to tap them.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 완성",
+    "en": "Next · Completion",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "쏘면 북두칠성이 완성돼요.",
+    "en": "Fire, and the Big Dipper is completed.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "발사하면 남은 일곱 개가 선으로 이어져 북두칠성이 돼요. 진짜 전투에서는 별지기에 부딪혀 이 작은 별빛을 직접 모읍니다.",
+    "en": "When you fire, the remaining seven link into the Big Dipper. In a real battle you gather these little starlights yourself by striking Starkeepers.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "안내별을 남기고 발사",
+    "en": "Leave the Guide Stars and Fire",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "북두칠성이 완성됐어요!",
+    "en": "The Big Dipper is complete!",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별자리를 완성할 별빛이 부족했어요.",
+    "en": "There wasn't enough starlight to complete the constellation.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "남겨 둔 안내별 일곱이 국자 모양의 북두칠성으로 이어졌어요. 고른 빛은 유성의 방향을 정하고, 고르지 않은 작은 별빛은 별자리를 만듭니다. 북두칠성은 유성을 한 발 되찾아 줘요. 마지막으로 실전의 전체 순서를 확인할게요.",
+    "en": "The seven Guide Stars you left behind linked into the ladle-shaped Big Dipper. The lights you pick set the meteor's direction; the little starlights you don't pick form the constellation. The Big Dipper returns one meteor to you. Finally, let's go over the full order of a real battle.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "보스 주위의 안내별까지 조준에 골라 버리면 북두칠성을 만들 일곱 점이 부족해져요. 안내별은 누르지 말고, 별지기 위의 빛 세 곳만 골라 다시 발사해 보세요.",
+    "en": "If you pick the Guide Stars around the boss into your aim too, there aren't seven points left to make the Big Dipper. Don't tap the Guide Stars — pick only the three lights above the Starkeepers and fire again.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 실전 순서",
+    "en": "Next · Battle Order",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "순서 ①② 고르고 쏘기 → 부딪혀 깨우기",
+    "en": "Steps ①② Pick and fire → Strike to awaken",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "① 빛 세 곳을 고르고 발사합니다. ② 별지기에 부딪히면 그 별지기가 깨어나고, 부딪힌 자리에 작은 별빛이 남아요.",
+    "en": "① Pick three lights and fire. ② When it hits a Starkeeper, that Starkeeper awakens and a small starlight is left where it struck.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · ③④",
+    "en": "Next · ③④",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "순서 ③④ 깨어난 공격 → 별자리",
+    "en": "Steps ③④ Awakened attack → Constellation",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "③ 다 멈추면 깨어난 별지기가 자기 공격을 씁니다. ④ 다음에 쏠 때 안 고른 별빛이 세 개 이상 남아 있으면, 유성이 떠나기 전에 그것들이 별자리가 되어 먼저 때려요.",
+    "en": "③ Once everything settles, the awakened Starkeepers make their own attacks. ④ On your next shot, if three or more unpicked starlights remain, they form a constellation and strike first, before the meteor leaves.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 · 목표",
+    "en": "Next · Goal",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "목표는 하나 — 거상을 눕히는 것.",
+    "en": "One goal — bring the Colossus down.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "위에 있는 거상의 체력을 0으로 만들면 이깁니다. 유성으로 직접 때리는 것보다 깨어난 별지기의 공격과 별자리가 훨씬 아파요. 거상 둘레의 밝은 알을 맞히면 더 크게 들어갑니다. 진짜 전투에서는 유성이 다섯 개뿐이라 한 발씩이 아깝지만, 이번 판은 개수 제한이 없으니 편하게 해 보세요.",
+    "en": "Reduce the Colossus above to 0 health and you win. Awakened Starkeeper attacks and constellations hurt far more than striking with the meteor directly. Hit the bright cores around the Colossus for even bigger damage. In a real battle you have only five meteors, so every shot counts — but this round has no limit, so take your time.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "거상을 눕히러 간다",
+    "en": "Go bring the Colossus down",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "관측 수업 안내",
+    "en": "Observation lesson guide",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "관측 수업 · 1-1",
+    "en": "Observation Lesson · 1-1",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "루나 · 관측 보조",
+    "en": "Luna · Observation Aide",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "관측 수업 완료",
+    "en": "Observation Lesson Complete",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "첫 관측을 마쳤어요",
+    "en": "You've finished your first observation",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "발사 · 각성 · 조준 · 별자리까지 익혔어요. 이제 실전 관측으로 나가 볼까요?",
+    "en": "You've learned firing, awakening, aiming, and constellations. Ready to head out to a real observation?",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 관측",
+    "en": "Next Observation",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "관측소로",
+    "en": "To the Observatory",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "어느 밤부터, <b>별</b>이 하나씩 꺼졌다.",
+    "en": "From one night on, the <b>stars</b> went out one by one.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "이야기가 잊힐 때마다 별이 지고,<br>그 자리에 <b class=\"void\">공허</b>가 고였다.",
+    "en": "Each time a story is forgotten, a star sets,<br>and the <b class=\"void\">Void</b> pools in its place.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "땅에 떨어져 잠든 <b>별지기</b>를 깨우는 방법은<br>단 하나 — <b>부딪히는 것</b>.",
+    "en": "There is only one way to wake a <b>Starkeeper</b> fallen to earth and sleeping<br>— only one — to <b>strike it</b>.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "관측자여, 유성을 굴려라.<br><b>별자리</b>가 기억을 되찾을 것이다.",
+    "en": "Observer, roll the meteor.<br>The <b>constellations</b> will reclaim their memory.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "잊힌 별의 관측자 프롤로그",
+    "en": "Prologue: Observer of the Forgotten Stars",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "클릭하여 계속",
+    "en": "Click to continue",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "루나의 관측 수업",
+    "en": "Luna's Observation Lesson",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "무기믹 전장 · 거상 HP ",
+    "en": "No-gimmick battle · Colossus HP ",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "오늘의 밤하늘 관측 중",
+    "en": "Observing tonight's sky",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "수령 ",
+    "en": "Claim ",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "최단 기록",
+    "en": "Best Time",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "타이틀 화면으로 나가기",
+    "en": "Exit to title screen",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "타이틀",
+    "en": "Title",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "이전 별자리",
+    "en": "Previous constellation",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 별자리",
+    "en": "Next constellation",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별자리 스테이지 지도",
+    "en": "Constellation stage map",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "잠김",
+    "en": "Locked",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "완료",
+    "en": "Cleared",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "선택됨",
+    "en": "Selected",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "선택",
+    "en": "Select",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별지기는 관측 시작 후 고릅니다",
+    "en": "Choose your Starkeepers after the observation begins",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "무한<br>훈련장",
+    "en": "Endless<br>Training",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "수업 다시 보기",
+    "en": "Replay Lesson",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "게임 시작!",
+    "en": "Start Game!",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "관측소 메뉴",
+    "en": "Observatory menu",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "프로필",
+    "en": "Profile",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "소환",
+    "en": "Summon",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "상점",
+    "en": "Shop",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "타이틀 화면으로 나갈까요?",
+    "en": "Exit to the title screen?",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "진행한 기록은 저장되어 있습니다. 타이틀에서 다시 이어서 관측할 수 있습니다.",
+    "en": "Your progress is saved. You can resume observing from the title anytime.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "타이틀로 나가기",
+    "en": "Exit to Title",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "무한 훈련장 · 유성은 자동 보충됩니다. 충돌과 별자리 배율을 마음껏 시험하세요. R 키로 나가기.",
+    "en": "Endless Training · Meteors refill automatically. Test collisions and constellation multipliers to your heart's content. Press R to leave.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "1-1 · 유성을 끌어 발사하고, 별빛 세 곳을 골라 Space로 쏜 뒤, 남긴 별빛으로 별자리를 완성하세요.",
+    "en": "1-1 · Drag a meteor to fire, pick three starlights and shoot with Space, then complete a constellation with what you leave behind.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": " · 별빛 세 곳을 골라 Space로 쏘고, 남긴 별빛으로 별자리를 완성하세요.",
+    "en": " · Pick three starlights and shoot with Space, then complete a constellation with what you leave behind.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "다음 유성을 준비하세요. 공명 접점과 남은 배치에서 항로를 다시 설계하세요.",
+    "en": "Ready your next meteor. Redesign your path from the resonance contacts and the formation that remains.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별자리 완성",
+    "en": "Constellation Complete",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "관측 보상함에 적립",
+    "en": "Added to your observation reward box",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": " 골드",
+    "en": " Gold",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "업적 탭에서 수령하세요",
+    "en": "Claim it in the Achievements tab",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": " 클리어 보상",
+    "en": " clear reward",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별 해방",
+    "en": "Star Freed",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "별이 하늘로 돌아갔습니다.",
+    "en": "The star has returned to the sky.",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "밤하늘에 별이 하나 켜졌습니다 — 오늘의 별자리: ",
+    "en": "A star has lit in the night sky — today's constellation: ",
+    "bucket": "onboarding"
+  },
+  {
+    "ko": "1-1 · 유성을 아래로 끌어 미리내에게 부딪혀 보세요.",
+    "en": "1-1 · Drag a meteor downward and crash it into Mirinae.",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 첫 공명이 안내별 둘을 밝혀 별자리를 돕습니다.",
+    "en": " · The first resonance lights two guide stars to aid the constellation.",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 별빛 세 곳을 고르고 Space로 발사하세요. 남겨 둔 작은 별빛이 별자리가 됩니다.",
+    "en": " · Pick three starlights and press Space to fire. The small starlight you leave behind becomes a constellation.",
+    "bucket": "session"
+  },
+  {
+    "ko": "훈련 시작 · ",
+    "en": "Training begins · ",
+    "bucket": "session"
+  },
+  {
+    "ko": "1-1 · 첫 관측 시작",
+    "en": "1-1 · First observation begins",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 잔광 · 별지기와 부딪혀 안내별을 밝히세요",
+    "en": "Observation afterglow · Crash into Starkeepers to light the guide stars",
+    "bucket": "session"
+  },
+  {
+    "ko": "이(가) 관측을 시작한다",
+    "en": " begins the observation",
+    "bucket": "session"
+  },
+  {
+    "ko": "STELLA BALL 시작 화면",
+    "en": "STELLA BALL start screen",
+    "bucket": "session"
+  },
+  {
+    "ko": " 관측 항로",
+    "en": " observation route",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 시작",
+    "en": "Begin Observation",
+    "bucket": "session"
+  },
+  {
+    "ko": "처음인가요? <b>1분 튜토리얼</b>",
+    "en": "First time? <b>1-minute tutorial</b>",
+    "bucket": "session"
+  },
+  {
+    "ko": "인트로 다시 보기",
+    "en": "Replay intro",
+    "bucket": "session"
+  },
+  {
+    "ko": "별지기 ",
+    "en": "Station ",
+    "bucket": "session"
+  },
+  {
+    "ko": "명을 자리에 세우세요",
+    "en": " Starkeepers in their seats",
+    "bucket": "session"
+  },
+  {
+    "ko": "명을 자리에 세우세요</h2><p>아래 별지기를 자리로 끌어 놓으세요. 위쪽 자리는 거상과 가깝고, 아래쪽 자리는 멉니다.",
+    "en": " Starkeepers in their seats</h2><p>Drag the Starkeepers below onto the seats. Upper seats are close to the Colossus, lower seats are far away.",
+    "bucket": "session"
+  },
+  {
+    "ko": "전장 배치",
+    "en": "Battlefield deployment",
+    "bucket": "session"
+  },
+  {
+    "ko": "보스",
+    "en": "Boss",
+    "bucket": "session"
+  },
+  {
+    "ko": "발사석",
+    "en": "Launch stone",
+    "bucket": "session"
+  },
+  {
+    "ko": "보유 별지기",
+    "en": "Starkeepers owned",
+    "bucket": "session"
+  },
+  {
+    "ko": "시작",
+    "en": "Start",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 자리에서 뺐습니다",
+    "en": " · Removed from seat",
+    "bucket": "session"
+  },
+  {
+    "ko": "번 자리 · ",
+    "en": " · Seat ",
+    "bucket": "session"
+  },
+  {
+    "ko": "대기 중<i>자리로 끌어 놓으세요</i>",
+    "en": "Standby<i>Drag onto a seat</i>",
+    "bucket": "session"
+  },
+  {
+    "ko": "비어 있음",
+    "en": "Empty",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 더블클릭하면 뺍니다",
+    "en": " · Double-click to remove",
+    "bucket": "session"
+  },
+  {
+    "ko": "더블클릭하면 자리에서 뺍니다",
+    "en": "Double-click to remove from seat",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 대기",
+    "en": " · Standby",
+    "bucket": "session"
+  },
+  {
+    "ko": "명을 모두 자리에 세워주세요.",
+    "en": " Starkeepers must all be seated.",
+    "bucket": "session"
+  },
+  {
+    "ko": "다른 별빛 조합으로 첫 충돌 경로를 바꿔보세요.",
+    "en": "Try a different starlight combination to change your first collision path.",
+    "bucket": "session"
+  },
+  {
+    "ko": "약점 명중이 없었습니다. 거상 둘레의 밝은 핵을 먼저 노리세요.",
+    "en": "No weak-point hits. Aim first at the bright core around the Colossus.",
+    "bucket": "session"
+  },
+  {
+    "ko": "도는 방벽에 ",
+    "en": "Blocked by the spinning barrier ",
+    "bucket": "session"
+  },
+  {
+    "ko": "회 막혔습니다. 잔상이 비운 틈으로 발사하세요.",
+    "en": " times. Fire through the gap the afterimage leaves open.",
+    "bucket": "session"
+  },
+  {
+    "ko": "평균 조준 위력 ",
+    "en": "Average aim power ",
+    "bucket": "session"
+  },
+  {
+    "ko": "%였습니다. 서로 멀리 떨어진 별빛을 골라보세요.",
+    "en": "%. Pick starlights spaced far apart from each other.",
+    "bucket": "session"
+  },
+  {
+    "ko": "반사벽에 ",
+    "en": "Grazed the reflecting wall ",
+    "bucket": "session"
+  },
+  {
+    "ko": "회 닿았습니다. 점선 반사 경로를 이용해 약점 각도를 만드세요.",
+    "en": " times. Use the dotted reflection path to line up a weak-point angle.",
+    "bucket": "session"
+  },
+  {
+    "ko": "약점 명중 ",
+    "en": "Weak-point hits: ",
+    "bucket": "session"
+  },
+  {
+    "ko": "회. 남은 별빛을 감싸는 조합으로 별자리 피해를 더하세요.",
+    "en": ". Wrap the remaining starlight in your combination to add constellation damage.",
+    "bucket": "session"
+  },
+  {
+    "ko": "전투 메달",
+    "en": "Battle medal",
+    "bucket": "session"
+  },
+  {
+    "ko": "클리어",
+    "en": "Clear",
+    "bucket": "session"
+  },
+  {
+    "ko": "사용 유성",
+    "en": "Meteors used",
+    "bucket": "session"
+  },
+  {
+    "ko": "처치 피해",
+    "en": "Kill damage",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 종료",
+    "en": "Observation ended",
+    "bucket": "session"
+  },
+  {
+    "ko": "다시, 그 점을 마주 보았습니다.",
+    "en": "Once again, you faced that point.",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측되지 않은 점을 관측했습니다.",
+    "en": "You observed the unobserved point.",
+    "bucket": "session"
+  },
+  {
+    "ko": "개의 별자리가 제자리로 돌아갔습니다.",
+    "en": " constellations have returned to their places.",
+    "bucket": "session"
+  },
+  {
+    "ko": "성도 밖에서 이쪽을 보고 있던 것은, 이제 성도 안에 기록되었습니다.",
+    "en": "What had been watching this way from beyond the star chart is now recorded within it.",
+    "bucket": "session"
+  },
+  {
+    "ko": "이름은 끝내 알 수 없었습니다. 좌표만 남깁니다 — <b>∅</b>",
+    "en": "Its name was never learned. Only coordinates remain — <b>∅</b>",
+    "bucket": "session"
+  },
+  {
+    "ko": "마지막 관측",
+    "en": "Final observation",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측소로 돌아가기",
+    "en": "Return to the Observatory",
+    "bucket": "session"
+  },
+  {
+    "ko": "다른 별지기와 다른 궤적으로 다시 관측하세요.",
+    "en": "Observe again with different Starkeepers and a different trajectory.",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 실패",
+    "en": "Observation failed",
+    "bucket": "session"
+  },
+  {
+    "ko": "별빛이 흩어졌다 — ",
+    "en": "The starlight scattered — ",
+    "bucket": "session"
+  },
+  {
+    "ko": "가한 피해",
+    "en": "Damage dealt",
+    "bucket": "session"
+  },
+  {
+    "ko": "다시 관측",
+    "en": "Observe again",
+    "bucket": "session"
+  },
+  {
+    "ko": "타이틀로",
+    "en": "To title",
+    "bucket": "session"
+  },
+  {
+    "ko": "별이 하늘로 돌아갑니다.",
+    "en": "The star returns to the sky.",
+    "bucket": "session"
+  },
+  {
+    "ko": "골드 보상 ",
+    "en": "Gold reward ",
+    "bucket": "session"
+  },
+  {
+    "ko": "클리어 보상",
+    "en": "Clear reward",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 성공",
+    "en": "Observation successful",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 별빛을 회수했습니다",
+    "en": " · Starlight reclaimed",
+    "bucket": "session"
+  },
+  {
+    "ko": "남은 유성",
+    "en": "Meteors remaining",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 시간",
+    "en": "Observation time",
+    "bucket": "session"
+  },
+  {
+    "ko": "최대 피해",
+    "en": "Max damage",
+    "bucket": "session"
+  },
+  {
+    "ko": "다시 보기",
+    "en": "Replay",
+    "bucket": "session"
+  },
+  {
+    "ko": "공허 잔재 처치!",
+    "en": "Void remnant destroyed!",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 전 적 광역 피해",
+    "en": " · Area damage to all enemies",
+    "bucket": "session"
+  },
+  {
+    "ko": "체력 ∞",
+    "en": "HP ∞",
+    "bucket": "session"
+  },
+  {
+    "ko": "체력 ",
+    "en": "HP ",
+    "bucket": "session"
+  },
+  {
+    "ko": "체력 —",
+    "en": "HP —",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 결과를 확인하세요",
+    "en": "Check the observation results",
+    "bucket": "session"
+  },
+  {
+    "ko": "별자리가 끝나면 각성한 별지기가 고유 공격을 사용합니다",
+    "en": "When the constellation completes, the Awakened Starkeepers unleash their signature attacks",
+    "bucket": "session"
+  },
+  {
+    "ko": "별지기와 부딪히면 공명하고 각성을 준비하며 별빛이 남습니다",
+    "en": "Crashing into Starkeepers resonates them, builds Awakening, and leaves starlight behind",
+    "bucket": "session"
+  },
+  {
+    "ko": "유성을 끌어 발사 방향을 정하세요",
+    "en": "Drag the meteor to set the launch direction",
+    "bucket": "session"
+  },
+  {
+    "ko": "별빛 ",
+    "en": "Starlight ",
+    "bucket": "session"
+  },
+  {
+    "ko": " · 서로 멀리 고를수록 강해집니다",
+    "en": " · The farther apart your picks, the stronger it grows",
+    "bucket": "session"
+  },
+  {
+    "ko": "강함",
+    "en": "Strong",
+    "bucket": "session"
+  },
+  {
+    "ko": "보통",
+    "en": "Normal",
+    "bucket": "session"
+  },
+  {
+    "ko": "약함",
+    "en": "Weak",
+    "bucket": "session"
+  },
+  {
+    "ko": " · Space로 발사",
+    "en": " · Space to fire",
+    "bucket": "session"
+  },
+  {
+    "ko": "전투를 준비합니다",
+    "en": "Preparing for battle",
+    "bucket": "session"
+  },
+  {
+    "ko": "∞ · 관측 유성",
+    "en": "∞ · Observation meteors",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 유성 · 무제한",
+    "en": "Observation meteors · Unlimited",
+    "bucket": "session"
+  },
+  {
+    "ko": "사용 가능",
+    "en": "Available",
+    "bucket": "session"
+  },
+  {
+    "ko": "사용 완료",
+    "en": "Used",
+    "bucket": "session"
+  },
+  {
+    "ko": "훈련 · ",
+    "en": "Training · ",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측 수업 · ",
+    "en": "Observation lesson · ",
+    "bucket": "session"
+  },
+  {
+    "ko": "전투 · ",
+    "en": "Battle · ",
+    "bucket": "session"
+  },
+  {
+    "ko": "전투 준비",
+    "en": "Battle ready",
+    "bucket": "session"
+  },
+  {
+    "ko": "일시정지",
+    "en": "Pause",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측을 잠시 멈췄습니다",
+    "en": "Observation paused for a moment",
+    "bucket": "session"
+  },
+  {
+    "ko": "전장은 그대로 남아 있습니다. 준비되면 이어서 관측하세요.",
+    "en": "The battlefield remains as it was. Resume observing when you're ready.",
+    "bucket": "session"
+  },
+  {
+    "ko": "계속하기",
+    "en": "Continue",
+    "bucket": "session"
+  },
+  {
+    "ko": "관측소로 나가기",
+    "en": "Exit to the Observatory",
+    "bucket": "session"
+  },
+  {
+    "ko": "ESC 키로도 열고 닫을 수 있습니다",
+    "en": "You can also open and close this with the ESC key",
+    "bucket": "session"
+  },
+  {
+    "ko": "앞은 내가 연다.",
+    "en": "I'll open the way ahead.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "베어 낼 자리가 보여.",
+    "en": "I can see where to cut.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "가까울수록 잘 든다.",
+    "en": "The closer I get, the sharper I cut.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "아직 서 있어.",
+    "en": "It's still standing.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "한 번 더 온다.",
+    "en": "Here comes another.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "끊었다!",
+    "en": "Severed!",
+    "bucket": "speech"
+  },
+  {
+    "ko": "결이 갈라졌어.",
+    "en": "The grain split open.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "거리, 좋아.",
+    "en": "Good distance.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "멀수록 잘 보여.",
+    "en": "The farther out, the clearer I see.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "숨 참고 — 지금.",
+    "en": "Hold your breath — now.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "각도 재는 중.",
+    "en": "Measuring the angle.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "조금만 더 벌려.",
+    "en": "Spread it a little wider.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "관통.",
+    "en": "Pierced through.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "가운데 맞았어.",
+    "en": "Right through the center.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "둘로 갈게.",
+    "en": "I'll split in two.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "혼자보다 둘이 낫지.",
+    "en": "Two beats one.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "나눠서 덮자.",
+    "en": "Let's split and cover it.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "반쪽이 아직 남았어.",
+    "en": "The other half's still left.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "다시 붙을 시간.",
+    "en": "Time to rejoin.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "양쪽 다 들어갔어!",
+    "en": "Both sides landed!",
+    "bucket": "speech"
+  },
+  {
+    "ko": "두 번 셌지?",
+    "en": "Counted twice, right?",
+    "bucket": "speech"
+  },
+  {
+    "ko": "중계 잡았어.",
+    "en": "Relay locked.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "여기서 이어 줄게.",
+    "en": "I'll link it from here.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "길을 만들어 둘게.",
+    "en": "I'll lay out a path.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "선이 끊겼어.",
+    "en": "The line broke.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "다시 이어 볼게.",
+    "en": "I'll reconnect it.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "연결 성공!",
+    "en": "Connection made!",
+    "bucket": "speech"
+  },
+  {
+    "ko": "그대로 흘러가.",
+    "en": "Let it flow through.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "바람 탄다.",
+    "en": "Riding the wind.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "빠른 게 제일이야.",
+    "en": "Fast is best.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "따라올 수 있겠어?",
+    "en": "Think you can keep up?",
+    "bucket": "speech"
+  },
+  {
+    "ko": "아직 안 멈췄어.",
+    "en": "Not stopped yet.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "속도가 죽었네.",
+    "en": "Speed's gone flat.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "스쳤는데 깊지?",
+    "en": "Just a graze — but deep, right?",
+    "bucket": "speech"
+  },
+  {
+    "ko": "칼날 지나갔다.",
+    "en": "The blade passed through.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "방향을 바꾸자.",
+    "en": "Let's change direction.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "여기서 틀면 돼.",
+    "en": "Turn it right here.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "판이 달라 보이지.",
+    "en": "The board looks different now, doesn't it?",
+    "bucket": "speech"
+  },
+  {
+    "ko": "다시 읽어 볼게.",
+    "en": "Let me read it again.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "각을 바꿔야 해.",
+    "en": "We need to change the angle.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "돌려세웠어.",
+    "en": "Turned it around.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "흐름이 넘어왔다.",
+    "en": "The tide's come over to us.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "부딪히면 내 몫이지.",
+    "en": "If it comes to a clash, that's my part.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "단단한 건 자신 있어.",
+    "en": "I'm good with the hard stuff.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "정면으로 가.",
+    "en": "Straight ahead.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "아직 버텨.",
+    "en": "Still holding.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "한 번 더 박아 보자.",
+    "en": "Let's ram it once more.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "울렸다!",
+    "en": "It rang out!",
+    "bucket": "speech"
+  },
+  {
+    "ko": "금 갔어, 봤지?",
+    "en": "Cracked it, see?",
+    "bucket": "speech"
+  },
+  {
+    "ko": "마지막은 내가 볼게.",
+    "en": "I'll watch the last one.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "조용히 따라갈게.",
+    "en": "I'll follow quietly.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "본 대로 따라 한다.",
+    "en": "I mirror what I see.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "기억해 뒀어.",
+    "en": "I've kept it in mind.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "아직 안 끝났어.",
+    "en": "It's not over yet.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "똑같이 돌려줬어.",
+    "en": "Gave it back in kind.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "그대로 베꼈지.",
+    "en": "Copied it exactly.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "뿔을 세운다. 지나갈 자리는 없다.",
+    "en": "The horns rise. There is no way past.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "뿔이 하나 부러졌다 — 그래서?",
+    "en": "One horn broke — and so?",
+    "bucket": "speech"
+  },
+  {
+    "ko": "문은 아직 닫혀 있다.",
+    "en": "The gate is still shut.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "겨눈 것은 이쪽이다.",
+    "en": "It is you who are in my sights.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "시위가 한 번 울었다.",
+    "en": "The bowstring sang once.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "화살은 아직 손에 있다.",
+    "en": "The arrow is still in hand.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "떼가 먼저 본다.",
+    "en": "The flock sees first.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "한 마리가 떨어졌을 뿐이다.",
+    "en": "Only one has fallen.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "그래도 하늘은 검다.",
+    "en": "Still the sky is black.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "왕좌는 기울어도 왕좌다.",
+    "en": "A tilted throne is a throne still.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "금이 가도 왕좌는 무너지지 않는다.",
+    "en": "Cracked, the throne does not fall.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "앉은 자리는 바뀌지 않는다.",
+    "en": "The seat does not change.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "물결은 되돌아온다.",
+    "en": "The waves always return.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "여울이 한 번 뒤집혔다.",
+    "en": "The shallows turned over once.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "흐름은 멈추지 않는다.",
+    "en": "The current does not stop.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "사냥은 이미 시작됐다.",
+    "en": "The hunt has already begun.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "띠가 한 칸 어긋났다.",
+    "en": "The belt slipped one notch.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "잔영은 사라지지 않는다.",
+    "en": "The afterimage does not fade.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "국자를 끌어 내린 것이 나다.",
+    "en": "It was I who dragged the dipper down.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "포효 — 자리를 지워 주마.",
+    "en": "A roar — I'll erase your place.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "북쪽은 여전히 내 것이다.",
+    "en": "The north is still mine.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "관측되지 않은 것이 관측한다.",
+    "en": "The unobserved observes.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "너희가 세는 것을 나는 세지 않는다.",
+    "en": "What you count, I do not.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "여기서부터는 이름이 없다.",
+    "en": "From here on, there are no names.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "별지기든 별빛이든 — 셋을 찍어 봐.",
+    "en": "Starkeeper or starlight — tap three of them.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "하나 더! 셋이 모여야 방향이 생겨.",
+    "en": "One more! It takes three to make a direction.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "반대편이야! 빈 곳을 다시 누르면 돌아와.",
+    "en": "Wrong side! Tap the empty space again to come back.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "넓게 벌렸네 — 세게 나간다!",
+    "en": "Spread it wide — this one flies hard!",
+    "bucket": "speech"
+  },
+  {
+    "ko": "판이 되받아쳤다.",
+    "en": "The board struck back.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "벽을 타고 각이 바뀐다.",
+    "en": "Off the wall, the angle shifts.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "부딪힌 만큼 빨라졌다.",
+    "en": "Faster for every impact.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "여섯 점이 이어졌다 — 하늘이 밝다.",
+    "en": "Six points joined — the sky is bright.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "선이 닫혔다.",
+    "en": "The line has closed.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "별자리가 판을 덮는다.",
+    "en": "The constellation spreads across the board.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "그린 대로 내려온다.",
+    "en": "It descends just as drawn.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "마지막 하나야. 넓게 벌려 봐.",
+    "en": "This is the last one. Spread it wide.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "한 발 남았어 — 가운데로 모으지 마.",
+    "en": "One shot left — don't bunch it in the middle.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "여기서 끝내자.",
+    "en": "Let's end it here.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "판이 서 있어. 정면이 막히면 튕겨서 돌아가게 해 봐.",
+    "en": "Walls are up. If the way ahead is blocked, bounce it back around.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "저 발판을 밟고 가면 빨라져 — 좁게 겨눠도 세게 나가.",
+    "en": "Cross that pad and you'll speed up — even a narrow aim flies hard.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "흐린 자리는 별자리 배율을 깎아. 빠른 길이 꼭 싼 길은 아니야.",
+    "en": "The dim patches cut your constellation multiplier. The fast path isn't always the cheap one.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "잔재가 길을 막고 있어. 먼저 치울지, 지나칠지는 네 선택이야.",
+    "en": "Debris is blocking the path. Clear it first or slip past — your call.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "방벽이 돌고 있어 — 틈이 열리는 때를 세어 봐.",
+    "en": "The barriers are spinning — count for the moment a gap opens.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "껍질이 몇 겹 있어. 처음 몇 대는 껍질이 먹을 거야.",
+    "en": "There are a few layers of shell. The first few hits will just feed the shell.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "체력이 내려가면 거상이 판을 흔들어. 자리를 미리 믿지 마.",
+    "en": "As its health drops, the Colossus shakes the board. Don't trust your positions in advance.",
+    "bucket": "speech"
+  },
+  {
+    "ko": "이 버텼습니다. 다른 별빛 조합으로 항로를 바꿔보세요. 서로 멀리 떨어진 별빛을 고를수록 세게 나갑니다.",
+    "en": " held on. Try a different starlight combination to change your route. The farther apart the starlights you pick, the harder your shot flies.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "다음 샷 · 멈춘 자리에서 이어 갑니다. 별빛을 세 곳 이상 고르고 Space로 발사하세요.",
+    "en": "Next shot · resuming from where it stopped. Pick three or more starlights and press Space to fire.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "다음 샷 · 현재 위치에서 재개",
+    "en": "Next shot · resuming from current position",
+    "bucket": "combat"
+  },
+  {
+    "ko": "훈련 유성 자동 보충",
+    "en": "Training meteor auto-refilled",
+    "bucket": "combat"
+  },
+  {
+    "ko": "첫 직격",
+    "en": "First Strike",
+    "bucket": "combat"
+  },
+  {
+    "ko": "치명 약점",
+    "en": "Critical Weakpoint",
+    "bucket": "combat"
+  },
+  {
+    "ko": "약점",
+    "en": "Weakpoint",
+    "bucket": "combat"
+  },
+  {
+    "ko": "직격",
+    "en": "Direct Hit",
+    "bucket": "combat"
+  },
+  {
+    "ko": "몸체",
+    "en": "Body",
+    "bucket": "combat"
+  },
+  {
+    "ko": "미리내 표식 폭발",
+    "en": "Mirinae Mark Burst",
+    "bucket": "combat"
+  },
+  {
+    "ko": "피해",
+    "en": "damage",
+    "bucket": "combat"
+  },
+  {
+    "ko": "공명 가속",
+    "en": "Resonance Boost",
+    "bucket": "combat"
+  },
+  {
+    "ko": "공명 범퍼 · 속도 상승",
+    "en": "Resonance Bumper · speed up",
+    "bucket": "combat"
+  },
+  {
+    "ko": "좌측 궤도 전환",
+    "en": "Left Course Change",
+    "bucket": "combat"
+  },
+  {
+    "ko": "우측 궤도 전환",
+    "en": "Right Course Change",
+    "bucket": "combat"
+  },
+  {
+    "ko": "좌측으로 유성 전환",
+    "en": "Meteor turned left",
+    "bucket": "combat"
+  },
+  {
+    "ko": "우측으로 유성 전환",
+    "en": "Meteor turned right",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별지기·별빛을 셋 이상 찍고 Space로 발사하세요",
+    "en": "Pick three or more Starkeepers and starlights, then press Space to fire",
+    "bucket": "combat"
+  },
+  {
+    "ko": "반대편",
+    "en": "Opposite Side",
+    "bucket": "combat"
+  },
+  {
+    "ko": "가운데 쪽",
+    "en": "Center Side",
+    "bucket": "combat"
+  },
+  {
+    "ko": "루나의 설명을 읽고 아래 버튼을 눌러 주세요.",
+    "en": "Read Luna's explanation, then press the button below.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "유성을 끌어서 놓아 주세요 — 누르기만으로는 나가지 않아요.",
+    "en": "Drag and release the meteor — a simple tap won't launch it.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "유성을 더 멀리 끌어 당겨보세요.",
+    "en": "Pull the meteor back a little farther.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "겨눔 ",
+    "en": "Aim ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "도, 세기 ",
+    "en": " degrees, power ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "퍼센트",
+    "en": " percent",
+    "bucket": "combat"
+  },
+  {
+    "ko": "유성 발사 · 키보드 조준",
+    "en": "Meteor launched · keyboard aim",
+    "bucket": "combat"
+  },
+  {
+    "ko": "키보드로도 조준할 수 있습니다. 좌우 화살표로 별빛 사이를 옮기고, Enter로 고르거나 취소하고, F로 반대편을 고르고, Backspace로 전부 취소하고, Space로 발사합니다.",
+    "en": "You can also aim with the keyboard. Use the left and right arrows to move between starlights, Enter to pick or unpick, F to choose the opposite side, Backspace to clear all, and Space to fire.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별빛",
+    "en": "Starlight",
+    "bucket": "combat"
+  },
+  {
+    "ko": "번으로 고름",
+    "en": " picked",
+    "bucket": "combat"
+  },
+  {
+    "ko": "안 고름",
+    "en": "not picked",
+    "bucket": "combat"
+  },
+  {
+    "ko": "고른 별빛 ",
+    "en": "Starlights picked ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "위력 ",
+    "en": "Power ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "겨눔을 처음으로",
+    "en": "Aim reset to start",
+    "bucket": "combat"
+  },
+  {
+    "ko": " · 밝게 빛나는 곳을 세 군데 이상 고르세요",
+    "en": " · pick three or more of the brightly glowing spots",
+    "bucket": "combat"
+  },
+  {
+    "ko": "이 조합으로는 조준할 수 없습니다 · 다른 별빛을 골라보세요",
+    "en": "You can't aim with this combination · try picking different starlights",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별빛 조준 · 위력 ",
+    "en": "Starlight aim · power ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "쿠션",
+    "en": "Cushion",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별빛 없음 · 별지기 셋을 찍어 조준하세요",
+    "en": "No starlights · pick three Starkeepers to aim",
+    "bucket": "combat"
+  },
+  {
+    "ko": " · 별지기와 합쳐 셋 이상 조준 · 안 찍은 별빛은 별자리로",
+    "en": " · combine with Starkeepers to aim three or more · unpicked starlights become a constellation",
+    "bucket": "combat"
+  },
+  {
+    "ko": "유성 발사! 별지기 충돌은 직접 보스 공격과 가속을 함께 만듭니다.",
+    "en": "Meteor launched! Colliding with Starkeepers both strikes the Colossus directly and builds speed.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "항로 보정 · 연쇄 진입",
+    "en": "Course corrected · entering chain",
+    "bucket": "combat"
+  },
+  {
+    "ko": "유성 발사 · 위력 ",
+    "en": "Meteor launched · power ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별자리 배율 대기",
+    "en": "Awaiting constellation multiplier",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별지기 공명 ",
+    "en": "Starkeeper Resonance ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "전원 공명 +3.0",
+    "en": "Full-party Resonance +3.0",
+    "bucket": "combat"
+  },
+  {
+    "ko": "유성 보스 직격 +1.0",
+    "en": "Meteor Colossus Direct Hit +1.0",
+    "bucket": "combat"
+  },
+  {
+    "ko": "벽 반사 +0.2",
+    "en": "Wall Bounce +0.2",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별이 하늘로 돌아갑니다",
+    "en": "The star returns to the sky",
+    "bucket": "combat"
+  },
+  {
+    "ko": "샛별 근접 베기",
+    "en": "Saetbyeol Close Slash",
+    "bucket": "combat"
+  },
+  {
+    "ko": "미리내 거리 저격",
+    "en": "Mirinae Long-range Shot",
+    "bucket": "combat"
+  },
+  {
+    "ko": "모루 충돌 충격파",
+    "en": "Moru Impact Shockwave",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 각성",
+    "en": " Awakening",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 충돌",
+    "en": " hits",
+    "bucket": "combat"
+  },
+  {
+    "ko": " · 충격파 폭발",
+    "en": " · shockwave burst",
+    "bucket": "combat"
+  },
+  {
+    "ko": "유성 분열!",
+    "en": "Meteor Split!",
+    "bucket": "combat"
+  },
+  {
+    "ko": " · 두 번째 유성 생성",
+    "en": " · second meteor created",
+    "bucket": "combat"
+  },
+  {
+    "ko": "의 분열체도 별지기를 굴리고 고유 능력을 발동합니다.",
+    "en": "'s split meteor also rolls Starkeepers and triggers their unique abilities.",
+    "bucket": "combat"
+  },
+  {
+    "ko": "에게 강제 중계",
+    "en": " · forced relay to ",
+    "bucket": "combat"
+  },
+  {
+    "ko": " · 가장 가까운 ",
+    "en": " · to the nearest ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "에게 유성을 재발사합니다.",
+    "en": " · relaunching the meteor toward ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "질풍 칼날!",
+    "en": "Gale Blades!",
+    "bucket": "combat"
+  },
+  {
+    "ko": " · 이동 속도로 회전 칼날 강화",
+    "en": " · spin blades powered up by movement speed",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 회전 칼날",
+    "en": " Spinning Blades",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 질풍 칼날 ",
+    "en": " Gale Blades ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "회전 베기",
+    "en": "Spin Slash",
+    "bucket": "combat"
+  },
+  {
+    "ko": "별하 · 분열체 추가 분열!",
+    "en": "Byeolha · split meteor splits again!",
+    "bucket": "combat"
+  },
+  {
+    "ko": "살별 · 분열체 강제 중계!",
+    "en": "Salbyeol · split meteor forced relay!",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 분열체 연계",
+    "en": " Split Meteor Combo",
+    "bucket": "combat"
+  },
+  {
+    "ko": "분열 약점",
+    "en": "Split Weakpoint",
+    "bucket": "combat"
+  },
+  {
+    "ko": "분열체",
+    "en": "Split Meteor",
+    "bucket": "combat"
+  },
+  {
+    "ko": "분열 연계!",
+    "en": "Split Combo!",
+    "bucket": "combat"
+  },
+  {
+    "ko": "분열체 직격",
+    "en": "Split Meteor Direct Hit",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 아직 잠듦 ",
+    "en": " still asleep ",
+    "bucket": "combat"
+  },
+  {
+    "ko": "공명했다",
+    "en": "Resonated",
+    "bucket": "combat"
+  },
+  {
+    "ko": "깨어났다",
+    "en": "Awakened",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 공명 깨어남",
+    "en": " Resonance Awakening",
+    "bucket": "combat"
+  },
+  {
+    "ko": " 깨어남!",
+    "en": " Awakening!",
+    "bucket": "combat"
+  },
+  {
+    "ko": "가속!",
+    "en": "Speed up!",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "운동량 상승!",
+    "en": "Momentum up!",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "가속 발판 · 유성 운동량 상승",
+    "en": "Boost pad · Meteor momentum up",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "껍질이 막았다",
+    "en": "The shell blocked it",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "굳은 껍질 · 남은 ",
+    "en": "Hardened shell · ",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "겹",
+    "en": " layers left",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "껍질이 모두 깨졌습니다",
+    "en": "The shell is fully shattered",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "거상의 포효 · 모두 모서리로 밀려납니다",
+    "en": "Colossus's roar · everyone is thrown to the corners",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "별지기가 다시 잠들었습니다 · ",
+    "en": "The Starkeepers have fallen asleep again · ",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "회 충돌 필요",
+    "en": " collisions needed",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "흐린 발판 통과",
+    "en": "Passed through a fading pad",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "방벽 -",
+    "en": "Barrier -",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "도는 방벽 하나를 부쉈습니다",
+    "en": "Shattered one circling barrier",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "방벽 재점화",
+    "en": "Barrier reignited",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "도는 방벽이 최대 내구도로 돌아왔습니다",
+    "en": "The circling barrier is back to full durability",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "그믐 · ",
+    "en": "Geumeum · ",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " 근접 베기",
+    "en": " close slash",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " 거리 저격",
+    "en": " ranged snipe",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " 충격파",
+    "en": " shockwave",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "모사 대상 없음",
+    "en": "No copy target",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "그믐 · 아직 모사한 아군이 없습니다.",
+    "en": "Geumeum · No ally has been copied yet.",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " 각성! 멈춘 자리에서 보스 공격을 시작합니다.",
+    "en": " awaken! The attack on the boss begins from where they stopped.",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "의 이동 공격이 끝났습니다. 정산 공격은 없습니다.",
+    "en": "'s moving attack has ended. There is no settle attack.",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "명 각성 · 다음 샷은 현재 배치에서",
+    "en": " awakened · Next shot from the current formation",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "질풍 칼날 종료 · 정산 공격 없음",
+    "en": "Gale blades ended · No settle attack",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "아무 별지기도 깨우지 못했습니다. 다음 샷은 현재 위치에서 다시 설계하세요.",
+    "en": "No Starkeeper was awakened. Plan the next shot again from the current position.",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "별지기 미각성 · 다음 샷 준비",
+    "en": "No Starkeeper awakened · Preparing next shot",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "공명 충돌!",
+    "en": "Resonance impact!",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " 충돌 · 유성과 별지기 동시 가속!",
+    "en": " impact · Meteor and Starkeeper accelerate together!",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " 굴림",
+    "en": " roll",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "별지기 이동선까지 예측",
+    "en": "Prediction reaches the Starkeeper's path",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "궤도 전환 완료",
+    "en": "Orbit shift complete",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "반사 벽",
+    "en": "Bounce wall",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "가속 발판",
+    "en": "Boost pad",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "흐린 발판",
+    "en": "Fading pad",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "공허 잔재",
+    "en": "Void remnant",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "도는 방벽",
+    "en": "Circling barrier",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "굳은 껍질",
+    "en": "Hardened shell",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "재수면",
+    "en": "Resleep",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "포효",
+    "en": "Roar",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "남은 ✦ ",
+    "en": "Remaining ✦ ",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " → 별자리",
+    "en": " → Constellation",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " 빈 곳 클릭 = 반대편",
+    "en": " Click empty space = opposite side",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "↷ 빈 곳 클릭 = 반대편",
+    "en": "↷ Click empty space = opposite side",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "반대편 · ",
+    "en": "Opposite · ",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "별지기 위 별빛 · 조준 전용",
+    "en": "Starlight above a Starkeeper · Aim only",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "작은 별빛 · 남기면 별자리 완성",
+    "en": "Small starlight · Leave it to complete a Constellation",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "별지기 위 빛 — 조준에만 사용",
+    "en": "Light above a Starkeeper — for aiming only",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "작은 별빛 — 남기면 별자리",
+    "en": "Small starlight — leave it for a Constellation",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "SPACE 발사   ·   우클릭 / Backspace 선택 취소",
+    "en": "SPACE to fire   ·   Right-click / Backspace to cancel selection",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "   ·   밝게 빛나는 곳을 고르세요",
+    "en": "   ·   Choose the brightly shining spots",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "연타!",
+    "en": "Combo!",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "공명!",
+    "en": "Resonance!",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": " · 각성",
+    "en": " · Awakening",
+    "bucket": "combat-physics-feedback"
+  },
+  {
+    "ko": "별자리",
+    "en": "Constellation",
+    "bucket": "figure"
+  },
+  {
+    "ko": "체 타격",
+    "en": "targets hit",
+    "bucket": "figure"
+  },
+  {
+    "ko": "피해 없음",
+    "en": "No damage",
+    "bucket": "figure"
+  },
+  {
+    "ko": "까마귀의 표식 · 이번 샷의 약점 명중이 강해집니다",
+    "en": "Corvus's Mark · this shot's weak-point hits strike harder",
+    "bucket": "figure"
+  },
+  {
+    "ko": "백조의 비행 · 이번 샷은 유성이 오래 굽니다",
+    "en": "Cygnus's Flight · this shot's meteor coasts longer",
+    "bucket": "figure"
+  },
+  {
+    "ko": "북두의 길잡이 · 이번 샷은 항로가 끝까지 보입니다",
+    "en": "The Dipper's Guide · this shot's course stays visible to the very end",
+    "bucket": "figure"
+  },
+  {
+    "ko": "관통 -",
+    "en": "Pierce -",
+    "bucket": "figure"
+  },
+  {
+    "ko": "관통",
+    "en": "Pierce",
+    "bucket": "figure"
+  },
+  {
+    "ko": "체 관통",
+    "en": "pierced",
+    "bucket": "figure"
+  },
+  {
+    "ko": "화살은 빗나감",
+    "en": "The arrow missed",
+    "bucket": "figure"
+  },
+  {
+    "ko": "까마귀",
+    "en": "Corvus",
+    "bucket": "figure"
+  },
+  {
+    "ko": "체 타격 · 다음 샷 표식",
+    "en": "targets hit · next shot marked",
+    "bucket": "figure"
+  },
+  {
+    "ko": "다음 샷 표식",
+    "en": "Next shot marked",
+    "bucket": "figure"
+  },
+  {
+    "ko": "껍질 ",
+    "en": "Shell ",
+    "bucket": "figure"
+  },
+  {
+    "ko": "겹 파괴",
+    "en": " layers shattered",
+    "bucket": "figure"
+  },
+  {
+    "ko": "깨뜨릴 껍질 없음",
+    "en": "No shell to break",
+    "bucket": "figure"
+  },
+  {
+    "ko": "백조",
+    "en": "Cygnus",
+    "bucket": "figure"
+  },
+  {
+    "ko": "체 타격 · 다음 샷 비행",
+    "en": "targets hit · next shot glides",
+    "bucket": "figure"
+  },
+  {
+    "ko": "다음 샷 비행",
+    "en": "Next shot glides",
+    "bucket": "figure"
+  },
+  {
+    "ko": "오망성",
+    "en": "Pentagram",
+    "bucket": "figure"
+  },
+  {
+    "ko": "명 각성",
+    "en": " awakened",
+    "bucket": "figure"
+  },
+  {
+    "ko": "체 타격 · 전원 이미 각성",
+    "en": "targets hit · all already awakened",
+    "bucket": "figure"
+  },
+  {
+    "ko": "전원 이미 각성",
+    "en": "All already awakened",
+    "bucket": "figure"
+  },
+  {
+    "ko": "오리온",
+    "en": "Orion",
+    "bucket": "figure"
+  },
+  {
+    "ko": "사냥할 표적 없음",
+    "en": "No prey to hunt",
+    "bucket": "figure"
+  },
+  {
+    "ko": "삼연격 -",
+    "en": "Triple Strike -",
+    "bucket": "figure"
+  },
+  {
+    "ko": "체 타격 · 되돌릴 발사 없음",
+    "en": "targets hit · no launch to reclaim",
+    "bucket": "figure"
+  },
+  {
+    "ko": "되돌릴 발사 없음",
+    "en": "No launch to reclaim",
+    "bucket": "figure"
+  },
+  {
+    "ko": "유성 +1",
+    "en": "Meteor +1",
+    "bucket": "figure"
+  },
+  {
+    "ko": "유성 +1 · 다음 샷 항로",
+    "en": "Meteor +1 · next shot charted",
+    "bucket": "figure"
+  },
+  {
+    "ko": "별자리 선 · ",
+    "en": "Constellation line · ",
+    "bucket": "figure"
+  },
+  {
+    "ko": "루나의 별 · ",
+    "en": "Luna's Star · ",
+    "bucket": "figure"
+  },
+  {
+    "ko": "안내별 넷을 얹었어요. 오망성 항로가 완성됩니다.",
+    "en": "I've set down four guide stars. The Pentagram's course is complete.",
+    "bucket": "figure"
+  },
+  {
+    "ko": "첫 공명에 별을 둘 얹어 뒀어요. 궤적을 이어 보세요.",
+    "en": "On your first resonance I've placed two stars. Trace the line between them.",
+    "bucket": "figure"
+  },
+  {
+    "ko": "루나의 안내별 넷 · 오망성 항로 완성",
+    "en": "Luna's four guide stars · Pentagram course complete",
+    "bucket": "figure"
+  },
+  {
+    "ko": "관측 잔광 · 안내별 둘이 첫 별자리를 돕습니다",
+    "en": "Observation afterglow · two guide stars aid your first constellation",
+    "bucket": "figure"
+  },
+  {
+    "ko": "공명 놓침",
+    "en": "Resonance missed",
+    "bucket": "figure"
+  },
+  {
+    "ko": "공명 놓침 · 다시 이어 보세요",
+    "en": "Resonance missed · trace it again",
+    "bucket": "figure"
+  },
+  {
+    "ko": "공명이 끊겼습니다 · 모은 별빛이 흩어졌습니다",
+    "en": "The resonance broke · the starlight you gathered has scattered",
+    "bucket": "figure"
+  },
+  {
+    "ko": "공명 비움 · 다음 접점을 기다리세요",
+    "en": "Resonance whiffed · wait for the next contact",
+    "bucket": "figure"
+  },
+  {
+    "ko": "충격 반동!",
+    "en": "Shockwave recoil!",
+    "bucket": "figure"
+  },
+  {
+    "ko": " 지원 -",
+    "en": " support -",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": " 지원 명중 ",
+    "en": " support hit ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "연타 · ",
+    "en": "Chain · ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "연타! 연속 명중 ",
+    "en": "Chain! Consecutive hits ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "회",
+    "en": " in a row",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "비행 중 · 궤도 전환",
+    "en": "In flight · Redirect Orbit",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "진행 방향 왼쪽으로",
+    "en": "Bank left of travel",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "진행 방향 오른쪽으로",
+    "en": "Bank right of travel",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "별빛 조준 ",
+    "en": "Starlight aim ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "별빛 고르기 · 빈 곳은 반대편",
+    "en": "Pick starlight · empty space flips the side",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "전부 무르기",
+    "en": "Undo all",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "발사",
+    "en": "Fire",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "개부터",
+    "en": " starlight",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "끌어서 발사",
+    "en": "Drag to fire",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "끌어 조준·세기 · 놓으면 발사",
+    "en": "Drag to aim & set power · release to fire",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "궤도 전환 가능",
+    "en": "Redirect ready",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "궤도 전환 사용함",
+    "en": "Redirect spent",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "반대편으로 · 넓게 벌릴수록 세게",
+    "en": "To the far side · wider spread hits harder",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "넓게 벌릴수록 세게",
+    "en": "Wider spread hits harder",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "별빛을 ",
+    "en": "Pick at least ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "개 이상 고르세요",
+    "en": " starlight",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "놓으면 발사",
+    "en": "Release to fire",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "유성을 아래로 끌어 보세요",
+    "en": "Try dragging the meteor downward",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "공허 잔재 재생성",
+    "en": "Void Remnant respawns",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": " 깨어남",
+    "en": " Awakes",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "인 일제 사격",
+    "en": "-Starkeeper volley",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "판정: 긴 프레임 없음 - 더 플레이해 주세요",
+    "en": "Verdict: no long frames - please keep playing",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "판정: 긴프레임 ",
+    "en": "Verdict: long frames ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "만 JS 탓 -> 합성기 문제",
+    "en": " are on JS -> compositor problem",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "가 JS 탓 -> ",
+    "en": " are on JS -> ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "WebGL 없음",
+    "en": "No WebGL",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "확인 실패",
+    "en": "Check failed",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "[!] 소프트웨어 렌더링 - 그래픽 가속 꺼짐 ",
+    "en": "[!] Software rendering - graphics acceleration off ",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "[F10 기록]  F7 하늘  F8 흐림  F6 화면반응",
+    "en": "[F10 log]  F7 Sky  F8 Blur  F6 Screen react",
+    "bucket": "render-misc"
+  },
+  {
+    "ko": "돌아가기",
+    "en": "Go back",
+    "bucket": "render-misc"
+  }
+]

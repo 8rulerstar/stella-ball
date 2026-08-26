@@ -2395,8 +2395,58 @@ function localizeDataEntry(obj, enFields, lang) {
   for (const f in enFields)
     obj[f] = lang === "en" && enFields[f] != null ? enFields[f] : ko[f];
 }
+/* 맵(game-i18n.js의 I18N_EN) 구동 지역화. 필드의 «한국어 원본 값»을 맵에서
+   찾아 영어로 바꾼다. 무기·도색·월드처럼 값 전체가 한 문자열인 데이터에 쓴다.
+   워크플로 번역이 I18N_EN에 이미 있으므로 여기서 번역을 중복 보관하지 않는다. */
+function localizeByMap(obj, fields, lang) {
+  if (!obj) return;
+  const M = typeof I18N_EN !== "undefined" ? I18N_EN : {};
+  let ko = _dataKoSnapshot.get(obj);
+  if (!ko) {
+    ko = {};
+    for (const f of fields) ko[f] = obj[f];
+    _dataKoSnapshot.set(obj, ko);
+  }
+  for (const f of fields) {
+    const v = ko[f];
+    obj[f] =
+      lang === "en" && typeof v === "string" && M[v.trim()] != null
+        ? M[v.trim()]
+        : v;
+  }
+}
+/* 스테이지는 name 이 «별이름 · 부제»로 이어 붙어 통짜로는 맵에 없다. 조각으로
+   나눠 각각 맵에서 찾아 다시 잇고, terrain(설명)·star.name·labels 도 바꾼다. */
+function localizeStage(st, lang) {
+  if (!st) return;
+  const M = typeof I18N_EN !== "undefined" ? I18N_EN : {};
+  const tr = (s) =>
+    lang === "en" && typeof s === "string" && M[s.trim()] != null
+      ? M[s.trim()]
+      : s;
+  let ko = _dataKoSnapshot.get(st);
+  if (!ko) {
+    ko = {
+      name: st.name,
+      terrain: st.terrain,
+      starName: st.star && st.star.name,
+      labels: Array.isArray(st.labels) ? st.labels.slice() : null,
+    };
+    _dataKoSnapshot.set(st, ko);
+  }
+  if (typeof ko.name === "string")
+    st.name = ko.name
+      .split(" · ")
+      .map((p) => tr(p))
+      .join(" · ");
+  if (typeof ko.terrain === "string") st.terrain = tr(ko.terrain);
+  if (st.star && typeof ko.starName === "string")
+    st.star.name = tr(ko.starName);
+  if (ko.labels) st.labels = ko.labels.map((l) => tr(l));
+}
 /* 활성 언어에 맞춰 데이터 표시 필드를 세운다. 로드 시(게임 설정이 준비된 뒤,
-   game-meta-state.js)와 언어 토글 시(game-meta.js) 부른다. 'ko'면 원본 복원. */
+   game-meta-state.js)와 언어 토글 시(game-meta.js) 부른다. 'ko'면 원본 복원.
+   별지기·자리는 전용 표(DATA_EN)로, 나머지는 맵(I18N_EN)으로 바꾼다. */
 function applyDataLanguage(lang) {
   for (const id in DATA_EN.heroes)
     if (heroes[id]) localizeDataEntry(heroes[id], DATA_EN.heroes[id], lang);
@@ -2404,4 +2454,15 @@ function applyDataLanguage(lang) {
     const en = DATA_EN.slotBands[band.id];
     if (en) localizeDataEntry(band, en, lang);
   }
+  if (typeof WEAPONS !== "undefined")
+    for (const id in WEAPONS)
+      localizeByMap(WEAPONS[id], ["n", "tag", "desc"], lang);
+  if (typeof METEOR_SKINS !== "undefined")
+    for (const s of METEOR_SKINS) localizeByMap(s, ["name", "note"], lang);
+  if (typeof HERO_SKINS !== "undefined")
+    for (const s of HERO_SKINS) localizeByMap(s, ["name", "note"], lang);
+  if (typeof WORLDS !== "undefined")
+    for (const w of WORLDS) localizeByMap(w, ["name", "lore"], lang);
+  if (typeof stages !== "undefined")
+    for (const st of stages) localizeStage(st, lang);
 }
