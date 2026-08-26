@@ -1167,7 +1167,7 @@ const I18N_EN = {
   좌클릭: "Left-click",
   "끌어 조준·세기": "Drag: aim & power",
   우클릭: "Right-click",
-  "약점 위력": "Weak-point Power",
+  "약점 위력": "Weak Point",
   "별빛 연계": "Starlight Chain",
   운동량: "Momentum",
   "별빛 선택": "Select Starlight",
