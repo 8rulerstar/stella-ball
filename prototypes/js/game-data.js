@@ -2434,11 +2434,20 @@ function localizeStage(st, lang) {
     };
     _dataKoSnapshot.set(st, ko);
   }
-  if (typeof ko.name === "string")
-    st.name = ko.name
-      .split(" · ")
-      .map((p) => tr(p))
-      .join(" · ");
+  if (typeof ko.name === "string") {
+    /* 스테이지 이름은 «별이름 · 부제»다. 통짜 전체가 맵에 있으면(워크플로가
+       full name 을 그렇게 뽑았다) 그걸 먼저 쓴다 — 부제(공명의 문·반사의
+       계단 등)는 통짜 키 «안»에만 있고 단독 항목이 없어, 무턱대고 쪼개면
+       부제가 한글로 남았다(예: "Gamma Cas · 가속의 등뼈"). */
+    const full = tr(ko.name);
+    st.name =
+      full !== ko.name
+        ? full
+        : ko.name
+            .split(" · ")
+            .map((p) => tr(p))
+            .join(" · ");
+  }
   if (typeof ko.terrain === "string") st.terrain = tr(ko.terrain);
   if (st.star && typeof ko.starName === "string")
     st.star.name = tr(ko.starName);

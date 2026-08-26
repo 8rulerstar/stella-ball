@@ -11,11 +11,32 @@ const pairs = Array.isArray(parsed) ? parsed : parsed.result.pairs;
 const map = {};
 let skipped = 0;
 for (const p of pairs) {
-  if (!p || typeof p.ko !== "string" || typeof p.en !== "string") { skipped++; continue; }
-  if (!p.ko.trim() || !p.en.trim()) { skipped++; continue; }
-  if (p.ko === p.en) { skipped++; continue; }
-  if (!/[가-힣]/.test(p.ko)) { skipped++; continue; }
-  if (!(p.ko in map)) map[p.ko] = p.en;
+  if (!p || typeof p.ko !== "string" || typeof p.en !== "string") {
+    skipped++;
+    continue;
+  }
+  if (!p.ko.trim() || !p.en.trim()) {
+    skipped++;
+    continue;
+  }
+  if (p.ko === p.en) {
+    skipped++;
+    continue;
+  }
+  if (!/[가-힣]/.test(p.ko)) {
+    skipped++;
+    continue;
+  }
+  // 키·값의 앞뒤 공백을 벗긴다. 조회는 t()/i18nLocalize 모두 s.trim() 으로 하므로
+  // 패딩된 키는 도달 불가(죽은 항목)였고, 패딩된 값은 앞뒤 이중 공백을 냈다.
+  // 공백은 원문(s)에서 replace 가 보존하므로 값도 trim 이 맞다.
+  const _k = p.ko.trim(),
+    _v = p.en.trim();
+  if (!_k || !_v) {
+    skipped++;
+    continue;
+  }
+  if (!(_k in map)) map[_k] = _v;
 }
 
 const body = Object.entries(map)
@@ -27,8 +48,14 @@ const body = Object.entries(map)
    ⚠ 반드시 «다른 단어의 일부로는 안 나오는» 여러 글자 용어만, 그리고 긴 것
    먼저. 짧고 흔한 조각(별·달·해 등)은 절대 넣지 말 것 — 긴 단어를 부순다. */
 const FRAG = [
-  ["유성을 굴려 별빛을 만들고, 빛나는 곳을 세 군데 골라 조준하세요.", "Roll the meteor to make starlight, then aim at three glowing spots."],
-  ["고르지 않고 남겨 둔 별빛이 별자리가 됩니다.", "Starlight left unpicked becomes a constellation."],
+  [
+    "유성을 굴려 별빛을 만들고, 빛나는 곳을 세 군데 골라 조준하세요.",
+    "Roll the meteor to make starlight, then aim at three glowing spots.",
+  ],
+  [
+    "고르지 않고 남겨 둔 별빛이 별자리가 됩니다.",
+    "Starlight left unpicked becomes a constellation.",
+  ],
   ["루나의 관측 수업", "Luna's Observation Lesson"],
   ["불멸의 허수아비", "Immortal Scarecrow"],
   ["훈련 시작", "Start Training"],
@@ -49,7 +76,9 @@ const FRAG = [
   ["훈련", "Training"],
   ["골드", "Gold"],
 ];
-const fragBody = FRAG.map(([k, v]) => `  [${JSON.stringify(k)}, ${JSON.stringify(v)}],`).join("\n");
+const fragBody = FRAG.map(
+  ([k, v]) => `  [${JSON.stringify(k)}, ${JSON.stringify(v)}],`,
+).join("\n");
 
 const file = `/* eslint-disable */
 /* ──────────────────────────────────────────────────────────────────────────
@@ -139,7 +168,12 @@ function i18nLocalize(root) {
 const I18N_OBS_OPTS = { childList: true, subtree: true };
 let _i18nObserver = null;
 function i18nRun(root) {
-  if (!i18nActive()) return;
+  // 한국어면 감시를 «끊는다». 예전엔 그냥 return 이라, EN 을 한 번 켰다가 KO 로
+  // 돌아오면 <main> 관찰자가 계속 붙어 모든 childList 변경마다 헛돌았다.
+  if (!i18nActive()) {
+    if (_i18nObserver) _i18nObserver.disconnect();
+    return;
+  }
   if (_i18nObserver) _i18nObserver.disconnect();
   i18nLocalize(root);
   if (_i18nObserver) _i18nObserver.observe(root, I18N_OBS_OPTS);
@@ -161,4 +195,6 @@ else startI18n();
 `;
 
 writeFileSync(DEST, file, "utf8");
-console.log(`wrote ${DEST}: ${Object.keys(map).length} entries, ${FRAG.length} fragments, skipped ${skipped}`);
+console.log(
+  `wrote ${DEST}: ${Object.keys(map).length} entries, ${FRAG.length} fragments, skipped ${skipped}`,
+);
