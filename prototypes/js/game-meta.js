@@ -161,7 +161,9 @@ function showAchievements() {
       (pendingRewards.length ? " ready" : "") +
       '"><div><small>관측 보상함</small><b>' +
       (pendingRewards.length
-        ? "수령 대기 " + pendingRewards.length + "건"
+        ? settings.language === "en"
+          ? pendingRewards.length + " to claim"
+          : "수령 대기 " + pendingRewards.length + "건"
         : "쌓인 보상 없음") +
       "</b><span>" +
       (pendingRewards.length
@@ -245,9 +247,11 @@ function showAchievements() {
       if (!entry) return;
       playClaimBurst(card, entry.gold, () => {
         rewardToast(
-          "업적 보상 · " + entry.name,
-          "+" + entry.gold + " 골드",
-          "보유 " + goldBalance(),
+          (settings.language === "en"
+            ? "Achievement Reward · "
+            : "업적 보상 · ") + entry.name,
+          "+" + entry.gold + (settings.language === "en" ? " Gold" : " 골드"),
+          (settings.language === "en" ? "Held " : "보유 ") + goldBalance(),
         );
         showAchievements();
       });

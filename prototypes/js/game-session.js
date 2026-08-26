@@ -895,11 +895,13 @@ function resultCard(shotsUsed, elapsedMs) {
     libraryArt.result.time +
     '" alt=""><span>클리어<b>' +
     seconds +
-    '초</b></span></span><span class="result-metric"><img src="' +
+    (settings.language === "en" ? "s" : "초") +
+    '</b></span></span><span class="result-metric"><img src="' +
     libraryArt.result.shots +
     '" alt=""><span>사용 유성<b>' +
     shotsUsed +
-    '개</b></span></span><span class="result-metric"><img src="' +
+    (settings.language === "en" ? "" : "개") +
+    '</b></span></span><span class="result-metric"><img src="' +
     libraryArt.result.damage +
     '" alt=""><span>처치 피해<b>' +
     boss.maxHp +

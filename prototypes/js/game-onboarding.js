@@ -1776,7 +1776,7 @@ registerRuntimeHook("afterBattleWin", (context) => {
       '<div class="outcome-cut win"><div class="outcome-constellation" aria-hidden="true"><i>✦</i><i>✧</i><i>★</i><i>✧</i><i>✦</i></div><div class="tag">별 해방</div><h2>별이 하늘로 돌아갔습니다.</h2>' +
       resultCard(shotsUsed, elapsedMs) +
       resultGoldReward(goldEarned) +
-      "<p>밤하늘에 별이 하나 켜졌습니다 — 오늘의 별자리: " +
+      "<p><span>밤하늘에 별이 하나 켜졌습니다 — 오늘의 별자리:</span> " +
       partyNames +
       '</p><button onclick="showStageSelect()">다음 관측</button></div>';
     U.over.classList.remove("hide");

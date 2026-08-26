@@ -15,7 +15,7 @@ for (const p of pairs) {
     skipped++;
     continue;
   }
-  if (!p.ko.trim() || !p.en.trim()) {
+  if (!p.ko.trim()) {
     skipped++;
     continue;
   }
@@ -30,9 +30,16 @@ for (const p of pairs) {
   // 키·값의 앞뒤 공백을 벗긴다. 조회는 t()/i18nLocalize 모두 s.trim() 으로 하므로
   // 패딩된 키는 도달 불가(죽은 항목)였고, 패딩된 값은 앞뒤 이중 공백을 냈다.
   // 공백은 원문(s)에서 replace 가 보존하므로 값도 trim 이 맞다.
-  const _k = p.ko.trim(),
-    _v = p.en.trim();
-  if (!_k || !_v) {
+  const _k = p.ko.trim();
+  // 명시적 «드롭» 표식(∅)은 빈 문자열로 — 「5개」의 "개" 처럼 영어에 대응어가
+  // 없어 지워야 하는 단위용. 그 외의 빈 값은 우연이므로 버린다.
+  let _v = p.en.trim();
+  if (_v === "∅") _v = "";
+  else if (!_v) {
+    skipped++;
+    continue;
+  }
+  if (!_k) {
     skipped++;
     continue;
   }
