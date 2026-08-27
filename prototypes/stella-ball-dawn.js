@@ -400,6 +400,19 @@
     av.alt = "우주비행사";
     aw.dataset.dawnProp = "astronaut";
     aw.appendChild(av);
+    /* 우주비행사 말풍선(오너 지시). 인트로가 끝난 뒤 «상시» 뜬다. 인트로(최초·
+       「인트로 다시 보기」 공통)에는 우주비행사가 회전·이동하므로(outer-observer
+       startleProps) 말풍선이 같이 뒤집히면 어색하다 — body.oo-intro 동안 CSS로
+       숨긴다. aw 의 자식이라 우주비행사와 함께 서고, 인트로 뒤엔 저절로 돌아온다. */
+    var bubble = document.createElement("div");
+    bubble.className = "astro-bubble";
+    bubble.setAttribute("aria-hidden", "true");
+    bubble.innerHTML =
+      '<span class="astro-bubble-kicker">MESSAGE</span>' +
+      '<span class="astro-bubble-line"><b>OpenAI</b> · <b>Hive</b> · <b>컴투스</b></span>' +
+      '<span class="astro-bubble-love">사랑해요! 💜</span>' +
+      '<span class="astro-bubble-tail"></span>';
+    aw.appendChild(bubble);
     var waving = false;
     aw.addEventListener("mouseenter", function () {
       if (waving) return;
