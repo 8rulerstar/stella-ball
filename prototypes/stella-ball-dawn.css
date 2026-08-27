@@ -69,8 +69,8 @@ main {
    상시 표시, 인트로(최초·다시보기) 중에는 우주비행사가 회전·이동하므로 숨긴다. */
 .astro-bubble {
   position: absolute;
-  left: 30px;
-  bottom: 66px;
+  left: 50px;
+  bottom: 84px;
   display: grid;
   gap: 1px;
   width: max-content;
