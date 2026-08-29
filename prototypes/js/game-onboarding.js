@@ -510,7 +510,11 @@ function continueOnboarding(action) {
   if (action === "complete") return completeOnboarding();
 }
 function staggerOnboardingCopy(text) {
-  return text
+  /* Translate the complete sentence before splitting it into animated words.
+     The DOM i18n observer cannot recover a sentence after each Korean word has
+     become its own text node, so doing this in the opposite order left every
+     onboarding body in Korean while titles and buttons changed to English. */
+  return t(text)
     .split(" ")
     .map(
       (word, index) =>
@@ -603,10 +607,14 @@ function renderOnboarding() {
           ? "조준해서 발사했어요!"
           : "아직 셋을 못 골랐어요.",
         body: onboarding.aimed
-          ? (onboarding.steered
-              ? "길을 꺾었네요 — 날아가는 중에 좌·우클릭은 한 발에 한 번뿐이라, 어디서 쓸지가 곧 실력이에요. "
-              : "날아가는 중에 좌클릭·우클릭으로 유성의 길을 한 번 꺾을 수 있어요. 한 발에 한 번뿐입니다. ") +
-            "유성은 고른 세 빛의 한가운데로 날아갔고, 부딪힌 별지기는 깨어나 자기 공격을 썼어요. 그 자리엔 작은 별빛이 남았죠. 이제 남긴 별빛으로 별자리를 만들어 볼게요."
+          ? t(
+              onboarding.steered
+                ? "길을 꺾었네요 — 날아가는 중에 좌·우클릭은 한 발에 한 번뿐이라, 어디서 쓸지가 곧 실력이에요. "
+                : "날아가는 중에 좌클릭·우클릭으로 유성의 길을 한 번 꺾을 수 있어요. 한 발에 한 번뿐입니다. ",
+            ) +
+            t(
+              "유성은 고른 세 빛의 한가운데로 날아갔고, 부딪힌 별지기는 깨어나 자기 공격을 썼어요. 그 자리엔 작은 별빛이 남았죠. 이제 남긴 별빛으로 별자리를 만들어 볼게요.",
+            )
           : "별지기 위의 빛 세 곳을 차례로 누른 뒤 Space로 발사해 보세요.",
         button: onboarding.aimed ? "다음 · 별자리" : "다시 시도",
         action: onboarding.aimed ? "learn-figure" : "practice",
