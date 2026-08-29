@@ -43,7 +43,6 @@ const combinedSource = `${source}\n${gameSource}\n${styleSource}`;
 
 const requiredRuntimeReferences = [
   ...styleFiles.map((file) => `./${file.replace("prototypes/", "")}`),
-  "../hive/prism-hive-client.js",
   ...gameFiles.map((file) => `./${file.replace("prototypes/", "")}`),
 ];
 const missingRuntimeReferences = requiredRuntimeReferences.filter(

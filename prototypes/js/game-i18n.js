@@ -371,8 +371,6 @@ const I18N_EN = {
   관측자: "Observer",
   최단: "Best",
   최소: "Fewest",
-  "현재는 이 브라우저에 저장된 <b>로컬 기록</b>입니다. Hive 리더보드 연동은 준비 중이며, 연동되면 같은 표에 다른 관측자의 기록이 함께 표시됩니다.":
-    "These are <b>local records</b> saved in this browser for now. Hive leaderboard sync is in the works; once connected, other observers' records will appear in the same table.",
   우편함: "Mailbox",
   "출석 보상": "Check-in Reward",
   "우편 수령": "Mail Claimed",

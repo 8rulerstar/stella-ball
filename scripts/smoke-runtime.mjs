@@ -23,7 +23,6 @@ const expectedStyles = [
   "./stella-ball-upgrade.css",
 ];
 const expectedScripts = [
-  "../hive/prism-hive-client.js",
   "./js/game-platform.js",
   "./js/game-runtime.js",
   "./js/game-data.js",

@@ -1098,14 +1098,6 @@ function win() {
   if (typeof clearSpeech === "function") clearSpeech();
   msg = "";
   U.tip.textContent = "";
-  window.PrismHive?.submitRun({
-    stage: currentStage().id,
-    party: deployed,
-    shotsUsed,
-    totalDamage: boss.maxHp,
-    elapsedMs,
-    source: "browser",
-  }).catch(() => {});
   U.over.className = "overlay";
   U.over.innerHTML = isFinalStage()
     ? endingCard(shotsUsed, elapsedMs)

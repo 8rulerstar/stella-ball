@@ -258,8 +258,7 @@ function showAchievements() {
     };
 }
 // Profile gathers identity, the record board and the mailbox in one tab.  The
-// board is local-only today; Hive would replace the source without changing
-// this surface, so nothing here claims a live connection.
+// board is local-only, so nothing here claims a live connection.
 const MAILBOX_STORAGE = "stella-ball.mailbox.v1";
 function mailboxEntries() {
   const stored = appStorage.readRecord(MAILBOX_STORAGE, { items: [] });
@@ -502,7 +501,11 @@ function showProfile() {
     METEOR_SKINS.length +
     '</b></div></div></section><section class="profile-panel"><div class="panel-title"><small>LEADERBOARD</small><h2>오늘의 밤하늘 순위</h2></div><table class="rank-table"><thead><tr><th>#</th><th>관측자</th><th>별</th><th>최단</th><th>최소</th></tr></thead><tbody>' +
     rows +
-    '</tbody></table><p class="rank-note">현재는 이 브라우저에 저장된 <b>로컬 기록</b>입니다. Hive 리더보드 연동은 준비 중이며, 연동되면 같은 표에 다른 관측자의 기록이 함께 표시됩니다.</p></section><section class="profile-panel mail-panel"><div class="panel-title"><small>MAILBOX</small><h2>우편함' +
+    '</tbody></table><p class="rank-note">' +
+    (settings.language === "en"
+      ? "These are <b>local records</b> saved in this browser."
+      : "현재는 이 브라우저에 저장된 <b>로컬 기록</b>입니다.") +
+    '</p></section><section class="profile-panel mail-panel"><div class="panel-title"><small>MAILBOX</small><h2>우편함' +
     (unread ? ' <i class="claim-badge">' + unread + "</i>" : "") +
     '</h2></div><div class="mail-list">' +
     mailCards +
