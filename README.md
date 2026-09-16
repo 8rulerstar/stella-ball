@@ -58,19 +58,19 @@ opponent is a training-ground dummy, not the final boss.
 
 These documents are written in Korean.
 
-- [Documentation index / reading order](DOCUMENTATION_INDEX.md)
-- [Game direction](GAME_DIRECTION.md)
-- [Art asset plan](ASSET_PLAN.md)
-- [Design and asset production backlog](ASSET_BACKLOG.md)
+- [Documentation index / reading order](docs/DOCUMENTATION_INDEX.md)
+- [Game direction](docs/GAME_DIRECTION.md)
+- [Art asset plan](docs/ASSET_PLAN.md)
+- [Design and asset production backlog](docs/ASSET_BACKLOG.md)
 - [Asset manifest](assets/ASSET_MANIFEST.json)
 - [Asset attribution](assets/ATTRIBUTION.md)
-- [Running handover notes](PROJECT_CONTEXT.md)
-- [Latest progress report / next-session handover](PROGRESS_REPORT.md)
+- [Running handover notes](docs/PROJECT_CONTEXT.md)
+- [Latest progress report / next-session handover](docs/PROGRESS_REPORT.md)
 - [Runtime architecture and where to change what](prototypes/ARCHITECTURE.md)
-- [Dawn Observatory UI kit (current theme)](UI_KIT_DAWN.md)
-- [Codex collaboration log / submission original](CODEX_COLLABORATION.md)
-- [Daily devlog](DEVLOG.md)
-- [Development history and verification rules](EVIDENCE_PROTOCOL.md)
+- [Dawn Observatory UI kit (current theme)](docs/UI_KIT_DAWN.md)
+- [Codex collaboration log / submission original](docs/CODEX_COLLABORATION.md)
+- [Daily devlog](docs/DEVLOG.md)
+- [Development history and verification rules](docs/EVIDENCE_PROTOCOL.md)
 
 On every push to `main`, GitHub Actions runs the static checks and the feature-marker checks, and
 keeps a verification report — carrying the commit SHA and a UTC timestamp — as an Actions
@@ -99,7 +99,7 @@ Then open `http://127.0.0.1:4173/`. `npm run check` runs the static checks toget
 runtime contract checks. `npm run format:check` checks formatting and `npm run format` applies it.
 
 For the rules on continuing the same repository across Windows, macOS and Linux — and the
-per-OS start commands — follow the [cross-platform guide](CROSS_PLATFORM.md).
+per-OS start commands — follow the [cross-platform guide](docs/CROSS_PLATFORM.md).
 
 ## Scope
 

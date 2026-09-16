@@ -28,19 +28,19 @@ GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩�
 
 ## 개발 과정과 검증 기록
 
-- [문서 안내 / 읽는 순서](DOCUMENTATION_INDEX.md)
-- [게임 전략](GAME_DIRECTION.md)
-- [아트 에셋 계획](ASSET_PLAN.md)
-- [디자인·에셋 제작 백로그](ASSET_BACKLOG.md)
+- [문서 안내 / 읽는 순서](docs/DOCUMENTATION_INDEX.md)
+- [게임 전략](docs/GAME_DIRECTION.md)
+- [아트 에셋 계획](docs/ASSET_PLAN.md)
+- [디자인·에셋 제작 백로그](docs/ASSET_BACKLOG.md)
 - [에셋 매니페스트](assets/ASSET_MANIFEST.json)
 - [에셋 출처](assets/ATTRIBUTION.md)
-- [지속 인수인계 메모](PROJECT_CONTEXT.md)
-- [최신 진행 보고 / 다음 세션 인수인계](PROGRESS_REPORT.md)
+- [지속 인수인계 메모](docs/PROJECT_CONTEXT.md)
+- [최신 진행 보고 / 다음 세션 인수인계](docs/PROGRESS_REPORT.md)
 - [런타임 구조와 파일별 수정 위치](prototypes/ARCHITECTURE.md)
-- [새벽 관측소 UI 킷 (현행 테마 기준)](UI_KIT_DAWN.md)
-- [Codex 협업 기록 / 제출 원본](CODEX_COLLABORATION.md)
-- [일일 개발 로그](DEVLOG.md)
-- [개발 이력 및 검증 운영 규칙](EVIDENCE_PROTOCOL.md)
+- [새벽 관측소 UI 킷 (현행 테마 기준)](docs/UI_KIT_DAWN.md)
+- [Codex 협업 기록 / 제출 원본](docs/CODEX_COLLABORATION.md)
+- [일일 개발 로그](docs/DEVLOG.md)
+- [개발 이력 및 검증 운영 규칙](docs/EVIDENCE_PROTOCOL.md)
 
 `main` 브랜치에 푸시될 때마다 GitHub Actions가 정적 검증 및 기능 표식 검사를 실행하고, 커밋 SHA와 UTC 시각을 담은 검증 리포트를 Actions artifact로 보관합니다. GitHub Pages 배포도 같은 커밋에서 실행됩니다.
 
@@ -63,7 +63,7 @@ npm run serve
 
 그 뒤 `http://127.0.0.1:4173/`을 엽니다. `npm run check`은 정적 검증과 런타임 계약 검사를 함께 실행합니다. `npm run format:check`은 포맷 검사, `npm run format`은 포맷 적용 명령입니다.
 
-Windows·macOS·Linux에서 같은 저장소를 이어 작업하는 규칙과 운영체제별 시작 명령은 [크로스플랫폼 작업 안내](CROSS_PLATFORM.md)를 따릅니다.
+Windows·macOS·Linux에서 같은 저장소를 이어 작업하는 규칙과 운영체제별 시작 명령은 [크로스플랫폼 작업 안내](docs/CROSS_PLATFORM.md)를 따릅니다.
 
 ## 범위 원칙
 

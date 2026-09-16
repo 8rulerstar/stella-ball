@@ -62,7 +62,7 @@
 - 새 파티클 배열을 만들지 않는다. 짧은 이펙트는 기존 `fieldFx`·`areaBursts`·`popups`를 쓰고 제자리에서 정리한다.
 - `fieldFx`는 12개에서 잘린다(`updateExpanded`). 한 이벤트가 그 예산을 혼자 먹지 않게 한다.
 
-> **함정 하나.** `fieldFx`는 `simulatePhysics` 안에서만 시간이 흐르고, `modernUpdate`는 `ball.moving`이 false면 거기 도달하기 전에 빠져나온다([game-core-render.js](prototypes/js/game-core-render.js)). 즉 **유성이 멈춘 뒤에 `fieldFx`에 넣은 이펙트는 다음 발사까지 화면에 그대로 박혀 있는다.** 정산 이후에 뜨는 연출은 `fieldFx`가 아니라 자체 시계를 쓰는 곳(`figureFx` 같은)에 얹어야 한다. 3·4번 작업이 이 경계에 걸린다.
+> **함정 하나.** `fieldFx`는 `simulatePhysics` 안에서만 시간이 흐르고, `modernUpdate`는 `ball.moving`이 false면 거기 도달하기 전에 빠져나온다([game-core-render.js](../prototypes/js/game-core-render.js)). 즉 **유성이 멈춘 뒤에 `fieldFx`에 넣은 이펙트는 다음 발사까지 화면에 그대로 박혀 있는다.** 정산 이후에 뜨는 연출은 `fieldFx`가 아니라 자체 시계를 쓰는 곳(`figureFx` 같은)에 얹어야 한다. 3·4번 작업이 이 경계에 걸린다.
 
 ### 0.5 완료 판정
 
@@ -76,7 +76,7 @@
 
 ### 현재 상태
 
-`renderTitlePresentation()` — [prototypes/js/game-session.js:110](prototypes/js/game-session.js:110). DOM + CSS + 인라인 SVG다. CSS는 `prism-breakers-story.css`, `prism-breakers-polish.css`, `stella-ball-theme.css` 세 군데에 흩어져 있다.
+`renderTitlePresentation()` — [prototypes/js/game-session.js:110](../prototypes/js/game-session.js:110). DOM + CSS + 인라인 SVG다. CSS는 `prism-breakers-story.css`, `prism-breakers-polish.css`, `stella-ball-theme.css` 세 군데에 흩어져 있다.
 
 한 화면에 지금 들어 있는 것:
 
@@ -137,7 +137,7 @@
 
 ### 현재 상태
 
-`showGacha()` — [prototypes/js/game-meta.js](prototypes/js/game-meta.js) 약 1071줄. CSS는 `stella-ball-theme.css`.
+`showGacha()` — [prototypes/js/game-meta.js](../prototypes/js/game-meta.js) 약 1071줄. CSS는 `stella-ball-theme.css`.
 
 지금 연출의 전부:
 
@@ -193,7 +193,7 @@ setTimeout(() => {
 
 ### 현재 상태
 
-전부 [prototypes/js/game-figure.js](prototypes/js/game-figure.js)에 있다.
+전부 [prototypes/js/game-figure.js](../prototypes/js/game-figure.js)에 있다.
 
 타이밍 상수:
 
@@ -248,7 +248,7 @@ falseStartCooldown: 0.3,  missCooldown: 0.72
 
 ### 현재 상태
 
-`drawFigureShot` — [prototypes/js/game-figure.js:902](prototypes/js/game-figure.js:902).
+`drawFigureShot` — [prototypes/js/game-figure.js:902](../prototypes/js/game-figure.js:902).
 
 ```js
 x.globalAlpha = 0.4; // 943줄까지 유지된다
@@ -366,6 +366,6 @@ for (const node of nodes) {
 
 - [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — 팔레트·버튼 킷·데코 규칙의 단일 기준
 - [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — 범위 원칙과 성능 기준선
-- [prototypes/ARCHITECTURE.md](prototypes/ARCHITECTURE.md) — 파일별 소유 경계와 로드 순서
-- [prototypes/MAINTENANCE.md](prototypes/MAINTENANCE.md) — 성능·검증 변경 절차
+- [prototypes/ARCHITECTURE.md](../prototypes/ARCHITECTURE.md) — 파일별 소유 경계와 로드 순서
+- [prototypes/MAINTENANCE.md](../prototypes/MAINTENANCE.md) — 성능·검증 변경 절차
 - [ASSET_BACKLOG.md](ASSET_BACKLOG.md) — 새 그림·SFX가 필요해졌을 때의 접수처

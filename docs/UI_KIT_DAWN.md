@@ -2,7 +2,7 @@
 
 작성: 2026-08-12. 이 문서가 이전 Ink & Brass v2를 대체하는 현재 테마 기준이다.
 확정 시안: 디자인 프로젝트의 `새벽 관측소 시안.dc.html` 7턴(7a 허브 / 7b 전투 / 7c 백로그).
-런타임 킷: [`prototypes/stella-ball-pixel-ui.js`](prototypes/stella-ball-pixel-ui.js).
+런타임 킷: [`prototypes/stella-ball-pixel-ui.js`](../prototypes/stella-ball-pixel-ui.js).
 
 ## 결정 이력
 

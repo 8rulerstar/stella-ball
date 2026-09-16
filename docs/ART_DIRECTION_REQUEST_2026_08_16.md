@@ -88,7 +88,7 @@ CSS가 실제로 쓰는 가장 진한 색은 C\* 93.8이다. **타이틀은 그 
 
 ### 2-4. [A] 팔레트가 두 번 정의되고, 나중 것이 앞의 것을 지운다
 
-같은 토큰 9개가 두 곳에 선언돼 있다 — [prism-breakers-story.css:398](prototypes/prism-breakers-story.css:398)의 **청보라 관측소 밤**과 [stella-ball-theme.css:7](prototypes/stella-ball-theme.css:7)의 **청록·황동**. 테마가 마지막에 로드되므로 9개 전부 후자로 덮인다. **더 다채로운 쪽이 죽어 있다.**
+같은 토큰 9개가 두 곳에 선언돼 있다 — [prism-breakers-story.css:398](../prototypes/prism-breakers-story.css:398)의 **청보라 관측소 밤**과 [stella-ball-theme.css:7](../prototypes/stella-ball-theme.css:7)의 **청록·황동**. 테마가 마지막에 로드되므로 9개 전부 후자로 덮인다. **더 다채로운 쪽이 죽어 있다.**
 
 그리고 **정의된 토큰 18개 중 13개가 어디에서도 참조되지 않는다.** 여기에 **유닛 8종의 고유색 전부**가 포함된다.
 
@@ -142,7 +142,7 @@ CSS가 실제로 쓰는 가장 진한 색은 C\* 93.8이다. **타이틀은 그 
 
 **`.stage-copy`의 9px는 이 프로젝트에서 가장 작은 글자다.** 오너의 "글씨 너무 작아서 잘리거나" 지적이 이 자리를 가리킨다. 60×17px 상자에 9px 글자로 스테이지 설명을 넣고 있다.
 
-노드 하나가 담는 것: 스테이지 번호, 짧은 문구, 별 하나. **담지 않는 것: 보스가 누구인지, 지형이 무엇인지, 무엇을 주는지, 얼마나 어려운지.** 스테이지 정의에는 `terrain` 설명문과 보스 아트 키가 이미 들어 있는데([game-data.js](prototypes/js/game-data.js:544)) 지도에는 올라오지 않는다.
+노드 하나가 담는 것: 스테이지 번호, 짧은 문구, 별 하나. **담지 않는 것: 보스가 누구인지, 지형이 무엇인지, 무엇을 주는지, 얼마나 어려운지.** 스테이지 정의에는 `terrain` 설명문과 보스 아트 키가 이미 들어 있는데([game-data.js](../prototypes/js/game-data.js:544)) 지도에는 올라오지 않는다.
 
 ### 3-3. [A] 세 상태가 색으로만 갈린다
 
@@ -161,7 +161,7 @@ CSS가 실제로 쓰는 가장 진한 색은 C\* 93.8이다. **타이틀은 그 
 
 ### 4-1. 타격 반응의 실제 수치
 
-`impact()`([game-feedback.js:501](prototypes/js/game-feedback.js:501)) 한 함수가 화면 흔들림·히트스톱·플래시를 모두 정한다. 세 값 모두 `force`(연타로 최대 2.3배, 보스 페이즈로 최대 1.36배)로 곱해진다.
+`impact()`([game-feedback.js:501](../prototypes/js/game-feedback.js:501)) 한 함수가 화면 흔들림·히트스톱·플래시를 모두 정한다. 세 값 모두 `force`(연타로 최대 2.3배, 보스 페이즈로 최대 1.36배)로 곱해진다.
 
 | 타격 종류            |        흔들림 |        히트스톱 | 플래시 |
 | -------------------- | ------------: | --------------: | -----: |
@@ -179,8 +179,8 @@ CSS가 실제로 쓰는 가장 진한 색은 C\* 93.8이다. **타이틀은 그 
 | 배열        |                       상한 | 출처                                                             |
 | ----------- | -------------------------: | ---------------------------------------------------------------- |
 | `fieldFx`   |                       12칸 | 공명·관계선 등                                                   |
-| 패링 FX     |            6칸 (별도 예산) | [PARRY_FX.budget](prototypes/js/game-figure-recognition.js:78)   |
-| 데미지 팝업 | 12개 (초과 시 앞에서 버림) | [game-core-render.js:174](prototypes/js/game-core-render.js:174) |
+| 패링 FX     |            6칸 (별도 예산) | [PARRY_FX.budget](../prototypes/js/game-figure-recognition.js:78)   |
+| 데미지 팝업 | 12개 (초과 시 앞에서 버림) | [game-core-render.js:174](../prototypes/js/game-core-render.js:174) |
 | 별자리 별빛 |            최소 3 / 최대 7 | `FIGURE_PARRY.minNodes/maxNodes`                                 |
 
 ### 4-3. 별자리 연출의 타임라인 (2026-08-16 단축 후)
@@ -264,7 +264,7 @@ CSS가 다른 곳에서 이미 C\* 93.8까지 쓰는데, **이펙트 레이어�
 | 데미지 팝업 | 판 위 좌표, 0.9초                                                                                  | 피해량·별자리 이름                                       |
 | 수업 카드   | 오버레이 전체                                                                                      | 온보딩                                                   |
 
-**토스트는 큐로 직렬화된다** — `toastQueue`에 쌓아 하나씩 보여 주고, 같은 문구가 연속이면 버린다([game-session.js:582](prototypes/js/game-session.js:582)). 그래서 여러 캐릭터가 동시에 반응해도 한 줄씩 차례로 지나간다. **말이 아니라 로그다.**
+**토스트는 큐로 직렬화된다** — `toastQueue`에 쌓아 하나씩 보여 주고, 같은 문구가 연속이면 버린다([game-session.js:582](../prototypes/js/game-session.js:582)). 그래서 여러 캐릭터가 동시에 반응해도 한 줄씩 차례로 지나간다. **말이 아니라 로그다.**
 
 ### 5-2. 초상 아트는 이미 있다
 
@@ -289,11 +289,11 @@ CSS가 다른 곳에서 이미 C\* 93.8까지 쓰는데, **이펙트 레이어�
 
 ### 6-1. 지금 기믹은 「규칙」만 있고 「연출」이 없다
 
-기믹 체계 자체는 이미 있다. `setupStageGimmicks`([game-data.js:1294](prototypes/js/game-data.js:1294))가 스테이지 정의에서 읽어 세우는 것이 반사 벽·부스트 패드·감속 패드·공전 장애물·잔재·보스 껍질·페이즈다.
+기믹 체계 자체는 이미 있다. `setupStageGimmicks`([game-data.js:1294](../prototypes/js/game-data.js:1294))가 스테이지 정의에서 읽어 세우는 것이 반사 벽·부스트 패드·감속 패드·공전 장애물·잔재·보스 껍질·페이즈다.
 
 문제는 **전부 도형으로 그려진다**는 것이다. 캔버스에 사각형을 채우고 테두리를 긋고 `shadowBlur`를 얹은 것이 연출의 전부다. 그래서 기믹이 발동해도 "규칙이 적용됐다"로 읽히지 "보스가 무언가 했다"로 읽히지 않는다.
 
-그리고 **현재 캠페인은 의도적으로 기믹이 없다.** [game-data.js:466](prototypes/js/game-data.js:466)의 주석이 그렇게 적어 두었다 — 활성 캠페인은 체력·경로 진행만 쓰고, 기믹 모듈은 별도 12스테이지에서만 돌아간다. **즉 이 절의 요청은 "있는 연출을 고쳐 달라"가 아니라 "기믹을 캠페인에 되돌릴 때 무엇으로 보이게 할 것인가"에 가깝다.**
+그리고 **현재 캠페인은 의도적으로 기믹이 없다.** [game-data.js:466](../prototypes/js/game-data.js:466)의 주석이 그렇게 적어 두었다 — 활성 캠페인은 체력·경로 진행만 쓰고, 기믹 모듈은 별도 12스테이지에서만 돌아간다. **즉 이 절의 요청은 "있는 연출을 고쳐 달라"가 아니라 "기믹을 캠페인에 되돌릴 때 무엇으로 보이게 할 것인가"에 가깝다.**
 
 ### 6-2. [A] 보스의 포효
 
@@ -306,13 +306,13 @@ CSS가 다른 곳에서 이미 C\* 93.8까지 쓰는데, **이펙트 레이어�
 - **울림의 시각 어휘.** 지금 화면 전체를 건드리는 것은 `screenShake`(진폭 px, 감쇠)와 `screenFlash`(`.impact-flash` 전체 덮개)뿐이고 둘 다 짧고 균일하다. 포효는 "밀려 나가는" 느낌이라 중심에서 퍼지는 파형이 필요한데, 그런 어휘가 아직 없다.
 - **모서리에 박힌다**를 어떻게 보일 것인가. 유성이 모서리에 도달하는 과정을 보여 줄지(밀려남), 순간이동시킬지(강제 배치)에 따라 연출이 완전히 달라진다. 전자는 물리로 표현 가능하고, 후자는 별도의 연출이 필요하다.
 - **네 모서리 중 어디인가.** 유성의 현재 위치에서 가장 가까운 모서리인지, 보스 반대쪽인지, 정해진 한 곳인지 — 이건 규칙 결정이라 오너 답이 필요하다. [7절](#7-미해결-질문)에 올렸다.
-- 포효 중 플레이어 입력을 받을 것인가. 받지 않는다면 그 정지가 [온보딩의 teaching hold](prototypes/js/game-onboarding.js:85)와 같은 어휘를 써야 하는지.
+- 포효 중 플레이어 입력을 받을 것인가. 받지 않는다면 그 정지가 [온보딩의 teaching hold](../prototypes/js/game-onboarding.js:85)와 같은 어휘를 써야 하는지.
 
 ### 6-3. [A] 보스가 소환하는 '벽'
 
 **요구:** 세련되게.
 
-**지금 벽은 회색 사각형 하나다.** [game-combat.js:191](prototypes/js/game-combat.js:191)의 그리기 코드 전체가 이것이다.
+**지금 벽은 회색 사각형 하나다.** [game-combat.js:191](../prototypes/js/game-combat.js:191)의 그리기 코드 전체가 이것이다.
 
 ```js
 x.fillStyle = wall.on > 0 ? "#e3edf0" : "#7699a3";
@@ -342,7 +342,7 @@ x.strokeRect(...);
 
 **요구:** 직관적으로 알 수 있는 쉴드, 방패 모양 디자인.
 
-**이 기믹은 이미 구현되어 있다.** `bossShield.hits`가 타수를 세고([game-combat-physics.js:143](prototypes/js/game-combat-physics.js:143)), 한 대 맞을 때마다 1씩 줄며, 0이 되어야 보스 본체에 피해가 들어간다. 오망성은 이 껍질을 한 번에 걷어낸다([game-figure.js:193](prototypes/js/game-figure.js:193)).
+**이 기믹은 이미 구현되어 있다.** `bossShield.hits`가 타수를 세고([game-combat-physics.js:143](../prototypes/js/game-combat-physics.js:143)), 한 대 맞을 때마다 1씩 줄며, 0이 되어야 보스 본체에 피해가 들어간다. 오망성은 이 껍질을 한 번에 걷어낸다([game-figure.js:193](../prototypes/js/game-figure.js:193)).
 
 **보이지 않는 것은 규칙이 아니라 그림이다.** 지금 표현은 보스 둘레의 **동심원 여러 겹**이다.
 
@@ -379,7 +379,7 @@ for (let i = 0; i < bossShield.hits; i++) {
 
 ### 7-1. 기존 소품의 제작 방식 (그대로 따를 것)
 
-달토끼도 우주비행사도 **래스터 파일이 아니다.** [stella-ball-pixel-ui.js](prototypes/stella-ball-pixel-ui.js:365)의 `MAPS`에 ASCII 픽셀 맵과 팔레트로 적혀 있고, `px()`가 그것을 캔버스에 구워 dataURL로 돌려준다. 결과는 `spriteCache`에 남아 두 번 굽지 않는다.
+달토끼도 우주비행사도 **래스터 파일이 아니다.** [stella-ball-pixel-ui.js](../prototypes/stella-ball-pixel-ui.js:365)의 `MAPS`에 ASCII 픽셀 맵과 팔레트로 적혀 있고, `px()`가 그것을 캔버스에 구워 dataURL로 돌려준다. 결과는 `spriteCache`에 남아 두 번 굽지 않는다.
 
 ```js
 rabbitUp: [
@@ -410,16 +410,16 @@ rabbitUp: [
 
 | 소품          | 주기           | 수명  | 출처                                                          |
 | ------------- | -------------- | ----- | ------------------------------------------------------------- |
-| 새벽 유성     | 9초 고정       | 2.0초 | [stella-ball-dawn.js:396](prototypes/stella-ball-dawn.js:396) |
-| 조용한 유성   | 6.8~11초 랜덤  | 2.6초 | [sky-ambience.js:338](prototypes/sky-ambience.js:338)         |
-| 흘러가는 구름 | 5.2~7.4초 랜덤 | 28초  | [sky-ambience.js:322](prototypes/sky-ambience.js:322)         |
+| 새벽 유성     | 9초 고정       | 2.0초 | [stella-ball-dawn.js:396](../prototypes/stella-ball-dawn.js:396) |
+| 조용한 유성   | 6.8~11초 랜덤  | 2.6초 | [sky-ambience.js:338](../prototypes/sky-ambience.js:338)         |
+| 흘러가는 구름 | 5.2~7.4초 랜덤 | 28초  | [sky-ambience.js:322](../prototypes/sky-ambience.js:322)         |
 
 즉 "주기적으로 지나간다"의 배관은 이미 있다. 로켓·외계인·UFO는 이 자리에 스프라이트와 경로를 더하는 일이다.
 
 ### 7-3. 세션에 필요한 결정
 
 - **경로.** 유성은 대각선으로 떨어지고 구름은 가로로 흐른다. 로켓은 위로 오를지 가로지를지, UFO는 멈췄다 사라질지.
-- **상호작용 여부.** 달토끼는 누르면 절구질을 하고([stella-ball-dawn.js:305](prototypes/stella-ball-dawn.js:305)) 새벽 유성도 클릭을 받는다. 새 소품도 누를 수 있어야 하는지.
+- **상호작용 여부.** 달토끼는 누르면 절구질을 하고([stella-ball-dawn.js:305](../prototypes/stella-ball-dawn.js:305)) 새벽 유성도 클릭을 받는다. 새 소품도 누를 수 있어야 하는지.
 - **등장 빈도의 총량.** 이미 세 종류가 5~11초마다 도는 하늘에 세 종류를 더하면 "가끔 지나가서 반가운 것"이 "계속 뭔가 지나가는 것"이 된다. 종류별 주기를 어떻게 나눌지가 이 항목의 실제 디자인이다.
 - **전투 중에도 지나갈 것인가.** 지금 하늘 소품은 전투 중에도 계속 돈다. 판이 화면 대부분을 가리므로 여백에서만 보인다.
 
@@ -431,7 +431,7 @@ rabbitUp: [
 
 ### 8-1. 지금은 등장이라는 개념이 없다
 
-[setupBattle](prototypes/js/game-session.js:38)이 하는 일은 값을 채우고 화면을 켜는 것뿐이다. 보스 객체를 만들고, 범퍼와 기믹을 세우고, 이펙트 배열을 비우고, `startShot()`을 부르고, `run = true`, 오버레이 숨김 — 그리고 첫 프레임에 모든 것이 이미 제자리에 있다.
+[setupBattle](../prototypes/js/game-session.js:38)이 하는 일은 값을 채우고 화면을 켜는 것뿐이다. 보스 객체를 만들고, 범퍼와 기믹을 세우고, 이펙트 배열을 비우고, `startShot()`을 부르고, `run = true`, 오버레이 숨김 — 그리고 첫 프레임에 모든 것이 이미 제자리에 있다.
 
 | 대상    | 현재 등장                                    |
 | ------- | -------------------------------------------- |
@@ -446,7 +446,7 @@ rabbitUp: [
 
 세 가지가 이미 있어서 세션이 처음부터 만들 필요가 없다.
 
-- **보스 등장의 어휘는 인트로 시네마틱에 있다.** [outer-observer.js](prototypes/outer-observer.js)가 타이틀에서 이 생물을 30초간 움직이고, [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md)가 그 규격이다. 전투 입장이 그 어휘를 재사용하면 같은 존재로 읽힌다.
+- **보스 등장의 어휘는 인트로 시네마틱에 있다.** [outer-observer.js](../prototypes/outer-observer.js)가 타이틀에서 이 생물을 30초간 움직이고, [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md)가 그 규격이다. 전투 입장이 그 어휘를 재사용하면 같은 존재로 읽힌다.
 - **별지기는 액션 시트를 가지고 있다.** `assets/animations/`의 시트가 이미 걷기·대기를 가지고 있어, 등장은 새 그림이 아니라 기존 프레임의 배치 문제일 수 있다.
 - **`fieldFx`·`areaBursts`가 이미 연출 배관이다.** 새 시스템 없이 등장 연출을 캔버스에 태울 수 있다.
 
@@ -465,9 +465,9 @@ rabbitUp: [
 
 ### 9-1. 안내별과 일반 별빛을 가르는 것은 12px 십자 하나다
 
-안내별은 규칙상 중요한 물건이다. 첫 성공 패링이 **공짜 별빛 두 개**(오망성 쇼케이스에서는 네 개)를 켜서 첫 별자리를 완성시켜 준다([game-figure-recognition.js:133](prototypes/js/game-figure-recognition.js:133)). 스테이지 정의의 `guideStarCharges`가 그 횟수다.
+안내별은 규칙상 중요한 물건이다. 첫 성공 패링이 **공짜 별빛 두 개**(오망성 쇼케이스에서는 네 개)를 켜서 첫 별자리를 완성시켜 준다([game-figure-recognition.js:133](../prototypes/js/game-figure-recognition.js:133)). 스테이지 정의의 `guideStarCharges`가 그 횟수다.
 
-그런데 그리기는 일반 패링 노드와 **같은 함수**를 쓴다([game-figure.js:464](prototypes/js/game-figure.js:464)). `guide` 인자가 참일 때 더해지는 것이 전부 이것이다.
+그런데 그리기는 일반 패링 노드와 **같은 함수**를 쓴다([game-figure.js:464](../prototypes/js/game-figure.js:464)). `guide` 인자가 참일 때 더해지는 것이 전부 이것이다.
 
 ```js
 if (guide) {
@@ -495,7 +495,7 @@ if (guide) {
 
 안내별이 켜지는 것을 알리는 것은 팝업 한 줄("안내별 점등 · 별빛 N/7")과 토스트 한 줄뿐이다. 그리고 그 팝업은 [4절](#4-이펙트-강도)에서 다루는 일반 데미지 팝업과 같은 서체·같은 크기로 뜬다.
 
-또한 스테이지 목록에서 이 스테이지가 안내별을 준다는 사실은 "관측 잔광 ×N"이라는 **텍스트 배지**로만 표시된다([game-data.js:1278](prototypes/js/game-data.js:1278)).
+또한 스테이지 목록에서 이 스테이지가 안내별을 준다는 사실은 "관측 잔광 ×N"이라는 **텍스트 배지**로만 표시된다([game-data.js:1278](../prototypes/js/game-data.js:1278)).
 
 ### 9-3. 세션에 필요한 결정
 
@@ -511,14 +511,14 @@ if (guide) {
 
 ### 10-1. 지금 첫 실행이 지나가는 순서
 
-1. **외부 관측자 시네마틱** — [outer-observer.js](prototypes/outer-observer.js)가 타이틀 위에서 재생한다. 규격은 [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md) 5절에 비트 시트로 있다.
-2. **프롤로그 카드** — `showStoryIntro()`([game-onboarding.js:638](prototypes/js/game-onboarding.js:638))가 오버레이에 카드 한 장을 띄운다.
+1. **외부 관측자 시네마틱** — [outer-observer.js](../prototypes/outer-observer.js)가 타이틀 위에서 재생한다. 규격은 [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md) 5절에 비트 시트로 있다.
+2. **프롤로그 카드** — `showStoryIntro()`([game-onboarding.js:638](../prototypes/js/game-onboarding.js:638))가 오버레이에 카드 한 장을 띄운다.
 3. **타이틀 화면** — 「게임 시작!」과 「처음인가요? 1분 튜토리얼」.
 4. **온보딩 1-1**.
 
 ### 10-2. [A] 재생 정책이 「첫 실행」이 아니다
 
-시네마틱은 `sessionStorage`로 재생 여부를 기억한다([outer-observer.js:1130](prototypes/outer-observer.js:1130)). **탭을 새로 열면 초기화된다.** 즉 "첫 실행에만 본다"가 아니라 "탭마다 한 번 본다"이다. 반대로 같은 탭에서 다시 보고 싶어도 볼 방법이 없다.
+시네마틱은 `sessionStorage`로 재생 여부를 기억한다([outer-observer.js:1130](../prototypes/outer-observer.js:1130)). **탭을 새로 열면 초기화된다.** 즉 "첫 실행에만 본다"가 아니라 "탭마다 한 번 본다"이다. 반대로 같은 탭에서 다시 보고 싶어도 볼 방법이 없다.
 
 ### 10-3. [A] 볼 이유가 없게 만들어져 있다
 

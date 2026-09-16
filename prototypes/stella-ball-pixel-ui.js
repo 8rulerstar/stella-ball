@@ -4,7 +4,7 @@
  *   - DOM을 새로 그린 뒤(showMeta/showRoster 등)마다 StellaPixelUI.apply()를 다시 호출한다 (이미 처리된 요소는 건너뜀)
  *   - 배경 스프라이트: StellaPixelUI.sprite('rabbitUp') 등이 dataURL 반환
  *   - 스프라이트 시트 첫 프레임 크롭: StellaPixelUI.cropSheets('img[src*="-idle.png"]')
- * 규칙: 유닛 고유색·캔버스 판정색은 절대 바꾸지 않는다. 상세는 ../UI_KIT_DAWN.md */
+ * 규칙: 유닛 고유색·캔버스 판정색은 절대 바꾸지 않는다. 상세는 ../docs/UI_KIT_DAWN.md */
 (function () {
   const U = 3; // 셰이프 픽셀 유닛(px)
   const PAL = {

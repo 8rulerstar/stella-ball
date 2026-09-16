@@ -1,7 +1,7 @@
 /* Stella Ball — Dawn pass 통합 스크립트 (2026-08-12)
    1) 게임이 그리는 버튼/탭/칩에 data-pbtn을 자동 부여하고 StellaPixelUI로 픽셀 실루엣을 입힌다.
    2) body 뒤에 #dawn-sky 배경 데코(달+달토끼, 행성, 오로라, 유성, 우주비행사, 드래그 소품)를 만든다.
-   stella-ball-pixel-ui.js 다음에 로드한다. 전투 로직·판정색 불관여. 문서: ../UI_KIT_DAWN.md */
+   stella-ball-pixel-ui.js 다음에 로드한다. 전투 로직·판정색 불관여. 문서: ../docs/UI_KIT_DAWN.md */
 (function () {
   "use strict";
   var RM = false;

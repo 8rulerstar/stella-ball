@@ -6,14 +6,14 @@
 
 ## 먼저 읽을 문서
 
-1. [README.ko.md](README.ko.md) — 실행 링크와 5분 안의 로컬 실행 방법 (영문판은 [README.md](README.md))
+1. [README.ko.md](../README.ko.md) — 실행 링크와 5분 안의 로컬 실행 방법 (영문판은 [README.md](../README.md))
 2. [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — **현재 구현의 기준선**, 범위 원칙, 다음 우선순위
 3. [PROGRESS_REPORT.md](PROGRESS_REPORT.md) — 지금 플레이 가능한 내용, 알려진 위험, 다음 세션 시작점
-4. [prototypes/ARCHITECTURE.md](prototypes/ARCHITECTURE.md) — 코드 소유 경계와 스크립트 로드 순서
-5. [prototypes/MAINTENANCE.md](prototypes/MAINTENANCE.md) — 기믹·성능·검증 변경 절차와, 이미 한 번 당한 함정 목록
-6. [prototypes/TECH_DEBT.md](prototypes/TECH_DEBT.md) — 영향·위험·공수로 정렬한 유지보수 부채와 단계별 해소 계획
-7. [prototypes/ADR-001-RUNTIME-MODULES.md](prototypes/ADR-001-RUNTIME-MODULES.md), [ADR-002-STABLE-SUBOWNERS.md](prototypes/ADR-002-STABLE-SUBOWNERS.md) — 런타임 훅·모듈 계약과 대형 파일 분리의 결정 근거
-8. [prototypes/ONBOARDING-E2E.md](prototypes/ONBOARDING-E2E.md) — 첫 세션 브라우저 회귀 경로, 단언 범위, 테스트 전용 체력 픽스처와 의도적 공백
+4. [prototypes/ARCHITECTURE.md](../prototypes/ARCHITECTURE.md) — 코드 소유 경계와 스크립트 로드 순서
+5. [prototypes/MAINTENANCE.md](../prototypes/MAINTENANCE.md) — 기믹·성능·검증 변경 절차와, 이미 한 번 당한 함정 목록
+6. [prototypes/TECH_DEBT.md](../prototypes/TECH_DEBT.md) — 영향·위험·공수로 정렬한 유지보수 부채와 단계별 해소 계획
+7. [prototypes/ADR-001-RUNTIME-MODULES.md](../prototypes/ADR-001-RUNTIME-MODULES.md), [ADR-002-STABLE-SUBOWNERS.md](../prototypes/ADR-002-STABLE-SUBOWNERS.md) — 런타임 훅·모듈 계약과 대형 파일 분리의 결정 근거
+8. [prototypes/ONBOARDING-E2E.md](../prototypes/ONBOARDING-E2E.md) — 첫 세션 브라우저 회귀 경로, 단언 범위, 테스트 전용 체력 픽스처와 의도적 공백
 9. [UI_KIT_DAWN.md](UI_KIT_DAWN.md) — `data-pbtn` 버튼 킷과 배경 데코 규칙의 기준. **팔레트 값은 폐기됐다** — 2026-08-18에 v4 「Starlight Ignition」 보이드 바이올렛으로 회전했다(`INTRO_REDESIGN_HANDOFF.md` §1-1). 색을 볼 때는 이 문서의 표가 아니라 `prototypes/stella-ball-theme.css`의 `--magenta / --violet / --void-deep / --panel-line / --ink* / --cool-*` 토큰을 본다. **이 저장소는 낡은 팔레트 표를 믿어 두 번 당했다**(`UI_REDESIGN_HANDOFF.md` Ink & Brass v2도 같은 방식으로 폐기됐다)
 
 ## 밤샘 세션 인수인계
@@ -33,12 +33,12 @@
 ## 에셋과 외부 연동 문서
 
 - [VFX_POLISH_SPEC.md](VFX_POLISH_SPEC.md): 타이틀·소환·패링·별빛 노드 네 건의 연출 요구서와 발주자 결정 (2026-08-16 main 반입)
-- [AGENTS.md](AGENTS.md): 런타임 실행과 검증 절차의 권위 문서. 작업 시작 전에 먼저 읽는다
+- [AGENTS.md](../AGENTS.md): 런타임 실행과 검증 절차의 권위 문서. 작업 시작 전에 먼저 읽는다
 - `CLAUDE.md`: 세션 규칙 — 문서 순서, 이연 아트 반입, 테마 계약. **저장소에 없다** — `9f17900`에서 의도적으로 빼고 `.gitignore`에 넣은 로컬 전용 파일이라 새로 클론하면 이 파일이 없다. 여기 링크를 걸지 않는 이유다. 규칙이 팀에 공유되어야 하는 것이면 이 문서나 `AGENTS.md`로 옮긴다.
 - [CROSS_PLATFORM.md](CROSS_PLATFORM.md): 윈도우·macOS 직접 실행 계약
 - [FIGURE_ART_SPEC_6_7.md](FIGURE_ART_SPEC_6_7.md): 6·7점 별자리 실루엣의 좌표 규약
 - [ASSET_BACKLOG.md](ASSET_BACKLOG.md): 기능 작업 중 발견한 신규 디자인·애니메이션·SFX 필요사항의 단일 접수처
-- [ASSET_PLAN.md](ASSET_PLAN.md), [assets/ASSET_MANIFEST.json](assets/ASSET_MANIFEST.json), [assets/ATTRIBUTION.md](assets/ATTRIBUTION.md): 실제 반입 에셋의 계획·목록·출처
+- [ASSET_PLAN.md](ASSET_PLAN.md), [assets/ASSET_MANIFEST.json](../assets/ASSET_MANIFEST.json), [assets/ATTRIBUTION.md](../assets/ATTRIBUTION.md): 실제 반입 에셋의 계획·목록·출처
 - [FIGURE_ART_SPEC.md](FIGURE_ART_SPEC.md): 무한 훈련장 전용 별자리 도형·실루엣의 좌표 규약과 현재 제약
 - [INTRO_REDESIGN_HANDOFF.md](INTRO_REDESIGN_HANDOFF.md): 「별빛 점화」 타이틀 재설계 인수인계. 지금 화면의 `ig-*` 마크업과 그 규칙이 여기서 나왔다 — 옛 요소(`.title-stars`·`.title-constellation`)를 걷어낸 이유도 함께 있다
 - [OUTER_OBSERVER_INTRO_SPEC.md](OUTER_OBSERVER_INTRO_SPEC.md): 데스크톱 양옆 관측창 밖의 심연, 외부의 관측자, 인트로 컷신의 디자인 요구서와 구현 상태
