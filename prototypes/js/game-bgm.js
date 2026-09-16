@@ -11,9 +11,9 @@
    HTMLAudioElement로 틀고 loop를 준다 — 캔버스 물리·봇과 무관한 표현 레이어다. */
 (function () {
   const TRACKS = {
-    // ambient(title-ambient.mp3)와 hub(bgm_boss1)는 이제 씬에 배정되지 않는다
-    // — 아래 bgmToScene 의 마지막 보루(fallback)로만 남는다.
-    ambient: "../assets/audio/bgm/title-ambient.mp3",
+    // hub(bgm_boss1)는 이제 씬에 배정되지 않는다 — 아래 bgmToScene 의
+    // 마지막 보루(fallback)로만 남는다. 예전의 ambient(title-ambient.mp3)는
+    // 출처가 확인되지 않아 공개본에서 빠졌고, fallback 은 title 로 옮겼다.
     title: "../assets/audio/bgm/title.ogg",
     hub: "../assets/audio/bgm/hub.ogg",
     battle: "../assets/audio/bgm/battle.ogg",
@@ -101,7 +101,7 @@
   window.bgmToScene = function (scene) {
     desiredScene = scene;
     if (!unlocked) return;
-    playTrack(SCENE_TRACK[scene] || "ambient");
+    playTrack(SCENE_TRACK[scene] || "title");
   };
   // syncAudio 가 부른다. 곡이 실제로 소리 내는 중이면 합성 앰비언트를 눌러 둔다.
   window.bgmSynthDuck = function () {
