@@ -6,7 +6,7 @@
 
 ## 먼저 읽을 문서
 
-1. [README.md](README.md) — 실행 링크와 5분 안의 로컬 실행 방법
+1. [README.ko.md](README.ko.md) — 실행 링크와 5분 안의 로컬 실행 방법 (영문판은 [README.md](README.md))
 2. [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) — **현재 구현의 기준선**, 범위 원칙, 다음 우선순위
 3. [PROGRESS_REPORT.md](PROGRESS_REPORT.md) — 지금 플레이 가능한 내용, 알려진 위험, 다음 세션 시작점
 4. [prototypes/ARCHITECTURE.md](prototypes/ARCHITECTURE.md) — 코드 소유 경계와 스크립트 로드 순서

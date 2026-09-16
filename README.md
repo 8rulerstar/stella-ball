@@ -1,57 +1,93 @@
 # Stella Ball
 
-탑다운 당구 전장에서 유성과 3명의 별지기를 함께 굴려 별빛을 만들고, **그 별빛을 이번 조준에 쓸지 별자리로 남길지** 매 샷 고르며 공허 거상을 공략하는 브라우저 액션 전략 프로토타입입니다.
+English · [한국어](README.ko.md)
 
-> **공개 저장소 안내** — 이 저장소는 Stella Ball의 공개본이다. 코드는 MIT(`LICENSE`)이고,
-> `assets/` 의 아트·음악은 각자의 조건을 따른다(`assets/ATTRIBUTION.md`). 재배포가 허용되지 않는
-> 외부 에셋 팩 파일은 작업 트리와 git 기록 양쪽에서 제거했으며, 런타임이 참조하지 않던 파일들이라
-> 게임은 그대로 실행된다.
+A browser action-strategy prototype. On a top-down billiards battlefield you roll a meteor
+together with three starkeepers to make starlight, and every shot you choose whether that
+starlight goes into **this aim** or stays behind as a **constellation** — while you work your
+way through the void colossi.
 
-## 플레이
+> **About this public repository** — this is the public build of Stella Ball. The code is MIT
+> (`LICENSE`); the art and music under `assets/` keep their own terms (`assets/ATTRIBUTION.md`).
+> Files from third-party asset packs that do not permit redistribution were removed from both
+> the working tree and the git history. The runtime never referenced them, so the game still
+> runs as it did.
 
-GitHub Pages 배포 후 아래 경로에서 로그인·설치 없이 실행됩니다.
+## Play
+
+No login, no install — it runs straight from GitHub Pages:
 
 `https://8rulerstar.github.io/stella-ball/prototypes/prism-breakers.html`
 
-1. 메인 화면에서 현재 임무와 별자리 진행도를 확인하고 `별자리 관측 시작`을 누릅니다.
-2. 시작 별지기 샛별·미리내·윤슬로 파티를 편성합니다. 일반 스테이지 클리어 보상 골드로 `별빛 소환`을 하면 나머지 별지기를 한 명씩 확정 해금할 수 있습니다. 같은 소환 화면의 `무기` 탭에서는 골드로 `무기 소환`을 합니다 — 아무 별지기나 끼우는 일반 무기와 낮은 확률로 나오는 전용 무기가 있고, `무기고` 탭에서 별지기마다 끼우면 정산 공격 피해가 오릅니다. **전용 무기를 임자 별지기에게 끼우면 위력이 크게 오릅니다.**
-3. **조준** — **모든 전투의 첫 발은 유성을 아래로 당겼다 놓아 쏩니다.** 그 뒤로는 유성이 멈추면 판에 선 별지기와 남은 별빛 중 **셋 이상**을 좌클릭으로 고르고 `Space` 또는 화면 오른쪽 세기 게이지 아래의 **발사 버튼**으로 쏩니다. 방향은 고른 노드들의 무게중심이고 세기는 벌어진 정도라, **넓게 벌려 고를수록 세게 나갑니다.** 빈 곳을 누르면 반대편으로 쏘고, 우클릭·`Backspace`는 전부 무르기입니다. 고를 별빛이 셋이 안 되는 판에서도 드래그 발사로 돌아갑니다. 세기는 판 위 숫자가 아니라 화면 오른쪽 세로 게이지가 보여 줍니다.
-4. **공명과 각성** — 유성이 별지기와 부딪히면 **자동으로** 공명해 그 자리에 별빛이 남습니다. 실제로 굴러간 별지기는 깨어나 멈춘 자리에서 고유 정산 공격을 합니다. 비행 중 좌·우클릭은 발사당 합산 한 번만 궤적을 꺾습니다.
-5. **별자리** — 조준에 **쓰지 않은** 별빛이 셋 이상 남으면 샷이 끝날 때 3~7점 별자리가 되어 8종 중 하나의 능력을 냅니다(포위 피해·관통·약점 표식·껍질 파괴·비행·전원 각성·삼연격·유성 +1). 고른 별빛은 조준으로, 남긴 별빛은 별자리로 — 한 번의 선택이 두 결과를 냅니다.
-6. 전투 중에는 `ESC` 키나 전장 좌측 상단의 정지 버튼으로 언제든 멈추고 설정을 열 수 있습니다.
+1. The main screen shows your current mission and constellation progress. Press
+   `별자리 관측 시작` (Start observing) to begin.
+2. Form a party from the starting starkeepers — Saetbyeol, Mirinae and Yunseul. Gold from
+   clearing a normal stage pays for `별빛 소환` (starlight summon), which unlocks one of the
+   remaining starkeepers outright. The `무기` (weapon) tab of the same screen summons weapons
+   with gold: generic ones fit any starkeeper, and rarer signature weapons drop at a low rate.
+   Equip them per starkeeper in the `무기고` (armoury) tab to raise settle-attack damage.
+   **A signature weapon on its rightful owner is far stronger.**
+3. **Aiming** — **the first shot of every battle is a pull-and-release of the meteor downward.**
+   After that, once the meteor stops, left-click **three or more** of the starkeepers on the
+   board and the starlight left on it, then fire with `Space` or the fire button under the
+   power gauge on the right. Direction is the centroid of the nodes you picked and power is how
+   far apart they are, so **the wider you spread your picks, the harder the shot.** Clicking an
+   empty spot fires the opposite way; right-click or `Backspace` clears the selection. On boards
+   with fewer than three pickable lights, it falls back to drag-firing. Power is shown by the
+   vertical gauge on the right, not by a number on the board.
+4. **Resonance and awakening** — when the meteor hits a starkeeper it resonates **automatically**
+   and leaves starlight at that spot. A starkeeper that actually rolled wakes up and performs its
+   own settle attack where it came to rest. During flight, left/right clicks bend the trajectory
+   once per shot in total.
+5. **Constellations** — if three or more pieces of starlight are left **unused** by your aim, they
+   form a 3–7 point constellation at the end of the shot and trigger one of eight abilities:
+   splash damage, piercing, weak-point marking, shell breaking, flight, awaken-everyone,
+   triple-strike, or meteor +1. Picked starlight becomes aim, left starlight becomes a
+   constellation — one choice, two outcomes.
+6. During battle, `ESC` or the pause button at the top left stops the game and opens settings.
 
-마우스 없이도 완주됩니다 — 좌우 화살표로 노드를 옮기고 `Enter`로 고르거나 취소하며, `F`로 반대편, `Backspace`로 전부 취소, `Space`로 발사합니다.
+**The whole game is playable without a mouse**: arrow keys move between nodes, `Enter` picks or
+cancels one, `F` fires the opposite way, `Backspace` clears everything, and `Space` fires.
 
-첫 실행에서는 루나의 관측 수업(카드 13장)이 먼저 열립니다. 모든 카드는 버튼을 눌러야 넘어가고 각 규칙은 처음 발동하기 전에 먼저 설명하며, 마지막 카드는 설명이 아니라 목표를 말하고(「거상을 눕히러 간다」), 그 뒤가 직접 처치하는 실전입니다. 수업 상대는 최종 보스가 아니라 훈련장 허수아비입니다.
+On a first run, Luna's observation lesson (13 cards) opens first. Every card waits for a button
+press, each rule is explained before it can first trigger, and the last card states a goal rather
+than a rule ("Let's go put the colossus down") — what follows is the real fight. The lesson
+opponent is a training-ground dummy, not the final boss.
 
-## 개발 과정과 검증 기록
+## Development process and verification records
 
-- [문서 안내 / 읽는 순서](DOCUMENTATION_INDEX.md)
-- [게임 전략](GAME_DIRECTION.md)
-- [아트 에셋 계획](ASSET_PLAN.md)
-- [디자인·에셋 제작 백로그](ASSET_BACKLOG.md)
-- [에셋 매니페스트](assets/ASSET_MANIFEST.json)
-- [에셋 출처](assets/ATTRIBUTION.md)
-- [지속 인수인계 메모](PROJECT_CONTEXT.md)
-- [최신 진행 보고 / 다음 세션 인수인계](PROGRESS_REPORT.md)
-- [런타임 구조와 파일별 수정 위치](prototypes/ARCHITECTURE.md)
-- [새벽 관측소 UI 킷 (현행 테마 기준)](UI_KIT_DAWN.md)
-- [Codex 협업 기록 / 제출 원본](CODEX_COLLABORATION.md)
-- [일일 개발 로그](DEVLOG.md)
-- [개발 이력 및 검증 운영 규칙](EVIDENCE_PROTOCOL.md)
+These documents are written in Korean.
 
-`main` 브랜치에 푸시될 때마다 GitHub Actions가 정적 검증 및 기능 표식 검사를 실행하고, 커밋 SHA와 UTC 시각을 담은 검증 리포트를 Actions artifact로 보관합니다. GitHub Pages 배포도 같은 커밋에서 실행됩니다.
+- [Documentation index / reading order](DOCUMENTATION_INDEX.md)
+- [Game direction](GAME_DIRECTION.md)
+- [Art asset plan](ASSET_PLAN.md)
+- [Design and asset production backlog](ASSET_BACKLOG.md)
+- [Asset manifest](assets/ASSET_MANIFEST.json)
+- [Asset attribution](assets/ATTRIBUTION.md)
+- [Running handover notes](PROJECT_CONTEXT.md)
+- [Latest progress report / next-session handover](PROGRESS_REPORT.md)
+- [Runtime architecture and where to change what](prototypes/ARCHITECTURE.md)
+- [Dawn Observatory UI kit (current theme)](UI_KIT_DAWN.md)
+- [Codex collaboration log / submission original](CODEX_COLLABORATION.md)
+- [Daily devlog](DEVLOG.md)
+- [Development history and verification rules](EVIDENCE_PROTOCOL.md)
 
-## 한 번에 실행
+On every push to `main`, GitHub Actions runs the static checks and the feature-marker checks, and
+keeps a verification report — carrying the commit SHA and a UTC timestamp — as an Actions
+artifact. The GitHub Pages deploy runs from the same commit.
 
-- **macOS**: `RUN_STELLA_BALL.command`를 더블클릭합니다.
-- **Windows**: `PLAY_WINDOWS.cmd`를 더블클릭합니다.
+## One-click run
 
-모두 설치나 서버 실행 없이 기본 브라우저로 Stella Ball을 엽니다. 저장소 루트의 `index.html`도 같은 게임으로 바로 이동합니다.
+- **macOS**: double-click `RUN_STELLA_BALL.command`.
+- **Windows**: double-click `PLAY_WINDOWS.cmd`.
 
-## 개발용 로컬 확인
+Both open Stella Ball in your default browser with no install and no server to start. The
+`index.html` at the repository root also jumps straight to the same game.
 
-macOS와 Windows 모두 Node.js 20 이상을 준비합니다. 이 프로젝트는 외부 npm 의존성이 없어 `npm install`이 필요하지 않습니다.
+## Local development
+
+You need Node.js 20 or newer on macOS or Windows. The project has no external npm dependencies,
+so `npm install` is not needed.
 
 ```sh
 git pull --ff-only
@@ -59,10 +95,22 @@ npm run check
 npm run serve
 ```
 
-그 뒤 `http://127.0.0.1:4173/`을 엽니다. `npm run check`은 정적 검증과 런타임 계약 검사를 함께 실행합니다. `npm run format:check`은 포맷 검사, `npm run format`은 포맷 적용 명령입니다.
+Then open `http://127.0.0.1:4173/`. `npm run check` runs the static checks together with the
+runtime contract checks. `npm run format:check` checks formatting and `npm run format` applies it.
 
-Windows·macOS·Linux에서 같은 저장소를 이어 작업하는 규칙과 운영체제별 시작 명령은 [크로스플랫폼 작업 안내](CROSS_PLATFORM.md)를 따릅니다.
+For the rules on continuing the same repository across Windows, macOS and Linux — and the
+per-OS start commands — follow the [cross-platform guide](CROSS_PLATFORM.md).
 
-## 범위 원칙
+## Scope
 
-현재는 코어 플레이 프로토타입입니다. 캠페인은 양자리(3)부터 북두칠성(7)까지 7개 별자리 월드, 총 34스테이지이며 각 월드의 왼쪽 첫 노드부터 순차적으로 열립니다. 최종 `8-1`이 그 뒤에 하나 붙습니다. `1-1`은 첫 실행 온보딩이고, 양자리의 `1-2`·`1-3`은 첫 공명에 안내별 둘을 보태 한 번의 3점 별자리를 보장합니다. 그 외 전투는 보스 체력·시작 배치·기믹으로 난도를 만듭니다. 파티는 처음부터 3인이며, 일반 스테이지 클리어는 고정 100골드를 주고, `별빛 소환`은 100골드로 미보유 별지기 한 명을 확정 해금합니다. 유료 재화·확률형 중복 뽑기·실시간 멀티플레이는 구현하지 않습니다. `무한 훈련장`은 기록 제출용이 아닌 물리·능력 QA용 전장입니다. 허브 지도 아래 버튼으로 들어가고, 기믹 없는 빈 판에 거상이 정중앙에 서며 파티가 4명입니다.
+This is a core-play prototype. The campaign runs from Aries (3 points) to the Big Dipper
+(7 points) — seven constellation worlds, 34 stages in total — and each world opens from its
+leftmost node onward, with a final `8-1` after them. `1-1` is the first-run onboarding, and
+Aries' `1-2` / `1-3` add two guide stars to the first resonance so that one 3-point constellation
+is guaranteed. Every other battle builds difficulty out of boss HP, starting layout and gimmicks.
+The party is three from the start; clearing a normal stage always pays 100 gold, and
+`별빛 소환` spends 100 gold to unlock one starkeeper you do not own yet. Paid currency, gacha
+duplicates and real-time multiplayer are not implemented. The `무한 훈련장` (endless training
+ground) is a QA battlefield for physics and abilities, not a score board: enter it from the
+button under the hub map, and it puts the colossus dead centre on an empty board with a party
+of four.
