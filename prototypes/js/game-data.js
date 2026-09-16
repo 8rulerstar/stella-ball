@@ -1929,8 +1929,6 @@ function buildBossArtSpec(slug) {
 const staticArt = {
   orb: "../assets/original/prism-orb.svg",
   weak: "../assets/library/boss2/void-colossus-weakgem.png",
-  rock1: "../assets/terrain/rock-01.png",
-  rock4: "../assets/terrain/rock-04.png",
   wispIdle: "../assets/enemies/void-wisp-idle.png",
   wispHit: "../assets/enemies/void-wisp-hit.png",
   /* 2026-08-22 작화 세션 납품(DOT_ART_HANDOFF §4). 경로 상수를 여기 두는
